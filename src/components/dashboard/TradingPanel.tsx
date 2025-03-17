@@ -4,18 +4,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowDownUp } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface TradingPanelProps {
   symbol: string;
+  isDemoMode?: boolean;
 }
 
-const TradingPanel = ({ symbol }: TradingPanelProps) => {
+const TradingPanel = ({ symbol, isDemoMode = false }: TradingPanelProps) => {
   const [amount, setAmount] = useState("");
   const [price, setPrice] = useState("");
   const [orderType, setOrderType] = useState("market");
+  const { toast } = useToast();
   
-  // Mock current prices
+  // Current prices
   const currentPrices = {
     BTCUSD: 65432.21,
     ETHUSD: 3245.67,
@@ -41,11 +43,79 @@ const TradingPanel = ({ symbol }: TradingPanelProps) => {
     return (amountVal * priceVal).toFixed(2);
   };
   
+  const handleBuy = () => {
+    const total = calculateTotal();
+    
+    if (!amount || parseFloat(amount) <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid amount to buy.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    toast({
+      title: `${isDemoMode ? "Demo" : ""} Buy Order Executed`,
+      description: `Successfully bought ${amount} ${symbol.substring(0, 3)} for $${total}`,
+      variant: "default",
+    });
+    
+    setAmount("");
+    setPrice("");
+  };
+  
+  const handleSell = () => {
+    const total = calculateTotal();
+    
+    if (!amount || parseFloat(amount) <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid amount to sell.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    toast({
+      title: `${isDemoMode ? "Demo" : ""} Sell Order Executed`,
+      description: `Successfully sold ${amount} ${symbol.substring(0, 3)} for $${total}`,
+      variant: "default",
+    });
+    
+    setAmount("");
+    setPrice("");
+  };
+  
+  const handleMaxAmount = () => {
+    // In a real app, this would fetch the user's available balance
+    // For demo purposes, we'll set a predefined amount
+    if (isDemoMode) {
+      const demoMaxAmount = {
+        BTCUSD: "0.15",
+        ETHUSD: "3.08",
+        SOLUSD: "65.60",
+        BNBUSD: "16.51",
+        ADAUSD: "16949.15",
+        DOTUSD: "1146.78",
+      };
+      
+      setAmount(demoMaxAmount[symbol as keyof typeof demoMaxAmount] || "0");
+    } else {
+      setAmount("0");
+      toast({
+        title: "No Funds Available",
+        description: "Please deposit funds to start trading.",
+        variant: "default",
+      });
+    }
+  };
+  
   return (
     <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white h-full">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>Trade {symbol}</span>
+          <span>{isDemoMode ? "Demo Trade" : "Trade"} {symbol}</span>
           <span className="text-lg">${currentPrice.toLocaleString()}</span>
         </CardTitle>
       </CardHeader>
@@ -90,7 +160,7 @@ const TradingPanel = ({ symbol }: TradingPanelProps) => {
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-white/70">Amount</span>
-                <Button variant="ghost" size="sm" className="h-5 px-1 text-xs text-accent">
+                <Button variant="ghost" size="sm" className="h-5 px-1 text-xs text-accent" onClick={handleMaxAmount}>
                   Max
                 </Button>
               </div>
@@ -147,13 +217,19 @@ const TradingPanel = ({ symbol }: TradingPanelProps) => {
             </div>
             
             <TabsContent value="buy" className="mt-4 p-0">
-              <Button className="w-full bg-green-500 hover:bg-green-600 text-white">
+              <Button 
+                className="w-full bg-green-500 hover:bg-green-600 text-white"
+                onClick={handleBuy}
+              >
                 Buy {symbol.substring(0, 3)}
               </Button>
             </TabsContent>
             
             <TabsContent value="sell" className="mt-4 p-0">
-              <Button className="w-full bg-red-500 hover:bg-red-600 text-white">
+              <Button 
+                className="w-full bg-red-500 hover:bg-red-600 text-white"
+                onClick={handleSell}
+              >
                 Sell {symbol.substring(0, 3)}
               </Button>
             </TabsContent>

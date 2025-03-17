@@ -1,19 +1,29 @@
 
 import { useState } from "react";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import DashboardLayout, { useDashboardContext } from "@/components/dashboard/DashboardLayout";
 import AccountOverview from "@/components/dashboard/AccountOverview";
 import MarketChart from "@/components/dashboard/MarketChart";
 import AssetsList from "@/components/dashboard/AssetsList";
 import TransactionHistory from "@/components/dashboard/TransactionHistory";
 import TradingPanel from "@/components/dashboard/TradingPanel";
 import AutomatedTrading from "@/components/dashboard/AutomatedTrading";
+import DemoModeToggle from "@/components/dashboard/DemoModeToggle";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
 
 const Dashboard = () => {
   const [selectedSymbol, setSelectedSymbol] = useState("BTCUSD");
+  const { isDemoMode } = useDashboardContext();
   
   return (
     <DashboardLayout>
+      {/* Demo Mode Toggle Card */}
+      <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
+        <CardContent className="pt-6">
+          <DemoModeToggle />
+        </CardContent>
+      </Card>
+      
       {/* Dashboard Tabs */}
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="w-full justify-start overflow-x-auto bg-background/40 border border-white/10 p-1 mb-6">
@@ -34,7 +44,7 @@ const Dashboard = () => {
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-6">
           {/* Account Overview Cards */}
-          <AccountOverview />
+          <AccountOverview isDemoMode={isDemoMode} />
           
           {/* Market Chart and Assets Grid */}
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
@@ -42,12 +52,12 @@ const Dashboard = () => {
               <MarketChart selectedSymbol={selectedSymbol} onSymbolChange={setSelectedSymbol} />
             </div>
             <div className="xl:col-span-1">
-              <AssetsList />
+              <AssetsList isDemoMode={isDemoMode} />
             </div>
           </div>
           
           {/* Recent Transactions */}
-          <TransactionHistory />
+          <TransactionHistory isDemoMode={isDemoMode} />
         </TabsContent>
         
         {/* Trading Tab */}
@@ -57,14 +67,14 @@ const Dashboard = () => {
               <MarketChart selectedSymbol={selectedSymbol} onSymbolChange={setSelectedSymbol} />
             </div>
             <div className="xl:col-span-1">
-              <TradingPanel symbol={selectedSymbol} />
+              <TradingPanel symbol={selectedSymbol} isDemoMode={isDemoMode} />
             </div>
           </div>
         </TabsContent>
         
         {/* Bot Trading Tab */}
         <TabsContent value="bots">
-          <AutomatedTrading />
+          <AutomatedTrading isDemoMode={isDemoMode} />
         </TabsContent>
         
         {/* Transaction History Tab */}
@@ -72,7 +82,7 @@ const Dashboard = () => {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-white">Transaction History</h2>
           </div>
-          <TransactionHistory />
+          <TransactionHistory isDemoMode={isDemoMode} />
         </TabsContent>
       </Tabs>
     </DashboardLayout>
