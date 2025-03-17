@@ -14,22 +14,38 @@ const Index = () => {
     const heroChartContainer = document.getElementById("tradingview-widget");
     if (heroChartContainer) {
       heroChartContainer.innerHTML = "";
-      const chart = document.createElement("div");
-      chart.id = "tradingview_btcusd";
-      heroChartContainer.appendChild(chart);
       
-      const chartInstance = new TradingViewChart({
-        symbol: "BTCUSD",
-        theme: "dark",
-        height: 400,
-        interval: "1D"
-      });
+      // Create a container for the TradingView widget
+      const chartContainer = document.createElement("div");
+      chartContainer.id = "tradingview_btcusd";
+      chartContainer.style.width = "100%";
+      chartContainer.style.height = "400px";
+      heroChartContainer.appendChild(chartContainer);
       
-      // Add the chart component to the DOM
-      const chartElement = chartInstance.render();
-      if (chartElement) {
-        heroChartContainer.appendChild(chartElement);
-      }
+      // Load TradingView script
+      const script = document.createElement("script");
+      script.src = "https://s3.tradingview.com/tv.js";
+      script.async = true;
+      script.onload = () => {
+        if (window.TradingView) {
+          new window.TradingView.widget({
+            autosize: true,
+            symbol: "BTCUSD",
+            interval: "1D",
+            timezone: "Etc/UTC",
+            theme: "dark",
+            style: "candlestick",
+            locale: "en",
+            toolbar_bg: "#f1f3f6",
+            enable_publishing: false,
+            hide_top_toolbar: false,
+            allow_symbol_change: true,
+            container_id: "tradingview_btcusd",
+          });
+        }
+      };
+      
+      heroChartContainer.appendChild(script);
     }
   }, []);
 
