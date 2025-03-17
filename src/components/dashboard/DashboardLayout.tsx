@@ -22,17 +22,17 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   ];
   
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex h-screen bg-background overflow-hidden">
       {/* Sidebar */}
       <DashboardSidebar navItems={navItems} />
       
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <DashboardHeader />
         
         {/* Dashboard Content */}
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 overflow-auto p-4 md:p-6">
           <div className="max-w-7xl mx-auto space-y-6">
             {children}
           </div>
