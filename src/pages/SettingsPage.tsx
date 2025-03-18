@@ -16,6 +16,23 @@ import {
   Upload, Database, Smartphone
 } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { useQuery } from "@tanstack/react-query"; // Added import for react-query
+
+
+const getMultipleRealTimePrices = async (symbols) => {
+  // Placeholder: Replace with actual API call to CoinGecko or similar
+  const prices = {};
+  for (const symbol of symbols) {
+    //Simulate API call. Replace with actual API call
+    let price = 0;
+    if (symbol === "bitcoin") price = 28000;
+    if (symbol === "ethereum") price = 1800;
+    if (symbol === "tether") price = 1;
+    prices[symbol] = {price};
+  }
+  return prices;
+};
+
 
 const SettingsPage = () => {
   const { isDemoMode } = useDashboardContext();
@@ -39,6 +56,38 @@ const SettingsPage = () => {
   const handlePhoneChange = (e) => {
     profileForm.setValue("phone", e.target.value);
   };
+
+  const symbols = ["bitcoin", "ethereum", "tether"];
+  const { data: prices } = useQuery({
+    queryKey: ['payment-prices'],
+    queryFn: () => getMultipleRealTimePrices(symbols),
+    refetchInterval: 30000
+  });
+
+  const paymentMethods = [
+    { 
+      id: 1, 
+      name: "Bitcoin", 
+      symbol: "BTC", 
+      balance: "0.45", 
+      value: prices?.bitcoin ? `$${(0.45 * prices.bitcoin.price).toLocaleString()}` : "Loading..." 
+    },
+    { 
+      id: 2, 
+      name: "Ethereum", 
+      symbol: "ETH", 
+      balance: "2.5", 
+      value: prices?.ethereum ? `$${(2.5 * prices.ethereum.price).toLocaleString()}` : "Loading..." 
+    },
+    { 
+      id: 3, 
+      name: "USDT", 
+      symbol: "USDT", 
+      balance: "1000", 
+      value: prices?.tether ? `$${(1000 * prices.tether.price).toLocaleString()}` : "Loading..."
+    }
+  ];
+
 
   return (
     <DashboardLayout>
@@ -374,7 +423,7 @@ const SettingsPage = () => {
                             </div>
                             <div>
                               <p className="font-medium">M-Pesa</p>
-                              <p className="text-sm text-white/60">••••4578</p>
+                              <p className="text-sm text-white/60">Balance: {paymentMethods[0].value}</p>
                             </div>
                           </div>
                           <div className="text-xs bg-green-500/20 text-green-500 px-2 py-1 rounded-full">
@@ -397,7 +446,7 @@ const SettingsPage = () => {
                             </div>
                             <div>
                               <p className="font-medium">Bank Account</p>
-                              <p className="text-sm text-white/60">••••3691</p>
+                              <p className="text-sm text-white/60">Balance: {paymentMethods[1].value}</p>
                             </div>
                           </div>
                         </div>
@@ -417,7 +466,7 @@ const SettingsPage = () => {
                             </div>
                             <div>
                               <p className="font-medium">Airtel Money</p>
-                              <p className="text-sm text-white/60">••••7832</p>
+                              <p className="text-sm text-white/60">Balance: {paymentMethods[2].value}</p>
                             </div>
                           </div>
                         </div>
