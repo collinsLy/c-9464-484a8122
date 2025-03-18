@@ -17,25 +17,28 @@ const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
     const fetchOrderBook = async () => {
       try {
         const data = await binanceService.getOrderBook(symbol);
-        setOrderBook({
-          bids: data.bids.slice(0, 5).map(([price, amount]: string[]) => ({
-            price: parseFloat(price),
-            amount: parseFloat(amount),
-            total: parseFloat(price) * parseFloat(amount)
-          })),
-          asks: data.asks.slice(0, 5).map(([price, amount]: string[]) => ({
-            price: parseFloat(price),
-            amount: parseFloat(amount),
-            total: parseFloat(price) * parseFloat(amount)
-          }))
-        });
+        if (data && data.bids && data.asks) {
+          setOrderBook({
+            bids: data.bids.slice(0, 5).map(([price, amount]: string[]) => ({
+              price: parseFloat(price),
+              amount: parseFloat(amount),
+              total: parseFloat(price) * parseFloat(amount)
+            })),
+            asks: data.asks.slice(0, 5).map(([price, amount]: string[]) => ({
+              price: parseFloat(price),
+              amount: parseFloat(amount),
+              total: parseFloat(price) * parseFloat(amount)
+            }))
+          });
+        }
       } catch (error) {
         console.error('Error fetching order book:', error);
       }
     };
 
     fetchOrderBook();
-    const interval = setInterval(fetchOrderBook, 5000);
+    // Update more frequently for real-time data
+    const interval = setInterval(fetchOrderBook, 1000);
     return () => clearInterval(interval);
   }, [symbol]);
 

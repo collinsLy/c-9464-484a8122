@@ -5,12 +5,11 @@ class BinanceService {
   private client: any;
 
   constructor() {
-    const apiKey = process.env.BINANCE_API_KEY;
-    const apiSecret = process.env.BINANCE_SECRET_KEY;
+    const apiKey = 'ELvBEdZYMEld58KFbScOnbFsa2gsA5t2i8vCubTl8CyOSUWXxBjqMk2WOz6sAwgm';
+    const apiSecret = 'uOTAEIJ44lTuXYUJK5KiW1rpT0lYFdBVkNLqihNmDpJdovGabLgV8ZjHamd6ifW9';
     this.client = new Spot(apiKey, apiSecret);
   }
 
-  // Market Data
   async getPrice(symbol: string) {
     try {
       const response = await this.client.tickerPrice(symbol);
@@ -31,7 +30,26 @@ class BinanceService {
     }
   }
 
-  // Trading
+  async getKlines(symbol: string, interval: string) {
+    try {
+      const response = await this.client.klines(symbol, interval);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching klines:', error);
+      throw error;
+    }
+  }
+
+  async get24hrTicker(symbol: string) {
+    try {
+      const response = await this.client.ticker24hr(symbol);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching 24hr ticker:', error);
+      throw error;
+    }
+  }
+
   async placeBuyOrder(symbol: string, quantity: number, price?: number) {
     try {
       const params = price 
