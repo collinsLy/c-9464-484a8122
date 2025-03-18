@@ -12,8 +12,8 @@ const Navbar = () => {
   const [openAccount, setOpenAccount] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 bg-background/80 backdrop-blur-lg">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
+    <nav className="fixed top-0 left-0 right-0 z-50 px-3 sm:px-6 py-3 sm:py-4 bg-background/80 backdrop-blur-lg">
+      <div className="w-full max-w-7xl mx-auto flex items-center justify-between">
         <div className="text-2xl font-bold text-white">Vertex Trading</div>
         
         {/* Desktop Navigation */}

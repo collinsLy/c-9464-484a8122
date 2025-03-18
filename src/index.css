@@ -26,3 +26,15 @@
 .hover-lift {
   @apply transition-transform duration-300 hover:-translate-y-1;
 }
+
+.mobile-container {
+  @apply px-4 md:px-6 w-full max-w-screen-xl mx-auto;
+}
+
+.mobile-text {
+  @apply text-sm md:text-base;
+}
+
+.mobile-heading {
+  @apply text-xl md:text-2xl lg:text-3xl;
+}
