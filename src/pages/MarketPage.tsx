@@ -6,8 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDashboardContext } from '@/components/dashboard/DashboardLayout';
 import { useQuery } from '@tanstack/react-query';
 import { getTopCoins } from '@/lib/api';
-import { Card } from '@/components/ui/card';
-import { CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 
 const MarketPage = () => {
