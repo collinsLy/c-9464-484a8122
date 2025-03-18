@@ -11,22 +11,35 @@ interface BinanceOrderBookProps {
 const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
   const [orderType, setOrderType] = useState<"market" | "limit">("market");
   
-  // Sample order book data - in a real app, this would come from Binance API
-  const bids = [
-    { price: 65430.25, amount: 0.45, total: 29443.61 },
-    { price: 65429.80, amount: 0.32, total: 20937.54 },
-    { price: 65428.50, amount: 0.75, total: 49071.38 },
-    { price: 65427.20, amount: 0.18, total: 11776.90 },
-    { price: 65426.90, amount: 0.92, total: 60192.75 },
-  ];
-  
-  const asks = [
-    { price: 65432.40, amount: 0.28, total: 18321.07 },
-    { price: 65433.10, amount: 0.54, total: 35333.87 },
-    { price: 65434.50, amount: 0.39, total: 25519.46 },
-    { price: 65435.80, amount: 0.81, total: 53003.00 },
-    { price: 65436.20, amount: 0.63, total: 41224.81 },
-  ];
+  const [orderBook, setOrderBook] = useState({ bids: [], asks: [] });
+
+  useEffect(() => {
+    const fetchOrderBook = async () => {
+      try {
+        const data = await binanceService.getOrderBook(symbol);
+        setOrderBook({
+          bids: data.bids.slice(0, 5).map(([price, amount]: string[]) => ({
+            price: parseFloat(price),
+            amount: parseFloat(amount),
+            total: parseFloat(price) * parseFloat(amount)
+          })),
+          asks: data.asks.slice(0, 5).map(([price, amount]: string[]) => ({
+            price: parseFloat(price),
+            amount: parseFloat(amount),
+            total: parseFloat(price) * parseFloat(amount)
+          }))
+        });
+      } catch (error) {
+        console.error('Error fetching order book:', error);
+      }
+    };
+
+    fetchOrderBook();
+    const interval = setInterval(fetchOrderBook, 5000);
+    return () => clearInterval(interval);
+  }, [symbol]);
+
+  const { bids, asks } = orderBook;
   
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
