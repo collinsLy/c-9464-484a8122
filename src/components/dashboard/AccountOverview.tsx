@@ -99,9 +99,11 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
                 className="ml-2 text-white border-white/20 hover:bg-white/10"
                 onClick={() => {
                   // Reset demo balance to initial 10,000
-                  localStorage.setItem('demoBalance', '10000');
+                  toast({
+                    title: "Demo Reset",
+                    description: "Your demo balance has been reset to $10,000",
+                  });
                   window.location.reload();
-                  toast.success("Demo funds reset to $10,000");
                 }}
               >
                 <RefreshCw className="w-4 h-4 mr-1" />
