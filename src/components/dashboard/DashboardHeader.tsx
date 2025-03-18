@@ -2,13 +2,15 @@ import { LogOut, Bell, User, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDashboardContext } from "./DashboardLayout";
 import { signOut } from "firebase/auth"; // Import signOut from Firebase
+import { auth } from './firebase'; // Assuming auth is initialized here
+
 
 const DashboardHeader = () => {
   const { isDemoMode } = useDashboardContext();
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await signOut(auth);
       window.location.href = '/';
     } catch (error) {
       console.error("Error signing out:", error);
