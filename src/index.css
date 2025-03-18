@@ -20,9 +20,9 @@
 }
 
 .glass-effect {
-  @apply bg-white/5 backdrop-blur-lg border border-white/10;
+  @apply bg-white/5 backdrop-blur-lg border border-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.17)];
 }
 
 .hover-lift {
-  @apply transition-transform duration-300 hover:-translate-y-1;
+  @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_32px_0_rgba(31,38,135,0.37)];
 }
