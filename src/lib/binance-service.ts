@@ -1,4 +1,3 @@
-
 import { Spot } from '@binance/connector';
 
 class BinanceService {
@@ -22,11 +21,17 @@ class BinanceService {
 
   async getOrderBook(symbol: string) {
     try {
-      const response = await this.client.depth(symbol);
-      return response.data;
+      // Convert symbol format from BTCUSD to BTCUSDT for Binance API
+      const binanceSymbol = symbol.replace('USD', 'USDT');
+      const response = await fetch(`https://api.binance.com/api/v3/depth?symbol=${binanceSymbol}&limit=5`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return await response.json();
     } catch (error) {
       console.error('Error fetching order book:', error);
-      throw error;
+      // Return empty data structure on error
+      return { bids: [], asks: [] };
     }
   }
 

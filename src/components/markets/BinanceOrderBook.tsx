@@ -8,6 +8,8 @@ interface BinanceOrderBookProps {
   symbol: string;
 }
 
+import { binanceService } from '@/lib/binance-service';
+
 const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
   const [orderType, setOrderType] = useState<"market" | "limit">("market");
   
