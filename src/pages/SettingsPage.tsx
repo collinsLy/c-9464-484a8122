@@ -75,17 +75,39 @@ const SettingsPage = () => {
                 <div className="flex flex-col md:flex-row md:items-center gap-6">
                   <div className="flex flex-col items-center gap-2">
                     <Avatar className="h-24 w-24">
-                      <AvatarImage src="https://github.com/shadcn.png" />
+                      <AvatarImage src={profileForm.getValues().avatarUrl || "https://github.com/shadcn.png"} />
                       <AvatarFallback>JD</AvatarFallback>
                     </Avatar>
-                    <Button variant="outline" size="sm" className="gap-2">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      id="avatar-upload"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            profileForm.setValue('avatarUrl', reader.result as string);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="gap-2"
+                      onClick={() => document.getElementById('avatar-upload')?.click()}
+                      type="button"
+                    >
                       <Upload className="h-4 w-4" />
                       Change
                     </Button>
                   </div>
 
                   <div className="flex-1 space-y-4">
-                    <form className="space-y-4">
+                    <form className="space-y-4" onSubmit={profileForm.handleSubmit(onSubmit)}>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="name">Full Name</Label>
@@ -130,13 +152,9 @@ const SettingsPage = () => {
                           </Select>
                         </div>
                       </div>
-                      <Button className="bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34]">
-                        Save Changes
-                      </Button>
-                    <Button 
+                      <Button 
                         type="submit" 
                         className="bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34]"
-                        onClick={profileForm.handleSubmit(onSubmit)}
                       >
                         Save Changes
                       </Button>
