@@ -62,8 +62,8 @@ const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
         <CardContent>
           <div className="space-y-1">
             <div className="text-xs text-gray-400">Current {symbol} Price</div>
-            <div className="text-2xl font-bold">$65,431.25</div>
-            <div className="text-xs text-green-400">+$1,243.80 (1.94%)</div>
+            <div className="text-2xl font-bold">${price}</div>
+            <div className="text-xs text-green-400">${priceChange} ({priceChangePercent})</div>
           </div>
           
           <div className="mt-6">
