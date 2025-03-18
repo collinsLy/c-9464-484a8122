@@ -13,6 +13,18 @@ import TradingViewChart from "@/components/TradingViewChart";
 const DemoPage = () => {
   const [selectedSymbol, setSelectedSymbol] = useState("BTCUSD");
   const [selectedTimeframe, setSelectedTimeframe] = useState("1D");
+  const [demoBalance, setDemoBalance] = useState(() => 
+    parseFloat(localStorage.getItem('demoBalance') || '10000')
+  );
+
+  // Update balance when localStorage changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setDemoBalance(parseFloat(localStorage.getItem('demoBalance') || '10000'));
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
   
   // Fetch top coins for market data
   const { data: topCoins, isLoading } = useQuery({
@@ -32,7 +44,7 @@ const DemoPage = () => {
           </CardHeader>
           <CardContent>
             <div className="text-lg font-bold mb-4">
-              Demo Balance: $10,000.00
+              Demo Balance: ${parseFloat(localStorage.getItem('demoBalance') || '10000').toFixed(2)}
             </div>
             <p className="text-white/70">
               Use this demo environment to practice trading strategies and test our platform features without risking real funds.
