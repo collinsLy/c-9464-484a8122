@@ -175,7 +175,6 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
             <Button 
               className="w-full"
               onClick={() => toast({
-                title: isDemoMode ? "Demo Mode" : "Create Strategy",
                 description: isDemoMode 
                   ? "Custom strategies are available in demo mode for practice."
                   : "Creating custom strategies requires a funded account.",
@@ -202,7 +201,6 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
                 variant="outline" 
                 className="text-white border-white/20 hover:bg-white/10"
                 onClick={() => toast({
-                  title: "Strategy Library",
                   description: "Browse our collection of pre-built trading strategies.",
                 })}
               >
@@ -210,7 +208,6 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
               </Button>
               <Button
                 onClick={() => toast({
-                  title: isDemoMode ? "Demo Strategy" : "New Strategy",
                   description: isDemoMode 
                     ? "Create a practice strategy with virtual funds."
                     : "Create a new trading strategy for your bots.",

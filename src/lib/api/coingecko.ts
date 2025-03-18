@@ -50,7 +50,10 @@ export interface CoinDetailData {
     price_change_percentage_30d: number;
     high_24h: { [key: string]: number };
     low_24h: { [key: string]: number };
+    ath: { [key: string]: number };
+    ath_date: { [key: string]: string };
   };
+  market_cap_rank: number;
   community_data: {
     twitter_followers: number;
     reddit_subscribers: number;

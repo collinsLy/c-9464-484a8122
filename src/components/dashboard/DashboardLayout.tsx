@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, createContext, useContext } from "react";
 import DashboardHeader from "./DashboardHeader";
 import DashboardSidebar from "./DashboardSidebar";
 import { 
@@ -7,11 +7,36 @@ import {
   TrendingUp, History, Settings, PlayCircle
 } from "lucide-react";
 
+// Create a context for dashboard state
+interface DashboardContextType {
+  isDemoMode: boolean;
+  toggleDemoMode: () => void;
+}
+
+const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
+
+// Create a hook to use the dashboard context
+export const useDashboardContext = () => {
+  const context = useContext(DashboardContext);
+  if (context === undefined) {
+    throw new Error("useDashboardContext must be used within a DashboardProvider");
+  }
+  return context;
+};
+
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+  // State for demo mode
+  const [isDemoMode, setIsDemoMode] = useState(false);
+  
+  // Function to toggle demo mode
+  const toggleDemoMode = () => {
+    setIsDemoMode(prev => !prev);
+  };
+  
   // Navigation items for the sidebar with proper paths
   const navItems = [
     { icon: Home, label: "Dashboard", id: "dashboard", path: "/dashboard" },
@@ -26,23 +51,25 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   ];
   
   return (
-    <div className="flex h-screen bg-background">
-      {/* Sidebar */}
-      <DashboardSidebar navItems={navItems} />
-      
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <DashboardHeader />
+    <DashboardContext.Provider value={{ isDemoMode, toggleDemoMode }}>
+      <div className="flex h-screen bg-background">
+        {/* Sidebar */}
+        <DashboardSidebar navItems={navItems} />
         
-        {/* Dashboard Content */}
-        <main className="flex-1 overflow-auto p-4 md:p-6">
-          <div className="max-w-7xl mx-auto space-y-6">
-            {children}
-          </div>
-        </main>
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Header */}
+          <DashboardHeader />
+          
+          {/* Dashboard Content */}
+          <main className="flex-1 overflow-auto p-4 md:p-6">
+            <div className="max-w-7xl mx-auto space-y-6">
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
+    </DashboardContext.Provider>
   );
 };
 
