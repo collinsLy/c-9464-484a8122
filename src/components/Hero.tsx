@@ -4,10 +4,20 @@ import { useCountdown } from '../hooks/useCountdown';
 const CountdownDisplay = () => {
   const timeLeft = useCountdown(30);
   
+  const TimeUnit = ({ value, label }: { value: number; label: string }) => (
+    <div className="flex flex-col items-center bg-white/5 rounded-lg px-3 py-2">
+      <span className="text-xl font-bold text-white">{value.toString().padStart(2, '0')}</span>
+      <span className="text-xs text-white/60">{label}</span>
+    </div>
+  );
+
   return (
-    <span className="text-white/60 text-sm">
-      Ends in: {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
-    </span>
+    <div className="flex gap-2">
+      <TimeUnit value={timeLeft.days} label="DAYS" />
+      <TimeUnit value={timeLeft.hours} label="HRS" />
+      <TimeUnit value={timeLeft.minutes} label="MIN" />
+      <TimeUnit value={timeLeft.seconds} label="SEC" />
+    </div>
   );
 };
 
@@ -50,13 +60,16 @@ const Hero = () => {
             </DialogContent>
           </Dialog>
           
-          <div className="bg-accent/10 p-6 rounded-xl mb-8 border border-accent/20">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="bg-accent/20 text-accent px-2 py-1 rounded text-sm font-medium">Limited Time Offer</span>
-              <CountdownDisplay />
+          <div className="bg-gradient-to-r from-accent/20 to-accent/5 p-8 rounded-2xl mb-8 border border-accent/20 backdrop-blur-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <span className="bg-accent px-3 py-1.5 rounded-full text-sm font-semibold text-white shadow-lg shadow-accent/20">Limited Time Offer</span>
+                <CountdownDisplay />
+              </div>
+              <h3 className="text-2xl font-bold text-white">New User Welcome Bonus</h3>
+              <p className="text-white/70 text-lg">Deposit $15 or more and receive a <span className="text-accent font-semibold">$5 welcome bonus</span> instantly!</p>
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">New User Welcome Bonus</h3>
-            <p className="text-white/70">Deposit $15 or more and receive a $5 welcome bonus instantly!</p>
           </div>
           
           <div className="grid grid-cols-3 gap-8 pt-8">
