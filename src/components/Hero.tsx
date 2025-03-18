@@ -1,92 +1,77 @@
 
-import { useState, useEffect } from 'react'
-import { ArrowRight } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { Button } from "@/components/ui/button";
+import { TrendingUp } from "lucide-react";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
+import OpenAccountForm from "./OpenAccountForm";
 
-interface TimeLeft {
-  days: number
-  hours: number
-  minutes: number
-  seconds: number
-}
-
-export default function Hero() {
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>({
-    days: 30,
-    hours: 0,
-    minutes: 0,
-    seconds: 0
-  })
-
-  useEffect(() => {
-    const targetDate = new Date()
-    targetDate.setDate(targetDate.getDate() + 30)
-
-    const timer = setInterval(() => {
-      const now = new Date()
-      const difference = targetDate.getTime() - now.getTime()
-
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24))
-      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60))
-      const seconds = Math.floor((difference % (1000 * 60)) / 1000)
-
-      setTimeLeft({ days, hours, minutes, seconds })
-
-      if (difference < 0) {
-        clearInterval(timer)
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 })
-      }
-    }, 1000)
-
-    return () => clearInterval(timer)
-  }, [])
-
-  const TimerBlock = ({ value, label }: { value: number; label: string }) => (
-    <div className="glass-effect flex flex-col items-center px-4 py-2 rounded-lg hover-lift">
-      <span className="text-3xl font-bold bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
-        {value.toString().padStart(2, '0')}
-      </span>
-      <span className="text-xs text-white/70 uppercase tracking-wider">{label}</span>
-    </div>
-  )
-
+const Hero = () => {
+  const [openAccount, setOpenAccount] = useState(false);
+  
   return (
-    <div className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-blue-600/20" />
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDYwIEwgNjAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMC4yIi8+PHBhdGggZD0iTSA2MCAwIEwgNjAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMC4yIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-[0.15]" />
-      
-      <div className="relative z-10 container mx-auto px-4">
-        <div className="text-center max-w-3xl mx-auto space-y-8">
-          <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-white via-white/90 to-white/70 bg-clip-text text-transparent">
-            The Future of Trading
+    <div className="min-h-screen flex items-center justify-center px-4 pt-20 bg-background">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div className="space-y-8">
+          <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight">
+            Trade Crypto with <span className="text-[#F2FF44]">Confidence</span>
           </h1>
-          
-          <p className="text-xl text-white/80">
-            Experience the next generation of algorithmic trading with our cutting-edge platform
+          <p className="text-lg text-white/80 max-w-xl">
+            Advanced trading platform with real-time charts, competitive fees, and powerful tools for both beginners and professional traders.
           </p>
-
-          <div className="flex justify-center gap-4">
-            {[
-              { value: timeLeft.days, label: 'Days' },
-              { value: timeLeft.hours, label: 'Hours' },
-              { value: timeLeft.minutes, label: 'Minutes' },
-              { value: timeLeft.seconds, label: 'Seconds' }
-            ].map((item, index) => (
-              <TimerBlock key={index} value={item.value} label={item.label} />
-            ))}
+          
+          <Dialog open={openAccount} onOpenChange={setOpenAccount}>
+            <DialogTrigger asChild>
+              <Button className="px-8 py-6 text-lg bg-white text-black hover:bg-white/90 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" />
+                Start Trading Now
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Open Trading Account</DialogTitle>
+                <DialogDescription>
+                  Get started with Vertex Trading in minutes
+                </DialogDescription>
+              </DialogHeader>
+              <OpenAccountForm onSuccess={() => setOpenAccount(false)} />
+            </DialogContent>
+          </Dialog>
+          
+          <div className="bg-accent/10 p-6 rounded-xl mb-8 border border-accent/20">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="bg-accent/20 text-accent px-2 py-1 rounded text-sm font-medium">Limited Time Offer</span>
+              <span className="text-white/60 text-sm">Ends in 30 days</span>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">New User Welcome Bonus</h3>
+            <p className="text-white/70">Deposit $15 or more and receive a $5 welcome bonus instantly!</p>
           </div>
-
-          <div>
-            <button className="glass-effect px-8 py-4 rounded-full text-lg font-medium 
-              bg-gradient-to-r from-purple-500/20 to-blue-500/20 hover:from-purple-500/30 
-              hover:to-blue-500/30 transition-all duration-300 hover-lift group">
-              Get Started
-              <ArrowRight className="inline-block ml-2 group-hover:translate-x-1 transition-transform" />
-            </button>
+          
+          <div className="grid grid-cols-3 gap-8 pt-8">
+            <div>
+              <div className="text-3xl font-bold text-white">100+</div>
+              <div className="text-white/60">Crypto Assets</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-white">24/7</div>
+              <div className="text-white/60">Support</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-white">0.1%</div>
+              <div className="text-white/60">Trading Fee</div>
+            </div>
           </div>
+        </div>
+        <div className="relative">
+          <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl">
+            <div className="tradingview-widget-container h-[400px]" id="tradingview-widget">
+              {/* TradingView widget will be initialized here */}
+            </div>
+          </div>
+          <div className="absolute -bottom-4 -right-4 w-72 h-72 bg-accent/20 rounded-full blur-3xl"></div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
+
+export default Hero;
