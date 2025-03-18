@@ -1,9 +1,9 @@
-
 import { useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MarketChart from "@/components/dashboard/MarketChart";
+import TradingPanel from "@/components/dashboard/TradingPanel";
 import MarketOverview from "@/components/markets/MarketOverview";
 import BinanceOrderBook from "@/components/markets/BinanceOrderBook";
 import CoinGeckoData from "@/components/markets/CoinGeckoData";
@@ -15,6 +15,7 @@ const MarketPage = () => {
   const { isDemoMode } = useDashboardContext();
 
   const handleSymbolChange = (symbol: string) => {
+    // Filter out unwanted symbols
     const allowedSymbols = ["BTCUSD", "SOLUSD", "BNBUSD", "ADAUSD", "DOTUSD"];
     if (allowedSymbols.includes(symbol)) {
       setSelectedSymbol(symbol);
@@ -31,6 +32,7 @@ const MarketPage = () => {
         <h1 className="text-3xl font-bold text-white">Market Overview</h1>
 
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          {/* Main chart and trading panel */}
           <div className="xl:col-span-2 space-y-6">
             <MarketChart 
               selectedSymbol={selectedSymbol} 
@@ -40,11 +42,13 @@ const MarketPage = () => {
             />
           </div>
 
+          {/* Trading panel */}
           <div className="xl:col-span-1">
-            <BinanceOrderBook symbol={selectedSymbol} />
+            <TradingPanel symbol={selectedSymbol} isDemoMode={isDemoMode} />
           </div>
         </div>
 
+        {/* Market data tabs */}
         <Tabs defaultValue="overview" className="w-full">
           <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white mb-6">
             <TabsTrigger value="overview" className="text-white data-[state=active]:bg-accent">
