@@ -49,7 +49,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold">
-            ${isDemoMode ? "10,000.00" : "0.00"}
+            ${isDemoMode ? parseFloat(localStorage.getItem('demoBalance') || '10000').toFixed(2) : "0.00"}
           </div>
           {!isDemoMode ? (
             <div className="flex items-center mt-1 text-sm">
@@ -71,7 +71,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold">
-            ${isDemoMode ? "10,000.00" : "0.00"}
+            ${isDemoMode ? parseFloat(localStorage.getItem('demoBalance') || '10000').toFixed(2) : "0.00"}
           </div>
           <div className="flex mt-2">
             <Button 
