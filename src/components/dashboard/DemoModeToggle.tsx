@@ -16,7 +16,7 @@ const DemoModeToggle = () => {
       description: isDemoMode 
         ? "You are now trading with your real balance." 
         : "You are now practicing with $10,000 virtual funds.",
-      variant: isDemoMode ? "default" : "accent",
+      variant: "default",
     });
   };
 
@@ -25,7 +25,7 @@ const DemoModeToggle = () => {
       toast({
         title: "Demo Account Reset",
         description: "Your demo balance has been reset to $10,000.",
-        variant: "accent",
+        variant: "default",
       });
     }
   };
