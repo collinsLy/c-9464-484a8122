@@ -31,16 +31,16 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     setIsDemoMode((prev) => !prev);
   };
   
-  // Navigation items for the sidebar
+  // Navigation items for the sidebar with proper paths
   const navItems = [
-    { icon: Home, label: "Dashboard", id: "dashboard" },
-    { icon: LineChart, label: "Markets", id: "markets" },
-    { icon: BarChart3, label: "Trading", id: "trading" },
-    { icon: Wallet, label: "Assets", id: "assets" },
-    { icon: CreditCard, label: "Deposit/Withdraw", id: "funding" },
-    { icon: TrendingUp, label: "Bots & Strategies", id: "bots" },
-    { icon: History, label: "History", id: "history" },
-    { icon: Settings, label: "Settings", id: "settings" },
+    { icon: Home, label: "Dashboard", id: "dashboard", path: "/dashboard" },
+    { icon: LineChart, label: "Markets", id: "markets", path: "/market" },
+    { icon: BarChart3, label: "Trading", id: "trading", path: "/dashboard?tab=trading" },
+    { icon: Wallet, label: "Assets", id: "assets", path: "/assets" },
+    { icon: CreditCard, label: "Deposit/Withdraw", id: "funding", path: "/dashboard?tab=funding" },
+    { icon: TrendingUp, label: "Bots & Strategies", id: "bots", path: "/dashboard?tab=bots" },
+    { icon: History, label: "History", id: "history", path: "/dashboard?tab=history" },
+    { icon: Settings, label: "Settings", id: "settings", path: "/settings" },
   ];
   
   return (

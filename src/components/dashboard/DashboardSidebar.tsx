@@ -3,13 +3,17 @@ import { useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useDashboardContext } from "./DashboardLayout";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import { 
+  ChevronRight, ChevronLeft, Home, LineChart, BarChart3, 
+  Wallet, CreditCard, TrendingUp, History, Settings 
+} from "lucide-react";
 import { useState } from "react";
 
 interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   id: string;
+  path: string;
 }
 
 interface SidebarProps {
@@ -23,12 +27,20 @@ const DashboardSidebar = ({ navItems }: SidebarProps) => {
 
   // Extract the active tab from the location pathname or query parameters
   const getActiveTab = () => {
-    const params = new URLSearchParams(location.search);
-    const tab = params.get('tab');
+    const pathname = location.pathname;
     
-    if (tab) return tab;
+    if (pathname === '/dashboard') {
+      const params = new URLSearchParams(location.search);
+      const tab = params.get('tab');
+      return tab || "dashboard";
+    }
     
-    // Default to dashboard if no tab is specified
+    // Check if we're on a specific page
+    if (pathname === '/market') return 'markets';
+    if (pathname === '/assets') return 'assets';
+    if (pathname === '/settings') return 'settings';
+    
+    // Default to dashboard if no match is found
     return "dashboard";
   };
   
@@ -66,7 +78,7 @@ const DashboardSidebar = ({ navItems }: SidebarProps) => {
               collapsed && "justify-center px-0"
             )}
           >
-            <Link to={`/dashboard${item.id !== "dashboard" ? `?tab=${item.id}` : ""}`}>
+            <Link to={item.path}>
               <item.icon className={cn("h-5 w-5", collapsed ? "" : "mr-3")} />
               {!collapsed && <span>{item.label}</span>}
             </Link>

@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import MarketPage from "./pages/MarketPage";
+import SettingsPage from "./pages/SettingsPage";
+import AssetsPage from "./pages/AssetsPage";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +22,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/market" element={<MarketPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/assets" element={<AssetsPage />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
