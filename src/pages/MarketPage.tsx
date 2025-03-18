@@ -15,7 +15,11 @@ const MarketPage = () => {
   const { isDemoMode } = useDashboardContext();
 
   const handleSymbolChange = (symbol: string) => {
-    setSelectedSymbol(symbol);
+    // Filter out unwanted symbols
+    const allowedSymbols = ["BTCUSD", "SOLUSD", "BNBUSD", "ADAUSD", "DOTUSD"];
+    if (allowedSymbols.includes(symbol)) {
+      setSelectedSymbol(symbol);
+    }
   };
 
   const handleTimeframeChange = (timeframe: string) => {
