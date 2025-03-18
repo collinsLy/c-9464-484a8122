@@ -1,14 +1,13 @@
 
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import MarketChart from "@/components/dashboard/MarketChart";
-import TradingPanel from "@/components/dashboard/TradingPanel";
-import { getTopCoins } from "@/lib/api/coingecko";
-import DemoBotGrid from "@/components/demo/DemoBotGrid";
-import TradingViewChart from "@/components/TradingViewChart";
+import React, { useState, useEffect } from 'react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useQuery } from '@tanstack/react-query';
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+import { MarketChart } from "@/components/market/MarketChart";
+import { TradingPanel } from "@/components/trading/TradingPanel";
+import { DemoBotGrid } from "@/components/demo/DemoBotGrid";
+import { getTopCoins } from "@/lib/api";
 
 const DemoPage = () => {
   const [selectedSymbol, setSelectedSymbol] = useState("BTCUSD");
