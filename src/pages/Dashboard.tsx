@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import DashboardLayout, { useDashboardContext } from "@/components/dashboard/DashboardLayout";
@@ -13,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const Dashboard = () => {
   const [selectedSymbol, setSelectedSymbol] = useState("BTCUSD");
+  const [selectedTimeframe, setSelectedTimeframe] = useState("1D");
   const { isDemoMode } = useDashboardContext();
   const location = useLocation();
   const navigate = useNavigate();
@@ -52,7 +52,12 @@ const Dashboard = () => {
             {/* Market Chart and Assets Grid */}
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
               <div className="xl:col-span-3">
-                <MarketChart selectedSymbol={selectedSymbol} onSymbolChange={setSelectedSymbol} />
+                <MarketChart 
+                  selectedSymbol={selectedSymbol} 
+                  selectedTimeframe={selectedTimeframe}
+                  onSymbolChange={setSelectedSymbol}
+                  onTimeframeChange={setSelectedTimeframe}
+                />
               </div>
               <div className="xl:col-span-1">
                 <AssetsList isDemoMode={isDemoMode} />
@@ -68,7 +73,12 @@ const Dashboard = () => {
         return (
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
             <div className="xl:col-span-3">
-              <MarketChart selectedSymbol={selectedSymbol} onSymbolChange={setSelectedSymbol} />
+              <MarketChart 
+                selectedSymbol={selectedSymbol} 
+                selectedTimeframe={selectedTimeframe}
+                onSymbolChange={setSelectedSymbol}
+                onTimeframeChange={setSelectedTimeframe}
+              />
             </div>
             <div className="xl:col-span-1">
               <TradingPanel symbol={selectedSymbol} isDemoMode={isDemoMode} />
