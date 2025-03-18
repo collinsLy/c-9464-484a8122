@@ -10,7 +10,7 @@ interface TimeLeft {
   seconds: number
 }
 
-export function Hero() {
+export default function Hero() {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({
     days: 30,
     hours: 0,
