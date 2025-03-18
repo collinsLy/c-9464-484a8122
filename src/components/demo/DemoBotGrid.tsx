@@ -74,7 +74,7 @@ const DemoBotGrid = () => {
     },
   ];
 
-  const handleTradeClick = (bot: Bot) => {
+  const handleTradeClick = async (bot: Bot) => {
     // Check if user has sufficient balance for the Standard bot
     if (bot.id === "standard" && demoBalance < 20) {
       toast.error("Insufficient Funds", {
@@ -82,10 +82,37 @@ const DemoBotGrid = () => {
       });
       return;
     }
-    
+
     toast.success(`${bot.type} Bot Activated`, {
       description: `Your ${bot.type} bot is now trading ${bot.pair} with demo funds.`,
     });
+
+    // Simulate 2 second delay for trade execution
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    // 70% win rate simulation
+    const isWin = Math.random() < 0.7;
+    const amount = bot.price;
+    const profitMultiplier = isWin ? 1.8 : -1.0; // 80% profit on win, full loss on lose
+    const profitLoss = amount * profitMultiplier;
+
+    // Update demo balance
+    const currentBalance = parseFloat(localStorage.getItem('demoBalance') || '10000');
+    const newBalance = currentBalance + profitLoss;
+    localStorage.setItem('demoBalance', newBalance.toString());
+
+    if (isWin) {
+      toast.success(`Trade Won!`, {
+        description: `Profit: $${profitLoss.toFixed(2)}. New Balance: $${newBalance.toFixed(2)}`,
+      });
+    } else {
+      toast.error(`Trade Lost`, {
+        description: `Loss: $${Math.abs(profitLoss).toFixed(2)}. New Balance: $${newBalance.toFixed(2)}`,
+      });
+    }
+
+    // Force UI refresh
+    window.dispatchEvent(new Event('storage'));
   };
 
   return (
