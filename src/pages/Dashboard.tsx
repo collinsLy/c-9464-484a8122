@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
@@ -8,6 +7,7 @@ import AssetsList from "@/components/dashboard/AssetsList";
 import TransactionHistory from "@/components/dashboard/TransactionHistory";
 import TradingPanel from "@/components/dashboard/TradingPanel";
 import AutomatedTrading from "@/components/dashboard/AutomatedTrading";
+import BinanceOrderBook from "@/components/markets/BinanceOrderBook";
 import { Card, CardContent } from "@/components/ui/card";
 
 const Dashboard = () => {
@@ -15,30 +15,30 @@ const Dashboard = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState("1D");
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   // Determine which tab should be active based on URL
   const getActiveTab = () => {
     const params = new URLSearchParams(location.search);
     const tab = params.get('tab');
     return tab || "dashboard";
   };
-  
+
   const activeTab = getActiveTab();
-  
+
   // Handle tab changes
   useEffect(() => {
     // If the URL doesn't have a tab parameter but we're not on the dashboard tab,
     // update the URL to include the active tab
     const params = new URLSearchParams(location.search);
     const currentTab = params.get('tab');
-    
+
     if (activeTab !== "dashboard" && currentTab !== activeTab) {
       navigate(`/dashboard?tab=${activeTab}`, { replace: true });
     } else if (activeTab === "dashboard" && currentTab) {
       navigate('/dashboard', { replace: true });
     }
   }, [activeTab, location.search, navigate]);
-  
+
   // Render different content based on the active tab
   const renderContent = () => {
     switch (activeTab) {
@@ -47,7 +47,7 @@ const Dashboard = () => {
           <>
             {/* Account Overview Cards */}
             <AccountOverview />
-            
+
             {/* Market Chart and Assets Grid */}
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
               <div className="xl:col-span-3">
@@ -62,12 +62,12 @@ const Dashboard = () => {
                 <AssetsList />
               </div>
             </div>
-            
+
             {/* Recent Transactions */}
             <TransactionHistory />
           </>
         );
-      
+
       case "trading":
         return (
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
@@ -84,10 +84,10 @@ const Dashboard = () => {
             </div>
           </div>
         );
-      
+
       case "bots":
         return <AutomatedTrading />;
-      
+
       case "history":
         return (
           <>
@@ -95,13 +95,13 @@ const Dashboard = () => {
             <TransactionHistory />
           </>
         );
-        
+
       case "funding":
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-white">Deposit & Withdraw</h2>
             <p className="text-white/70">Manage your funds securely.</p>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card className="bg-background/40 backdrop-blur-lg border-white/10">
                 <CardContent className="pt-6">
@@ -134,7 +134,7 @@ const Dashboard = () => {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-background/40 backdrop-blur-lg border-white/10">
                 <CardContent className="pt-6">
                   <h3 className="text-xl font-bold text-white mb-4">Withdraw Funds</h3>
@@ -162,7 +162,7 @@ const Dashboard = () => {
             </div>
           </div>
         );
-        
+
       // Add additional cases for other tabs as needed
       default:
         return (
@@ -173,7 +173,7 @@ const Dashboard = () => {
         );
     }
   };
-  
+
   return (
     <DashboardLayout>
       {/* Dynamic Content based on active tab */}
