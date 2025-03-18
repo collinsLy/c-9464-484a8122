@@ -2,6 +2,7 @@
 import { LogOut, Bell, User, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDashboardContext } from "./DashboardLayout";
+import { handleSignOut } from "@/lib/auth";
 
 const DashboardHeader = () => {
   const { isDemoMode } = useDashboardContext();

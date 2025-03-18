@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,7 +24,7 @@ interface SignInFormProps {
 
 const SignInForm = ({ onSuccess }: SignInFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -39,17 +38,18 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
     try {
       const { signInWithEmailAndPassword } = await import('firebase/auth');
       const { auth } = await import('@/lib/firebase');
-      
+
       const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
       console.log("Logged in user:", userCredential.user);
-      
+
       // Call success callback
       onSuccess();
-      
+
       // Redirect to dashboard
       window.location.href = "/dashboard";
     } catch (error: any) {
       console.error("Error logging in:", error);
+      // Assuming 'toast' is available.  Replace with your preferred error handling.
       toast({
         title: "Error",
         description: error.message,
@@ -76,7 +76,7 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="password"
@@ -90,13 +90,13 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
             </FormItem>
           )}
         />
-        
+
         <div className="flex items-center justify-between">
           <a href="#" className="text-xs text-accent hover:underline">
             Forgot password?
           </a>
         </div>
-        
+
         <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? "Signing In..." : "Sign In"}
         </Button>
