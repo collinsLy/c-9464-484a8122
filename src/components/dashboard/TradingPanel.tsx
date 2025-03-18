@@ -1,10 +1,5 @@
-import { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import React, { useState, useEffect } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,34 +11,21 @@ interface TradingPanelProps {
   isDemoMode?: boolean;
 }
 
-const TradingPanel = ({ symbol, isDemoMode = false }: TradingPanelProps) => {
+const TradingPanel: React.FC<TradingPanelProps> = ({ symbol, isDemoMode = false }) => {
   const [amount, setAmount] = useState("");
-  const [position, setPosition] = useState<"long" | "short">("long");
+  const [price, setPrice] = useState<number>(0);
   const { toast } = useToast();
 
-  const handleTrade = async () => {
+  const handleTrade = async (type: 'buy' | 'sell') => {
     try {
-      const parsedAmount = parseFloat(amount);
-      if (isNaN(parsedAmount) || parsedAmount <= 0) {
-        toast({
-          title: "Invalid amount",
-          description: "Please enter a valid amount",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Here you would typically make an API call to execute the trade
-      // For demo purposes, we'll just show a success message
+      // Mock trade execution
       toast({
-        title: "Trade executed",
-        description: `Successfully placed ${position} order for ${amount} ${symbol}`,
+        title: "Trade Executed",
+        description: `Successfully ${type === 'buy' ? 'bought' : 'sold'} ${amount} ${symbol}`,
       });
-
-      setAmount("");
     } catch (error) {
       toast({
-        title: "Trade failed",
+        title: "Trade Failed",
         description: "Failed to execute trade. Please try again.",
         variant: "destructive",
       });
@@ -58,54 +40,40 @@ const TradingPanel = ({ symbol, isDemoMode = false }: TradingPanelProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="long" className="w-full">
+        <Tabs defaultValue="buy" className="w-full">
           <TabsList className="w-full">
-            <TabsTrigger
-              value="long"
-              className="w-1/2"
-              onClick={() => setPosition("long")}
-            >
-              Long
-            </TabsTrigger>
-            <TabsTrigger
-              value="short"
-              className="w-1/2"
-              onClick={() => setPosition("short")}
-            >
-              Short
-            </TabsTrigger>
+            <TabsTrigger value="buy" className="flex-1">Buy</TabsTrigger>
+            <TabsTrigger value="sell" className="flex-1">Sell</TabsTrigger>
           </TabsList>
-          <TabsContent value="long">
+          <TabsContent value="buy">
             <div className="space-y-4">
               <Input
                 type="number"
                 placeholder="Amount"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="bg-background/40"
               />
-              <Button
-                onClick={handleTrade}
-                className="w-full bg-green-500 hover:bg-green-600"
+              <Button 
+                className="w-full" 
+                onClick={() => handleTrade('buy')}
               >
-                Open Long Position
+                Buy {symbol}
               </Button>
             </div>
           </TabsContent>
-          <TabsContent value="short">
+          <TabsContent value="sell">
             <div className="space-y-4">
               <Input
                 type="number"
                 placeholder="Amount"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="bg-background/40"
               />
-              <Button
-                onClick={handleTrade}
-                className="w-full bg-red-500 hover:bg-red-600"
+              <Button 
+                className="w-full"
+                onClick={() => handleTrade('sell')}
               >
-                Open Short Position
+                Sell {symbol}
               </Button>
             </div>
           </TabsContent>
