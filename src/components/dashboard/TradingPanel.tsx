@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import axios from 'axios'; // Import axios for API calls
 
 interface TradingPanelProps {
@@ -11,16 +11,16 @@ interface TradingPanelProps {
   isDemoMode?: boolean;
 }
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent } from "@/components/ui/tabs"
-import { useToast } from "@/components/ui/use-toast"
+//import {
+//  Card,
+//  CardContent,
+//  CardHeader,
+//  CardTitle,
+//} from "@/components/ui/card"
+//import { Button } from "@/components/ui/button"
+//import { Input } from "@/components/ui/input"
+//import { Tabs, TabsContent } from "@/components/ui/tabs"
+//import { useToast } from "@/components/ui/use-toast"
 
 const TradingPanel = ({ symbol, isDemoMode = false }: TradingPanelProps) => {
   const [amount, setAmount] = useState("");
