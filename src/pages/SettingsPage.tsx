@@ -30,6 +30,14 @@ const SettingsPage = () => {
     }
   });
 
+  const onSubmit = (data: any) => {
+    console.log('Profile updated:', data);
+    toast({
+      title: "Profile Updated",
+      description: "Your profile information has been saved successfully.",
+    });
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -84,7 +92,7 @@ const SettingsPage = () => {
                           <Input 
                             id="name" 
                             placeholder="Your name" 
-                            value={profileForm.getValues().name}
+                            {...profileForm.register('name')}
                             className="bg-white/5 border-white/10"
                           />
                         </div>
@@ -94,7 +102,7 @@ const SettingsPage = () => {
                             id="email" 
                             type="email" 
                             placeholder="Your email"
-                            value={profileForm.getValues().email}
+                            {...profileForm.register('email')}
                             className="bg-white/5 border-white/10"
                           />
                         </div>
@@ -103,7 +111,7 @@ const SettingsPage = () => {
                           <Input 
                             id="phone" 
                             placeholder="Your phone number"
-                            value={profileForm.getValues().phone}
+                            {...profileForm.register('phone')}
                             className="bg-white/5 border-white/10"
                           />
                         </div>
@@ -123,6 +131,13 @@ const SettingsPage = () => {
                         </div>
                       </div>
                       <Button className="bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34]">
+                        Save Changes
+                      </Button>
+                    <Button 
+                        type="submit" 
+                        className="bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34]"
+                        onClick={profileForm.handleSubmit(onSubmit)}
+                      >
                         Save Changes
                       </Button>
                     </form>
