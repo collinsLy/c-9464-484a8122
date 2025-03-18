@@ -42,9 +42,9 @@ const MarketPage = () => {
             />
           </div>
 
-          {/* Trading panel */}
+          {/* Order Book */}
           <div className="xl:col-span-1">
-            <TradingPanel symbol={selectedSymbol} isDemoMode={isDemoMode} />
+            <BinanceOrderBook symbol={selectedSymbol} />
           </div>
         </div>
 
