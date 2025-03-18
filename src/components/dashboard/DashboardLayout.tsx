@@ -15,6 +15,20 @@ interface DashboardContextType {
 
 const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
 
+export const DashboardProvider = ({ children }: { children: React.ReactNode }) => {
+  const [isDemoMode, setIsDemoMode] = useState(false);
+  
+  const toggleDemoMode = () => {
+    setIsDemoMode(prev => !prev);
+  };
+
+  return (
+    <DashboardContext.Provider value={{ isDemoMode, toggleDemoMode }}>
+      {children}
+    </DashboardContext.Provider>
+  );
+};
+
 // Create a hook to use the dashboard context
 export const useDashboardContext = () => {
   const context = useContext(DashboardContext);
