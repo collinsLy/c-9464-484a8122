@@ -1,0 +1,25 @@
+Dashboard.tsx:83 Uncaught ReferenceError: BinanceOrderBook is not defined
+    at renderContent (Dashboard.tsx:83:16)
+    at Dashboard (Dashboard.tsx:181:10)
+Dashboard.tsx:83 Uncaught ReferenceError: BinanceOrderBook is not defined
+    at renderContent (Dashboard.tsx:83:16)
+    at Dashboard (Dashboard.tsx:181:10)
+chunk-R6S4VRB5.js?v=9411203f:14032 The above error occurred in the <Dashboard> component:
+
+    at Dashboard (https://5e26dbe9-1520-4fee-8642-7d267ca2d98c-00-26splfjnnqpfr.kirk.replit.dev/src/pages/Dashboard.tsx?t=1742321274479:22:49)
+    at RenderedRoute (https://5e26dbe9-1520-4fee-8642-7d267ca2d98c-00-26splfjnnqpfr.kirk.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=9411203f:4069:5)
+    at Routes (https://5e26dbe9-1520-4fee-8642-7d267ca2d98c-00-26splfjnnqpfr.kirk.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=9411203f:4508:5)
+    at DashboardProvider (https://5e26dbe9-1520-4fee-8642-7d267ca2d98c-00-26splfjnnqpfr.kirk.replit.dev/src/components/dashboard/DashboardLayout.tsx:16:37)
+    at Router (https://5e26dbe9-1520-4fee-8642-7d267ca2d98c-00-26splfjnnqpfr.kirk.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=9411203f:4451:15)
+    at BrowserRouter (https://5e26dbe9-1520-4fee-8642-7d267ca2d98c-00-26splfjnnqpfr.kirk.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=9411203f:5196:5)
+    at Provider (https://5e26dbe9-1520-4fee-8642-7d267ca2d98c-00-26splfjnnqpfr.kirk.replit.dev/node_modules/.vite/deps/chunk-AFJ6VPUJ.js?v=9411203f:38:15)
+    at TooltipProvider (https://5e26dbe9-1520-4fee-8642-7d267ca2d98c-00-26splfjnnqpfr.kirk.replit.dev/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=9411203f:63:5)
+    at QueryClientProvider (https://5e26dbe9-1520-4fee-8642-7d267ca2d98c-00-26splfjnnqpfr.kirk.replit.dev/node_modules/.vite/deps/@tanstack_react-query.js?v=9411203f:2794:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+chunk-R6S4VRB5.js?v=9411203f:9129 Uncaught ReferenceError: BinanceOrderBook is not defined
+    at renderContent (Dashboard.tsx:83:16)
+    at Dashboard (Dashboard.tsx:181:10)
