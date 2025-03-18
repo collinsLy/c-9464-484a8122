@@ -37,19 +37,24 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     try {
-      // This would be replaced with an actual authentication API call
-      console.log("Login values:", values);
+      const { signInWithEmailAndPassword } = await import('firebase/auth');
+      const { auth } = await import('@/lib/firebase');
       
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+      console.log("Logged in user:", userCredential.user);
       
       // Call success callback
       onSuccess();
       
-      // Redirect to dashboard (this would be handled differently in a real app)
+      // Redirect to dashboard
       window.location.href = "/dashboard";
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error logging in:", error);
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
     } finally {
       setIsSubmitting(false);
     }
