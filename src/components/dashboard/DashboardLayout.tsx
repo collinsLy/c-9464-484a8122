@@ -2,7 +2,10 @@
 import React, { useState, createContext, useContext } from "react";
 import DashboardHeader from "./DashboardHeader";
 import DashboardSidebar from "./DashboardSidebar";
-import { Home, LineChart, BarChart3, Wallet, CreditCard, TrendingUp, History, Settings } from "lucide-react";
+import { 
+  Home, LineChart, BarChart3, Wallet, CreditCard, 
+  TrendingUp, History, Settings 
+} from "lucide-react";
 
 // Create context for demo mode
 interface DashboardContextType {
@@ -42,7 +45,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   
   return (
     <DashboardContext.Provider value={{ isDemoMode, toggleDemoMode }}>
-      <div className="flex h-screen bg-background overflow-hidden">
+      <div className="flex h-screen bg-background">
         {/* Sidebar */}
         <DashboardSidebar navItems={navItems} />
         

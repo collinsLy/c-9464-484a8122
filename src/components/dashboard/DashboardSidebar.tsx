@@ -1,6 +1,10 @@
 
+import { useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useDashboardContext } from "./DashboardLayout";
+import { ChevronRight, ChevronLeft } from "lucide-react";
+import { useState } from "react";
 
 interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
@@ -13,37 +17,74 @@ interface SidebarProps {
 }
 
 const DashboardSidebar = ({ navItems }: SidebarProps) => {
+  const location = useLocation();
+  const { isDemoMode } = useDashboardContext();
+  const [collapsed, setCollapsed] = useState(false);
+
+  // Extract the active tab from the location pathname or query parameters
+  const getActiveTab = () => {
+    const params = new URLSearchParams(location.search);
+    const tab = params.get('tab');
+    
+    if (tab) return tab;
+    
+    // Default to dashboard if no tab is specified
+    return "dashboard";
+  };
+  
+  const activeTab = getActiveTab();
+
   return (
-    <aside className="hidden lg:flex flex-col w-60 min-h-screen bg-background/40 backdrop-blur-lg border-r border-white/10 p-4">
-      <div className="flex items-center h-14 px-3 mb-8">
-        <div className="text-xl font-bold text-white">Vertex Trading</div>
+    <aside className={cn(
+      "flex flex-col bg-background/40 backdrop-blur-lg border-r border-white/10 transition-all duration-300",
+      collapsed ? "w-16" : "w-60"
+    )}>
+      <div className={cn(
+        "flex items-center h-14 px-3 mb-8",
+        collapsed ? "justify-center" : "justify-between"
+      )}>
+        {!collapsed && <div className="text-xl font-bold text-white">Vertex Trading</div>}
+        <Button 
+          variant="ghost" 
+          size="icon"
+          onClick={() => setCollapsed(!collapsed)}
+          className="text-white/70 hover:text-white hover:bg-white/10"
+        >
+          {collapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+        </Button>
       </div>
       
-      <nav className="space-y-1.5">
+      <nav className="space-y-1.5 px-2">
         {navItems.map((item) => (
           <Button
             key={item.id}
             variant="ghost"
+            asChild
             className={cn(
               "w-full justify-start text-white/70 hover:text-white hover:bg-white/10",
-              item.id === "dashboard" && "bg-white/10 text-white"
+              activeTab === item.id && "bg-white/10 text-white",
+              collapsed && "justify-center px-0"
             )}
           >
-            <item.icon className="mr-3 h-5 w-5" />
-            {item.label}
+            <Link to={`/dashboard${item.id !== "dashboard" ? `?tab=${item.id}` : ""}`}>
+              <item.icon className={cn("h-5 w-5", collapsed ? "" : "mr-3")} />
+              {!collapsed && <span>{item.label}</span>}
+            </Link>
           </Button>
         ))}
       </nav>
       
-      <div className="mt-auto">
-        <div className="rounded-lg p-4 bg-white/5">
-          <p className="text-sm text-white/90 font-medium mb-2">Pro Trading Upgrade</p>
-          <p className="text-xs text-white/60 mb-3">Access advanced tools and higher limits with Pro Trading.</p>
-          <Button className="w-full" size="sm">
-            Upgrade Now
-          </Button>
+      {!collapsed && (
+        <div className="mt-auto p-4">
+          <div className="rounded-lg p-4 bg-white/5">
+            <p className="text-sm text-white/90 font-medium mb-2">Pro Trading Upgrade</p>
+            <p className="text-xs text-white/60 mb-3">Access advanced tools and higher limits with Pro Trading.</p>
+            <Button className="w-full" size="sm">
+              Upgrade Now
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </aside>
   );
 };

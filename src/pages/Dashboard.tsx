@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import DashboardLayout, { useDashboardContext } from "@/components/dashboard/DashboardLayout";
 import AccountOverview from "@/components/dashboard/AccountOverview";
 import MarketChart from "@/components/dashboard/MarketChart";
@@ -8,12 +9,161 @@ import TransactionHistory from "@/components/dashboard/TransactionHistory";
 import TradingPanel from "@/components/dashboard/TradingPanel";
 import AutomatedTrading from "@/components/dashboard/AutomatedTrading";
 import DemoModeToggle from "@/components/dashboard/DemoModeToggle";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 
 const Dashboard = () => {
   const [selectedSymbol, setSelectedSymbol] = useState("BTCUSD");
   const { isDemoMode } = useDashboardContext();
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Determine which tab should be active based on URL
+  const getActiveTab = () => {
+    const params = new URLSearchParams(location.search);
+    const tab = params.get('tab');
+    return tab || "dashboard";
+  };
+  
+  const activeTab = getActiveTab();
+  
+  // Handle tab changes
+  useEffect(() => {
+    // If the URL doesn't have a tab parameter but we're not on the dashboard tab,
+    // update the URL to include the active tab
+    const params = new URLSearchParams(location.search);
+    const currentTab = params.get('tab');
+    
+    if (activeTab !== "dashboard" && currentTab !== activeTab) {
+      navigate(`/dashboard?tab=${activeTab}`, { replace: true });
+    } else if (activeTab === "dashboard" && currentTab) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [activeTab, location.search, navigate]);
+  
+  // Render different content based on the active tab
+  const renderContent = () => {
+    switch (activeTab) {
+      case "dashboard":
+        return (
+          <>
+            {/* Account Overview Cards */}
+            <AccountOverview isDemoMode={isDemoMode} />
+            
+            {/* Market Chart and Assets Grid */}
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+              <div className="xl:col-span-3">
+                <MarketChart selectedSymbol={selectedSymbol} onSymbolChange={setSelectedSymbol} />
+              </div>
+              <div className="xl:col-span-1">
+                <AssetsList isDemoMode={isDemoMode} />
+              </div>
+            </div>
+            
+            {/* Recent Transactions */}
+            <TransactionHistory isDemoMode={isDemoMode} />
+          </>
+        );
+      
+      case "trading":
+        return (
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+            <div className="xl:col-span-3">
+              <MarketChart selectedSymbol={selectedSymbol} onSymbolChange={setSelectedSymbol} />
+            </div>
+            <div className="xl:col-span-1">
+              <TradingPanel symbol={selectedSymbol} isDemoMode={isDemoMode} />
+            </div>
+          </div>
+        );
+      
+      case "bots":
+        return <AutomatedTrading isDemoMode={isDemoMode} />;
+      
+      case "history":
+        return (
+          <>
+            <h2 className="text-2xl font-bold text-white mb-6">Transaction History</h2>
+            <TransactionHistory isDemoMode={isDemoMode} />
+          </>
+        );
+        
+      case "funding":
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-white">Deposit & Withdraw</h2>
+            <p className="text-white/70">Manage your funds securely.</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="bg-background/40 backdrop-blur-lg border-white/10">
+                <CardContent className="pt-6">
+                  <h3 className="text-xl font-bold text-white mb-4">Deposit Funds</h3>
+                  <p className="text-white/70 mb-4">
+                    Add funds to your account using one of our secure payment methods.
+                  </p>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-3 gap-3">
+                      <Card className="bg-white/5 p-3 text-center">
+                        <p className="text-sm font-medium text-white">M-Pesa</p>
+                      </Card>
+                      <Card className="bg-white/5 p-3 text-center">
+                        <p className="text-sm font-medium text-white">Airtel</p>
+                      </Card>
+                      <Card className="bg-white/5 p-3 text-center">
+                        <p className="text-sm font-medium text-white">Credit Card</p>
+                      </Card>
+                    </div>
+                    <a 
+                      href="https://121bc70e-c053-463f-b2e4-d866e4703b4b-00-t1pwtshj20ol.riker.replit.dev/" 
+                      target="_blank" 
+                      rel="noreferrer"
+                      className="inline-block w-full"
+                    >
+                      <button className="w-full bg-[#F2FF44] text-black font-medium py-2 rounded hover:bg-[#E2EF34]">
+                        Deposit Now
+                      </button>
+                    </a>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="bg-background/40 backdrop-blur-lg border-white/10">
+                <CardContent className="pt-6">
+                  <h3 className="text-xl font-bold text-white mb-4">Withdraw Funds</h3>
+                  <p className="text-white/70 mb-4">
+                    Withdraw your funds to your preferred payment method.
+                  </p>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-3 gap-3">
+                      <Card className="bg-white/5 p-3 text-center">
+                        <p className="text-sm font-medium text-white">Bank Transfer</p>
+                      </Card>
+                      <Card className="bg-white/5 p-3 text-center">
+                        <p className="text-sm font-medium text-white">M-Pesa</p>
+                      </Card>
+                      <Card className="bg-white/5 p-3 text-center">
+                        <p className="text-sm font-medium text-white">Airtel</p>
+                      </Card>
+                    </div>
+                    <button className="w-full bg-white/10 text-white font-medium py-2 rounded hover:bg-white/20">
+                      Withdraw Funds
+                    </button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        );
+        
+      // Add additional cases for other tabs as needed
+      default:
+        return (
+          <div className="text-center py-10">
+            <h2 className="text-2xl font-bold text-white mb-4">Coming Soon</h2>
+            <p className="text-white/70">This feature is currently under development.</p>
+          </div>
+        );
+    }
+  };
   
   return (
     <DashboardLayout>
@@ -24,67 +174,10 @@ const Dashboard = () => {
         </CardContent>
       </Card>
       
-      {/* Dashboard Tabs */}
-      <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="w-full justify-start overflow-x-auto bg-background/40 border border-white/10 p-1 mb-6">
-          <TabsTrigger value="overview" className="text-white/70 data-[state=active]:bg-white/10 data-[state=active]:text-white">
-            Overview
-          </TabsTrigger>
-          <TabsTrigger value="trading" className="text-white/70 data-[state=active]:bg-white/10 data-[state=active]:text-white">
-            Trading
-          </TabsTrigger>
-          <TabsTrigger value="bots" className="text-white/70 data-[state=active]:bg-white/10 data-[state=active]:text-white">
-            Bot Trading
-          </TabsTrigger>
-          <TabsTrigger value="history" className="text-white/70 data-[state=active]:bg-white/10 data-[state=active]:text-white">
-            Transaction History
-          </TabsTrigger>
-        </TabsList>
-        
-        {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-6">
-          {/* Account Overview Cards */}
-          <AccountOverview isDemoMode={isDemoMode} />
-          
-          {/* Market Chart and Assets Grid */}
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-            <div className="xl:col-span-3">
-              <MarketChart selectedSymbol={selectedSymbol} onSymbolChange={setSelectedSymbol} />
-            </div>
-            <div className="xl:col-span-1">
-              <AssetsList isDemoMode={isDemoMode} />
-            </div>
-          </div>
-          
-          {/* Recent Transactions */}
-          <TransactionHistory isDemoMode={isDemoMode} />
-        </TabsContent>
-        
-        {/* Trading Tab */}
-        <TabsContent value="trading" className="space-y-6">
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-            <div className="xl:col-span-3">
-              <MarketChart selectedSymbol={selectedSymbol} onSymbolChange={setSelectedSymbol} />
-            </div>
-            <div className="xl:col-span-1">
-              <TradingPanel symbol={selectedSymbol} isDemoMode={isDemoMode} />
-            </div>
-          </div>
-        </TabsContent>
-        
-        {/* Bot Trading Tab */}
-        <TabsContent value="bots">
-          <AutomatedTrading isDemoMode={isDemoMode} />
-        </TabsContent>
-        
-        {/* Transaction History Tab */}
-        <TabsContent value="history">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-white">Transaction History</h2>
-          </div>
-          <TransactionHistory isDemoMode={isDemoMode} />
-        </TabsContent>
-      </Tabs>
+      {/* Dynamic Content based on active tab */}
+      <div className="space-y-6">
+        {renderContent()}
+      </div>
     </DashboardLayout>
   );
 };
