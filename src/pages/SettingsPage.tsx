@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
@@ -17,12 +16,14 @@ import {
   Upload, Database, Smartphone
 } from "lucide-react";
 import { useForm } from "react-hook-form";
+import {signOut} from "next-auth/react";
+
 
 const SettingsPage = () => {
   const { isDemoMode } = useDashboardContext();
   const [activeTab, setActiveTab] = useState("profile");
   const [darkMode, setDarkMode] = useState(true);
-  
+
   const profileForm = useForm({
     defaultValues: {
       name: "John Doe",
@@ -31,6 +32,33 @@ const SettingsPage = () => {
     }
   });
 
+  const onSubmit = async (data) => {
+    console.log("Saving profile data:", data);
+    // Add API call to save profile data here.  This is a placeholder.
+    try {
+      const response = await fetch('/api/profile', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Handle successful update
+      console.log('Profile updated successfully!');
+      // Optionally, reset the form or update the UI
+      profileForm.reset();
+
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      // Handle error, e.g., display an error message to the user
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -38,7 +66,7 @@ const SettingsPage = () => {
           <h1 className="text-3xl font-bold text-white">Settings</h1>
           {isDemoMode && <div className="text-sm text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-md">Demo Mode</div>}
         </div>
-        
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white mb-6 grid grid-cols-2 md:grid-cols-5 w-full">
             <TabsTrigger value="profile" className="text-white data-[state=active]:bg-accent">
@@ -62,7 +90,7 @@ const SettingsPage = () => {
               Payment
             </TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="profile" className="mt-0 space-y-6">
             <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
               <CardHeader>
@@ -80,36 +108,31 @@ const SettingsPage = () => {
                       Change
                     </Button>
                   </div>
-                  
+
                   <div className="flex-1 space-y-4">
-                    <form className="space-y-4">
+                    <form onSubmit={profileForm.handleSubmit(onSubmit)}>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="name">Full Name</Label>
                           <Input 
-                            id="name" 
-                            placeholder="Your name" 
-                            value={profileForm.getValues().name}
-                            className="bg-white/5 border-white/10"
+                            {...profileForm.register("name")}
+                            className="bg-white/5 border-white/10" 
                           />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="email">Email</Label>
                           <Input 
-                            id="email" 
-                            type="email" 
-                            placeholder="Your email"
-                            value={profileForm.getValues().email}
-                            className="bg-white/5 border-white/10"
+                            {...profileForm.register("email")}
+                            type="email"
+                            className="bg-white/5 border-white/10" 
                           />
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="phone">Phone Number</Label>
                           <Input 
-                            id="phone" 
-                            placeholder="Your phone number"
-                            value={profileForm.getValues().phone}
-                            className="bg-white/5 border-white/10"
+                            {...profileForm.register("phone")}
+                            type="tel"
+                            className="bg-white/5 border-white/10" 
                           />
                         </div>
                         <div className="space-y-2">
@@ -127,7 +150,7 @@ const SettingsPage = () => {
                           </Select>
                         </div>
                       </div>
-                      <Button className="bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34]">
+                      <Button type="submit" className="bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34]">
                         Save Changes
                       </Button>
                     </form>
@@ -136,7 +159,7 @@ const SettingsPage = () => {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="security" className="mt-0 space-y-6">
             <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
               <CardHeader>
@@ -152,7 +175,7 @@ const SettingsPage = () => {
                     <Button variant="outline">Change Password</Button>
                   </div>
                   <Separator className="bg-white/10" />
-                  
+
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-lg font-medium">Two-Factor Authentication</h3>
@@ -161,7 +184,7 @@ const SettingsPage = () => {
                     <Switch checked={true} />
                   </div>
                   <Separator className="bg-white/10" />
-                  
+
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-lg font-medium">Session Management</h3>
@@ -170,7 +193,7 @@ const SettingsPage = () => {
                     <Button variant="outline">View Sessions</Button>
                   </div>
                   <Separator className="bg-white/10" />
-                  
+
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-lg font-medium">API Keys</h3>
@@ -182,7 +205,7 @@ const SettingsPage = () => {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="notifications" className="mt-0 space-y-6">
             <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
               <CardHeader>
@@ -209,9 +232,9 @@ const SettingsPage = () => {
                       <Switch id="email-newsletters" />
                     </div>
                   </div>
-                  
+
                   <Separator className="bg-white/10 my-4" />
-                  
+
                   <h3 className="text-lg font-medium">Push Notifications</h3>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
@@ -231,9 +254,9 @@ const SettingsPage = () => {
                       <Switch id="push-market-updates" />
                     </div>
                   </div>
-                  
+
                   <Separator className="bg-white/10 my-4" />
-                  
+
                   <h3 className="text-lg font-medium">SMS Notifications</h3>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
@@ -256,7 +279,7 @@ const SettingsPage = () => {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="appearance" className="mt-0 space-y-6">
             <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
               <CardHeader>
@@ -290,9 +313,9 @@ const SettingsPage = () => {
                       </Button>
                     </div>
                   </div>
-                  
+
                   <Separator className="bg-white/10 my-4" />
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="chart-color">Chart Color Scheme</Label>
                     <Select defaultValue="green-red">
@@ -307,7 +330,7 @@ const SettingsPage = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="default-view">Default Dashboard View</Label>
                     <Select defaultValue="dashboard">
@@ -322,7 +345,7 @@ const SettingsPage = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="language-pref">Language</Label>
                     <Select defaultValue="en">
@@ -344,7 +367,7 @@ const SettingsPage = () => {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="payment" className="mt-0 space-y-6">
             <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
               <CardHeader>
@@ -375,7 +398,7 @@ const SettingsPage = () => {
                         </div>
                       </CardContent>
                     </Card>
-                    
+
                     <Card className="bg-white/10 border-white/10">
                       <CardContent className="pt-6">
                         <div className="flex justify-between items-center mb-4">
@@ -395,7 +418,7 @@ const SettingsPage = () => {
                         </div>
                       </CardContent>
                     </Card>
-                    
+
                     <Card className="bg-white/10 border-white/10">
                       <CardContent className="pt-6">
                         <div className="flex justify-between items-center mb-4">
@@ -415,7 +438,7 @@ const SettingsPage = () => {
                         </div>
                       </CardContent>
                     </Card>
-                    
+
                     <Card className="bg-white/5 border-white/10 border-dashed flex flex-col items-center justify-center p-6">
                       <Button variant="outline" className="gap-2">
                         <CreditCard className="h-4 w-4" />
@@ -428,6 +451,7 @@ const SettingsPage = () => {
             </Card>
           </TabsContent>
         </Tabs>
+        <Button onClick={() => signOut()}>Sign out</Button>
       </div>
     </DashboardLayout>
   );
