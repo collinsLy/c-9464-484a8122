@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
@@ -9,17 +8,18 @@ import TradingPanel from "@/components/dashboard/TradingPanel";
 import { getTopCoins } from "@/lib/api/coingecko";
 import DemoBotGrid from "@/components/demo/DemoBotGrid";
 import TradingViewChart from "@/components/TradingViewChart";
+import BinanceOrderBook from "@/components/markets/BinanceOrderBook"; // Added import
 
 const DemoPage = () => {
   const [selectedSymbol, setSelectedSymbol] = useState("BTCUSD");
   const [selectedTimeframe, setSelectedTimeframe] = useState("1D");
-  
+
   // Fetch top coins for market data
   const { data: topCoins, isLoading } = useQuery({
     queryKey: ['topCoins'],
     queryFn: () => getTopCoins(),
   });
-  
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -49,7 +49,7 @@ const DemoPage = () => {
               Trading Bots
             </TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="chart" className="mt-0 space-y-6">
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
               <div className="xl:col-span-2">
@@ -65,7 +65,7 @@ const DemoPage = () => {
               </div>
             </div>
           </TabsContent>
-          
+
           <TabsContent value="trading-bots" className="mt-0">
             <DemoBotGrid />
           </TabsContent>
