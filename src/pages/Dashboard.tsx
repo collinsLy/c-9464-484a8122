@@ -80,7 +80,7 @@ const Dashboard = () => {
               />
             </div>
             <div className="xl:col-span-1">
-              <TradingPanel symbol={selectedSymbol} />
+              <BinanceOrderBook symbol={selectedSymbol} />
             </div>
           </div>
         );

@@ -61,7 +61,7 @@ const DemoPage = () => {
                 />
               </div>
               <div className="xl:col-span-1">
-                <TradingPanel symbol={selectedSymbol} isDemoMode={true} />
+                <BinanceOrderBook symbol={selectedSymbol} />
               </div>
             </div>
           </TabsContent>
