@@ -17,16 +17,36 @@ const DashboardHeader = () => {
       </div>
       
       <div className="flex items-center space-x-2">
-        <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="text-white/70 hover:text-white hover:bg-white/10"
+          onClick={() => window.location.href = '/notifications'}
+        >
           <Bell className="w-5 h-5" />
         </Button>
-        <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="text-white/70 hover:text-white hover:bg-white/10"
+          onClick={() => window.location.href = '/profile'}
+        >
           <User className="w-5 h-5" />
         </Button>
-        <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="text-white/70 hover:text-white hover:bg-white/10"
+          onClick={() => window.location.href = '/settings'}
+        >
           <Settings className="w-5 h-5" />
         </Button>
-        <Button variant="outline" size="sm" className="text-white border-white/20 hover:bg-white/10">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="text-white border-white/20 hover:bg-white/10"
+          onClick={handleSignOut}
+        >
           <LogOut className="w-4 h-4 mr-2" />
           <span className="hidden sm:inline">Sign Out</span>
         </Button>
