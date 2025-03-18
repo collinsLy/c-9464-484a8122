@@ -12,6 +12,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -36,9 +39,6 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     try {
-      const { signInWithEmailAndPassword } = await import('firebase/auth');
-      const { auth } = await import('@/lib/firebase');
-
       const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
       console.log("Logged in user:", userCredential.user);
 

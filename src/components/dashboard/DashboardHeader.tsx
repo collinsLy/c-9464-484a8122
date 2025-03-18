@@ -46,7 +46,7 @@ const DashboardHeader = () => {
           variant="outline" 
           size="sm" 
           className="text-white border-white/20 hover:bg-white/10"
-          onClick={handleSignOut}
+          onClick={() => signOut()}
         >
           <LogOut className="w-4 h-4 mr-2" />
           <span className="hidden sm:inline">Sign Out</span>
