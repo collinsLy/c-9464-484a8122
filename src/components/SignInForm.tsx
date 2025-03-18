@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,9 +13,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
-
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -27,7 +25,7 @@ interface SignInFormProps {
 
 const SignInForm = ({ onSuccess }: SignInFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -39,22 +37,19 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
-      console.log("Logged in user:", userCredential.user);
-
+      // This would be replaced with an actual authentication API call
+      console.log("Login values:", values);
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       // Call success callback
       onSuccess();
-
-      // Redirect to dashboard
+      
+      // Redirect to dashboard (this would be handled differently in a real app)
       window.location.href = "/dashboard";
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error logging in:", error);
-      // Assuming 'toast' is available.  Replace with your preferred error handling.
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive"
-      });
     } finally {
       setIsSubmitting(false);
     }
@@ -76,7 +71,7 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
             </FormItem>
           )}
         />
-
+        
         <FormField
           control={form.control}
           name="password"
@@ -90,13 +85,13 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
             </FormItem>
           )}
         />
-
+        
         <div className="flex items-center justify-between">
           <a href="#" className="text-xs text-accent hover:underline">
             Forgot password?
           </a>
         </div>
-
+        
         <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? "Signing In..." : "Sign In"}
         </Button>
