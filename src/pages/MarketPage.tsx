@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
@@ -27,7 +26,7 @@ const MarketPage = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <h1 className="text-3xl font-bold text-white">Market Overview</h1>
-        
+
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           {/* Main chart and trading panel */}
           <div className="xl:col-span-2 space-y-6">
@@ -38,13 +37,13 @@ const MarketPage = () => {
               onTimeframeChange={handleTimeframeChange}
             />
           </div>
-          
+
           {/* Trading panel */}
           <div className="xl:col-span-1">
             <TradingPanel symbol={selectedSymbol} isDemoMode={isDemoMode} />
           </div>
         </div>
-        
+
         {/* Market data tabs */}
         <Tabs defaultValue="overview" className="w-full">
           <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white mb-6">
@@ -61,19 +60,19 @@ const MarketPage = () => {
               Market News
             </TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="overview" className="mt-0">
             <MarketOverview />
           </TabsContent>
-          
+
           <TabsContent value="orderbook" className="mt-0">
             <BinanceOrderBook symbol={selectedSymbol} />
           </TabsContent>
-          
+
           <TabsContent value="coingecko" className="mt-0">
             <CoinGeckoData symbol={selectedSymbol} />
           </TabsContent>
-          
+
           <TabsContent value="news" className="mt-0">
             <MarketNews />
           </TabsContent>

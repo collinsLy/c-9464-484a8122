@@ -1,13 +1,11 @@
-
-import React, { useState, createContext, useContext } from "react";
+import React, { createContext, useContext, useState } from "react";
 import DashboardHeader from "./DashboardHeader";
 import DashboardSidebar from "./DashboardSidebar";
-import { 
-  Home, LineChart, BarChart3, Wallet, CreditCard, 
+import {
+  Home, LineChart, BarChart3, Wallet, CreditCard,
   TrendingUp, History, Settings, PlayCircle
 } from "lucide-react";
 
-// Create a context for dashboard state
 interface DashboardContextType {
   isDemoMode: boolean;
   toggleDemoMode: () => void;
@@ -17,7 +15,7 @@ const DashboardContext = createContext<DashboardContextType | undefined>(undefin
 
 export const DashboardProvider = ({ children }: { children: React.ReactNode }) => {
   const [isDemoMode, setIsDemoMode] = useState(false);
-  
+
   const toggleDemoMode = () => {
     setIsDemoMode(prev => !prev);
   };
@@ -29,10 +27,9 @@ export const DashboardProvider = ({ children }: { children: React.ReactNode }) =
   );
 };
 
-// Create a hook to use the dashboard context
 export const useDashboardContext = () => {
   const context = useContext(DashboardContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useDashboardContext must be used within a DashboardProvider");
   }
   return context;
@@ -43,14 +40,14 @@ interface DashboardLayoutProps {
 }
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
-  // State for demo mode
-  const [isDemoMode, setIsDemoMode] = useState(false);
-  
-  // Function to toggle demo mode
-  const toggleDemoMode = () => {
-    setIsDemoMode(prev => !prev);
-  };
-  
+  // State for demo mode (This is redundant now, as it's managed by the provider)
+  //const [isDemoMode, setIsDemoMode] = useState(false);
+
+  // Function to toggle demo mode (Also redundant now)
+  //const toggleDemoMode = () => {
+  //  setIsDemoMode(prev => !prev);
+  //};
+
   // Navigation items for the sidebar with proper paths
   const navItems = [
     { icon: Home, label: "Dashboard", id: "dashboard", path: "/dashboard" },
@@ -63,18 +60,18 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { icon: History, label: "History", id: "history", path: "/dashboard?tab=history" },
     { icon: Settings, label: "Settings", id: "settings", path: "/settings" },
   ];
-  
+
   return (
-    <DashboardContext.Provider value={{ isDemoMode, toggleDemoMode }}>
+    <DashboardProvider>
       <div className="flex h-screen bg-background">
         {/* Sidebar */}
         <DashboardSidebar navItems={navItems} />
-        
+
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Header */}
           <DashboardHeader />
-          
+
           {/* Dashboard Content */}
           <main className="flex-1 overflow-auto p-4 md:p-6">
             <div className="max-w-7xl mx-auto space-y-6">
@@ -83,7 +80,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </main>
         </div>
       </div>
-    </DashboardContext.Provider>
+    </DashboardProvider>
   );
 };
 
