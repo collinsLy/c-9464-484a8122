@@ -11,6 +11,12 @@ interface TradingPanelProps {
   isDemoMode?: boolean;
 }
 
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { useToast } from "@/components/ui/use-toast";
+
 const TradingPanel = ({ symbol, isDemoMode = false }: TradingPanelProps) => {
   const [amount, setAmount] = useState("");
   const [price, setPrice] = useState("");
