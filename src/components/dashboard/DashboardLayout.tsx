@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState } from "react";
 import DashboardHeader from "./DashboardHeader";
 import DashboardSidebar from "./DashboardSidebar";
 import {
@@ -13,7 +13,7 @@ interface DashboardContextType {
 
 const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
 
-export function DashboardProvider({ children }: { children: ReactNode }) {
+export const DashboardProvider = ({ children }: { children: React.ReactNode }) => {
   const [isDemoMode, setIsDemoMode] = useState(false);
 
   const toggleDemoMode = () => {
@@ -25,17 +25,29 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
       {children}
     </DashboardContext.Provider>
   );
-}
+};
 
-export function useDashboardContext() {
+export const useDashboardContext = () => {
   const context = useContext(DashboardContext);
-  if (context === undefined) {
-    throw new Error('useDashboardContext must be used within a DashboardProvider');
+  if (!context) {
+    throw new Error("useDashboardContext must be used within a DashboardProvider");
   }
   return context;
+};
+
+interface DashboardLayoutProps {
+  children: React.ReactNode;
 }
 
-export default function DashboardLayout({ children }: { children: ReactNode }) {
+const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+  // State for demo mode (This is redundant now, as it's managed by the provider)
+  //const [isDemoMode, setIsDemoMode] = useState(false);
+
+  // Function to toggle demo mode (Also redundant now)
+  //const toggleDemoMode = () => {
+  //  setIsDemoMode(prev => !prev);
+  //};
+
   // Navigation items for the sidebar with proper paths
   const navItems = [
     { icon: Home, label: "Dashboard", id: "dashboard", path: "/dashboard" },
@@ -51,25 +63,25 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <DashboardProvider>
-      <div className="min-h-screen bg-background">
-        <div className="flex h-screen bg-background">
-          {/* Sidebar */}
-          <DashboardSidebar navItems={navItems} />
+      <div className="flex h-screen bg-background">
+        {/* Sidebar */}
+        <DashboardSidebar navItems={navItems} />
 
-          {/* Main Content */}
-          <div className="flex-1 flex flex-col overflow-hidden">
-            {/* Header */}
-            <DashboardHeader />
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Header */}
+          <DashboardHeader />
 
-            {/* Dashboard Content */}
-            <main className="flex-1 overflow-auto p-4 md:p-6">
-              <div className="max-w-7xl mx-auto space-y-6">
-                {children}
-              </div>
-            </main>
-          </div>
+          {/* Dashboard Content */}
+          <main className="flex-1 overflow-auto p-4 md:p-6">
+            <div className="max-w-7xl mx-auto space-y-6">
+              {children}
+            </div>
+          </main>
         </div>
       </div>
     </DashboardProvider>
   );
-}
+};
+
+export default DashboardLayout;

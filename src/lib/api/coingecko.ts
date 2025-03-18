@@ -133,36 +133,3 @@ export const getCoingeckoIdFromSymbol = (symbol: string): string => {
 export const getFormattedPrice = (coinData: CoinMarketData): number => {
   return coinData?.current_price || 0;
 };
-export const getRealTimePrice = async (symbol: string) => {
-  try {
-    const coin = symbol.toLowerCase().replace('usdt', '');
-    const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coin}&vs_currencies=usd&include_24hr_change=true`);
-    const data = await response.json();
-    return {
-      price: data[coin]?.usd || 0,
-      change24h: data[coin]?.usd_24h_change || 0
-    };
-  } catch (error) {
-    console.error('Error fetching real-time price:', error);
-    return { price: 0, change24h: 0 };
-  }
-};
-
-export const getMultipleRealTimePrices = async (symbols: string[]) => {
-  try {
-    const coins = symbols.map(s => s.toLowerCase().replace('usdt', '')).join(',');
-    const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coins}&vs_currencies=usd&include_24hr_change=true`);
-    const data = await response.json();
-    return symbols.reduce((acc, symbol) => {
-      const coin = symbol.toLowerCase().replace('usdt', '');
-      acc[symbol] = {
-        price: data[coin]?.usd || 0,
-        change24h: data[coin]?.usd_24h_change || 0
-      };
-      return acc;
-    }, {});
-  } catch (error) {
-    console.error('Error fetching multiple prices:', error);
-    return {};
-  }
-};
