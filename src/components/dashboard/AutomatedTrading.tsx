@@ -1,44 +1,100 @@
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Bot, Sparkles, Shield, Award } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Bot, Sparkles, Shield, Award, Play, Info } from "lucide-react";
+import { toast } from "sonner";
 
 interface AutomatedTradingProps {
   isDemoMode?: boolean;
 }
 
 const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
-  const { toast } = useToast();
+  const [userBalance] = useState(isDemoMode ? 10000 : 0);
   
   // Bot tiers data from the requirements
   const botTiers = [
-    { type: "Standard", price: 20, duration: "2 seconds", pair: "SOL/USD", marketType: "Rise & Fall", profit: "100%" },
-    { type: "Master", price: 40, duration: "2 seconds", pair: "BTC/USD", marketType: "Even/Odd", profit: "80%" },
-    { type: "Pro (Basic)", price: 100, duration: "N/A", pair: "BNB/USD", marketType: "Even/Odd", profit: "100%" },
-    { type: "Pro (Premium)", price: 200, duration: "1 second", pair: "ETH/USD", marketType: "Even/Odd", profit: "200%" },
+    { 
+      id: "standard", 
+      type: "Standard", 
+      price: 20, 
+      description: "Basic trading bot with automated Rise & Fall predictions", 
+      duration: "2 seconds", 
+      pair: "SOL/USD", 
+      marketType: "Rise & Fall", 
+      profit: "100%",
+      icon: Shield,
+      iconColor: "text-blue-400"
+    },
+    { 
+      id: "master", 
+      type: "Master", 
+      price: 40, 
+      description: "Advanced bot with Even/Odd market predictions for Bitcoin", 
+      duration: "2 seconds", 
+      pair: "BTC/USD", 
+      marketType: "Even/Odd", 
+      profit: "80%",
+      icon: Sparkles,
+      iconColor: "text-purple-400"
+    },
+    { 
+      id: "pro-basic", 
+      type: "Pro (Basic)", 
+      price: 100, 
+      description: "Professional bot with advanced algorithms for BNB", 
+      duration: "N/A", 
+      pair: "BNB/USD", 
+      marketType: "Even/Odd", 
+      profit: "100%",
+      icon: Award,
+      iconColor: "text-yellow-400"
+    },
+    { 
+      id: "pro-premium", 
+      type: "Pro (Premium)", 
+      price: 200, 
+      description: "Premium bot with highest success rate and profit potential", 
+      duration: "1 second", 
+      pair: "ETH/USD", 
+      marketType: "Even/Odd", 
+      profit: "200%",
+      icon: Award,
+      iconColor: "text-pink-400"
+    },
   ];
 
-  const activateBot = (botType: string, price: number) => {
+  const handleTradeClick = (bot: typeof botTiers[0]) => {
+    // Check if user has sufficient balance for the Standard bot
+    if (bot.id === "standard" && userBalance < 20) {
+      toast.error("Insufficient Funds", {
+        description: "You need a minimum balance of $20 to use the Standard bot.",
+      });
+      return;
+    }
+    
     if (isDemoMode) {
-      toast({
-        title: `Demo Bot Activated`,
-        description: `${botType} bot is now running with virtual funds. No real money is being used.`,
-        variant: "default",
+      toast.success(`Demo Bot Activated`, {
+        description: `${bot.type} bot is now running with virtual funds. No real money is being used.`,
       });
     } else {
-      toast({
-        title: "Insufficient Funds",
-        description: `Please deposit at least $${price} to activate this bot.`,
-        variant: "destructive",
+      if (userBalance < bot.price) {
+        toast.error("Insufficient Funds", {
+          description: `Please deposit at least $${bot.price} to activate this bot.`,
+        });
+        return;
+      }
+      
+      toast.success(`Bot Activated`, {
+        description: `${bot.type} bot has been successfully activated.`,
       });
     }
   };
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white col-span-full">
           <CardHeader>
             <CardTitle className="flex items-center">
@@ -52,50 +108,48 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
               }
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow className="border-white/10">
-                  <TableHead>Bot Type</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Duration</TableHead>
-                  <TableHead>Trading Pair</TableHead>
-                  <TableHead>Market Type</TableHead>
-                  <TableHead>Profit</TableHead>
-                  <TableHead></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {botTiers.map((bot, index) => (
-                  <TableRow key={index} className="border-white/10">
-                    <TableCell className="font-medium flex items-center">
-                      {index === 0 && <Shield className="mr-2 h-4 w-4 text-blue-400" />}
-                      {index === 1 && <Sparkles className="mr-2 h-4 w-4 text-purple-400" />}
-                      {index === 2 && <Award className="mr-2 h-4 w-4 text-yellow-400" />}
-                      {index === 3 && <Award className="mr-2 h-4 w-4 text-pink-400" />}
-                      {bot.type}
-                    </TableCell>
-                    <TableCell>${bot.price}</TableCell>
-                    <TableCell>{bot.duration}</TableCell>
-                    <TableCell>{bot.pair}</TableCell>
-                    <TableCell>{bot.marketType}</TableCell>
-                    <TableCell className="text-green-400">{bot.profit}</TableCell>
-                    <TableCell>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="text-white border-white/20 hover:bg-white/10"
-                        onClick={() => activateBot(bot.type, bot.price)}
-                      >
-                        {isDemoMode ? "Try Demo" : "Activate"}
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
         </Card>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {botTiers.map((bot) => (
+          <Card key={bot.id} className="bg-background/40 backdrop-blur-lg border-white/10 text-white overflow-hidden">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between mb-2">
+                <bot.icon className={`h-8 w-8 ${bot.iconColor}`} />
+                <div className="text-xl font-bold text-green-400">{bot.profit}</div>
+              </div>
+              <CardTitle className="text-xl">{bot.type}</CardTitle>
+              <CardDescription className="text-white/70">
+                {bot.description}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pb-2">
+              <div className="grid grid-cols-2 gap-y-2 text-sm">
+                <div className="text-white/70">Price:</div>
+                <div className="text-right">${bot.price}</div>
+                
+                <div className="text-white/70">Trading Pair:</div>
+                <div className="text-right">{bot.pair}</div>
+                
+                <div className="text-white/70">Market Type:</div>
+                <div className="text-right">{bot.marketType}</div>
+                
+                <div className="text-white/70">Duration:</div>
+                <div className="text-right">{bot.duration}</div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                className="w-full"
+                onClick={() => handleTradeClick(bot)}
+              >
+                <Play className="mr-2 h-4 w-4" />
+                Trade
+              </Button>
+            </CardFooter>
+          </Card>
+        ))}
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

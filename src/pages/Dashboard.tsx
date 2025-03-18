@@ -1,19 +1,18 @@
+
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import DashboardLayout, { useDashboardContext } from "@/components/dashboard/DashboardLayout";
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import AccountOverview from "@/components/dashboard/AccountOverview";
 import MarketChart from "@/components/dashboard/MarketChart";
 import AssetsList from "@/components/dashboard/AssetsList";
 import TransactionHistory from "@/components/dashboard/TransactionHistory";
 import TradingPanel from "@/components/dashboard/TradingPanel";
 import AutomatedTrading from "@/components/dashboard/AutomatedTrading";
-import DemoModeToggle from "@/components/dashboard/DemoModeToggle";
 import { Card, CardContent } from "@/components/ui/card";
 
 const Dashboard = () => {
   const [selectedSymbol, setSelectedSymbol] = useState("BTCUSD");
   const [selectedTimeframe, setSelectedTimeframe] = useState("1D");
-  const { isDemoMode } = useDashboardContext();
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -47,7 +46,7 @@ const Dashboard = () => {
         return (
           <>
             {/* Account Overview Cards */}
-            <AccountOverview isDemoMode={isDemoMode} />
+            <AccountOverview />
             
             {/* Market Chart and Assets Grid */}
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
@@ -60,12 +59,12 @@ const Dashboard = () => {
                 />
               </div>
               <div className="xl:col-span-1">
-                <AssetsList isDemoMode={isDemoMode} />
+                <AssetsList />
               </div>
             </div>
             
             {/* Recent Transactions */}
-            <TransactionHistory isDemoMode={isDemoMode} />
+            <TransactionHistory />
           </>
         );
       
@@ -81,19 +80,19 @@ const Dashboard = () => {
               />
             </div>
             <div className="xl:col-span-1">
-              <TradingPanel symbol={selectedSymbol} isDemoMode={isDemoMode} />
+              <TradingPanel symbol={selectedSymbol} />
             </div>
           </div>
         );
       
       case "bots":
-        return <AutomatedTrading isDemoMode={isDemoMode} />;
+        return <AutomatedTrading />;
       
       case "history":
         return (
           <>
             <h2 className="text-2xl font-bold text-white mb-6">Transaction History</h2>
-            <TransactionHistory isDemoMode={isDemoMode} />
+            <TransactionHistory />
           </>
         );
         
@@ -177,13 +176,6 @@ const Dashboard = () => {
   
   return (
     <DashboardLayout>
-      {/* Demo Mode Toggle Card */}
-      <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
-        <CardContent className="pt-6">
-          <DemoModeToggle />
-        </CardContent>
-      </Card>
-      
       {/* Dynamic Content based on active tab */}
       <div className="space-y-6">
         {renderContent()}

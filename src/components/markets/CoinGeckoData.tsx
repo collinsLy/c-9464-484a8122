@@ -1,91 +1,38 @@
 
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getCoinData, getTopCoins, getCoingeckoIdFromSymbol } from "@/lib/api/coingecko";
 
 interface CoinGeckoDataProps {
   symbol: string;
 }
 
 const CoinGeckoData = ({ symbol }: CoinGeckoDataProps) => {
-  const symbolName = symbol.slice(0, 3);
+  const coinId = getCoingeckoIdFromSymbol(symbol);
   
-  // Sample data - in a real app, this would come from CoinGecko API
-  const marketData = {
-    name: symbolName === "BTC" ? "Bitcoin" : 
-          symbolName === "ETH" ? "Ethereum" : 
-          symbolName === "SOL" ? "Solana" :
-          symbolName === "BNB" ? "Binance Coin" :
-          symbolName === "ADA" ? "Cardano" :
-          symbolName === "DOT" ? "Polkadot" : symbolName,
-    rank: symbolName === "BTC" ? 1 : 
-          symbolName === "ETH" ? 2 : 
-          symbolName === "SOL" ? 5 :
-          symbolName === "BNB" ? 4 :
-          symbolName === "ADA" ? 8 :
-          symbolName === "DOT" ? 12 : 0,
-    price: symbolName === "BTC" ? 65432.21 : 
-           symbolName === "ETH" ? 3245.67 : 
-           symbolName === "SOL" ? 152.43 :
-           symbolName === "BNB" ? 605.78 :
-           symbolName === "ADA" ? 0.59 :
-           symbolName === "DOT" ? 8.72 : 0,
-    marketCap: symbolName === "BTC" ? 1273000000000 : 
-               symbolName === "ETH" ? 389000000000 : 
-               symbolName === "SOL" ? 62100000000 :
-               symbolName === "BNB" ? 92400000000 :
-               symbolName === "ADA" ? 19800000000 :
-               symbolName === "DOT" ? 10700000000 : 0,
-    volume24h: symbolName === "BTC" ? 32500000000 : 
-               symbolName === "ETH" ? 24800000000 : 
-               symbolName === "SOL" ? 18200000000 :
-               symbolName === "BNB" ? 15400000000 :
-               symbolName === "ADA" ? 12100000000 :
-               symbolName === "DOT" ? 8700000000 : 0,
-    change24h: symbolName === "BTC" ? 2.3 : 
-               symbolName === "ETH" ? 1.7 : 
-               symbolName === "SOL" ? 3.5 :
-               symbolName === "BNB" ? -0.8 :
-               symbolName === "ADA" ? -2.1 :
-               symbolName === "DOT" ? 1.2 : 0,
-    allTimeHigh: symbolName === "BTC" ? 69044.77 : 
-                 symbolName === "ETH" ? 4878.26 : 
-                 symbolName === "SOL" ? 259.96 :
-                 symbolName === "BNB" ? 686.31 :
-                 symbolName === "ADA" ? 3.10 :
-                 symbolName === "DOT" ? 55.00 : 0,
-    allTimeHighDate: "2021-11-10",
-    trustScore: symbolName === "BTC" ? 93 : 
-                symbolName === "ETH" ? 90 : 
-                symbolName === "SOL" ? 85 :
-                symbolName === "BNB" ? 82 :
-                symbolName === "ADA" ? 88 :
-                symbolName === "DOT" ? 86 : 0,
-    categories: symbolName === "BTC" ? ["Currency", "Store of Value"] : 
-                symbolName === "ETH" ? ["Smart Contract Platform", "DeFi"] : 
-                symbolName === "SOL" ? ["Smart Contract Platform", "Web3"] :
-                symbolName === "BNB" ? ["Centralized Exchange", "Smart Contract Platform"] :
-                symbolName === "ADA" ? ["Smart Contract Platform", "Research"] :
-                symbolName === "DOT" ? ["Interoperability", "Substrate"] : [],
-  };
+  // Fetch coin data
+  const { data: coinData, isLoading: isLoadingCoinData } = useQuery({
+    queryKey: ['coinData', coinId],
+    queryFn: () => getCoinData(coinId),
+  });
   
-  // Top cryptocurrencies by market cap
-  const topCoins = [
-    { rank: 1, name: "Bitcoin", symbol: "BTC", price: 65432.21, marketCap: 1273000000000, change24h: 2.3 },
-    { rank: 2, name: "Ethereum", symbol: "ETH", price: 3245.67, marketCap: 389000000000, change24h: 1.7 },
-    { rank: 3, name: "Tether", symbol: "USDT", price: 1.00, marketCap: 106000000000, change24h: 0.01 },
-    { rank: 4, name: "Binance Coin", symbol: "BNB", price: 605.78, marketCap: 92400000000, change24h: -0.8 },
-    { rank: 5, name: "Solana", symbol: "SOL", price: 152.43, marketCap: 62100000000, change24h: 3.5 },
-    { rank: 6, name: "XRP", symbol: "XRP", price: 0.62, marketCap: 33700000000, change24h: -1.2 },
-    { rank: 7, name: "USDC", symbol: "USDC", price: 1.00, marketCap: 32300000000, change24h: 0.01 },
-    { rank: 8, name: "Cardano", symbol: "ADA", price: 0.59, marketCap: 19800000000, change24h: -2.1 },
-  ];
+  // Fetch top coins
+  const { data: topCoins, isLoading: isLoadingTopCoins } = useQuery({
+    queryKey: ['topCoins'],
+    queryFn: () => getTopCoins(),
+  });
+  
+  // Calculate 24h change
+  const change24h = coinData?.market_data?.price_change_percentage_24h || 0;
   
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white lg:col-span-2">
         <CardHeader>
-          <CardTitle>{marketData.name} Market Data</CardTitle>
+          <CardTitle>{isLoadingCoinData ? <Skeleton className="h-8 w-48 bg-white/10" /> : coinData?.name} Market Data</CardTitle>
           <CardDescription className="text-white/70">
             Comprehensive market data from CoinGecko
           </CardDescription>
@@ -97,21 +44,43 @@ const CoinGeckoData = ({ symbol }: CoinGeckoDataProps) => {
               <dl className="space-y-2">
                 <div className="flex justify-between py-1 border-b border-white/10">
                   <dt className="text-white/70">Current Price</dt>
-                  <dd className="font-medium">${marketData.price.toLocaleString()}</dd>
+                  <dd className="font-medium">
+                    {isLoadingCoinData ? (
+                      <Skeleton className="h-5 w-20 bg-white/10" />
+                    ) : (
+                      `$${coinData?.market_data?.current_price?.usd?.toLocaleString() || "0.00"}`
+                    )}
+                  </dd>
                 </div>
                 <div className="flex justify-between py-1 border-b border-white/10">
                   <dt className="text-white/70">24h Change</dt>
-                  <dd className={marketData.change24h >= 0 ? "text-green-400" : "text-red-400"}>
-                    {marketData.change24h >= 0 ? '+' : ''}{marketData.change24h}%
+                  <dd className={change24h >= 0 ? "text-green-400" : "text-red-400"}>
+                    {isLoadingCoinData ? (
+                      <Skeleton className="h-5 w-16 bg-white/10" />
+                    ) : (
+                      `${change24h >= 0 ? '+' : ''}${change24h.toFixed(2)}%`
+                    )}
                   </dd>
                 </div>
                 <div className="flex justify-between py-1 border-b border-white/10">
                   <dt className="text-white/70">All-Time High</dt>
-                  <dd className="font-medium">${marketData.allTimeHigh.toLocaleString()}</dd>
+                  <dd className="font-medium">
+                    {isLoadingCoinData ? (
+                      <Skeleton className="h-5 w-20 bg-white/10" />
+                    ) : (
+                      `$${coinData?.market_data?.ath?.usd?.toLocaleString() || "0.00"}`
+                    )}
+                  </dd>
                 </div>
                 <div className="flex justify-between py-1 border-b border-white/10">
                   <dt className="text-white/70">ATH Date</dt>
-                  <dd>{marketData.allTimeHighDate}</dd>
+                  <dd>
+                    {isLoadingCoinData ? (
+                      <Skeleton className="h-5 w-24 bg-white/10" />
+                    ) : (
+                      new Date(coinData?.market_data?.ath_date?.usd || "").toLocaleDateString() || "N/A"
+                    )}
+                  </dd>
                 </div>
               </dl>
             </div>
@@ -121,22 +90,44 @@ const CoinGeckoData = ({ symbol }: CoinGeckoDataProps) => {
               <dl className="space-y-2">
                 <div className="flex justify-between py-1 border-b border-white/10">
                   <dt className="text-white/70">Market Cap Rank</dt>
-                  <dd>#{marketData.rank}</dd>
+                  <dd>
+                    {isLoadingCoinData ? (
+                      <Skeleton className="h-5 w-8 bg-white/10" />
+                    ) : (
+                      `#${coinData?.market_cap_rank || "N/A"}`
+                    )}
+                  </dd>
                 </div>
                 <div className="flex justify-between py-1 border-b border-white/10">
                   <dt className="text-white/70">Market Cap</dt>
-                  <dd>${(marketData.marketCap / 1000000000).toFixed(2)}B</dd>
+                  <dd>
+                    {isLoadingCoinData ? (
+                      <Skeleton className="h-5 w-20 bg-white/10" />
+                    ) : (
+                      `$${((coinData?.market_data?.market_cap?.usd || 0) / 1000000000).toFixed(2)}B`
+                    )}
+                  </dd>
                 </div>
                 <div className="flex justify-between py-1 border-b border-white/10">
                   <dt className="text-white/70">24h Trading Volume</dt>
-                  <dd>${(marketData.volume24h / 1000000000).toFixed(2)}B</dd>
+                  <dd>
+                    {isLoadingCoinData ? (
+                      <Skeleton className="h-5 w-20 bg-white/10" />
+                    ) : (
+                      `$${((coinData?.market_data?.total_volume?.usd || 0) / 1000000000).toFixed(2)}B`
+                    )}
+                  </dd>
                 </div>
                 <div className="flex justify-between py-1 border-b border-white/10">
                   <dt className="text-white/70">Coin Categories</dt>
                   <dd className="flex flex-wrap justify-end gap-1">
-                    {marketData.categories.map((category, index) => (
-                      <Badge key={index} className="bg-accent/30 text-white">{category}</Badge>
-                    ))}
+                    {isLoadingCoinData ? (
+                      <Skeleton className="h-5 w-24 bg-white/10" />
+                    ) : (
+                      coinData?.categories?.slice(0, 3).map((category, index) => (
+                        <Badge key={index} className="bg-accent/30 text-white">{category}</Badge>
+                      ))
+                    )}
                   </dd>
                 </div>
               </dl>
@@ -147,12 +138,20 @@ const CoinGeckoData = ({ symbol }: CoinGeckoDataProps) => {
             <h3 className="text-lg font-medium mb-4">Community Trust Score</h3>
             <div className="flex items-center gap-2">
               <div className="relative h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                <div 
-                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-yellow-500 to-green-500" 
-                  style={{ width: `${marketData.trustScore}%` }}
-                />
+                {!isLoadingCoinData && (
+                  <div 
+                    className="absolute top-0 left-0 h-full bg-gradient-to-r from-yellow-500 to-green-500" 
+                    style={{ width: `${85}%` }}
+                  />
+                )}
               </div>
-              <span className="text-sm font-medium">{marketData.trustScore}/100</span>
+              <span className="text-sm font-medium">
+                {isLoadingCoinData ? (
+                  <Skeleton className="h-5 w-12 bg-white/10" />
+                ) : (
+                  "85/100"
+                )}
+              </span>
             </div>
           </div>
         </CardContent>
@@ -176,24 +175,38 @@ const CoinGeckoData = ({ symbol }: CoinGeckoDataProps) => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {topCoins.map((coin) => (
-                <TableRow 
-                  key={coin.symbol} 
-                  className={`border-white/10 ${coin.symbol === symbolName ? "bg-accent/20" : ""}`}
-                >
-                  <TableCell>{coin.rank}</TableCell>
-                  <TableCell>
-                    <div className="font-medium">{coin.name}</div>
-                    <div className="text-xs text-white/70">{coin.symbol}</div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    ${coin.price < 10 ? coin.price.toFixed(2) : coin.price.toLocaleString()}
-                  </TableCell>
-                  <TableCell className={`text-right ${coin.change24h >= 0 ? "text-green-400" : "text-red-400"}`}>
-                    {coin.change24h >= 0 ? '+' : ''}{coin.change24h}%
-                  </TableCell>
-                </TableRow>
-              ))}
+              {isLoadingTopCoins ? (
+                Array(8).fill(0).map((_, index) => (
+                  <TableRow key={index} className="border-white/10">
+                    <TableCell><Skeleton className="h-5 w-5 bg-white/10" /></TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 w-24 bg-white/10 mb-1" />
+                      <Skeleton className="h-4 w-10 bg-white/10" />
+                    </TableCell>
+                    <TableCell className="text-right"><Skeleton className="h-5 w-16 ml-auto bg-white/10" /></TableCell>
+                    <TableCell className="text-right"><Skeleton className="h-5 w-12 ml-auto bg-white/10" /></TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                topCoins?.slice(0, 8).map((coin, index) => (
+                  <TableRow 
+                    key={coin.id} 
+                    className={`border-white/10 ${coin.id === coinId ? "bg-accent/20" : ""}`}
+                  >
+                    <TableCell>{coin.market_cap_rank}</TableCell>
+                    <TableCell>
+                      <div className="font-medium">{coin.name}</div>
+                      <div className="text-xs text-white/70">{coin.symbol.toUpperCase()}</div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      ${coin.current_price < 10 ? coin.current_price.toFixed(2) : coin.current_price.toLocaleString()}
+                    </TableCell>
+                    <TableCell className={`text-right ${coin.price_change_percentage_24h >= 0 ? "text-green-400" : "text-red-400"}`}>
+                      {coin.price_change_percentage_24h >= 0 ? '+' : ''}{coin.price_change_percentage_24h.toFixed(2)}%
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -208,9 +221,13 @@ const CoinGeckoData = ({ symbol }: CoinGeckoDataProps) => {
         </CardHeader>
         <CardContent>
           <div className="h-[300px] flex items-center justify-center">
-            <div className="text-white/50 text-sm">
-              In a real implementation, this would show a historical price chart from CoinGecko API.
-            </div>
+            {isLoadingCoinData ? (
+              <div className="w-full h-full bg-white/5 rounded-lg animate-pulse" />
+            ) : (
+              <div className="text-white/50 text-sm">
+                Historical price chart data would be displayed here using CoinGecko's historical data API.
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

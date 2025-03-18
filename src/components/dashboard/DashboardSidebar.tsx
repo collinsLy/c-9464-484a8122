@@ -1,11 +1,9 @@
-
 import { useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useDashboardContext } from "./DashboardLayout";
 import { 
   ChevronRight, ChevronLeft, Home, LineChart, BarChart3, 
-  Wallet, CreditCard, TrendingUp, History, Settings 
+  Wallet, CreditCard, TrendingUp, History, Settings, PlayCircle
 } from "lucide-react";
 import { useState } from "react";
 
@@ -22,7 +20,6 @@ interface SidebarProps {
 
 const DashboardSidebar = ({ navItems }: SidebarProps) => {
   const location = useLocation();
-  const { isDemoMode } = useDashboardContext();
   const [collapsed, setCollapsed] = useState(false);
 
   // Extract the active tab from the location pathname or query parameters
@@ -39,6 +36,7 @@ const DashboardSidebar = ({ navItems }: SidebarProps) => {
     if (pathname === '/market') return 'markets';
     if (pathname === '/assets') return 'assets';
     if (pathname === '/settings') return 'settings';
+    if (pathname === '/demo') return 'demo';
     
     // Default to dashboard if no match is found
     return "dashboard";
