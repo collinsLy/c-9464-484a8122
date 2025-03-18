@@ -1,9 +1,11 @@
 import { LogOut, Bell, User, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDashboardContext } from "./DashboardLayout";
+import { useAuth } from "@/context/authContext"; // Added import for auth context
 
 const DashboardHeader = () => {
   const { isDemoMode } = useDashboardContext();
+  const auth = useAuth(); // Added auth context hook
 
   return (
     <header className="sticky top-0 z-30 w-full px-6 py-3 bg-background/80 backdrop-blur-lg border-b border-white/10 flex items-center justify-between">
@@ -26,8 +28,8 @@ const DashboardHeader = () => {
           <Settings className="w-5 h-5" />
         </Button>
         <Button variant="outline" size="sm" className="text-white border-white/20 hover:bg-white/10" onClick={() => {
+          auth.signOut(); // Use auth context for sign-out
           window.location.href = "/";
-          // Clear any auth state/tokens here if needed
         }}>
           <LogOut className="w-4 h-4 mr-2" />
           <span className="hidden sm:inline">Sign Out</span>

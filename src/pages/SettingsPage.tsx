@@ -16,13 +16,14 @@ import {
   Upload, Database, Smartphone
 } from "lucide-react";
 import { useForm } from "react-hook-form";
-import {signOut} from "next-auth/react";
+import { auth } from "@/lib/firebase";
 
 
 const SettingsPage = () => {
   const { isDemoMode } = useDashboardContext();
   const [activeTab, setActiveTab] = useState("profile");
   const [darkMode, setDarkMode] = useState(true);
+  const [user, setUser] = useState(null); // Add state for user data
 
   const profileForm = useForm({
     defaultValues: {
@@ -31,6 +32,11 @@ const SettingsPage = () => {
       phone: "+254 712 345 678"
     }
   });
+
+  const handleFieldChange = (fieldName, value) => {
+    profileForm.setValue(fieldName, value);
+  };
+
 
   const onSubmit = async (data) => {
     console.log("Saving profile data:", data);
@@ -116,6 +122,8 @@ const SettingsPage = () => {
                           <Label htmlFor="name">Full Name</Label>
                           <Input 
                             {...profileForm.register("name")}
+                            defaultValue={user?.displayName || ''} 
+                            onChange={(e) => handleFieldChange('displayName', e.target.value)}
                             className="bg-white/5 border-white/10" 
                           />
                         </div>
@@ -124,6 +132,8 @@ const SettingsPage = () => {
                           <Input 
                             {...profileForm.register("email")}
                             type="email"
+                            defaultValue={user?.email || ''} 
+                            onChange={(e) => handleFieldChange('email', e.target.value)}
                             className="bg-white/5 border-white/10" 
                           />
                         </div>
@@ -451,7 +461,7 @@ const SettingsPage = () => {
             </Card>
           </TabsContent>
         </Tabs>
-        <Button onClick={() => signOut()}>Sign out</Button>
+        <Button onClick={() => auth.signOut()}>Sign out</Button>
       </div>
     </DashboardLayout>
   );
