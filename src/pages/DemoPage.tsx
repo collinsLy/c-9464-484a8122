@@ -27,12 +27,12 @@ const DemoPage = () => {
           <CardHeader>
             <CardTitle>Demo Trading Platform</CardTitle>
             <CardDescription className="text-white/70">
-              Practice trading with $10,000 virtual funds. No real money is used.
+              Practice trading with virtual funds. No real money is used.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-lg font-bold mb-4">
-              Demo Balance: $10,000.00
+            <div className="text-2xl font-bold mb-4">
+              Current Demo Balance: ${parseFloat(localStorage.getItem('demoBalance') || '10000').toFixed(2)}
             </div>
             <p className="text-white/70">
               Use this demo environment to practice trading strategies and test our platform features without risking real funds.
