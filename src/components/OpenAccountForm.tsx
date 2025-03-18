@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,6 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { toast } from "@/components/ui/use-toast";
 
 const formSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters"),
@@ -31,7 +31,7 @@ interface OpenAccountFormProps {
 
 const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -45,19 +45,22 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     try {
-      // This would be replaced with an actual API call
-      console.log("Account creation values:", values);
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Call success callback
-      onSuccess();
-      
-      // Redirect to dashboard (this would be handled differently in a real app)
+      const { createUserWithEmailAndPassword } = await import('firebase/auth');
+      const { auth } = await import('@/lib/firebase');
+
+      await createUserWithEmailAndPassword(auth, values.email, values.password);
+
+      toast({
+        title: "Account created!",
+        description: "Welcome to Vertex Trading",
+      });
+
       window.location.href = "/dashboard";
     } catch (error) {
       console.error("Error creating account:", error);
+      form.setError("root", { 
+        message: "Failed to create account. Email may already be in use." 
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -79,7 +82,7 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="email"
@@ -93,7 +96,7 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="password"
@@ -110,7 +113,7 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="confirmPassword"
@@ -124,7 +127,7 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
             </FormItem>
           )}
         />
-        
+
         <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? "Creating Account..." : "Create Account"}
         </Button>
