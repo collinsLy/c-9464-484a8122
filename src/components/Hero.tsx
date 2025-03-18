@@ -37,6 +37,15 @@ const Hero = () => {
             </DialogContent>
           </Dialog>
           
+          <div className="bg-accent/10 p-6 rounded-xl mb-8 border border-accent/20">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="bg-accent/20 text-accent px-2 py-1 rounded text-sm font-medium">Limited Time Offer</span>
+              <span className="text-white/60 text-sm">Ends in 30 days</span>
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">New User Welcome Bonus</h3>
+            <p className="text-white/70">Deposit $15 or more and receive a $5 welcome bonus instantly!</p>
+          </div>
+          
           <div className="grid grid-cols-3 gap-8 pt-8">
             <div>
               <div className="text-3xl font-bold text-white">100+</div>
