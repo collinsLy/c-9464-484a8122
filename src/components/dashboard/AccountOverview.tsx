@@ -1,5 +1,4 @@
-
-import { ArrowUpRight, Wallet, CreditCard, TrendingUp } from "lucide-react";
+import { ArrowUpRight, Wallet, CreditCard, TrendingUp, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -10,7 +9,7 @@ interface AccountOverviewProps {
 
 const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   const { toast } = useToast();
-  
+
   const handleDeposit = () => {
     if (isDemoMode) {
       toast({
@@ -20,10 +19,10 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
       });
       return;
     }
-    
+
     window.open("https://121bc70e-c053-463f-b2e4-d866e4703b4b-00-t1pwtshj20ol.riker.replit.dev/", "_blank");
   };
-  
+
   const handleWithdraw = () => {
     if (isDemoMode) {
       toast({
@@ -33,13 +32,13 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
       });
       return;
     }
-    
+
     toast({
       title: "Withdrawal Initiated",
       description: "Please follow the verification steps to complete your withdrawal.",
     });
   };
-  
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
@@ -63,7 +62,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
           )}
         </CardContent>
       </Card>
-      
+
       <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg font-medium text-white/70">
@@ -93,10 +92,26 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
               <CreditCard className="w-4 h-4 mr-1" />
               Withdraw
             </Button>
+            {isDemoMode && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="ml-2 text-white border-white/20 hover:bg-white/10"
+                onClick={() => {
+                  // Reset demo balance to initial 10,000
+                  localStorage.setItem('demoBalance', '10000');
+                  window.location.reload();
+                  toast.success("Demo funds reset to $10,000");
+                }}
+              >
+                <RefreshCw className="w-4 h-4 mr-1" />
+                Reset Demo
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
-      
+
       <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg font-medium text-white/70">
