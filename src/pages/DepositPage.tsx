@@ -75,7 +75,7 @@ const DepositPage = () => {
                           onClick={() => setSelectedCrypto('USDT')}
                           className="flex items-center gap-2"
                         >
-                          <div className="w-5 h-5 rounded-full bg-teal-500" />
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/7/73/Tether_Logo.svg" alt="USDT" className="w-5 h-5" />
                           USDT
                         </Button>
                         <Button 
@@ -83,7 +83,7 @@ const DepositPage = () => {
                           onClick={() => setSelectedCrypto('BNB')}
                           className="flex items-center gap-2"
                         >
-                          <div className="w-5 h-5 rounded-full bg-yellow-500" />
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/1/1c/BNB%2C_native_cryptocurrency_for_the_Binance_Smart_Chain.svg" alt="BNB" className="w-5 h-5" />
                           BNB
                         </Button>
                         <Button 
@@ -91,7 +91,7 @@ const DepositPage = () => {
                           onClick={() => setSelectedCrypto('WLD')}
                           className="flex items-center gap-2"
                         >
-                          <div className="w-5 h-5 rounded-full bg-purple-500" />
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/4/4c/Worldcoin_Logo.png" alt="WLD" className="w-5 h-5" />
                           WLD
                         </Button>
                         <Button 
@@ -99,7 +99,7 @@ const DepositPage = () => {
                           onClick={() => setSelectedCrypto('USDC')}
                           className="flex items-center gap-2"
                         >
-                          <div className="w-5 h-5 rounded-full bg-blue-500" />
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Circle_USDC_Logo.svg" alt="USDC" className="w-5 h-5" />
                           USDC
                         </Button>
                         <Button 
@@ -107,7 +107,7 @@ const DepositPage = () => {
                           onClick={() => setSelectedCrypto('SOL')}
                           className="flex items-center gap-2"
                         >
-                          <div className="w-5 h-5 rounded-full bg-purple-600" />
+                          <img src="https://cryptologos.cc/logos/solana-sol-logo.svg?v=040" alt="SOL" className="w-5 h-5" />
                           SOL
                         </Button>
                       </div>
