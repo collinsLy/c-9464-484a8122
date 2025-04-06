@@ -14,11 +14,25 @@ interface NavItem {
   path: string;
 }
 
+const defaultNavItems: NavItem[] = [
+  { icon: Home, label: "Dashboard", id: "dashboard", path: "/dashboard" },
+  { icon: LineChart, label: "Markets", id: "markets", path: "/market" },
+  { icon: TrendingUp, label: "Trading", id: "trading", path: "/trading" },
+  { icon: Wallet, label: "Assets", id: "assets", path: "/assets" },
+  { icon: CreditCard, label: "Deposit", id: "deposit", path: "/deposit" },
+  { icon: CreditCard, label: "Withdraw", id: "withdraw", path: "/withdraw" },
+  { icon: BarChart3, label: "Bots & Strategies", id: "bots", path: "/bots" },
+  { icon: PlayCircle, label: "Demo", id: "demo", path: "/demo" },
+  { icon: History, label: "History", id: "history", path: "/history" },
+  { icon: Settings, label: "Support", id: "support", path: "/support" },
+  { icon: Settings, label: "Settings", id: "settings", path: "/settings" },
+];
+
 interface SidebarProps {
-  navItems: NavItem[];
+  navItems?: NavItem[];
 }
 
-const DashboardSidebar = ({ navItems }: SidebarProps) => {
+const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
 
