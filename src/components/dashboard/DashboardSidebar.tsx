@@ -24,7 +24,7 @@ const defaultNavItems: NavItem[] = [
   { icon: BarChart3, label: "Bots & Strategies", id: "bots", path: "/bots" },
   { icon: PlayCircle, label: "Demo", id: "demo", path: "/demo" },
   { icon: History, label: "History", id: "history", path: "/history" },
-  { icon: Settings, label: "Support", id: "support", path: "/support" },
+  { icon: Settings, label: "Support", id: "support", path: "/support" },  
   { icon: Settings, label: "Settings", id: "settings", path: "/settings" },
 ];
 
