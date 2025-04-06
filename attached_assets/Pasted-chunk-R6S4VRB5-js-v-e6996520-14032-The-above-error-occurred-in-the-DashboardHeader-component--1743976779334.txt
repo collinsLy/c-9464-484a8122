@@ -1,0 +1,23 @@
+chunk-R6S4VRB5.js?v=e6996520:14032 The above error occurred in the <DashboardHeader> component:
+
+    at DashboardHeader (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/src/components/dashboard/DashboardHeader.tsx:23:22)
+    at div
+    at div
+    at DashboardProvider (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/src/components/dashboard/DashboardLayout.tsx:16:37)
+    at DashboardLayout (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/src/components/dashboard/DashboardLayout.tsx:45:43)
+    at Dashboard (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/src/pages/Dashboard.tsx:23:49)
+    at RenderedRoute (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=e6996520:4069:5)
+    at Routes (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=e6996520:4508:5)
+    at DashboardProvider (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/src/components/dashboard/DashboardLayout.tsx:16:37)
+    at Router (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=e6996520:4451:15)
+    at BrowserRouter (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=e6996520:5196:5)
+    at Provider (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/node_modules/.vite/deps/chunk-AFJ6VPUJ.js?v=e6996520:38:15)
+    at TooltipProvider (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit…ev:5000/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=e6996520:63:5)
+    at QueryClientProvider (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit…ev:5000/node_modules/.vite/deps/@tanstack_react-query.js?v=e6996520:2794:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+chunk-R6S4VRB5.js?v=e6996520:19413 Uncaught ReferenceError: profileOpen is not defined
+    at DashboardHeader (DashboardHeader.tsx:73:23)
+
