@@ -1,3 +1,4 @@
+import React from 'react';
 import { LogOut, Bell, User, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -15,6 +16,7 @@ const DashboardHeader = () => {
   const navigate = useNavigate();
   const { isDemoMode } = useDashboardContext();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
