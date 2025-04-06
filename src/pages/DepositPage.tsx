@@ -127,24 +127,138 @@ const DepositPage = () => {
                         <h3 className="text-lg font-medium text-white">Select Network</h3>
                       </div>
                       <div className="flex gap-2 flex-wrap">
-                        <Button 
-                          variant={network === 'ERC20' ? 'secondary' : 'outline'}
-                          onClick={() => setNetwork('ERC20')}
-                        >
-                          ERC20
-                        </Button>
-                        <Button 
-                          variant={network === 'BEP20' ? 'secondary' : 'outline'}
-                          onClick={() => setNetwork('BEP20')}
-                        >
-                          BEP20 (BSC)
-                        </Button>
-                        <Button 
-                          variant={network === 'SOLANA' ? 'secondary' : 'outline'}
-                          onClick={() => setNetwork('SOLANA')}
-                        >
-                          SOLANA
-                        </Button>
+                        {selectedCrypto === 'BTC' && (
+                          <>
+                            <Button 
+                              variant={network === 'NATIVE' ? 'secondary' : 'outline'}
+                              onClick={() => setNetwork('NATIVE')}
+                            >
+                              Bitcoin (Native)
+                            </Button>
+                            <Button 
+                              variant={network === 'BSC' ? 'secondary' : 'outline'}
+                              onClick={() => setNetwork('BSC')}
+                            >
+                              Binance Smart Chain (BEP20)
+                            </Button>
+                            <Button 
+                              variant={network === 'LIGHTNING' ? 'secondary' : 'outline'}
+                              onClick={() => setNetwork('LIGHTNING')}
+                            >
+                              Lightning Network
+                            </Button>
+                          </>
+                        )}
+                        {selectedCrypto === 'USDT' && (
+                          <>
+                            <Button 
+                              variant={network === 'ERC20' ? 'secondary' : 'outline'}
+                              onClick={() => setNetwork('ERC20')}
+                            >
+                              Ethereum (ERC20)
+                            </Button>
+                            <Button 
+                              variant={network === 'TRC20' ? 'secondary' : 'outline'}
+                              onClick={() => setNetwork('TRC20')}
+                            >
+                              Tron (TRC20)
+                            </Button>
+                            <Button 
+                              variant={network === 'BSC' ? 'secondary' : 'outline'}
+                              onClick={() => setNetwork('BSC')}
+                            >
+                              Binance Smart Chain (BEP20)
+                            </Button>
+                          </>
+                        )}
+                        {selectedCrypto === 'BNB' && (
+                          <>
+                            <Button 
+                              variant={network === 'BSC' ? 'secondary' : 'outline'}
+                              onClick={() => setNetwork('BSC')}
+                            >
+                              Binance Smart Chain (BEP20)
+                            </Button>
+                            <Button 
+                              variant={network === 'BEP2' ? 'secondary' : 'outline'}
+                              onClick={() => setNetwork('BEP2')}
+                            >
+                              Binance Chain (BEP2)
+                            </Button>
+                            <Button 
+                              variant={network === 'ERC20' ? 'secondary' : 'outline'}
+                              onClick={() => setNetwork('ERC20')}
+                            >
+                              Ethereum (ERC20)
+                            </Button>
+                          </>
+                        )}
+                        {selectedCrypto === 'WLD' && (
+                          <>
+                            <Button 
+                              variant={network === 'ERC20' ? 'secondary' : 'outline'}
+                              onClick={() => setNetwork('ERC20')}
+                            >
+                              Ethereum (ERC20)
+                            </Button>
+                            <Button 
+                              variant={network === 'OPTIMISM' ? 'secondary' : 'outline'}
+                              onClick={() => setNetwork('OPTIMISM')}
+                            >
+                              Optimism
+                            </Button>
+                            <Button 
+                              variant={network === 'POLYGON' ? 'secondary' : 'outline'}
+                              onClick={() => setNetwork('POLYGON')}
+                            >
+                              Polygon
+                            </Button>
+                          </>
+                        )}
+                        {selectedCrypto === 'USDC' && (
+                          <>
+                            <Button 
+                              variant={network === 'ERC20' ? 'secondary' : 'outline'}
+                              onClick={() => setNetwork('ERC20')}
+                            >
+                              Ethereum (ERC20)
+                            </Button>
+                            <Button 
+                              variant={network === 'SOLANA' ? 'secondary' : 'outline'}
+                              onClick={() => setNetwork('SOLANA')}
+                            >
+                              Solana (SPL)
+                            </Button>
+                            <Button 
+                              variant={network === 'POLYGON' ? 'secondary' : 'outline'}
+                              onClick={() => setNetwork('POLYGON')}
+                            >
+                              Polygon
+                            </Button>
+                          </>
+                        )}
+                        {selectedCrypto === 'SOL' && (
+                          <>
+                            <Button 
+                              variant={network === 'NATIVE' ? 'secondary' : 'outline'}
+                              onClick={() => setNetwork('NATIVE')}
+                            >
+                              Solana (Native SPL)
+                            </Button>
+                            <Button 
+                              variant={network === 'ERC20' ? 'secondary' : 'outline'}
+                              onClick={() => setNetwork('ERC20')}
+                            >
+                              Ethereum (ERC20, via Wormhole)
+                            </Button>
+                            <Button 
+                              variant={network === 'BSC' ? 'secondary' : 'outline'}
+                              onClick={() => setNetwork('BSC')}
+                            >
+                              Binance Smart Chain (BEP20, via bridges)
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </div>
 
