@@ -75,7 +75,7 @@ const DepositPage = () => {
                           onClick={() => setSelectedCrypto('USDT')}
                           className="flex items-center gap-2"
                         >
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/7/73/Tether_Logo.svg" alt="USDT" className="w-5 h-5" />
+                          <img src="https://cryptologos.cc/logos/tether-usdt-logo.svg?v=040" alt="USDT" className="w-5 h-5" />
                           USDT
                         </Button>
                         <Button 
@@ -91,7 +91,7 @@ const DepositPage = () => {
                           onClick={() => setSelectedCrypto('WLD')}
                           className="flex items-center gap-2"
                         >
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/4/4c/Worldcoin_Logo.png" alt="WLD" className="w-5 h-5" />
+                          <img src="https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040" alt="WLD" className="w-5 h-5" />
                           WLD
                         </Button>
                         <Button 
