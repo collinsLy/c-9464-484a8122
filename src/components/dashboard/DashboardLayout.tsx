@@ -3,7 +3,7 @@ import DashboardHeader from "./DashboardHeader";
 import DashboardSidebar from "./DashboardSidebar";
 import {
   Home, LineChart, BarChart3, Wallet, CreditCard,
-  TrendingUp, History, Settings, PlayCircle
+  TrendingUp, History, Settings, PlayCircle, HelpCircle, ArrowDownCircle, ArrowUpCircle
 } from "lucide-react";
 
 interface DashboardContextType {
@@ -39,7 +39,7 @@ interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
-const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+export default function DashboardLayout({ children }: DashboardLayoutProps) {
   // State for demo mode (This is redundant now, as it's managed by the provider)
   //const [isDemoMode, setIsDemoMode] = useState(false);
 
@@ -55,7 +55,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { icon: BarChart3, label: "Trading", id: "trading", path: "/dashboard?tab=trading" },
     { icon: Wallet, label: "Assets", id: "assets", path: "/assets" },
     { icon: PlayCircle, label: "Demo", id: "demo", path: "/demo" },
-    { icon: CreditCard, label: "Deposit/Withdraw", id: "funding", path: "/dashboard?tab=funding" },
+    { icon: ArrowUpCircle, label: "Deposit", id: "deposit", path: "/deposit" },
+    { icon: ArrowDownCircle, label: "Withdraw", id: "withdraw", path: "/withdraw" },
+    { icon: HelpCircle, label: "Support", id: "support", path: "/support" },
     { icon: TrendingUp, label: "Bots & Strategies", id: "bots", path: "/dashboard?tab=bots" },
     { icon: History, label: "History", id: "history", path: "/dashboard?tab=history" },
     { icon: Settings, label: "Settings", id: "settings", path: "/settings" },
@@ -83,5 +85,3 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     </DashboardProvider>
   );
 };
-
-export default DashboardLayout;

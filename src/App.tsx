@@ -11,6 +11,12 @@ import MarketPage from "./pages/MarketPage";
 import SettingsPage from "./pages/SettingsPage";
 import AssetsPage from "./pages/AssetsPage";
 import DemoPage from "./pages/DemoPage";
+import BotsPage from "./pages/BotsPage";
+import DepositPage from "./pages/DepositPage";
+import StrategiesPage from "./pages/StrategiesPage";
+import SupportPage from "./pages/SupportPage";
+import TradingPage from "./pages/TradingPage";
+import WithdrawPage from "./pages/WithdrawPage";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +34,12 @@ const App = () => (
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/assets" element={<AssetsPage />} />
           <Route path="/demo" element={<DemoPage />} />
+          <Route path="/bots" element={<BotsPage />} />
+          <Route path="/deposit" element={<DepositPage />} />
+          <Route path="/strategies" element={<StrategiesPage />} />
+          <Route path="/support" element={<SupportPage />} />
+          <Route path="/trading" element={<TradingPage />} />
+          <Route path="/withdraw" element={<WithdrawPage />} />
         </Routes>
         </DashboardProvider>
       </BrowserRouter>
