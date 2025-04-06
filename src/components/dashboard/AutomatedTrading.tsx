@@ -35,7 +35,7 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
     
     if (userBalance < requiredBalance) {
       toast.error("Insufficient Funds", {
-        description: `You need a minimum balance of $${requiredBalance} to activate the ${bot.type} bot.`,
+        description: `You need a minimum balance of $${requiredBalance} to activate the ${bot.type} bot. Please deposit funds to continue.`,
       });
       return;
     }
@@ -57,6 +57,8 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
             key={bot.id} 
             bot={bot} 
             onTradeClick={handleTradeClick} 
+            isDemoMode={isDemoMode}
+            userBalance={userBalance}
           />
         ))}
       </div>
