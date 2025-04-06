@@ -7,14 +7,13 @@ import { auth } from '../../lib/firebase';
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 
 const DashboardHeader = () => {
+  const navigate = useNavigate();
   const { isDemoMode } = useDashboardContext();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -39,10 +38,10 @@ const DashboardHeader = () => {
         <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10" onClick={() => setNotificationsOpen(true)}>
           <Bell className="w-5 h-5" />
         </Button>
-        <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10" onClick={() => setProfileOpen(true)}>
+        <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10" onClick={() => navigate('/settings')}>
           <User className="w-5 h-5" />
         </Button>
-        <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10" onClick={() => setSettingsOpen(true)}>
+        <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10" onClick={() => navigate('/settings')}>
           <Settings className="w-5 h-5" />
         </Button>
         <Button variant="outline" size="sm" className="text-white border-white/20 hover:bg-white/10" onClick={handleSignOut}>
