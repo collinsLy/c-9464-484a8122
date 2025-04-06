@@ -305,7 +305,7 @@ const AssetsPage = () => {
             <p className="text-white/60 mb-6">Start by depositing funds and purchasing assets</p>
             <Button 
   className="bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34]"
-  onClick={() => window.location.href = 'https://121bc70e-c053-463f-b2e4-d866e4703b4b-00-t1pwtshj20ol.riker.replit.dev/'}
+  onClick={() => window.location.href = '/deposit'}
 >
   Deposit Funds
 </Button>

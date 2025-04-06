@@ -20,7 +20,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
       return;
     }
 
-    window.open("https://121bc70e-c053-463f-b2e4-d866e4703b4b-00-t1pwtshj20ol.riker.replit.dev/", "_blank");
+    window.location.href = "/deposit";
   };
 
   const handleWithdraw = () => {

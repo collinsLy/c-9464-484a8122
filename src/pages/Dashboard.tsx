@@ -122,9 +122,7 @@ const Dashboard = () => {
                       </Card>
                     </div>
                     <a 
-                      href="https://121bc70e-c053-463f-b2e4-d866e4703b4b-00-t1pwtshj20ol.riker.replit.dev/" 
-                      target="_blank" 
-                      rel="noreferrer"
+                      href="/deposit"
                       className="inline-block w-full"
                     >
                       <button className="w-full bg-[#F2FF44] text-black font-medium py-2 rounded hover:bg-[#E2EF34]">
