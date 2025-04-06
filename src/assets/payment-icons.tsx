@@ -25,8 +25,8 @@ export const MastercardIcon = (props: SVGProps<SVGSVGElement>) => (
 
 export const PayPalIcon = (props: SVGProps<SVGSVGElement>) => (
   <img 
-    src="https://www.paypalobjects.com/webstatic/mktg/Logo/pp-logo-100px.png" 
-    alt="PayPal Logo" 
+    src="https://upload.wikimedia.org/wikipedia/commons/0/0e/PayPal_2024_%28Icon%29.svg" 
+    alt="PayPal Logo 2024" 
     {...props} 
   />
 );
