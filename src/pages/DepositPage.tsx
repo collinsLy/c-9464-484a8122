@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { VisaIcon, MastercardIcon, PayPalIcon, BankIcon, MpesaIcon, AirtelMoneyIcon } from '@/assets/payment-icons';
 import { cn } from '@/lib/utils';
+import { networkAddresses } from '@/lib/network-addresses';
 
 const DepositPage = () => {
   const { isDemoMode } = useDashboardContext();
@@ -16,7 +17,7 @@ const DepositPage = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("card");
   const [amount, setAmount] = useState("");
   const [network, setNetwork] = useState('NATIVE');
-  
+
   // Get the deposit address based on selected crypto and network
   const getDepositAddress = () => {
     const networks = networkAddresses[selectedCrypto];
