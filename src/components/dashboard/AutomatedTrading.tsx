@@ -16,30 +16,33 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
   const [userBalance] = useState(isDemoMode ? 10000 : 0);
 
   const handleTradeClick = (bot: BotTier) => {
-    // Check if user has sufficient balance for the Standard bot
-    if (bot.id === "standard" && userBalance < 20) {
-      toast.error("Insufficient Funds", {
-        description: "You need a minimum balance of $20 to use the Standard bot.",
-      });
-      return;
-    }
-    
     if (isDemoMode) {
       toast.success(`Demo Bot Activated`, {
         description: `${bot.type} bot is now running with virtual funds. No real money is being used.`,
       });
-    } else {
-      if (userBalance < bot.price) {
-        toast.error("Insufficient Funds", {
-          description: `Please deposit at least $${bot.price} to activate this bot.`,
-        });
-        return;
-      }
-      
-      toast.success(`Bot Activated`, {
-        description: `${bot.type} bot has been successfully activated.`,
-      });
+      return;
     }
+
+    // Check minimum balance requirements for each bot
+    const minimumBalanceRequired = {
+      standard: 20,
+      master: 40,
+      'pro-basic': 100,
+      'pro-premium': 200
+    };
+
+    const requiredBalance = minimumBalanceRequired[bot.id as keyof typeof minimumBalanceRequired];
+    
+    if (userBalance < requiredBalance) {
+      toast.error("Insufficient Funds", {
+        description: `You need a minimum balance of $${requiredBalance} to activate the ${bot.type} bot.`,
+      });
+      return;
+    }
+    
+    toast.success(`Bot Activated`, {
+      description: `${bot.type} bot has been successfully activated with real funds.`,
+    });
   };
 
   return (
