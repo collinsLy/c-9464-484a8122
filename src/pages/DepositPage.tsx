@@ -15,6 +15,7 @@ const DepositPage = () => {
   const [selectedCrypto, setSelectedCrypto] = useState("BTC");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("card");
   const [amount, setAmount] = useState("");
+  const [network, setNetwork] = useState('ERC20'); // Added network state
 
   const paymentMethods = [
     { id: "card", name: "Credit/Debit Card", icon: <div className="flex gap-2"><VisaIcon className="w-8 h-8" /><MastercardIcon className="w-8 h-8" /></div> },
@@ -23,7 +24,7 @@ const DepositPage = () => {
     { id: "mpesa", name: "M-Pesa", icon: <MpesaIcon className="w-8 h-8" /> },
     { id: "airtel", name: "Airtel Money", icon: <AirtelMoneyIcon className="w-8 h-8" /> },
   ];
-  
+
   return (
     <DashboardLayout>
       <div className="space-y-4">
@@ -52,7 +53,7 @@ const DepositPage = () => {
                   Fiat
                 </TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="crypto">
                 <div className="space-y-6">
                   <div className="grid gap-6">
@@ -67,6 +68,8 @@ const DepositPage = () => {
                         <option value="ETH">Ethereum (ETH)</option>
                         <option value="USDT">Tether (USDT)</option>
                         <option value="BNB">BNB</option>
+                        <option value="WLD">WLD</option>
+                        <option value="USDC">USDC</option>
                       </select>
                     </div>
                     <div className="grid gap-2">
@@ -78,7 +81,10 @@ const DepositPage = () => {
                           value={`${selectedCrypto === 'BTC' ? 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh' : 
                                  selectedCrypto === 'ETH' ? '0x71C7656EC7ab88b098defB751B7401B5f6d8976F' : 
                                  selectedCrypto === 'USDT' ? 'TRX7NB5Gku8bGxQRpwUTZPw9qBYvyVpwJD' : 
-                                 'bnb1g5p04snezgpky203fq6da9qyjsy2k9xrhx72wx'}`}
+                                 selectedCrypto === 'BNB' ? '0xe5819dbd958be2e2113415abda3ebadf9855ee4c' :
+                                 selectedCrypto === 'WLD' ? '0xe5819dbd958be2e2113415abda3ebadf9855ee4c' :
+                                 selectedCrypto === 'USDC' ? (network === 'SOLANA' ? '7qKBhzgQQaDDYKjBPCKNkYVkppbTcpp5cpHhkqKheRtn' : '0xe5819dbd958be2e2113415abda3ebadf9855ee4c') :
+                                 '0xe5819dbd958be2e2113415abda3ebadf9855ee4c'}`}
                           className="bg-background/40 border-white/10 text-white font-mono text-sm"
                         />
                         <Button 
@@ -88,7 +94,10 @@ const DepositPage = () => {
                           onClick={() => navigator.clipboard.writeText(`${selectedCrypto === 'BTC' ? 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh' : 
                                                                         selectedCrypto === 'ETH' ? '0x71C7656EC7ab88b098defB751B7401B5f6d8976F' : 
                                                                         selectedCrypto === 'USDT' ? 'TRX7NB5Gku8bGxQRpwUTZPw9qBYvyVpwJD' : 
-                                                                        'bnb1g5p04snezgpky203fq6da9qyjsy2k9xrhx72wx'}`)}
+                                                                        selectedCrypto === 'BNB' ? '0xe5819dbd958be2e2113415abda3ebadf9855ee4c' :
+                                                                        selectedCrypto === 'WLD' ? '0xe5819dbd958be2e2113415abda3ebadf9855ee4c' :
+                                                                        selectedCrypto === 'USDC' ? (network === 'SOLANA' ? '7qKBhzgQQaDDYKjBPCKNkYVkppbTcpp5cpHhkqKheRtn' : '0xe5819dbd958be2e2113415abda3ebadf9855ee4c') :
+                                                                        '0xe5819dbd958be2e2113415abda3ebadf9855ee4c'}`)}
                         >
                           Copy
                         </Button>
@@ -106,7 +115,7 @@ const DepositPage = () => {
                   </div>
                 </div>
               </TabsContent>
-              
+
               <TabsContent value="fiat">
                 <div className="space-y-6">
                   <div className="grid gap-6">
