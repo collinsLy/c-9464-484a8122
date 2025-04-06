@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
+import { DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useDashboardContext } from '@/components/dashboard/DashboardLayout';
 import { Input } from '@/components/ui/input';
@@ -100,6 +101,7 @@ const DepositPage = () => {
               </TabsList>
 
               <TabsContent value="crypto">
+                <DialogTitle className="sr-only">Crypto Deposit Options</DialogTitle>
                 <div className="space-y-8">
                   <div className="space-y-6">
                     <div>
