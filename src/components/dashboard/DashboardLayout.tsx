@@ -52,13 +52,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const navItems = [
     { icon: Home, label: "Dashboard", id: "dashboard", path: "/dashboard" },
     { icon: LineChart, label: "Markets", id: "markets", path: "/market" },
-    { icon: TrendingUp, label: "Trading", id: "trading", path: "/trading" },
+    { icon: TrendingUp, label: "Trading", id: "trading", path: "/dashboard?tab=trading" },
     { icon: Wallet, label: "Assets", id: "assets", path: "/assets" },
     { icon: ArrowUpCircle, label: "Deposit", id: "deposit", path: "/deposit" },
     { icon: ArrowDownCircle, label: "Withdraw", id: "withdraw", path: "/withdraw" },
     { icon: BarChart3, label: "Bots & Strategies", id: "bots", path: "/bots" },
     { icon: PlayCircle, label: "Demo", id: "demo", path: "/demo" },
-    { icon: History, label: "History", id: "history", path: "/history" },
+    { icon: History, label: "History", id: "history", path: "/dashboard?tab=history" },
     { icon: HelpCircle, label: "Support", id: "support", path: "/support" },
     { icon: Settings, label: "Settings", id: "settings", path: "/settings" },
   ];
