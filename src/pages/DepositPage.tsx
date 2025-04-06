@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
-import { DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useDashboardContext } from '@/components/dashboard/DashboardLayout';
 import { Input } from '@/components/ui/input';
@@ -16,52 +15,7 @@ const DepositPage = () => {
   const [selectedCrypto, setSelectedCrypto] = useState("BTC");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("card");
   const [amount, setAmount] = useState("");
-  const [network, setNetwork] = useState('ERC20');
-  const [depositAddress, setDepositAddress] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    const fetchDepositAddress = async () => {
-      if (!selectedCrypto || !network) return;
-      
-      setIsLoading(true);
-      setError("");
-      
-      try {
-        const response = await binanceService.getDepositAddress(
-          selectedCrypto, 
-          network === 'ERC20' ? 'ETH' : 
-          network === 'BSC' ? 'BSC' :
-          network === 'TRC20' ? 'TRX' :
-          network === 'SOLANA' ? 'SOL' :
-          network
-        );
-        setDepositAddress(response.address);
-      } catch (err) {
-        setError("Failed to fetch deposit address");
-        setDepositAddress("");
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (!isDemoMode) {
-      fetchDepositAddress();
-    } else {
-      // Use demo addresses in demo mode
-      setDepositAddress(
-        selectedCrypto === 'BTC' ? 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh' : 
-        selectedCrypto === 'ETH' ? '0x71C7656EC7ab88b098defB751B7401B5f6d8976F' : 
-        selectedCrypto === 'USDT' ? 'TRX7NB5Gku8bGxQRpwUTZPw9qBYvyVpwJD' : 
-        selectedCrypto === 'BNB' ? '0xe5819dbd958be2e2113415abda3ebadf9855ee4c' :
-        selectedCrypto === 'WLD' ? '0xe5819dbd958be2e2113415abda3ebadf9855ee4c' :
-        selectedCrypto === 'USDC' ? (network === 'SOLANA' ? '7qKBhzgQQaDDYKjBPCKNkYVkppbTcpp5cpHhkqKheRtn' : '0xe5819dbd958be2e2113415abda3ebadf9855ee4c') :
-        '0xe5819dbd958be2e2113415abda3ebadf9855ee4c'
-      );
-    }
-  }, [selectedCrypto, network, isDemoMode]);
+  const [network, setNetwork] = useState('ERC20'); // Added network state
 
   const paymentMethods = [
     { id: "card", name: "Credit/Debit Card", icon: <div className="flex gap-2"><VisaIcon className="w-8 h-8" /><MastercardIcon className="w-8 h-8" /></div> },
@@ -101,7 +55,6 @@ const DepositPage = () => {
               </TabsList>
 
               <TabsContent value="crypto">
-                <DialogTitle className="sr-only">Crypto Deposit Options</DialogTitle>
                 <div className="space-y-8">
                   <div className="space-y-6">
                     <div>
@@ -318,7 +271,13 @@ const DepositPage = () => {
                         <Input
                           type="text"
                           readOnly
-                          value={depositAddress}
+                          value={`${selectedCrypto === 'BTC' ? 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh' : 
+                                 selectedCrypto === 'ETH' ? '0x71C7656EC7ab88b098defB751B7401B5f6d8976F' : 
+                                 selectedCrypto === 'USDT' ? 'TRX7NB5Gku8bGxQRpwUTZPw9qBYvyVpwJD' : 
+                                 selectedCrypto === 'BNB' ? '0xe5819dbd958be2e2113415abda3ebadf9855ee4c' :
+                                 selectedCrypto === 'WLD' ? '0xe5819dbd958be2e2113415abda3ebadf9855ee4c' :
+                                 selectedCrypto === 'USDC' ? (network === 'SOLANA' ? '7qKBhzgQQaDDYKjBPCKNkYVkppbTcpp5cpHhkqKheRtn' : '0xe5819dbd958be2e2113415abda3ebadf9855ee4c') :
+                                 '0xe5819dbd958be2e2113415abda3ebadf9855ee4c'}`}
                           className="bg-background/40 border-white/10 text-white font-mono text-sm pr-24"
                         />
                         <Button 
