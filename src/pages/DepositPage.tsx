@@ -149,12 +149,6 @@ const DepositPage = () => {
                             >
                               Binance Smart Chain (BEP20)
                             </Button>
-                            <Button 
-                              variant={network === 'LIGHTNING' ? 'secondary' : 'outline'}
-                              onClick={() => setNetwork('LIGHTNING')}
-                            >
-                              Lightning Network
-                            </Button>
                           </>
                         )}
                         {selectedCrypto === 'USDT' && (
@@ -216,10 +210,10 @@ const DepositPage = () => {
                               Optimism
                             </Button>
                             <Button 
-                              variant={network === 'POLYGON' ? 'secondary' : 'outline'}
-                              onClick={() => setNetwork('POLYGON')}
+                              variant={network === 'WORLD' ? 'secondary' : 'outline'}
+                              onClick={() => setNetwork('WORLD')}
                             >
-                              Polygon
+                              World Chain (WLD)
                             </Button>
                           </>
                         )}
@@ -238,10 +232,10 @@ const DepositPage = () => {
                               Solana (SPL)
                             </Button>
                             <Button 
-                              variant={network === 'POLYGON' ? 'secondary' : 'outline'}
-                              onClick={() => setNetwork('POLYGON')}
+                              variant={network === 'BSC' ? 'secondary' : 'outline'}
+                              onClick={() => setNetwork('BSC')}
                             >
-                              Polygon
+                              BNB Smart Chain (BEP20)
                             </Button>
                           </>
                         )}
@@ -257,13 +251,13 @@ const DepositPage = () => {
                               variant={network === 'ERC20' ? 'secondary' : 'outline'}
                               onClick={() => setNetwork('ERC20')}
                             >
-                              Ethereum (ERC20, via Wormhole)
+                              Ethereum (ERC20)
                             </Button>
                             <Button 
                               variant={network === 'BSC' ? 'secondary' : 'outline'}
                               onClick={() => setNetwork('BSC')}
                             >
-                              Binance Smart Chain (BEP20, via bridges)
+                              Binance Smart Chain (BEP20)
                             </Button>
                           </>
                         )}
