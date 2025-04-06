@@ -55,25 +55,96 @@ const DepositPage = () => {
               </TabsList>
 
               <TabsContent value="crypto">
-                <div className="space-y-6">
-                  <div className="grid gap-6">
-                    <div className="grid gap-2">
-                      <Label className="text-white">Select Cryptocurrency</Label>
-                      <select
-                        value={selectedCrypto}
-                        onChange={(e) => setSelectedCrypto(e.target.value)}
-                        className="bg-background/40 text-white border border-white/10 rounded-md p-2 w-full"
-                      >
-                        <option value="BTC">Bitcoin (BTC)</option>
-                        <option value="ETH">Ethereum (ETH)</option>
-                        <option value="USDT">Tether (USDT)</option>
-                        <option value="BNB">BNB</option>
-                        <option value="WLD">WLD</option>
-                        <option value="USDC">USDC</option>
-                      </select>
+                <div className="space-y-8">
+                  <div className="space-y-6">
+                    <div>
+                      <div className="flex items-center gap-2 mb-4">
+                        <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-sm">1</span>
+                        <h3 className="text-lg font-medium text-white">Select Coin</h3>
+                      </div>
+                      <div className="mb-4">
+                        <Input
+                          type="text"
+                          placeholder="Search Coin"
+                          className="bg-background/40 border-white/10 text-white"
+                        />
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        <Button 
+                          variant={selectedCrypto === 'USDT' ? 'secondary' : 'outline'}
+                          onClick={() => setSelectedCrypto('USDT')}
+                          className="flex items-center gap-2"
+                        >
+                          <div className="w-5 h-5 rounded-full bg-teal-500" />
+                          USDT
+                        </Button>
+                        <Button 
+                          variant={selectedCrypto === 'BNB' ? 'secondary' : 'outline'}
+                          onClick={() => setSelectedCrypto('BNB')}
+                          className="flex items-center gap-2"
+                        >
+                          <div className="w-5 h-5 rounded-full bg-yellow-500" />
+                          BNB
+                        </Button>
+                        <Button 
+                          variant={selectedCrypto === 'WLD' ? 'secondary' : 'outline'}
+                          onClick={() => setSelectedCrypto('WLD')}
+                          className="flex items-center gap-2"
+                        >
+                          <div className="w-5 h-5 rounded-full bg-purple-500" />
+                          WLD
+                        </Button>
+                        <Button 
+                          variant={selectedCrypto === 'USDC' ? 'secondary' : 'outline'}
+                          onClick={() => setSelectedCrypto('USDC')}
+                          className="flex items-center gap-2"
+                        >
+                          <div className="w-5 h-5 rounded-full bg-blue-500" />
+                          USDC
+                        </Button>
+                        <Button 
+                          variant={selectedCrypto === 'SOL' ? 'secondary' : 'outline'}
+                          onClick={() => setSelectedCrypto('SOL')}
+                          className="flex items-center gap-2"
+                        >
+                          <div className="w-5 h-5 rounded-full bg-purple-600" />
+                          SOL
+                        </Button>
+                      </div>
                     </div>
-                    <div className="grid gap-2">
-                      <Label className="text-white">Your {selectedCrypto} Address</Label>
+
+                    <div>
+                      <div className="flex items-center gap-2 mb-4">
+                        <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-sm">2</span>
+                        <h3 className="text-lg font-medium text-white">Select Network</h3>
+                      </div>
+                      <div className="flex gap-2 flex-wrap">
+                        <Button 
+                          variant={network === 'ERC20' ? 'secondary' : 'outline'}
+                          onClick={() => setNetwork('ERC20')}
+                        >
+                          ERC20
+                        </Button>
+                        <Button 
+                          variant={network === 'BEP20' ? 'secondary' : 'outline'}
+                          onClick={() => setNetwork('BEP20')}
+                        >
+                          BEP20 (BSC)
+                        </Button>
+                        <Button 
+                          variant={network === 'SOLANA' ? 'secondary' : 'outline'}
+                          onClick={() => setNetwork('SOLANA')}
+                        >
+                          SOLANA
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center gap-2 mb-4">
+                        <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-sm">3</span>
+                        <h3 className="text-lg font-medium text-white">Deposit Address</h3>
+                      </div>
                       <div className="relative">
                         <Input
                           type="text"
@@ -85,12 +156,12 @@ const DepositPage = () => {
                                  selectedCrypto === 'WLD' ? '0xe5819dbd958be2e2113415abda3ebadf9855ee4c' :
                                  selectedCrypto === 'USDC' ? (network === 'SOLANA' ? '7qKBhzgQQaDDYKjBPCKNkYVkppbTcpp5cpHhkqKheRtn' : '0xe5819dbd958be2e2113415abda3ebadf9855ee4c') :
                                  '0xe5819dbd958be2e2113415abda3ebadf9855ee4c'}`}
-                          className="bg-background/40 border-white/10 text-white font-mono text-sm"
+                          className="bg-background/40 border-white/10 text-white font-mono text-sm pr-24"
                         />
                         <Button 
-                          variant="ghost" 
+                          variant="secondary"
                           size="sm"
-                          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white/70 hover:text-white"
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2"
                           onClick={() => navigator.clipboard.writeText(`${selectedCrypto === 'BTC' ? 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh' : 
                                                                         selectedCrypto === 'ETH' ? '0x71C7656EC7ab88b098defB751B7401B5f6d8976F' : 
                                                                         selectedCrypto === 'USDT' ? 'TRX7NB5Gku8bGxQRpwUTZPw9qBYvyVpwJD' : 
