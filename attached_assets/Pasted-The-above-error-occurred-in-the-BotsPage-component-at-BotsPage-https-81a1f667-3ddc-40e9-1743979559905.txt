@@ -1,0 +1,34 @@
+The above error occurred in the <BotsPage> component:
+
+    at BotsPage (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/src/pages/BotsPage.tsx:22:28)
+    at RenderedRoute (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=75ec603a:4069:5)
+    at Routes (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=75ec603a:4508:5)
+    at DashboardProvider (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/src/components/dashboard/DashboardLayout.tsx:16:37)
+    at Router (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=75ec603a:4451:15)
+    at BrowserRouter (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=75ec603a:5196:5)
+    at Provider (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/node_modules/.vite/deps/chunk-AFJ6VPUJ.js?v=75ec603a:38:15)
+    at TooltipProvider (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=75ec603a:63:5)
+    at QueryClientProvider (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/node_modules/.vite/deps/@tanstack_react-query.js?v=75ec603a:2794:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+at BotsPage (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/src/pages/BotsPage.tsx:22:28)
+at RenderedRoute (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=75ec603a:4069:5)
+at Routes (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=75ec603a:4508:5)
+at DashboardProvider (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/src/components/dashboard/DashboardLayout.tsx:16:37)
+at Router (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=75ec603a:4451:15)
+at BrowserRouter (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/node_modules/.vite/deps/react-router-dom.js?v=75ec603a:5196:5)
+at Provider (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/node_modules/.vite/deps/chunk-AFJ6VPUJ.js?v=75ec603a:38:15)
+at TooltipProvider (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=75ec603a:63:5)
+at QueryClientProvider (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/node_modules/.vite/deps/@tanstack_react-query.js?v=75ec603a:2794:3)
+at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+at t.value (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://81a1f667-3ddc-40e9-9b15-286e3391c3dc-00-10pm4dpjpaxls.picard.replit.dev:5000/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+botTiers is not defined
