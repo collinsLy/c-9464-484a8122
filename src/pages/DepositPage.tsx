@@ -3,6 +3,7 @@ import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useDashboardContext } from '@/components/dashboard/DashboardLayout';
+import { useToast } from "@/components/ui/use-toast";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -12,6 +13,7 @@ import { networkAddresses } from '@/lib/network-addresses';
 
 const DepositPage = () => {
   const { isDemoMode } = useDashboardContext();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("crypto");
   const [selectedCrypto, setSelectedCrypto] = useState("BTC");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("card");
@@ -280,13 +282,15 @@ const DepositPage = () => {
                           variant="secondary"
                           size="sm"
                           className="absolute right-2 top-1/2 transform -translate-y-1/2"
-                          onClick={() => navigator.clipboard.writeText(`${selectedCrypto === 'BTC' ? 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh' : 
-                                                                        selectedCrypto === 'ETH' ? '0x71C7656EC7ab88b098defB751B7401B5f6d8976F' : 
-                                                                        selectedCrypto === 'USDT' ? 'TRX7NB5Gku8bGxQRpwUTZPw9qBYvyVpwJD' : 
-                                                                        selectedCrypto === 'BNB' ? '0xe5819dbd958be2e2113415abda3ebadf9855ee4c' :
-                                                                        selectedCrypto === 'WLD' ? '0xe5819dbd958be2e2113415abda3ebadf9855ee4c' :
-                                                                        selectedCrypto === 'USDC' ? (network === 'SOLANA' ? '7qKBhzgQQaDDYKjBPCKNkYVkppbTcpp5cpHhkqKheRtn' : '0xe5819dbd958be2e2113415abda3ebadf9855ee4c') :
-                                                                        '0xe5819dbd958be2e2113415abda3ebadf9855ee4c'}`)}
+                          onClick={async () => {
+                            const address = getDepositAddress();
+                            await navigator.clipboard.writeText(address);
+                            toast({
+                              title: "Address Copied",
+                              description: "The deposit address has been copied to your clipboard",
+                              duration: 2000,
+                            });
+                          }}
                         >
                           Copy
                         </Button>
