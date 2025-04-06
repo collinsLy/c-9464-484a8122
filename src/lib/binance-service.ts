@@ -132,6 +132,31 @@ class BinanceService {
       throw error;
     }
   }
+
+  async getDepositAddress(coin: string, network?: string) {
+    try {
+      const params = new URLSearchParams({
+        coin,
+        ...(network && { network })
+      });
+      
+      const response = await fetch(`${this.baseUrl}/capital/deposit/address?${params.toString()}`, {
+        method: 'GET',
+        headers: {
+          'X-MBX-APIKEY': 'ELvBEdZYMEld58KFbScOnbFsa2gsA5t2i8vCubTl8CyOSUWXxBjqMk2WOz6sAwgm' // Replace with your actual API key
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch deposit address: ${response.statusText}`);
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching deposit address:', error);
+      throw error;
+    }
+  }
 }
 
 export const binanceService = new BinanceService();
