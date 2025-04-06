@@ -11,6 +11,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 
 const DashboardHeader = () => {
+  const [profileOpen, setProfileOpen] = React.useState(false);
   const navigate = useNavigate();
   const { isDemoMode } = useDashboardContext();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
