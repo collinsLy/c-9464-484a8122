@@ -64,8 +64,34 @@ const StrategiesPage = () => {
               </TabsContent>
               
               <TabsContent value="marketplace">
-                <div className="text-center py-8 text-muted-foreground">
-                  Marketplace coming soon.
+                <div className="flex flex-col space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="relative w-full max-w-md">
+                      <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search strategies..."
+                        className="pl-10 bg-background/40 backdrop-blur-lg border-white/10 text-white"
+                      />
+                    </div>
+                    <Button variant="outline" className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
+                      <SlidersHorizontal className="mr-2 h-4 w-4" />
+                      Sort & Filter
+                    </Button>
+                  </div>
+                  
+                  <ScrollArea className="h-[calc(100vh-300px)] rounded-md border border-white/10 p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {botTiers.map((bot) => (
+                        <BotCard
+                          key={bot.id}
+                          bot={bot}
+                          onTradeClick={() => {}}
+                          isDemoMode={isDemoMode}
+                          userBalance={0}
+                        />
+                      ))}
+                    </div>
+                  </ScrollArea>
                 </div>
               </TabsContent>
               
