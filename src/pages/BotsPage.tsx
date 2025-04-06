@@ -2,6 +2,7 @@ import { useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { botTiers } from "@/features/automated-trading/data/bots";
 import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
+import { BotCard } from "@/features/automated-trading/components/BotCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
