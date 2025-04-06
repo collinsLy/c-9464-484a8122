@@ -71,6 +71,14 @@ const DepositPage = () => {
                       </div>
                       <div className="flex gap-2 flex-wrap">
                         <Button 
+                          variant={selectedCrypto === 'BTC' ? 'secondary' : 'outline'}
+                          onClick={() => setSelectedCrypto('BTC')}
+                          className="flex items-center gap-2"
+                        >
+                          <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=040" alt="BTC" className="w-5 h-5" />
+                          BTC
+                        </Button>
+                        <Button 
                           variant={selectedCrypto === 'USDT' ? 'secondary' : 'outline'}
                           onClick={() => setSelectedCrypto('USDT')}
                           className="flex items-center gap-2"
