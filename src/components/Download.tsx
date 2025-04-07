@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Apple, Play } from "lucide-react";
 
 const Download = () => {
   return (
@@ -14,14 +13,20 @@ const Download = () => {
             Download our app and experience the future of banking. Available on iOS and Android.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button className="px-8 py-6 text-lg bg-white text-black hover:bg-white/90 flex items-center gap-2">
-              <Apple className="w-5 h-5" />
-              App Store
-            </Button>
-            <Button className="px-8 py-6 text-lg glass-effect hover:bg-white/10 flex items-center gap-2">
-              <Play className="w-5 h-5" />
-              Play Store
-            </Button>
+            <a href="#" className="hover:opacity-90 transition-opacity">
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/6/67/App_Store_%28iOS%29.svg" 
+                alt="Download on App Store" 
+                className="h-14"
+              />
+            </a>
+            <a href="#" className="hover:opacity-90 transition-opacity">
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" 
+                alt="Get it on Google Play" 
+                className="h-14"
+              />
+            </a>
           </div>
         </div>
       </div>
