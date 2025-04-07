@@ -19,8 +19,26 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
     const uid = localStorage.getItem('uid');
     if (!uid) return;
 
-    // Create initial balance if it doesn't exist
-    UserBalanceService.createUserBalance(uid, 0);
+    // Create initial user data in Firestore
+    const initializeUserData = async () => {
+      try {
+        const userDoc = await getDoc(doc(db, 'users', uid));
+        if (!userDoc.exists()) {
+          await setDoc(doc(db, 'users', uid), {
+            balance: 0,
+            createdAt: new Date().toISOString(),
+            email: localStorage.getItem('email') || '',
+            name: localStorage.getItem('name') || '',
+            phone: '',
+            profilePhoto: ''
+          });
+        }
+      } catch (error) {
+        console.error('Error initializing user data:', error);
+      }
+    };
+
+    initializeUserData();
 
     const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
       setIsLoading(false);
