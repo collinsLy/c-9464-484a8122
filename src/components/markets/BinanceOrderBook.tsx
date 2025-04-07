@@ -21,24 +21,31 @@ const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
       try {
         setLoading(true);
         setError(null);
-        const binanceSymbol = symbol.replace('USD', 'USDT');
+        // Ensure symbol is in correct format
+        const binanceSymbol = symbol.endsWith('USDT') ? symbol : `${symbol}USDT`;
         const response = await fetch(`https://api.binance.com/api/v3/depth?symbol=${binanceSymbol}&limit=5`);
         if (!response.ok) {
-          throw new Error('Failed to fetch order book');
+          throw new Error(`Failed to fetch order book: ${response.statusText}`);
         }
         const data = await response.json();
+        if (data.code) {
+          throw new Error(data.msg || 'Invalid symbol');
+        }
         setOrderBook(data);
       } catch (err) {
-        setError('Failed to load order book data');
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load order book data';
+        setError(errorMessage);
         console.error('Error fetching order book:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchOrderBook();
-    const interval = setInterval(fetchOrderBook, 5000);
-    return () => clearInterval(interval);
+    if (symbol) {
+      fetchOrderBook();
+      const interval = setInterval(fetchOrderBook, 5000);
+      return () => clearInterval(interval);
+    }
   }, [symbol]);
 
   if (loading) {
