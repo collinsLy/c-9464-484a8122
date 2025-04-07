@@ -62,7 +62,22 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
     setIsSubmitting(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
-      await UserBalanceService.createUserBalance(userCredential.user.uid);
+      
+      // Create initial user data
+      await setDoc(doc(db, 'users', userCredential.user.uid), {
+        fullName: values.fullName,
+        email: values.email,
+        balance: 0,
+        phone: '',
+        profilePhoto: '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+      
+      // Store email and name in localStorage for other components
+      localStorage.setItem('email', values.email);
+      localStorage.setItem('name', values.fullName);
+      
       await sendEmailVerification(userCredential.user);
       onSuccess();
       toast({
