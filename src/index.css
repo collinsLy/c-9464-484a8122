@@ -1,3 +1,20 @@
+
+@keyframes flipTop {
+  0% { transform: rotateX(0deg); }
+  100% { transform: rotateX(-90deg); }
+}
+
+@keyframes flipBottom {
+  0% { transform: rotateX(90deg); }
+  100% { transform: rotateX(0deg); }
+}
+
+.perspective {
+  perspective: 400px;
+  -webkit-perspective: 400px;
+  -moz-perspective: 400px;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

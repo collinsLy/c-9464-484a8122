@@ -1,22 +1,16 @@
 import { useCountdown } from '../hooks/useCountdown';
+import { FlipClock } from './FlipClock';
 
 const CountdownDisplay = () => {
   const timeLeft = useCountdown(30);
 
-  const TimeUnit = ({ value, label }: { value: number; label: string }) => (
-    <div className="flex flex-col items-center bg-white/5 rounded-lg px-3 py-2">
-      <span className="text-xl font-bold text-white">{value.toString().padStart(2, '0')}</span>
-      <span className="text-xs text-white/60">{label}</span>
-    </div>
-  );
-
   return (
-    <div className="flex gap-2">
-      <TimeUnit value={timeLeft.days} label="DAYS" />
-      <TimeUnit value={timeLeft.hours} label="HRS" />
-      <TimeUnit value={timeLeft.minutes} label="MIN" />
-      <TimeUnit value={timeLeft.seconds} label="SEC" />
-    </div>
+    <FlipClock
+      days={timeLeft.days}
+      hours={timeLeft.hours}
+      minutes={timeLeft.minutes}
+      seconds={timeLeft.seconds}
+    />
   );
 };
 
