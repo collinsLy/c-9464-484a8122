@@ -21,7 +21,11 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
     const unsubscribe = onSnapshot(doc(db, 'users', uid), (doc) => {
       if (doc.exists()) {
         const data = doc.data();
-        setBalance(data.balance || 0);
+        const balanceValue = parseFloat(data.balance || 0);
+        setBalance(isNaN(balanceValue) ? 0 : balanceValue);
+      } else {
+        // If document doesn't exist, create it with initial balance
+        setDoc(doc(db, 'users', uid), { balance: 0 });
       }
     });
 
