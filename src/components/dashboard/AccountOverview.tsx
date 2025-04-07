@@ -2,6 +2,21 @@ import { ArrowUpRight, Wallet, CreditCard, TrendingUp, RefreshCw } from "lucide-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import {getDatabase, ref, onValue} from "firebase/database"; // Import Firebase functions
+import { initializeApp } from "firebase/app"; // Import Firebase functions
+import { getAnalytics } from "firebase/analytics";
+import { useEffect, useState } from "react";
+
+
+// Your Firebase configuration
+const firebaseConfig = {
+  // ... your Firebase config ...
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const database = getDatabase(app);
+
 
 interface AccountOverviewProps {
   isDemoMode?: boolean;
@@ -9,6 +24,16 @@ interface AccountOverviewProps {
 
 const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   const { toast } = useToast();
+  const [balance, setBalance] = useState(0); // State to hold the balance
+
+  useEffect(() => {
+    const balanceRef = ref(database, 'users/' + localStorage.getItem('uid') + '/balance'); // Replace 'users/userId/balance' with your Firebase data path.
+    onValue(balanceRef, (snapshot) => {
+      const data = snapshot.val();
+      setBalance(data);
+    });
+  }, []);
+
 
   const handleDeposit = () => {
     if (isDemoMode) {
@@ -49,7 +74,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold">
-            ${isDemoMode ? parseFloat(localStorage.getItem('demoBalance') || '10000').toFixed(2) : "0.00"}
+            ${isDemoMode ? parseFloat(localStorage.getItem('demoBalance') || '10000').toFixed(2) : balance.toFixed(2)}
           </div>
           {!isDemoMode ? (
             <div className="flex items-center mt-1 text-sm">
@@ -71,7 +96,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold">
-            ${isDemoMode ? parseFloat(localStorage.getItem('demoBalance') || '10000').toFixed(2) : "0.00"}
+            ${isDemoMode ? parseFloat(localStorage.getItem('demoBalance') || '10000').toFixed(2) : balance.toFixed(2)}
           </div>
           <div className="flex mt-2">
             <Button 
