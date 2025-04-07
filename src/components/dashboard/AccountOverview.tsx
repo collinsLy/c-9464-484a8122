@@ -2,9 +2,8 @@ import { ArrowUpRight, Wallet, CreditCard, TrendingUp, RefreshCw } from "lucide-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { db } from "@/lib/firebase";
+import { UserBalanceService } from "@/lib/firebase-service";
 //import { UserBalanceService } from "@/lib/firebase-service"; // This line is removed as UserBalanceService is not used in the updated code.
 
 interface AccountOverviewProps {
@@ -24,23 +23,10 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
     }
 
     setIsLoading(true);
-    const userRef = doc(db, 'users', uid);
-
-    const unsubscribe = onSnapshot(userRef, (docSnapshot) => {
-      if (docSnapshot.exists()) {
-        const userData = docSnapshot.data();
-        // Ensure we're getting the balance as a number
-        const userBalance = typeof userData.balance === 'number' ? userData.balance : parseFloat(userData.balance) || 0;
-        console.log('Firebase balance update:', userBalance); // Debug log
-        setBalance(userBalance);
-      } else {
-        console.log('No user document found'); // Debug log
-        setBalance(0);
-      }
-      setIsLoading(false);
-    }, (error) => {
-      console.error('Error fetching balance:', error);
-      setBalance(0);
+    
+    const unsubscribe = UserBalanceService.subscribeToBalanceUpdates(uid, (newBalance) => {
+      console.log('New balance received:', newBalance); // Debug log
+      setBalance(newBalance);
       setIsLoading(false);
     });
 
