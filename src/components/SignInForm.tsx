@@ -28,8 +28,49 @@ interface SignInFormProps {
   onSuccess: () => void;
 }
 
+const resetFormSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+});
+
 const SignInForm = ({ onSuccess }: SignInFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+  const { toast } = useToast();
+  
+  const resetForm = useForm<z.infer<typeof resetFormSchema>>({
+    resolver: zodResolver(resetFormSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
+
+  const onResetPassword = async (values: z.infer<typeof resetFormSchema>) => {
+    setIsResetting(true);
+    try {
+      const { sendPasswordResetEmail } = await import('firebase/auth');
+      const { auth } = await import('@/lib/firebase');
+      
+      await sendPasswordResetEmail(auth, values.email);
+      toast({
+        title: "Reset link sent",
+        description: "Check your email for password reset instructions",
+      });
+    } catch (error: any) {
+      console.error("Error sending reset email:", error);
+      switch (error.code) {
+        case 'auth/user-not-found':
+          resetForm.setError("email", { message: "No account found with this email" });
+          break;
+        case 'auth/invalid-email':
+          resetForm.setError("email", { message: "Invalid email format" });
+          break;
+        default:
+          resetForm.setError("root", { message: "Failed to send reset email" });
+      }
+    } finally {
+      setIsResetting(false);
+    }
+  };
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -109,9 +150,41 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
         />
         
         <div className="flex items-center justify-between">
-          <a href="#" className="text-xs text-accent hover:underline">
-            Forgot password?
-          </a>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="link" className="text-xs text-accent hover:underline px-0">
+                Forgot password?
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Reset Password</DialogTitle>
+                <DialogDescription>
+                  Enter your email address and we'll send you a link to reset your password.
+                </DialogDescription>
+              </DialogHeader>
+              <Form {...resetForm}>
+                <form onSubmit={resetForm.handleSubmit(onResetPassword)} className="space-y-4">
+                  <FormField
+                    control={resetForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder="you@example.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" className="w-full" disabled={isResetting}>
+                    {isResetting ? "Sending..." : "Send Reset Link"}
+                  </Button>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
         </div>
         
         <Button type="submit" className="w-full" disabled={isSubmitting}>
