@@ -2,7 +2,7 @@ import { ArrowUpRight, Wallet, CreditCard, TrendingUp, RefreshCw } from "lucide-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { getDatabase, ref, onValue } from "firebase/database";
+import { onSnapshot, doc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 
@@ -15,11 +15,17 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   const [balance, setBalance] = useState(0); // State to hold the balance
 
   useEffect(() => {
-    const balanceRef = ref(getDatabase(), 'users/' + localStorage.getItem('uid') + '/balance'); // Replace 'users/userId/balance' with your Firebase data path.
-    onValue(balanceRef, (snapshot) => {
-      const data = snapshot.val();
-      setBalance(data);
+    const uid = localStorage.getItem('uid');
+    if (!uid) return;
+
+    const unsubscribe = onSnapshot(doc(db, 'users', uid), (doc) => {
+      if (doc.exists()) {
+        const data = doc.data();
+        setBalance(data.balance || 0);
+      }
     });
+
+    return () => unsubscribe();
   }, []);
 
 
