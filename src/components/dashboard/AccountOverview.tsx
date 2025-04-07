@@ -2,21 +2,9 @@ import { ArrowUpRight, Wallet, CreditCard, TrendingUp, RefreshCw } from "lucide-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import {getDatabase, ref, onValue} from "firebase/database"; // Import Firebase functions
-import { initializeApp } from "firebase/app"; // Import Firebase functions
-import { getAnalytics } from "firebase/analytics";
+import { getDatabase, ref, onValue } from "firebase/database";
 import { useEffect, useState } from "react";
-
-
-// Your Firebase configuration
-const firebaseConfig = {
-  // ... your Firebase config ...
-};
-
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const database = getDatabase(app);
-
+import { db } from "@/lib/firebase";
 
 interface AccountOverviewProps {
   isDemoMode?: boolean;
@@ -27,7 +15,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   const [balance, setBalance] = useState(0); // State to hold the balance
 
   useEffect(() => {
-    const balanceRef = ref(database, 'users/' + localStorage.getItem('uid') + '/balance'); // Replace 'users/userId/balance' with your Firebase data path.
+    const balanceRef = ref(getDatabase(), 'users/' + localStorage.getItem('uid') + '/balance'); // Replace 'users/userId/balance' with your Firebase data path.
     onValue(balanceRef, (snapshot) => {
       const data = snapshot.val();
       setBalance(data);
