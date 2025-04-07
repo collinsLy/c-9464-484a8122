@@ -48,9 +48,30 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
       await signInWithEmailAndPassword(auth, values.email, values.password);
       onSuccess();
       window.location.href = "/dashboard";
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error logging in:", error);
-      form.setError("root", { message: "Invalid email or password" });
+      switch (error.code) {
+        case 'auth/invalid-email':
+          form.setError("email", { message: "Invalid email format" });
+          break;
+        case 'auth/user-not-found':
+          form.setError("email", { message: "Email not registered. Would you like to sign up?" });
+          break;
+        case 'auth/wrong-password':
+          form.setError("password", { message: "Incorrect password" });
+          break;
+        case 'auth/too-many-requests':
+          form.setError("root", { message: "Too many attempts. Please try again later." });
+          break;
+        case 'auth/network-request-failed':
+          form.setError("root", { message: "Network error. Please check your connection." });
+          break;
+        case 'auth/user-disabled':
+          form.setError("root", { message: "This account has been disabled." });
+          break;
+        default:
+          form.setError("root", { message: "An error occurred. Please try again." });
+      }
     } finally {
       setIsSubmitting(false);
     }

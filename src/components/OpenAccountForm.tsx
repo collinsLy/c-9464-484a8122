@@ -55,11 +55,42 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
         title: "Account created",
         description: "Please check your email to verify your account.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating account:", error);
-      form.setError("root", { 
-        message: "Failed to create account. Email may already be in use." 
-      });
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          form.setError("email", { 
+            message: "Email already registered. Please sign in instead." 
+          });
+          break;
+        case 'auth/invalid-email':
+          form.setError("email", { message: "Invalid email format" });
+          break;
+        case 'auth/operation-not-allowed':
+          form.setError("root", { 
+            message: "Account creation is currently disabled." 
+          });
+          break;
+        case 'auth/weak-password':
+          form.setError("password", { 
+            message: "Password is too weak. Please use a stronger password." 
+          });
+          break;
+        case 'auth/network-request-failed':
+          form.setError("root", { 
+            message: "Network error. Please check your connection." 
+          });
+          break;
+        case 'auth/too-many-requests':
+          form.setError("root", { 
+            message: "Too many attempts. Please try again later." 
+          });
+          break;
+        default:
+          form.setError("root", { 
+            message: "An error occurred. Please try again." 
+          });
+      }
     } finally {
       setIsSubmitting(false);
     }
