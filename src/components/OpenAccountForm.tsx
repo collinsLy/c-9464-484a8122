@@ -14,6 +14,20 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
+import { initializeApp } from "firebase/app";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+
+
+// Firebase configuration (replace with your actual config)
+const firebaseConfig = {
+  // ... your firebase config
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 const formSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters"),
@@ -28,6 +42,19 @@ const formSchema = z.object({
 interface OpenAccountFormProps {
   onSuccess: () => void;
 }
+
+const UserBalanceService = {
+  async createUserBalance(userId: string) {
+    try {
+      const userRef = doc(db, "users", userId);
+      await setDoc(userRef, { balance: 0 });
+    } catch (error) {
+      console.error("Error creating user balance:", error);
+    }
+  },
+
+};
+
 
 const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,10 +72,8 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     try {
-      const { createUserWithEmailAndPassword, sendEmailVerification } = await import('firebase/auth');
-      const { auth } = await import('@/lib/firebase');
-
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      await UserBalanceService.createUserBalance(userCredential.user.uid);
       await sendEmailVerification(userCredential.user);
       onSuccess();
       toast({
