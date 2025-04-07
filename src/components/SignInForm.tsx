@@ -32,6 +32,8 @@ const resetFormSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
 });
 
+import { useToast } from "@/components/ui/use-toast";
+
 const SignInForm = ({ onSuccess }: SignInFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
