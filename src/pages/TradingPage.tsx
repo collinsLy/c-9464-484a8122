@@ -61,19 +61,25 @@ const TradingPage = () => {
 
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-4">
           <div className="xl:col-span-3 space-y-4">
-            <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
-              <CardContent className="p-4">
-                <MarketChart 
-                  selectedSymbol={selectedSymbol} 
-                  selectedTimeframe={selectedTimeframe}
-                  onSymbolChange={handleSymbolChange}
-                  onTimeframeChange={handleTimeframeChange}
-                />
-              </CardContent>
-            </Card>
-            <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white p-2">
-              <CryptoTicker />
-            </Card>
+            <div className="space-y-4">
+              <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
+                <CardContent className="p-4">
+                  <MarketChart 
+                    selectedSymbol={selectedSymbol} 
+                    selectedTimeframe={selectedTimeframe}
+                    onSymbolChange={handleSymbolChange}
+                    onTimeframeChange={handleTimeframeChange}
+                  />
+                </CardContent>
+              </Card>
+              <div className="w-full">
+                <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
+                  <CardContent className="p-4">
+                    <CryptoTicker />
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
             {isDemoMode && (
               <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
                 <CardHeader>
