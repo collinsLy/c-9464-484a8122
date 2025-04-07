@@ -9,7 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import TradingViewChart from "@/components/TradingViewChart";
 import BinanceOrderBook from "@/components/markets/BinanceOrderBook";
 import MarketChart from "@/components/dashboard/MarketChart";
-import TradingPanel from "@/components/dashboard/TradingPanel";
+import { TradingPanel } from "@/components/trading/TradingPanel";
 import MarketOverview from "@/components/markets/MarketOverview";
 import CoinGeckoData from "@/components/markets/CoinGeckoData";
 import MarketNews from "@/components/markets/MarketNews";
@@ -84,16 +84,7 @@ const TradingPage = () => {
                 </div>
               </div>
             </div>
-            {isDemoMode && (
-              <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
-                <CardHeader>
-                  <CardTitle>Trading Panel</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <TradingPanel symbol={selectedSymbol} />
-                </CardContent>
-              </Card>
-            )}
+            
           </div>
 
           <div className="xl:col-span-1">
