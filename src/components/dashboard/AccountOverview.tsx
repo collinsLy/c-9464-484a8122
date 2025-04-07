@@ -19,29 +19,27 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
     const uid = localStorage.getItem('uid');
     if (!uid) return;
 
-    // Create initial user data in Firestore
-    const initializeUserData = async () => {
+    const initializeAndSubscribe = async () => {
       try {
+        // Get initial balance
         const userDoc = await getDoc(doc(db, 'users', uid));
-        if (!userDoc.exists()) {
-          await setDoc(doc(db, 'users', uid), {
-            balance: 0,
-            createdAt: new Date().toISOString(),
-            email: localStorage.getItem('email') || '',
-            name: localStorage.getItem('name') || '',
-            phone: '',
-            profilePhoto: ''
-          });
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          setBalance(parseFloat(data.balance) || 0);
         }
+        setIsLoading(false);
+
+        // Subscribe to balance changes
+        return UserBalanceService.subscribeToBalance(uid, (newBalance) => {
+          setBalance(newBalance);
+        });
       } catch (error) {
-        console.error('Error initializing user data:', error);
+        console.error('Error getting user data:', error);
+        setIsLoading(false);
       }
     };
 
-    initializeUserData();
-
-    const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
-      setIsLoading(false);
+    const unsubscribe = initializeAndSubscribe();
       if (!isNaN(newBalance)) {
         setBalance(newBalance);
       } else {
