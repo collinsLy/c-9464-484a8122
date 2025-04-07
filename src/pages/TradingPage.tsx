@@ -71,9 +71,9 @@ const TradingPage = () => {
                 />
               </CardContent>
             </Card>
-            <div className="w-full">
+            <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white p-2">
               <CryptoTicker />
-            </div>
+            </Card>
             {isDemoMode && (
               <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
                 <CardHeader>

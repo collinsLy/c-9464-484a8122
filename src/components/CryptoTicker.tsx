@@ -48,7 +48,7 @@ export function CryptoTicker() {
   }, []);
 
   return (
-    <div className="w-full bg-[#0F1115] backdrop-blur-lg border border-white/10 rounded-lg py-4 px-2 overflow-hidden shadow-lg">
+    <div className="w-full bg-[#141722] backdrop-blur-lg border border-white/20 rounded-lg py-4 px-2 overflow-hidden shadow-xl">
       <Marquee speed={30} gradient={false} className="[&>*]:mx-6">
         {prices.map((crypto) => (
           <div
