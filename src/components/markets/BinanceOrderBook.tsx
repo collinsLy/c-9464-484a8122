@@ -122,9 +122,11 @@ const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
               </div>
               
               {orderBook.asks.slice().reverse().map(([price, amount], i) => (
-                <div key={`ask-${i}`} className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="text-red-400">{parseFloat(price).toFixed(2)}</div>
-                  <div className="text-right text-white/70">{parseFloat(amount).toFixed(4)}</div>
+                <div key={`ask-${i}`} className="grid grid-cols-2 gap-2 text-sm relative">
+                  <div className="absolute left-0 h-full bg-red-500/10" 
+                       style={{ width: `${(parseFloat(amount) / 10) * 100}%` }} />
+                  <div className="text-red-400 z-10">{parseFloat(price).toFixed(2)}</div>
+                  <div className="text-right text-white/70 z-10">{parseFloat(amount).toFixed(4)}</div>
                 </div>
               ))}
               

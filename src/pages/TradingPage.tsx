@@ -75,6 +75,14 @@ const TradingPage = () => {
               <div className="w-full">
                 <CryptoTicker />
               </div>
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+                <div className="xl:col-span-2">
+                  <TradingPanel symbol={selectedSymbol} />
+                </div>
+                <div>
+                  <BinanceOrderBook symbol={selectedSymbol} />
+                </div>
+              </div>
             </div>
             {isDemoMode && (
               <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
