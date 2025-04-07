@@ -24,9 +24,9 @@ const SettingsPage = () => {
 
   const profileForm = useForm({
     defaultValues: {
-      name: "John Doe",
-      email: "johndoe@example.com",
-      phone: "+254 712 345 678"
+      name: "",
+      email: "",
+      phone: ""
     }
   });
 
