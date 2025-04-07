@@ -24,7 +24,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
 
     setIsLoading(true);
     
-    const unsubscribe = UserBalanceService.subscribeToBalanceUpdates(uid, (newBalance) => {
+    const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
       console.log('New balance received:', newBalance); // Debug log
       setBalance(newBalance);
       setIsLoading(false);
