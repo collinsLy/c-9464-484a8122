@@ -26,27 +26,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import OpenAccountForm from "./OpenAccountForm";
 
-// CryptoTicker component
-const CryptoTicker = () => {
-  const prices = [
-    { symbol: "BTC/USDT", price: 67452.23 },
-    { symbol: "ETH/USDT", price: 1800.50 },
-    { symbol: "BNB/USDT", price: 300.75 },
-    { symbol: "SOL/USDT", price: 25.20 },
-  ];
-
-  return (
-    <div className="bg-gray-800 p-4 rounded-lg overflow-x-auto">
-      <div className="flex">
-        {prices.map((price) => (
-          <div key={price.symbol} className="flex items-center px-4 py-2 text-white">
-            {price.symbol}: ${price.price.toFixed(2)}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
+import { CryptoTicker } from './CryptoTicker';
 
 
 const Hero = () => {
