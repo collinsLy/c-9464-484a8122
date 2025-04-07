@@ -4,19 +4,19 @@ import { MessageSquare } from "lucide-react";
 const Testimonials = () => {
   const testimonials = [
     {
-      quote: "The best banking experience I've ever had. Simple, fast, and secure.",
-      author: "Sarah Johnson",
-      role: "Business Owner"
+      quote: "The advanced trading features and real-time data have dramatically improved my trading performance.",
+      author: "Alex Thompson",
+      role: "Professional Trader"
     },
     {
-      quote: "This app has completely transformed how I manage my finances.",
-      author: "Michael Chen",
-      role: "Software Engineer"
+      quote: "The automated trading bots have revolutionized my investment strategy. Outstanding platform!",
+      author: "Sarah Chen",
+      role: "Quant Analyst"
     },
     {
-      quote: "Incredible user experience. Everything just works seamlessly.",
-      author: "Emma Davis",
-      role: "Financial Analyst"
+      quote: "Best crypto trading platform I've used. The UI is intuitive and the execution speed is exceptional.",
+      author: "Marcus Williams",
+      role: "Crypto Fund Manager"
     }
   ];
 

@@ -31,28 +31,28 @@ const Footer = () => {
             <ul className="space-y-2">
               <li><a href="#" className="text-white/60 hover:text-white transition-colors">Spot Trading</a></li>
               <li><a href="#" className="text-white/60 hover:text-white transition-colors">Margin Trading</a></li>
-              <li><a href="#" className="text-white/60 hover:text-white transition-colors">Futures</a></li>
-              <li><a href="#" className="text-white/60 hover:text-white transition-colors">Options</a></li>
+              <li><a href="#" className="text-white/60 hover:text-white transition-colors">Derivatives</a></li>
+              <li><a href="#" className="text-white/60 hover:text-white transition-colors">Trading Bots</a></li>
             </ul>
           </div>
           
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-white">Company</h4>
+            <h4 className="text-lg font-semibold text-white">Markets</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-white/60 hover:text-white transition-colors">About</a></li>
-              <li><a href="#" className="text-white/60 hover:text-white transition-colors">Careers</a></li>
-              <li><a href="#" className="text-white/60 hover:text-white transition-colors">Press</a></li>
-              <li><a href="#" className="text-white/60 hover:text-white transition-colors">Blog</a></li>
+              <li><a href="#" className="text-white/60 hover:text-white transition-colors">Market Overview</a></li>
+              <li><a href="#" className="text-white/60 hover:text-white transition-colors">Top Gainers</a></li>
+              <li><a href="#" className="text-white/60 hover:text-white transition-colors">New Listings</a></li>
+              <li><a href="#" className="text-white/60 hover:text-white transition-colors">Market Analysis</a></li>
             </ul>
           </div>
           
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-white">Support</h4>
+            <h4 className="text-lg font-semibold text-white">Resources</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-white/60 hover:text-white transition-colors">Help Center</a></li>
-              <li><a href="#" className="text-white/60 hover:text-white transition-colors">User Guides</a></li>
-              <li><a href="#" className="text-white/60 hover:text-white transition-colors">Fee Schedule</a></li>
+              <li><a href="#" className="text-white/60 hover:text-white transition-colors">Trading Guide</a></li>
               <li><a href="#" className="text-white/60 hover:text-white transition-colors">API Documentation</a></li>
+              <li><a href="#" className="text-white/60 hover:text-white transition-colors">Fee Structure</a></li>
+              <li><a href="#" className="text-white/60 hover:text-white transition-colors">Support Center</a></li>
             </ul>
           </div>
         </div>

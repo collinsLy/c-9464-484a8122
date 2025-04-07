@@ -4,19 +4,19 @@ import { Wallet, Shield, CreditCard } from "lucide-react";
 const Features = () => {
   const features = [
     {
-      icon: <Wallet className="w-6 h-6 text-white" />,
-      title: "Mobile Banking",
-      description: "Manage your finances on the go with our secure mobile banking platform"
+      icon: <TrendingUp className="w-6 h-6 text-white" />,
+      title: "Advanced Trading",
+      description: "Professional-grade trading tools with real-time market data and advanced order types"
     },
     {
       icon: <Shield className="w-6 h-6 text-white" />,
-      title: "Secure Transactions",
-      description: "Bank-grade security for all your transactions and personal data"
+      title: "Institutional Security",
+      description: "Enterprise-level security with multi-signature wallets and advanced encryption"
     },
     {
-      icon: <CreditCard className="w-6 h-6 text-white" />,
-      title: "Digital Cards",
-      description: "Virtual and physical cards with advanced control features"
+      icon: <Bot className="w-6 h-6 text-white" />,
+      title: "Automated Trading",
+      description: "Deploy sophisticated trading bots with customizable strategies and risk management"
     }
   ];
 
