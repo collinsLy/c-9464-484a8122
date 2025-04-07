@@ -17,38 +17,44 @@ export class UserBalanceService {
   }
 
   static subscribeToBalance(userId: string, callback: (balance: number) => void) {
-    if (!userId) return () => {};
-    
-    const userRef = doc(db, 'users', userId);
-    console.log('Setting up balance subscription for user:', userId);
-    
-    try {
-      const unsubscribe = onSnapshot(userRef, (doc) => {
-        if (doc.exists()) {
-          const data = doc.data();
-          console.log('Received user data:', data);
-          // Handle different types of balance values
-          const balance = typeof data.balance === 'number' ? 
-            data.balance : 
-            parseFloat(data.balance?.toString() || '0');
-          console.log('Parsed balance:', balance);
-          callback(balance);
-        } else {
-          console.log('User document does not exist, creating with initial balance');
-          this.createUserBalance(userId, 0);
-          callback(0);
-        }
-      }, (error) => {
-        console.error('Error in balance subscription:', error);
-        callback(0);
-      });
-
-      return unsubscribe;
-    } catch (error) {
-      console.error('Failed to set up balance subscription:', error);
-      callback(0);
+    if (!userId) {
+      console.error('No userId provided for balance subscription');
       return () => {};
     }
+    
+    const userRef = doc(db, 'users', userId);
+    
+    return onSnapshot(userRef, {
+      next: (snapshot) => {
+        if (!snapshot.exists()) {
+          console.log('Creating new user document');
+          this.createUserBalance(userId, 0)
+            .then(() => callback(0))
+            .catch(err => console.error('Error creating user balance:', err));
+          return;
+        }
+
+        const data = snapshot.data();
+        const balance = data?.balance;
+        
+        if (balance === undefined) {
+          console.warn('No balance field in document');
+          callback(0);
+          return;
+        }
+
+        const numericBalance = typeof balance === 'number' ? 
+          balance : 
+          parseFloat(String(balance)) || 0;
+        
+        console.log('Updated balance:', numericBalance);
+        callback(numericBalance);
+      },
+      error: (error) => {
+        console.error('Balance subscription error:', error);
+        callback(0);
+      }
+    });
   }
 
   static async getUserBalance(userId: string): Promise<number> {
