@@ -72,7 +72,11 @@ const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
           <CardTitle className="text-white">Order Book</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-red-400">{error}</div>
+          <div className="space-y-2">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <Skeleton key={i} className="h-4 w-full bg-white/10" />
+            ))}
+          </div>
         </CardContent>
       </Card>
     );
