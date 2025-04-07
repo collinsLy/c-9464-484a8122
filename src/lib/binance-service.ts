@@ -4,16 +4,29 @@ class BinanceService {
 
   async getOrderBook(symbol: string) {
     try {
-      // Convert symbol format from BTCUSD to BTCUSDT for Binance API
-      const binanceSymbol = symbol.replace('USD', 'USDT');
-      const response = await fetch(`${this.baseUrl}/depth?symbol=${binanceSymbol}&limit=20`);
+      const binanceSymbol = symbol.replace(/USD$/, 'USDT').toUpperCase();
+      const response = await fetch(`${this.baseUrl}/depth?symbol=${binanceSymbol}&limit=20`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
       if (!response.ok) {
-        throw new Error('Failed to fetch order book');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.msg || `Failed to fetch order book: ${response.statusText}`);
       }
-      return await response.json();
+
+      const data = await response.json();
+      if (!data.bids || !data.asks) {
+        throw new Error('Invalid order book data structure');
+      }
+
+      return data;
     } catch (error) {
       console.error('Error fetching order book:', error);
-      return { bids: [], asks: [] };
+      throw error; // Let the component handle the error
     }
   }
 

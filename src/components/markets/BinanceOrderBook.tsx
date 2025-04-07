@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { binanceService } from '@/lib/binance-service';
 
 interface BinanceOrderBookProps {
   symbol: string;
@@ -18,32 +19,19 @@ const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
 
   useEffect(() => {
     const fetchOrderBook = async () => {
+      if (!symbol) return;
+      
       try {
         setLoading(true);
         setError(null);
+        const data = await binanceService.getOrderBook(symbol);
         
-        // Format symbol correctly for Binance API
-        const binanceSymbol = symbol.replace('USD', 'USDT').toUpperCase();
-        
-        const response = await fetch(`https://api.binance.com/api/v3/depth?symbol=${binanceSymbol}&limit=5`, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.msg || `Failed to fetch order book: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        if (!data.bids || !data.asks) {
+        if (!data || !data.bids || !data.asks) {
           throw new Error('Invalid order book data received');
         }
         
         setOrderBook(data);
+        setError(null);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to fetch order book';
         setError(errorMessage);
@@ -152,9 +140,11 @@ const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
               <div className="border-t border-white/10 my-2" />
               
               {orderBook.bids.map(([price, amount], i) => (
-                <div key={`bid-${i}`} className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="text-green-400">{parseFloat(price).toFixed(2)}</div>
-                  <div className="text-right text-white/70">{parseFloat(amount).toFixed(4)}</div>
+                <div key={`bid-${i}`} className="grid grid-cols-2 gap-2 text-sm relative">
+                  <div className="absolute left-0 h-full bg-green-500/10" 
+                       style={{ width: `${(parseFloat(amount) / 10) * 100}%` }} />
+                  <div className="text-green-400 z-10">{parseFloat(price).toFixed(2)}</div>
+                  <div className="text-right text-white/70 z-10">{parseFloat(amount).toFixed(4)}</div>
                 </div>
               ))}
             </div>
