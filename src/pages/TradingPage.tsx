@@ -13,6 +13,7 @@ import TradingPanel from "@/components/dashboard/TradingPanel";
 import MarketOverview from "@/components/markets/MarketOverview";
 import CoinGeckoData from "@/components/markets/CoinGeckoData";
 import MarketNews from "@/components/markets/MarketNews";
+import { CryptoTicker } from "@/components/CryptoTicker";
 
 const TradingPage = () => {
   const { isDemoMode } = useDashboardContext();
@@ -70,6 +71,7 @@ const TradingPage = () => {
                 />
               </CardContent>
             </Card>
+            <CryptoTicker />
             {isDemoMode && (
               <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
                 <CardHeader>
