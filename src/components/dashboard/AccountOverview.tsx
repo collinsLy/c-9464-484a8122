@@ -2,7 +2,7 @@ import { ArrowUpRight, Wallet, CreditCard, TrendingUp, RefreshCw } from "lucide-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { onSnapshot, doc } from "firebase/firestore";
+import { onSnapshot, doc, setDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 
@@ -13,12 +13,14 @@ interface AccountOverviewProps {
 const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   const { toast } = useToast();
   const [balance, setBalance] = useState(0); // State to hold the balance
+  const [isLoading, setIsLoading] = useState(true); // State to track loading
 
   useEffect(() => {
     const uid = localStorage.getItem('uid');
     if (!uid) return;
 
     const unsubscribe = onSnapshot(doc(db, 'users', uid), (doc) => {
+      setIsLoading(false); // Set loading to false after data is fetched
       if (doc.exists()) {
         const data = doc.data();
         const balanceValue = parseFloat(data.balance || 0);
@@ -72,7 +74,11 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold">
-            ${isDemoMode ? parseFloat(localStorage.getItem('demoBalance') || '10000').toFixed(2) : balance.toFixed(2)}
+            {isLoading ? (
+              <span className="text-white/60">Loading...</span>
+            ) : (
+              `$${isDemoMode ? parseFloat(localStorage.getItem('demoBalance') || '10000').toFixed(2) : balance.toFixed(2)}`
+            )}
           </div>
           {!isDemoMode ? (
             <div className="flex items-center mt-1 text-sm">
@@ -94,7 +100,11 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         </CardHeader>
         <CardContent>
           <div className="text-3xl font-bold">
-            ${isDemoMode ? parseFloat(localStorage.getItem('demoBalance') || '10000').toFixed(2) : balance.toFixed(2)}
+            {isLoading ? (
+              <span className="text-white/60">Loading...</span>
+            ) : (
+              `$${isDemoMode ? parseFloat(localStorage.getItem('demoBalance') || '10000').toFixed(2) : balance.toFixed(2)}`
+            )}
           </div>
           <div className="flex mt-2">
             <Button 
