@@ -1,64 +1,57 @@
 
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface TradingViewChartProps {
-  symbol?: string;
-  theme?: 'light' | 'dark';
-  width?: string | number;
-  height?: string | number;
-  interval?: string;
-  chartType?: string;
+  symbol: string;
 }
 
-const TradingViewChart = ({
-  symbol = 'BTCUSD',
-  theme = 'dark',
-  width = '100%',
-  height = 400,
-  interval = '1D',
-  chartType = 'candlestick'
-}: TradingViewChartProps) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  
+export default function TradingViewChart({ symbol }: TradingViewChartProps) {
+  const container = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
+    if (!container.current) return;
+
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/tv.js';
     script.async = true;
     script.onload = () => {
-      if (typeof window.TradingView !== 'undefined' && containerRef.current) {
-        new window.TradingView.widget({
+      if (typeof TradingView !== 'undefined') {
+        new TradingView.widget({
           autosize: true,
           symbol: symbol,
-          interval: interval,
+          interval: 'D',
           timezone: 'Etc/UTC',
-          theme: theme,
-          style: chartType,
+          theme: 'dark',
+          style: '1',
           locale: 'en',
-          toolbar_bg: '#f1f3f6',
           enable_publishing: false,
-          hide_top_toolbar: false,
           allow_symbol_change: true,
-          container_id: containerRef.current.id,
+          container_id: container.current?.id,
+          hide_side_toolbar: false,
+          save_image: false,
+          studies: ['MASimple@tv-basicstudies'],
+          show_popup_button: false,
+          popup_width: '1000',
+          popup_height: '650',
         });
       }
     };
-    document.head.appendChild(script);
-    
+
+    container.current.appendChild(script);
+
     return () => {
-      if (document.head.contains(script)) {
-        document.head.removeChild(script);
+      if (container.current) {
+        container.current.innerHTML = '';
       }
     };
-  }, [symbol, theme, interval, chartType]);
-  
+  }, [symbol]);
+
   return (
     <div 
-      id={`tradingview_${symbol.toLowerCase()}`} 
-      ref={containerRef} 
-      style={{ width, height }}
-      className="rounded-xl overflow-hidden"
+      id="tradingview_widget" 
+      ref={container} 
+      style={{ height: '600px', width: '100%' }}
+      className="rounded-lg overflow-hidden"
     />
   );
-};
-
-export default TradingViewChart;
+}
