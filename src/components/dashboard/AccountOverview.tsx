@@ -29,9 +29,18 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
     const unsubscribe = onSnapshot(userRef, (docSnapshot) => {
       if (docSnapshot.exists()) {
         const userData = docSnapshot.data();
-        const userBalance = userData.balance || 0;
-        setBalance(Number(userBalance));
+        // Ensure we're getting the balance as a number
+        const userBalance = typeof userData.balance === 'number' ? userData.balance : parseFloat(userData.balance) || 0;
+        console.log('Firebase balance update:', userBalance); // Debug log
+        setBalance(userBalance);
+      } else {
+        console.log('No user document found'); // Debug log
+        setBalance(0);
       }
+      setIsLoading(false);
+    }, (error) => {
+      console.error('Error fetching balance:', error);
+      setBalance(0);
       setIsLoading(false);
     });
 
