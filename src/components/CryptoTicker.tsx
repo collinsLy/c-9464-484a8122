@@ -8,7 +8,10 @@ interface CryptoPrice {
   priceChange: string;
 }
 
-const SYMBOLS = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT'];
+const SYMBOLS = [
+  'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'ADAUSDT', 'DOGEUSDT', 
+  'DOTUSDT', 'MATICUSDT', 'LINKUSDT', 'XRPUSDT'
+];
 
 export function CryptoTicker() {
   const [prices, setPrices] = useState<CryptoPrice[]>([]);
@@ -45,17 +48,17 @@ export function CryptoTicker() {
   }, []);
 
   return (
-    <div className="w-full bg-black/40 backdrop-blur-lg border-t border-b border-white/10 py-3 overflow-hidden">
-      <Marquee speed={40} gradient={false} className="[&>*]:mx-4">
+    <div className="w-full bg-[#0F1115]/80 backdrop-blur-lg border-t border-b border-white/5 py-4 overflow-hidden">
+      <Marquee speed={30} gradient={false} className="[&>*]:mx-6">
         {prices.map((crypto) => (
           <div
             key={crypto.symbol}
-            className="inline-flex items-center space-x-2 text-sm md:text-base"
+            className="inline-flex items-center space-x-3 text-base md:text-lg"
           >
-            <span className="font-medium text-white/70">{crypto.symbol}</span>
+            <span className="font-medium text-white/80">{crypto.symbol}</span>
             <span className="font-bold text-white">${crypto.price}</span>
             <span
-              className={`text-xs ${
+              className={`text-sm ${
                 parseFloat(crypto.priceChange) >= 0 ? 'text-green-400' : 'text-red-400'
               }`}
             >
