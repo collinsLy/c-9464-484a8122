@@ -18,14 +18,15 @@ interface StockData {
 
 const MarketPage = () => {
   const { isDemoMode } = useDashboardContext();
-  const [selectedSymbol, setSelectedSymbol] = useState("IBM");
+  const [selectedStockSymbol, setSelectedStockSymbol] = useState("IBM");
+  const [selectedCryptoSymbol, setSelectedCryptoSymbol] = useState("BTCUSDT");
   const [stockData, setStockData] = useState<StockData | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchStockData = async () => {
     try {
       const response = await fetch(
-        `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${selectedSymbol}&apikey=${process.env.VITE_ALPHA_VANTAGE_API_KEY}`
+        `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${selectedStockSymbol}&apikey=${process.env.VITE_ALPHA_VANTAGE_API_KEY}`
       );
       const data = await response.json();
       
@@ -46,75 +47,94 @@ const MarketPage = () => {
 
   useEffect(() => {
     fetchStockData();
-    const interval = setInterval(fetchStockData, 60000); // Update every minute
+    const interval = setInterval(fetchStockData, 60000);
     return () => clearInterval(interval);
-  }, [selectedSymbol]);
+  }, [selectedStockSymbol]);
 
   return (
     <DashboardLayout>
       <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-white">Trading Terminal</h1>
-            <p className="text-sm text-white/70 mt-1">Stock & Crypto Trading</p>
+        <div className="grid grid-cols-2 gap-4">
+          {/* Stock Section */}
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-white">Stocks</h2>
+              <select 
+                value={selectedStockSymbol}
+                onChange={(e) => setSelectedStockSymbol(e.target.value)}
+                className="bg-background/40 text-white border border-white/10 rounded-md p-2"
+              >
+                <option value="IBM">IBM</option>
+                <option value="AAPL">Apple</option>
+                <option value="GOOGL">Google</option>
+                <option value="MSFT">Microsoft</option>
+                <option value="AMZN">Amazon</option>
+              </select>
+            </div>
+
+            {stockData && (
+              <Card className="bg-background/40 backdrop-blur-lg border-white/10">
+                <CardHeader>
+                  <CardTitle>{stockData.symbol} Stock Data</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <p className="text-sm text-white/70">Price</p>
+                      <p className="text-2xl font-bold">${parseFloat(stockData.price).toFixed(2)}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-white/70">Change</p>
+                      <p className={`text-2xl font-bold ${parseFloat(stockData.change) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        ${parseFloat(stockData.change).toFixed(2)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-white/70">Change %</p>
+                      <p className={`text-2xl font-bold ${parseFloat(stockData.changePercent) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        {stockData.changePercent}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            <Card className="bg-background/40 backdrop-blur-lg border-white/10">
+              <CardContent className="p-4">
+                <TradingViewChart symbol={selectedStockSymbol} />
+              </CardContent>
+            </Card>
           </div>
-          <select 
-            value={selectedSymbol}
-            onChange={(e) => setSelectedSymbol(e.target.value)}
-            className="bg-background/40 text-white border border-white/10 rounded-md p-2"
-          >
-            <option value="IBM">IBM</option>
-            <option value="AAPL">Apple</option>
-            <option value="GOOGL">Google</option>
-            <option value="MSFT">Microsoft</option>
-            <option value="AMZN">Amazon</option>
-          </select>
+
+          {/* Crypto Section */}
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-white">Crypto</h2>
+              <select 
+                value={selectedCryptoSymbol}
+                onChange={(e) => setSelectedCryptoSymbol(e.target.value)}
+                className="bg-background/40 text-white border border-white/10 rounded-md p-2"
+              >
+                <option value="BTCUSDT">BTC/USDT</option>
+                <option value="ETHUSDT">ETH/USDT</option>
+                <option value="BNBUSDT">BNB/USDT</option>
+                <option value="SOLUSDT">SOL/USDT</option>
+                <option value="ADAUSDT">ADA/USDT</option>
+              </select>
+            </div>
+
+            <Card className="bg-background/40 backdrop-blur-lg border-white/10">
+              <CardContent className="p-4">
+                <TradingViewChart symbol={selectedCryptoSymbol} />
+              </CardContent>
+            </Card>
+
+            <BinanceOrderBook symbol={selectedCryptoSymbol} />
+          </div>
         </div>
-
-        {stockData && (
-          <Card className="bg-background/40 backdrop-blur-lg border-white/10">
-            <CardHeader>
-              <CardTitle>{stockData.symbol} Stock Data</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <p className="text-sm text-white/70">Price</p>
-                  <p className="text-2xl font-bold">${parseFloat(stockData.price).toFixed(2)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-white/70">Change</p>
-                  <p className={`text-2xl font-bold ${parseFloat(stockData.change) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    ${parseFloat(stockData.change).toFixed(2)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-white/70">Change %</p>
-                  <p className={`text-2xl font-bold ${parseFloat(stockData.changePercent) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    {stockData.changePercent}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        <Card className="bg-background/40 backdrop-blur-lg border-white/10">
-          <CardContent className="p-4">
-            <TradingViewChart symbol={selectedSymbol} />
-          </CardContent>
-        </Card>
 
         <CryptoTicker />
-
-        <div className="grid grid-cols-3 gap-4">
-          <div className="col-span-2">
-            <TradingPanel symbol={selectedSymbol} />
-          </div>
-          <div className="col-span-1">
-            <BinanceOrderBook symbol={selectedSymbol} />
-          </div>
-        </div>
       </div>
     </DashboardLayout>
   );
