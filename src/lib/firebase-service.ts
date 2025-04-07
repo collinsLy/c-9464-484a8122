@@ -16,6 +16,18 @@ export class UserBalanceService {
     }
   }
 
+  static subscribeToBalance(userId: string, callback: (balance: number) => void) {
+    if (!userId) return () => {};
+    
+    const userRef = doc(db, 'users', userId);
+    return onSnapshot(userRef, (doc) => {
+      if (doc.exists()) {
+        const data = doc.data();
+        callback(parseFloat(data.balance || 0));
+      }
+    });
+  }
+
   static async getUserBalance(userId: string): Promise<number> {
     try {
       const docRef = doc(db, 'users', userId);

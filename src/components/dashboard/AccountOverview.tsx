@@ -19,11 +19,9 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
     const uid = localStorage.getItem('uid');
     if (!uid) return;
 
-    const unsubscribe = onSnapshot(doc(db, 'users', uid), (doc) => {
-      setIsLoading(false); // Set loading to false after data is fetched
-      if (doc.exists()) {
-        const data = doc.data();
-        const balanceValue = parseFloat(data.balance || 0);
+    const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
+      setIsLoading(false);
+      setBalance(newBalance);
         setBalance(isNaN(balanceValue) ? 0 : balanceValue);
       } else {
         // If document doesn't exist, create it with initial balance
