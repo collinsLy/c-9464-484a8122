@@ -14,20 +14,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
-import { initializeApp } from "firebase/app";
-import { getFirestore, doc, setDoc } from "firebase/firestore";
-import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
-
-
-// Firebase configuration (replace with your actual config)
-const firebaseConfig = {
-  // ... your firebase config
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+import { doc, setDoc } from "firebase/firestore";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { auth, db } from "@/lib/firebase";
 
 const formSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters"),
