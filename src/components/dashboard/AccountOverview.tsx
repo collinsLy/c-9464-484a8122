@@ -1,10 +1,12 @@
+
 import { ArrowUpRight, Wallet, CreditCard, TrendingUp, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { onSnapshot, doc, setDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
+import { UserBalanceService } from "@/lib/firebase-service";
 
 interface AccountOverviewProps {
   isDemoMode?: boolean;
@@ -12,46 +14,42 @@ interface AccountOverviewProps {
 
 const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   const { toast } = useToast();
-  const [balance, setBalance] = useState(0); // State to hold the balance
-  const [isLoading, setIsLoading] = useState(true); // State to track loading
+  const [balance, setBalance] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const uid = localStorage.getItem('uid');
-    if (!uid) return;
+    if (!uid) {
+      setIsLoading(false);
+      return;
+    }
 
     const initializeAndSubscribe = async () => {
       try {
-        // Get initial balance
         const userDoc = await getDoc(doc(db, 'users', uid));
         if (userDoc.exists()) {
           const data = userDoc.data();
           setBalance(parseFloat(data.balance) || 0);
         }
         setIsLoading(false);
-
-        // Subscribe to balance changes
-        return UserBalanceService.subscribeToBalance(uid, (newBalance) => {
-          setBalance(newBalance);
-        });
       } catch (error) {
         console.error('Error getting user data:', error);
         setIsLoading(false);
       }
     };
 
-    const unsubscribe = initializeAndSubscribe();
+    initializeAndSubscribe();
+
+    const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
       if (!isNaN(newBalance)) {
         setBalance(newBalance);
       } else {
         setBalance(0);
-        // If invalid balance, reset to 0
-        setDoc(doc(db, 'users', uid), { balance: 0 });
       }
     });
 
     return () => unsubscribe();
   }, []);
-
 
   const handleDeposit = () => {
     if (isDemoMode) {
@@ -62,7 +60,6 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
       });
       return;
     }
-
     window.location.href = "/deposit";
   };
 
@@ -75,7 +72,6 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
       });
       return;
     }
-
     toast({
       title: "Withdrawal Initiated",
       description: "Please follow the verification steps to complete your withdrawal.",
@@ -149,7 +145,6 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
                 size="sm" 
                 className="ml-2 text-white border-white/20 hover:bg-white/10"
                 onClick={() => {
-                  // Reset demo balance to initial 10,000
                   toast({
                     title: "Demo Reset",
                     description: "Your demo balance has been reset to $10,000",
