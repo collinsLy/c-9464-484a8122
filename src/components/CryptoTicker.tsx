@@ -9,8 +9,8 @@ interface CryptoPrice {
 }
 
 const SYMBOLS = [
-  'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'ADAUSDT', 'DOGEUSDT', 
-  'DOTUSDT', 'MATICUSDT', 'LINKUSDT', 'XRPUSDT'
+  'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'ADAUSDT', 
+  'DOGEUSDT', 'DOTUSDT', 'MATICUSDT', 'LINKUSDT', 'XRPUSDT'
 ];
 
 export function CryptoTicker() {
@@ -49,7 +49,11 @@ export function CryptoTicker() {
 
   return (
     <div className="w-full bg-[#1E2130] backdrop-blur-lg border-2 border-white/20 rounded-lg py-6 px-4 overflow-hidden shadow-2xl">
-      <Marquee speed={30} gradient={false} className="[&>*]:mx-6">
+      <Marquee
+        speed={30}
+        gradient={false}
+        className="[&>*]:mx-6"
+      >
         {prices.map((crypto) => (
           <div
             key={crypto.symbol}
@@ -59,7 +63,9 @@ export function CryptoTicker() {
             <span className="font-bold text-white">${crypto.price}</span>
             <span
               className={`text-sm ${
-                parseFloat(crypto.priceChange) >= 0 ? 'text-green-400' : 'text-red-400'
+                parseFloat(crypto.priceChange) >= 0 
+                ? 'text-green-400' 
+                : 'text-red-400'
               }`}
             >
               {parseFloat(crypto.priceChange) >= 0 ? '+' : ''}{crypto.priceChange}%
