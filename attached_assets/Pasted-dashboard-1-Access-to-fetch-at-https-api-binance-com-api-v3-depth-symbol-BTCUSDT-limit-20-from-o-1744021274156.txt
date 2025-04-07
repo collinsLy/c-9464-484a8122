@@ -1,0 +1,83 @@
+dashboard:1 Access to fetch at 'https://api.binance.com/api/v3/depth?symbol=BTCUSDT&limit=20' from origin 'https://2aea437d-2c20-470d-8b44-a5ac337af99a-00-2sn4b6rezd4s4.riker.replit.dev:5000' has been blocked by CORS policy: Request header field content-type is not allowed by Access-Control-Allow-Headers in preflight response.Understand this error
+api.binance.com/api/v3/depth?symbol=BTCUSDT&limit=20:1 
+            
+            
+           Failed to load resource: net::ERR_FAILEDUnderstand this error
+binance-service.ts:28 Error fetching order book: TypeError: Failed to fetch
+    at BinanceService.getOrderBook (binance-service.ts:8:30)
+    at fetchOrderBook (BinanceOrderBook.tsx:27:43)
+    at BinanceOrderBook.tsx:45:7
+    at commitHookEffectListMount (chunk-R6S4VRB5.js?v=7554bbdc:16915:34)
+    at commitPassiveMountOnFiber (chunk-R6S4VRB5.js?v=7554bbdc:18156:19)
+    at commitPassiveMountEffects_complete (chunk-R6S4VRB5.js?v=7554bbdc:18129:17)
+    at commitPassiveMountEffects_begin (chunk-R6S4VRB5.js?v=7554bbdc:18119:15)
+    at commitPassiveMountEffects (chunk-R6S4VRB5.js?v=7554bbdc:18109:11)
+    at flushPassiveEffectsImpl (chunk-R6S4VRB5.js?v=7554bbdc:19490:11)
+    at flushPassiveEffects (chunk-R6S4VRB5.js?v=7554bbdc:19447:22)
+getOrderBook @ binance-service.ts:28Understand this error
+BinanceOrderBook.tsx:38 Error fetching order book: TypeError: Failed to fetch
+    at BinanceService.getOrderBook (binance-service.ts:8:30)
+    at fetchOrderBook (BinanceOrderBook.tsx:27:43)
+    at BinanceOrderBook.tsx:45:7
+    at commitHookEffectListMount (chunk-R6S4VRB5.js?v=7554bbdc:16915:34)
+    at commitPassiveMountOnFiber (chunk-R6S4VRB5.js?v=7554bbdc:18156:19)
+    at commitPassiveMountEffects_complete (chunk-R6S4VRB5.js?v=7554bbdc:18129:17)
+    at commitPassiveMountEffects_begin (chunk-R6S4VRB5.js?v=7554bbdc:18119:15)
+    at commitPassiveMountEffects (chunk-R6S4VRB5.js?v=7554bbdc:18109:11)
+    at flushPassiveEffectsImpl (chunk-R6S4VRB5.js?v=7554bbdc:19490:11)
+    at flushPassiveEffects (chunk-R6S4VRB5.js?v=7554bbdc:19447:22)
+fetchOrderBook @ BinanceOrderBook.tsx:38Understand this error
+dashboard:1 Access to fetch at 'https://api.binance.com/api/v3/depth?symbol=BTCUSDT&limit=20' from origin 'https://2aea437d-2c20-470d-8b44-a5ac337af99a-00-2sn4b6rezd4s4.riker.replit.dev:5000' has been blocked by CORS policy: Request header field content-type is not allowed by Access-Control-Allow-Headers in preflight response.Understand this error
+api.binance.com/api/v3/depth?symbol=BTCUSDT&limit=20:1 
+            
+            
+           Failed to load resource: net::ERR_FAILEDUnderstand this error
+binance-service.ts:28 Error fetching order book: TypeError: Failed to fetch
+    at BinanceService.getOrderBook (binance-service.ts:8:30)
+    at fetchOrderBook (BinanceOrderBook.tsx:27:43)
+getOrderBook @ binance-service.ts:28Understand this error
+BinanceOrderBook.tsx:38 Error fetching order book: TypeError: Failed to fetch
+    at BinanceService.getOrderBook (binance-service.ts:8:30)
+    at fetchOrderBook (BinanceOrderBook.tsx:27:43)
+fetchOrderBook @ BinanceOrderBook.tsx:38Understand this error
+dashboard:1 Access to fetch at 'https://api.binance.com/api/v3/depth?symbol=BTCUSDT&limit=20' from origin 'https://2aea437d-2c20-470d-8b44-a5ac337af99a-00-2sn4b6rezd4s4.riker.replit.dev:5000' has been blocked by CORS policy: Request header field content-type is not allowed by Access-Control-Allow-Headers in preflight response.Understand this error
+api.binance.com/api/v3/depth?symbol=BTCUSDT&limit=20:1 
+            
+            
+           Failed to load resource: net::ERR_FAILEDUnderstand this error
+binance-service.ts:28 Error fetching order book: TypeError: Failed to fetch
+    at BinanceService.getOrderBook (binance-service.ts:8:30)
+    at fetchOrderBook (BinanceOrderBook.tsx:27:43)
+    at BinanceOrderBook.tsx:45:7
+    at commitHookEffectListMount (chunk-R6S4VRB5.js?v=7554bbdc:16915:34)
+    at commitPassiveMountOnFiber (chunk-R6S4VRB5.js?v=7554bbdc:18156:19)
+    at commitPassiveMountEffects_complete (chunk-R6S4VRB5.js?v=7554bbdc:18129:17)
+    at commitPassiveMountEffects_begin (chunk-R6S4VRB5.js?v=7554bbdc:18119:15)
+    at commitPassiveMountEffects (chunk-R6S4VRB5.js?v=7554bbdc:18109:11)
+    at flushPassiveEffectsImpl (chunk-R6S4VRB5.js?v=7554bbdc:19490:11)
+    at flushPassiveEffects (chunk-R6S4VRB5.js?v=7554bbdc:19447:22)
+getOrderBook @ binance-service.ts:28Understand this error
+BinanceOrderBook.tsx:38 Error fetching order book: TypeError: Failed to fetch
+    at BinanceService.getOrderBook (binance-service.ts:8:30)
+    at fetchOrderBook (BinanceOrderBook.tsx:27:43)
+    at BinanceOrderBook.tsx:45:7
+    at commitHookEffectListMount (chunk-R6S4VRB5.js?v=7554bbdc:16915:34)
+    at commitPassiveMountOnFiber (chunk-R6S4VRB5.js?v=7554bbdc:18156:19)
+    at commitPassiveMountEffects_complete (chunk-R6S4VRB5.js?v=7554bbdc:18129:17)
+    at commitPassiveMountEffects_begin (chunk-R6S4VRB5.js?v=7554bbdc:18119:15)
+    at commitPassiveMountEffects (chunk-R6S4VRB5.js?v=7554bbdc:18109:11)
+    at flushPassiveEffectsImpl (chunk-R6S4VRB5.js?v=7554bbdc:19490:11)
+    at flushPassiveEffects (chunk-R6S4VRB5.js?v=7554bbdc:19447:22)
+fetchOrderBook @ BinanceOrderBook.tsx:38Understand this error
+dashboard:1 Access to fetch at 'https://api.binance.com/api/v3/depth?symbol=BTCUSDT&limit=20' from origin 'https://2aea437d-2c20-470d-8b44-a5ac337af99a-00-2sn4b6rezd4s4.riker.replit.dev:5000' has been blocked by CORS policy: Request header field content-type is not allowed by Access-Control-Allow-Headers in preflight response.Understand this error
+api.binance.com/api/v3/depth?symbol=BTCUSDT&limit=20:1 
+            
+            
+           Failed to load resource: net::ERR_FAILEDUnderstand this error
+binance-service.ts:28 Error fetching order book: TypeError: Failed to fetch
+    at BinanceService.getOrderBook (binance-service.ts:8:30)
+    at fetchOrderBook (BinanceOrderBook.tsx:27:43)
+getOrderBook @ binance-service.ts:28Understand this error
+BinanceOrderBook.tsx:38 Error fetching order book: TypeError: Failed to fetch
+    at BinanceService.getOrderBook (binance-service.ts:8:30)
+    at fetchOrderBook (BinanceOrderBook.tsx:27:43)
