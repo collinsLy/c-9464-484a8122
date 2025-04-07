@@ -17,6 +17,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
 
   useEffect(() => {
     const uid = localStorage.getItem('uid');
+    console.log('Test 1 - User ID:', uid); // Test 1
     
     if (!uid || isDemoMode) {
       setIsLoading(false);
@@ -26,7 +27,9 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
     setIsLoading(true);
     
     try {
+      console.log('Test 2 - Setting up subscription for user:', uid); // Test 2
       const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
+        console.log('Test 3 - Received balance update:', newBalance); // Test 3
         setBalance(newBalance);
         setIsLoading(false);
       });
