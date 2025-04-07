@@ -20,12 +20,21 @@ export class UserBalanceService {
     if (!userId) return () => {};
     
     const userRef = doc(db, 'users', userId);
-    return onSnapshot(userRef, (doc) => {
+    const unsubscribe = onSnapshot(userRef, (doc) => {
       if (doc.exists()) {
         const data = doc.data();
-        callback(parseFloat(data.balance || 0));
+        const balance = parseFloat(data.balance?.toString() || '0');
+        callback(balance);
+      } else {
+        // If document doesn't exist, create it with initial balance
+        this.createUserBalance(userId, 0);
       }
+    }, (error) => {
+      console.error('Error in balance subscription:', error);
+      callback(0);
     });
+
+    return unsubscribe;
   }
 
   static async getUserBalance(userId: string): Promise<number> {
