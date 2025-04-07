@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { Wallet, Shield, CreditCard } from "lucide-react";
+import { TrendingUp, Shield, Bot } from "lucide-react";
 
 const Features = () => {
   const features = [
