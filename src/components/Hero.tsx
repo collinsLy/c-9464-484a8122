@@ -1,9 +1,8 @@
-
 import { useCountdown } from '../hooks/useCountdown';
 
 const CountdownDisplay = () => {
   const timeLeft = useCountdown(30);
-  
+
   const TimeUnit = ({ value, label }: { value: number; label: string }) => (
     <div className="flex flex-col items-center bg-white/5 rounded-lg px-3 py-2">
       <span className="text-xl font-bold text-white">{value.toString().padStart(2, '0')}</span>
@@ -21,16 +20,38 @@ const CountdownDisplay = () => {
   );
 };
 
-
 import { Button } from "@/components/ui/button";
 import { TrendingUp } from "lucide-react";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import OpenAccountForm from "./OpenAccountForm";
 
+// CryptoTicker component
+const CryptoTicker = () => {
+  const prices = [
+    { symbol: "BTC/USDT", price: 67452.23 },
+    { symbol: "ETH/USDT", price: 1800.50 },
+    { symbol: "BNB/USDT", price: 300.75 },
+    { symbol: "SOL/USDT", price: 25.20 },
+  ];
+
+  return (
+    <div className="bg-gray-800 p-4 rounded-lg overflow-x-auto">
+      <div className="flex">
+        {prices.map((price) => (
+          <div key={price.symbol} className="flex items-center px-4 py-2 text-white">
+            {price.symbol}: ${price.price.toFixed(2)}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+
 const Hero = () => {
   const [openAccount, setOpenAccount] = useState(false);
-  
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 pt-20 bg-background">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -41,7 +62,7 @@ const Hero = () => {
           <p className="text-lg text-white/80 max-w-xl">
             Advanced trading platform with real-time charts, competitive fees, and powerful tools for both beginners and professional traders.
           </p>
-          
+
           <Dialog open={openAccount} onOpenChange={setOpenAccount}>
             <DialogTrigger asChild>
               <Button className="px-8 py-6 text-lg bg-white text-black hover:bg-white/90 flex items-center gap-2">
@@ -59,7 +80,7 @@ const Hero = () => {
               <OpenAccountForm onSuccess={() => setOpenAccount(false)} />
             </DialogContent>
           </Dialog>
-          
+
           <div className="bg-gradient-to-r from-accent/20 to-accent/5 p-8 rounded-2xl mb-8 border border-accent/20 backdrop-blur-sm relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
             <div className="space-y-4">
@@ -71,7 +92,7 @@ const Hero = () => {
               <p className="text-white/70 text-lg">Deposit $15 or more and receive a <span className="text-accent font-semibold">$5 welcome bonus</span> instantly!</p>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-3 gap-8 pt-8">
             <div>
               <div className="text-3xl font-bold text-white">100+</div>
@@ -86,6 +107,7 @@ const Hero = () => {
               <div className="text-white/60">Trading Fee</div>
             </div>
           </div>
+          <CryptoTicker /> {/* Added CryptoTicker here */}
         </div>
         <div className="relative">
           <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl">
