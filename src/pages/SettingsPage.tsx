@@ -75,7 +75,7 @@ const SettingsPage = () => {
                 <div className="flex flex-col md:flex-row md:items-center gap-6">
                   <div className="flex flex-col items-center gap-2">
                     <Avatar className="h-24 w-24">
-                      <AvatarImage src={profileForm.getValues().avatarUrl || "https://github.com/shadcn.png"} />
+                      <AvatarImage className="avatar-image" src={profileForm.getValues().avatarUrl || "https://github.com/shadcn.png"} />
                       <AvatarFallback>JD</AvatarFallback>
                     </Avatar>
                     <Input
@@ -86,11 +86,28 @@ const SettingsPage = () => {
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
+                          if (file.size > 5 * 1024 * 1024) {
+                            toast({
+                              title: "Error",
+                              description: "File size must be less than 5MB",
+                              variant: "destructive"
+                            });
+                            return;
+                          }
                           const reader = new FileReader();
                           reader.onloadend = () => {
                             profileForm.setValue('avatarUrl', reader.result as string);
+                            // Update avatar display immediately
+                            const avatarImg = document.querySelector('.avatar-image') as HTMLImageElement;
+                            if (avatarImg) {
+                              avatarImg.src = reader.result as string;
+                            }
                           };
                           reader.readAsDataURL(file);
+                          toast({
+                            title: "Success",
+                            description: "Profile picture updated successfully",
+                          });
                         }
                       }}
                     />
@@ -100,10 +117,12 @@ const SettingsPage = () => {
                       className="gap-2"
                       onClick={() => document.getElementById('avatar-upload')?.click()}
                       type="button"
+                      disabled={isDemoMode}
                     >
                       <Upload className="h-4 w-4" />
-                      Change
+                      {isDemoMode ? "Disabled in Demo" : "Change"}
                     </Button>
+                    <p className="text-xs text-white/60 text-center mt-1">Max size: 5MB</p>
                   </div>
 
                   <div className="flex-1 space-y-4">
