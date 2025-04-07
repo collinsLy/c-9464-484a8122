@@ -21,19 +21,31 @@ const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
       try {
         setLoading(true);
         setError(null);
-        // Ensure symbol is in correct format
-        const binanceSymbol = symbol.endsWith('USDT') ? symbol : `${symbol}USDT`;
-        const response = await fetch(`https://api.binance.com/api/v3/depth?symbol=${binanceSymbol}&limit=5`);
+        
+        // Format symbol correctly for Binance API
+        const binanceSymbol = symbol.replace('USD', 'USDT').toUpperCase();
+        
+        const response = await fetch(`https://api.binance.com/api/v3/depth?symbol=${binanceSymbol}&limit=5`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        });
+
         if (!response.ok) {
-          throw new Error(`Failed to fetch order book: ${response.statusText}`);
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.msg || `Failed to fetch order book: ${response.statusText}`);
         }
+
         const data = await response.json();
-        if (data.code) {
-          throw new Error(data.msg || 'Invalid symbol');
+        if (!data.bids || !data.asks) {
+          throw new Error('Invalid order book data received');
         }
+        
         setOrderBook(data);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load order book data';
+        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch order book';
         setError(errorMessage);
         console.error('Error fetching order book:', err);
       } finally {
