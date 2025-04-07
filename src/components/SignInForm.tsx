@@ -148,6 +148,7 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
   };
 
   return (
+    <>
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
@@ -293,6 +294,7 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
         </form>
       </DialogContent>
     </Dialog>
+    </>
   );
 };
 
