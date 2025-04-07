@@ -1,12 +1,11 @@
-
 import { ArrowUpRight, Wallet, CreditCard, TrendingUp, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
-import { UserBalanceService } from "@/lib/firebase-service";
+//import { UserBalanceService } from "@/lib/firebase-service"; // This line is removed as UserBalanceService is not used in the updated code.
 
 interface AccountOverviewProps {
   isDemoMode?: boolean;
@@ -26,19 +25,13 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
 
     setIsLoading(true);
     const userRef = doc(db, 'users', uid);
-    
+
     const unsubscribe = onSnapshot(userRef, (docSnapshot) => {
       if (docSnapshot.exists()) {
         const userData = docSnapshot.data();
-        const userBalance = parseFloat(userData.balance?.toString() || '0');
-        setBalance(userBalance);
-      } else {
-        setBalance(0);
+        const userBalance = userData.balance || 0;
+        setBalance(Number(userBalance));
       }
-      setIsLoading(false);
-    }, (error) => {
-      console.error('Error fetching balance:', error);
-      setBalance(0);
       setIsLoading(false);
     });
 
