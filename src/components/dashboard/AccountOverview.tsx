@@ -24,14 +24,25 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
       return;
     }
 
-    const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
-      setBalance(newBalance);
+    setIsLoading(true);
+    const userRef = doc(db, 'users', uid);
+    
+    const unsubscribe = onSnapshot(userRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const userData = docSnapshot.data();
+        const userBalance = parseFloat(userData.balance?.toString() || '0');
+        setBalance(userBalance);
+      } else {
+        setBalance(0);
+      }
+      setIsLoading(false);
+    }, (error) => {
+      console.error('Error fetching balance:', error);
+      setBalance(0);
       setIsLoading(false);
     });
 
-    return () => {
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, [isDemoMode]);
 
   const handleDeposit = () => {
