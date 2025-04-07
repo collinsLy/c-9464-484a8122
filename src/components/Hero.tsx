@@ -61,15 +61,17 @@ const Hero = () => {
             </DialogContent>
           </Dialog>
 
-          <div className="bg-gradient-to-r from-accent/20 to-accent/5 p-8 rounded-2xl mb-8 border border-accent/20 backdrop-blur-sm relative overflow-hidden">
+          <div className="bg-background/40 p-8 rounded-2xl mb-8 border border-accent/20 backdrop-blur-sm relative overflow-visible shadow-[inset_0_-3em_3em_rgba(0,0,0,0.1),0_0_0_2px_rgba(242,255,68,0.2),0.3em_0.3em_1em_rgba(0,0,0,0.3)]">
             <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <span className="bg-accent px-3 py-1.5 rounded-full text-sm font-semibold text-white shadow-lg shadow-accent/20">Limited Time Offer</span>
                 <CountdownDisplay />
               </div>
               <h3 className="text-2xl font-bold text-white">New User Welcome Bonus</h3>
               <p className="text-white/70 text-lg">Deposit $15 or more and receive a <span className="text-accent font-semibold">$5 welcome bonus</span> instantly!</p>
+            </div>
+            <div className="absolute -right-2 -top-2 bg-gradient-to-b from-[#F2FF44] to-[#d4e038] text-black font-bold py-2 px-8 rounded-tr-lg rounded-bl-lg shadow-lg transform rotate-6 border-2 border-black/10">
+              Limited Time
             </div>
           </div>
 
