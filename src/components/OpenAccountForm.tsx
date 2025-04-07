@@ -45,17 +45,16 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     try {
-      const { createUserWithEmailAndPassword } = await import('firebase/auth');
+      const { createUserWithEmailAndPassword, sendEmailVerification } = await import('firebase/auth');
       const { auth } = await import('@/lib/firebase');
 
-      await createUserWithEmailAndPassword(auth, values.email, values.password);
-
+      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      await sendEmailVerification(userCredential.user);
+      onSuccess();
       toast({
-        title: "Account created!",
-        description: "Welcome to Vertex Trading",
+        title: "Account created",
+        description: "Please check your email to verify your account.",
       });
-
-      window.location.href = "/dashboard";
     } catch (error) {
       console.error("Error creating account:", error);
       form.setError("root", { 
