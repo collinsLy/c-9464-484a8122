@@ -79,23 +79,18 @@ const TradingPage = () => {
                 <div className="xl:col-span-2">
                   <TradingPanel symbol={selectedSymbol} />
                 </div>
-                <div>
-                  <BinanceOrderBook symbol={selectedSymbol} />
+                <div className="xl:col-span-1">
+                  <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white h-full">
+                    <CardHeader>
+                      <CardTitle>Order Book</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <BinanceOrderBook symbol={selectedSymbol} />
+                    </CardContent>
+                  </Card>
                 </div>
               </div>
             </div>
-            
-          </div>
-
-          <div className="xl:col-span-1">
-            <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white h-full">
-              <CardHeader>
-                <CardTitle>Order Book</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <BinanceOrderBook symbol={selectedSymbol} />
-              </CardContent>
-            </Card>
           </div>
         </div>
 
