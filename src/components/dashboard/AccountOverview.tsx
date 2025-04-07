@@ -19,6 +19,9 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
     const uid = localStorage.getItem('uid');
     if (!uid) return;
 
+    // Create initial balance if it doesn't exist
+    UserBalanceService.createUserBalance(uid, 0);
+
     const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
       setIsLoading(false);
       if (!isNaN(newBalance)) {
