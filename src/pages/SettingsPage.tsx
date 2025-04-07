@@ -16,6 +16,7 @@ import {
   Upload, Database, Smartphone
 } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "@/components/ui/use-toast";
 
 const SettingsPage = () => {
   const { isDemoMode } = useDashboardContext();
@@ -297,9 +298,35 @@ const SettingsPage = () => {
                     </div>
                   </div>
                 </div>
-                <Button className="bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34]">
-                  Save Preferences
-                </Button>
+                <div className="space-y-4">
+                  <Button 
+                    variant="outline"
+                    className="w-full bg-white/5 border-white/10 text-white hover:bg-white/10 hover:text-white"
+                    onClick={() => {
+                      toast({
+                        title: "Success",
+                        description: "Notification preferences have been saved.",
+                      });
+                    }}
+                  >
+                    Save Preferences
+                  </Button>
+                  <Button 
+                    variant="default"
+                    className="w-full"
+                    onClick={() => {
+                      // Reset all switches to default state
+                      const switches = document.querySelectorAll('button[role="switch"]');
+                      switches.forEach((switchEl) => {
+                        if (switchEl.getAttribute('aria-checked') === 'false') {
+                          (switchEl as HTMLButtonElement).click();
+                        }
+                      });
+                    }}
+                  >
+                    Reset to Default
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
