@@ -21,10 +21,11 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
 
     const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
       setIsLoading(false);
-      setBalance(newBalance);
-        setBalance(isNaN(balanceValue) ? 0 : balanceValue);
+      if (!isNaN(newBalance)) {
+        setBalance(newBalance);
       } else {
-        // If document doesn't exist, create it with initial balance
+        setBalance(0);
+        // If invalid balance, reset to 0
         setDoc(doc(db, 'users', uid), { balance: 0 });
       }
     });
