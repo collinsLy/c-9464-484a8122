@@ -23,14 +23,26 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
     }
 
     setIsLoading(true);
+    console.log('Subscribing to balance updates for user:', uid);
     
     const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
-      console.log('New balance received:', newBalance); // Debug log
-      setBalance(newBalance);
+      console.log('New balance received:', newBalance);
+      // Ensure balance is always a number
+      const numericBalance = typeof newBalance === 'number' ? newBalance : parseFloat(newBalance) || 0;
+      setBalance(numericBalance);
       setIsLoading(false);
     });
 
-    return () => unsubscribe();
+    // Error handling
+    if (!unsubscribe) {
+      console.error('Failed to subscribe to balance updates');
+      setIsLoading(false);
+      setBalance(0);
+    }
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, [isDemoMode]);
 
   const handleDeposit = () => {
