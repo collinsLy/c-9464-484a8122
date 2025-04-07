@@ -45,6 +45,8 @@ import { useToast } from "@/components/ui/use-toast";
 const SignInForm = ({ onSuccess }: SignInFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [isPasswordUpdateRequired, setIsPasswordUpdateRequired] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
   const { toast } = useToast();
   
   const resetForm = useForm<z.infer<typeof resetFormSchema>>({
@@ -90,13 +92,30 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const checkPasswordStrength = (password: string): boolean => {
+  const hasMinLength = password.length >= 8;
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasLowerCase = /[a-z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSpecial = /[^A-Za-z0-9]/.test(password);
+  
+  return hasMinLength && hasUpperCase && hasLowerCase && hasNumber && hasSpecial;
+};
+
+const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     try {
-      const { signInWithEmailAndPassword } = await import('firebase/auth');
+      const { signInWithEmailAndPassword, updatePassword } = await import('firebase/auth');
       const { auth } = await import('@/lib/firebase');
       
-      await signInWithEmailAndPassword(auth, values.email, values.password);
+      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+      
+      if (!checkPasswordStrength(values.password)) {
+        // Open dialog for password update
+        setIsPasswordUpdateRequired(true);
+        return;
+      }
+      
       onSuccess();
       window.location.href = "/dashboard";
     } catch (error: any) {
@@ -202,6 +221,78 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
         </Button>
       </form>
     </Form>
+    
+    <Dialog open={isPasswordUpdateRequired} onOpenChange={setIsPasswordUpdateRequired}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Password Update Required</DialogTitle>
+          <DialogDescription>
+            Your password does not meet the new security requirements. Please update your password to include:
+            - At least 8 characters
+            - One uppercase letter
+            - One lowercase letter
+            - One number
+            - One special character
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={async (e) => {
+          e.preventDefault();
+          try {
+            const { updatePassword } = await import('firebase/auth');
+            const { auth } = await import('@/lib/firebase');
+            
+            if (!checkPasswordStrength(newPassword)) {
+              toast({
+                title: "Invalid Password",
+                description: "Password does not meet security requirements",
+                variant: "destructive"
+              });
+              return;
+            }
+            
+            const user = auth.currentUser;
+            if (user) {
+              await updatePassword(user, newPassword);
+              setIsPasswordUpdateRequired(false);
+              toast({
+                title: "Success",
+                description: "Password updated successfully"
+              });
+              window.location.href = "/dashboard";
+            }
+          } catch (error: any) {
+            console.error("Error updating password:", error);
+            toast({
+              title: "Error",
+              description: "Failed to update password. Please try again.",
+              variant: "destructive"
+            });
+          }
+        }}>
+          <div className="space-y-4 py-4">
+            <FormField
+              name="newPassword"
+              render={() => (
+                <FormItem>
+                  <FormLabel>New Password</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="password" 
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Enter new password"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <Button type="submit" className="w-full">
+              Update Password
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
 
