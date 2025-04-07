@@ -5,13 +5,7 @@ class BinanceService {
   async getOrderBook(symbol: string) {
     try {
       const binanceSymbol = symbol.replace(/USD$/, 'USDT').toUpperCase();
-      const response = await fetch(`${this.baseUrl}/depth?symbol=${binanceSymbol}&limit=20`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await fetch(`${this.baseUrl}/depth?symbol=${binanceSymbol}&limit=20`);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
