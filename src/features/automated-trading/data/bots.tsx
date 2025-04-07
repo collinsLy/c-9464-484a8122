@@ -1,9 +1,8 @@
 
 import { Shield, Sparkles, Award } from "lucide-react";
-import { BotTier } from "../types";
 
 // Bot tiers data
-export const botTiers: BotTier[] = [
+export const botTiers = [
   { 
     id: "standard", 
     type: "Standard", 
@@ -13,7 +12,7 @@ export const botTiers: BotTier[] = [
     pair: "SOL/USD", 
     marketType: "Rise & Fall", 
     profit: "100%",
-    icon: Shield,
+    icon: "https://cryptologos.cc/logos/injective-inj-logo.svg?v=040",
     iconColor: "text-blue-400"
   },
   { 
@@ -25,7 +24,7 @@ export const botTiers: BotTier[] = [
     pair: "BTC/USD", 
     marketType: "Even/Odd", 
     profit: "80%",
-    icon: Sparkles,
+    icon: "https://cryptologos.cc/logos/oasis-network-rose-logo.svg?v=040",
     iconColor: "text-purple-400"
   },
   { 
@@ -37,7 +36,7 @@ export const botTiers: BotTier[] = [
     pair: "BNB/USD", 
     marketType: "Even/Odd", 
     profit: "100%",
-    icon: Award,
+    icon: "https://cryptologos.cc/logos/unus-sed-leo-leo-logo.svg?v=040",
     iconColor: "text-yellow-400"
   },
   { 
@@ -49,7 +48,7 @@ export const botTiers: BotTier[] = [
     pair: "ETH/USD", 
     marketType: "Even/Odd", 
     profit: "200%",
-    icon: Award,
+    icon: "https://cryptologos.cc/logos/polymath-network-poly-logo.svg?v=040",
     iconColor: "text-pink-400"
   },
 ];
