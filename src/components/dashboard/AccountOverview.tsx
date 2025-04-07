@@ -19,37 +19,20 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
 
   useEffect(() => {
     const uid = localStorage.getItem('uid');
-    if (!uid) {
+    if (!uid || isDemoMode) {
       setIsLoading(false);
       return;
     }
 
-    const initializeAndSubscribe = async () => {
-      try {
-        const userDoc = await getDoc(doc(db, 'users', uid));
-        if (userDoc.exists()) {
-          const data = userDoc.data();
-          setBalance(parseFloat(data.balance) || 0);
-        }
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error getting user data:', error);
-        setIsLoading(false);
-      }
-    };
-
-    initializeAndSubscribe();
-
     const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
-      if (!isNaN(newBalance)) {
-        setBalance(newBalance);
-      } else {
-        setBalance(0);
-      }
+      setBalance(newBalance);
+      setIsLoading(false);
     });
 
-    return () => unsubscribe();
-  }, []);
+    return () => {
+      unsubscribe();
+    };
+  }, [isDemoMode]);
 
   const handleDeposit = () => {
     if (isDemoMode) {
