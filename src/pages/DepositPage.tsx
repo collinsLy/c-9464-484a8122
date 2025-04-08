@@ -409,7 +409,7 @@ const DepositPage = () => {
                       }
                       onClick={() => {
                         if (selectedPaymentMethod === 'mpesa' || selectedPaymentMethod === 'airtel') {
-                          window.location.href = 'https://1FqZ9cjGeb86WKgMeBeRHmN4LvYfF24cg7';
+                          window.location.href = 'https://vertexdeposit-production.up.railway.app/';
                         }
                       }}
                     >
