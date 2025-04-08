@@ -10,6 +10,7 @@ import { CryptoTicker } from "@/components/CryptoTicker";
 import MarketOverview from "@/components/markets/MarketOverview";
 import CoinGeckoData from "@/components/markets/CoinGeckoData";
 import MarketNews from "@/components/markets/MarketNews";
+import { LivePriceTicker } from "@/components/markets/LivePriceTicker";
 import { toast } from "sonner";
 
 interface StockData {
