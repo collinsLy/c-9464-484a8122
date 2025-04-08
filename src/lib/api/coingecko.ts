@@ -1,9 +1,11 @@
+
 import { toast } from "sonner";
 
+// CoinGecko API client with key
 const COINGECKO_API_KEY = "CG-vfbBd2nG74YmzzoytroimuaZ";
-const BASE_URL = "https://api.coingecko.com/api/v3";
+const COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3";
 
-// Retaining original, more comprehensive interfaces
+// Define interfaces for API responses
 export interface CoinMarketData {
   id: string;
   symbol: string;
@@ -67,81 +69,78 @@ export interface CoinDetailData {
   last_updated: string;
 }
 
-interface CoinData {
-  id: string;
-  symbol: string;
-  name: string;
-  market_data?: {
-    current_price: {
-      usd: number;
-    };
-    price_change_percentage_24h: number;
-  };
-}
-
-export const fetchCoinGeckoData = async (coinId: string): Promise<CoinData | null> => {
+// Helper function to fetch data from CoinGecko
+const fetchCoinGeckoData = async <T>(endpoint: string, params: Record<string, string> = {}): Promise<T> => {
   try {
-    const response = await fetch(
-      `${BASE_URL}/simple/price?ids=${coinId}&vs_currencies=usd&include_24hr_change=true&x_cg_api_key=${COINGECKO_API_KEY}`
-    );
-
+    const queryParams = new URLSearchParams({
+      ...params,
+      x_cg_api_key: COINGECKO_API_KEY
+    });
+    
+    const url = `${COINGECKO_BASE_URL}${endpoint}?${queryParams.toString()}`;
+    const response = await fetch(url, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (response.status === 429) {
+      toast.error("Rate limit exceeded. Please try again later.");
+      return {} as T;
+    }
+    
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`CoinGecko API error: ${response.status}`);
     }
-
+    
     const data = await response.json();
-
-    if (!data[coinId]) {
-      throw new Error("Coin data not found");
-    }
-
-    return {
-      id: coinId,
-      symbol: coinId,
-      name: coinId.toUpperCase(),
-      market_data: {
-        current_price: {
-          usd: data[coinId].usd,
-        },
-        price_change_percentage_24h: data[coinId].usd_24h_change || 0,
-      },
-    };
-  } catch (error) {
-    console.error("CoinGecko API error:", error);
-    toast.error("Failed to fetch cryptocurrency data");
-    return null;
-  }
-};
-
-export const getCoinMarketData = async (coinIds: string[]): Promise<CoinData[]> => {
-  try {
-    const idsParam = coinIds.join(",");
-    const response = await fetch(
-      `${BASE_URL}/simple/price?ids=${idsParam}&vs_currencies=usd&include_24hr_change=true&x_cg_api_key=${COINGECKO_API_KEY}`
-    );
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return Object.entries(data).map(([id, priceData]: [string, any]) => ({
-      id,
-      symbol: id,
-      name: id.toUpperCase(),
-      market_data: {
-        current_price: {
-          usd: priceData.usd,
-        },
-        price_change_percentage_24h: priceData.usd_24h_change || 0,
-      },
-    }));
+    return data as T;
   } catch (error) {
     console.error("CoinGecko API error:", error);
     toast.error("Failed to fetch market data");
-    return [];
+    return {} as T;
   }
 };
 
-// Removed functions: getTopCoins, getCoinData, getCoinPrice, getCoingeckoIdFromSymbol, getFormattedPrice
-// as they are replaced by the new fetchCoinGeckoData and getCoinMarketData functions.
+// API functions
+export const getTopCoins = async (currency = "usd", limit = 50): Promise<CoinMarketData[]> => {
+  return fetchCoinGeckoData<CoinMarketData[]>(
+    "/coins/markets", 
+    { vs_currency: currency, per_page: limit.toString(), order: "market_cap_desc" }
+  );
+};
+
+export const getCoinData = async (coinId: string): Promise<CoinDetailData> => {
+  return fetchCoinGeckoData<CoinDetailData>(
+    `/coins/${coinId}`,
+    { localization: "false", tickers: "false", market_data: "true", community_data: "true", developer_data: "true" }
+  );
+};
+
+export const getCoinPrice = async (coinId: string, currency = "usd"): Promise<Record<string, { [key: string]: number }>> => {
+  return fetchCoinGeckoData<Record<string, { [key: string]: number }>>(
+    `/simple/price`,
+    { ids: coinId, vs_currencies: currency, include_24hr_change: "true" }
+  );
+};
+
+// Helper to convert exchange symbols to CoinGecko IDs
+export const getCoingeckoIdFromSymbol = (symbol: string): string => {
+  const mapping: Record<string, string> = {
+    "BTCUSD": "bitcoin",
+    "ETHUSD": "ethereum",
+    "SOLUSD": "solana",
+    "BNBUSD": "binancecoin",
+    "ADAUSD": "cardano",
+    "DOTUSD": "polkadot",
+    "XRPUSD": "ripple"
+  };
+  
+  return mapping[symbol] || symbol.toLowerCase().slice(0, 3);
+};
+
+// Get trading pairs in format expected by the app
+export const getFormattedPrice = (coinData: CoinMarketData): number => {
+  return coinData?.current_price || 0;
+};

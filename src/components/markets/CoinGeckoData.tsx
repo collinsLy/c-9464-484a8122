@@ -4,25 +4,25 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { fetchCoinGeckoData, getCoinMarketData } from "@/lib/api/coingecko";
+import { getCoinData, getTopCoins, getCoingeckoIdFromSymbol } from "@/lib/api/coingecko";
 
 interface CoinGeckoDataProps {
   symbol: string;
 }
 
 const CoinGeckoData = ({ symbol }: CoinGeckoDataProps) => {
-  const coinId = symbol.toLowerCase();
+  const coinId = getCoingeckoIdFromSymbol(symbol);
   
   // Fetch coin data
   const { data: coinData, isLoading: isLoadingCoinData } = useQuery({
     queryKey: ['coinData', coinId],
-    queryFn: () => fetchCoinGeckoData(coinId),
+    queryFn: () => getCoinData(coinId),
   });
   
   // Fetch top coins
   const { data: topCoins, isLoading: isLoadingTopCoins } = useQuery({
     queryKey: ['topCoins'],
-    queryFn: () => getCoinMarketData(['bitcoin', 'ethereum', 'binancecoin', 'ripple', 'cardano', 'solana', 'polkadot', 'dogecoin']),
+    queryFn: () => getTopCoins(),
   });
   
   // Calculate 24h change

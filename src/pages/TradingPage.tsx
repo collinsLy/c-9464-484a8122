@@ -6,6 +6,7 @@ import TradingViewChart from "@/components/TradingViewChart";
 import BinanceOrderBook from "@/components/markets/BinanceOrderBook";
 import { TradingPanel } from "@/components/trading/TradingPanel";
 import { CryptoTicker } from "@/components/CryptoTicker";
+import { VerticalPriceTicker } from "@/components/markets/VerticalPriceTicker";
 
 const TradingPage = () => {
   const { isDemoMode } = useDashboardContext();
@@ -39,14 +40,20 @@ const TradingPage = () => {
           </CardContent>
         </Card>
 
-        <CryptoTicker />
-
-        <div className="grid grid-cols-3 gap-4">
-          <div className="col-span-2">
-            <TradingPanel symbol={selectedSymbol} />
+        <div className="grid grid-cols-4 gap-4">
+          <div className="col-span-3">
+            <CryptoTicker />
+            <div className="mt-4 grid grid-cols-3 gap-4">
+              <div className="col-span-2">
+                <TradingPanel symbol={selectedSymbol} />
+              </div>
+              <div className="col-span-1">
+                <BinanceOrderBook symbol={selectedSymbol} />
+              </div>
+            </div>
           </div>
           <div className="col-span-1">
-            <BinanceOrderBook symbol={selectedSymbol} />
+            <VerticalPriceTicker />
           </div>
         </div>
       </div>
