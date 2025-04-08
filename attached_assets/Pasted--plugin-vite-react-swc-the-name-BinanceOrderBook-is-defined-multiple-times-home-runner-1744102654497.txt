@@ -1,0 +1,25 @@
+[plugin:vite:react-swc] × the name `BinanceOrderBook` is defined multiple times
+    ╭─[/home/runner/workspace/src/pages/MarketPage.tsx:7:1]
+  4 │ import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
+  5 │ import DashboardLayout from "@/components/dashboard/DashboardLayout";
+  6 │ import TradingViewChart from "@/components/TradingViewChart";
+  7 │ import BinanceOrderBook from "@/components/markets/BinanceOrderBook";
+    ·        ────────┬───────
+    ·                ╰── previous definition of `BinanceOrderBook` here
+  8 │ import { TradingPanel } from "@/components/trading/TradingPanel";
+  9 │ import { CryptoTicker } from "@/components/CryptoTicker";
+ 10 │ import MarketOverview from "@/components/markets/MarketOverview";
+ 11 │ import BinanceOrderBook from "@/components/markets/BinanceOrderBook";
+    ·        ────────┬───────
+    ·                ╰── `BinanceOrderBook` redefined here
+ 12 │ import CoinGeckoData from "@/components/markets/CoinGeckoData";
+ 13 │ import MarketNews from "@/components/markets/MarketNews";
+ 14 │ import { toast } from "sonner";
+    ╰────
+/home/runner/workspace/src/pages/MarketPage.tsx:7:1
+62 |            {/* Stock Section */}
+63 |            <div data-component-path="src/pages/MarketPage.tsx" data-component-name="div" data-component-line="63" data-component-file="MarketPage.tsx" data-component-content="%7B%22className%22%3A%22space-y-4%22%7D" className="space-y-4">
+64 |              <div data-component-path="src/pages/MarketPage.tsx" data-component-name="div" data-component-line="64" data-component-file="MarketPage.tsx" data-component-content="%7B%22className%22%3A%22flex%20justify-between%20items-center%22%7D" className="flex justify-between items-center">
+   |                                                                                                                                                                                                                              ^
+65 |                <h2 data-component-path="src/pages/MarketPage.tsx" data-component-name="h2" data-component-line="65" data-component-file="MarketPage.tsx" data-component-content="%7B%22text%22%3A%22Stocks%22%2C%22className%22%3A%22text-2xl%20font-bold%20text-white%22%7D" className="text-2xl font-bold text-white">Stocks</h2>
+66 |                <select data-component-path="src/pages/MarketPage.tsx" data-component-name="select" data-com
