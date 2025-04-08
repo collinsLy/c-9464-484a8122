@@ -2,6 +2,45 @@
 @keyframes flipTop {
   0% { transform: rotateX(0deg); }
   100% { transform: rotateX(-90deg); }
+
+@keyframes scroll {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-scroll {
+  animation: scroll 0.3s ease-out;
+}
+
+@keyframes flip {
+  0% {
+    transform: rotateX(0deg);
+  }
+  100% {
+    transform: rotateX(360deg);
+  }
+}
+
+.animate-flip {
+  animation: flip 0.6s ease-out;
+  backface-visibility: hidden;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
 }
 
 @keyframes flipBottom {

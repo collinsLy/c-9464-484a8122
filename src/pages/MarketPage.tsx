@@ -108,6 +108,15 @@ const MarketPage = () => {
                 <TradingViewChart symbol={`NYSE:${selectedStockSymbol}`} />
               </CardContent>
             </Card>
+            
+            <Card className="bg-background/40 backdrop-blur-lg border-white/10 mt-4">
+              <CardHeader>
+                <CardTitle>Live Price Updates</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <LivePriceTicker symbol={selectedStockSymbol} />
+              </CardContent>
+            </Card>
           </div>
 
           {/* Crypto Section */}
