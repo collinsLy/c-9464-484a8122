@@ -41,23 +41,28 @@ const Partners = () => {
     <div className="py-12 bg-[#0F1115] border-t border-white/10">
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-2xl font-bold text-center text-white mb-8">Our Partners</h2>
-        <Marquee
-          speed={50}
-          gradient={false}
-          pauseOnHover
-          loop={0}
-          autoFill={true}
-        >
-          {partners.map((partner) => (
-            <div key={partner.name} className="mx-12">
-              <img
-                src={partner.logo}
-                alt={`${partner.name} logo`}
-                className="h-12 w-auto opacity-70 hover:opacity-100 transition-opacity"
-              />
-            </div>
-          ))}
-        </Marquee>
+        <div className="overflow-hidden">
+          <Marquee
+            speed={30}
+            gradient={false}
+            pauseOnHover={true}
+            direction="left"
+            autoFill={true}
+          >
+            {partners.map((partner) => (
+              <div 
+                key={partner.name} 
+                className="mx-8 hover:scale-110 transition-transform duration-300"
+              >
+                <img
+                  src={partner.logo}
+                  alt={`${partner.name} logo`}
+                  className="h-12 w-auto opacity-70 hover:opacity-100 transition-opacity"
+                />
+              </div>
+            ))}
+          </Marquee>
+        </div>
       </div>
     </div>
   );
