@@ -46,11 +46,11 @@ const DashboardHeader = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem className="cursor-pointer flex items-start gap-4 p-4">
-              <div className="h-2 w-2 mt-2 bg-green-500 rounded-full"></div>
-              <div className="space-y-1">
-                <p className="font-medium">Important Update: New Payment Options</p>
-                <p className="text-sm text-white/70">We've expanded our payment options! Now supporting crypto (USDT, BTC, ETH), mobile money (M-Pesa, Airtel), cards, and bank transfers.</p>
+            <DropdownMenuItem className="cursor-pointer flex items-start gap-3 p-3 max-w-[300px] sm:max-w-[350px]">
+              <div className="h-2 w-2 mt-1.5 bg-green-500 rounded-full flex-shrink-0"></div>
+              <div className="space-y-1 overflow-hidden">
+                <p className="font-medium text-sm">New Payment Methods Available</p>
+                <p className="text-xs text-white/70 line-clamp-2">Now accepting crypto, mobile money, cards & bank transfers</p>
                 <p className="text-xs text-white/50">Just now</p>
               </div>
             </DropdownMenuItem>
