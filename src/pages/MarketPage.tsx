@@ -105,7 +105,7 @@ const MarketPage = () => {
 
             <Card className="bg-background/40 backdrop-blur-lg border-white/10">
               <CardContent className="p-4">
-                <TradingViewChart symbol={selectedStockSymbol} />
+                <TradingViewChart symbol={`NYSE:${selectedStockSymbol}`} />
               </CardContent>
             </Card>
           </div>
