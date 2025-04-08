@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
@@ -33,7 +32,7 @@ const MarketPage = () => {
         `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${selectedStockSymbol}&apikey=${process.env.VITE_ALPHA_VANTAGE_API_KEY}`
       );
       const data = await response.json();
-      
+
       if (data["Global Quote"]) {
         setStockData({
           symbol: data["Global Quote"]["01. symbol"],
@@ -106,10 +105,10 @@ const MarketPage = () => {
 
             <Card className="bg-background/40 backdrop-blur-lg border-white/10">
               <CardContent className="p-4">
-                <TradingViewChart symbol={`NYSE:${selectedStockSymbol}`} />
+                <TradingViewChart symbol={`NYSE:${selectedStockSymbol}`} exchange="NYSE" />
               </CardContent>
             </Card>
-            
+
             <Card className="bg-background/40 backdrop-blur-lg border-white/10 mt-4">
               <CardHeader>
                 <CardTitle>Live Price Updates</CardTitle>
@@ -139,7 +138,7 @@ const MarketPage = () => {
 
             <Card className="bg-background/40 backdrop-blur-lg border-white/10">
               <CardContent className="p-4">
-                <TradingViewChart symbol={selectedCryptoSymbol} />
+                <TradingViewChart symbol={`BINANCE:${selectedCryptoSymbol}`} exchange="BINANCE" />
               </CardContent>
             </Card>
 
@@ -151,7 +150,7 @@ const MarketPage = () => {
 
       <div className="grid gap-6 mt-6">
         <MarketOverview />
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-3">
             <CoinGeckoData symbol={selectedCryptoSymbol} />

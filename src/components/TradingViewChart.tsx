@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 
 interface TradingViewChartProps {
   symbol: string;
+  exchange?: 'NYSE' | 'BINANCE';
 }
 
 export default function TradingViewChart({ symbol }: TradingViewChartProps) {
