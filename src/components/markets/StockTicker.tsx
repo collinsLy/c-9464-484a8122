@@ -14,25 +14,26 @@ export function StockTicker() {
   useEffect(() => {
     const fetchStockData = async () => {
       try {
-        const results = await Promise.all(
-          stockSymbols.map(async (symbol) => {
-            const response = await fetch(
-              `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=KD8VEONNC7ZSMKQO`
-            );
-            const data = await response.json();
+        for (const symbol of stockSymbols) {
+          const response = await fetch(
+            `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=KD8VEONNC7ZSMKQO`
+          );
+          const data = await response.json();
 
-            if (data['Global Quote']) {
-              return {
+          if (data['Global Quote']) {
+            setStocks(prevStocks => {
+              const newStock = {
                 symbol,
                 price: parseFloat(data['Global Quote']['05. price']),
                 changePercent: parseFloat(data['Global Quote']['10. change percent'].replace('%', ''))
               };
-            }
-            return null;
-          })
-        );
-
-        setStocks(results.filter((stock): stock is StockPrice => stock !== null));
+              const existingStocks = prevStocks.filter(s => s.symbol !== symbol);
+              return [...existingStocks, newStock];
+            });
+          }
+          // Add delay to avoid API rate limiting
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
       } catch (error) {
         console.error('Failed to fetch stock data:', error);
       }
