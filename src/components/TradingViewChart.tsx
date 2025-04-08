@@ -5,7 +5,7 @@ interface TradingViewChartProps {
   exchange?: 'NYSE' | 'BINANCE';
 }
 
-export default function TradingViewChart({ symbol }: TradingViewChartProps) {
+export default function TradingViewChart({ symbol, exchange }: TradingViewChartProps) {
   const container = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -17,7 +17,7 @@ export default function TradingViewChart({ symbol }: TradingViewChartProps) {
     script.onload = () => {
       if (typeof TradingView !== 'undefined') {
         new TradingView.widget({
-          container_id: 'tradingview_chart',
+          container_id: container.current?.id,
           autosize: true,
           symbol: exchange ? `${exchange}:${symbol}` : symbol,
           interval: 'D',
@@ -27,7 +27,6 @@ export default function TradingViewChart({ symbol }: TradingViewChartProps) {
           locale: 'en',
           enable_publishing: false,
           allow_symbol_change: true,
-          container_id: container.current?.id,
           hide_side_toolbar: false,
           save_image: false,
           studies: ['MASimple@tv-basicstudies'],

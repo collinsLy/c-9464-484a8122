@@ -68,10 +68,10 @@ const MarketPage = () => {
                 className="bg-background/40 text-white border border-white/10 rounded-md p-2"
               >
                 <option value="IBM">IBM</option>
-                <option value="AAPL">Apple</option>
-                <option value="GOOGL">Google</option>
-                <option value="MSFT">Microsoft</option>
-                <option value="AMZN">Amazon</option>
+                <option value="AAPL">AAPL</option>
+                <option value="GOOGL">GOOGL</option>
+                <option value="MSFT">MSFT</option>
+                <option value="AMZN">AMZN</option>
               </select>
             </div>
 
