@@ -143,11 +143,8 @@ const MarketPage = () => {
         <MarketOverview />
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-3">
             <CoinGeckoData symbol={selectedCryptoSymbol} />
-          </div>
-          <div>
-            <BinanceOrderBook symbol={selectedCryptoSymbol} />
           </div>
         </div>
 
