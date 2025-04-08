@@ -1,13 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { LogIn, Menu, X, Bell } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { LogIn, Menu, X } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import SignInForm from "./SignInForm";
@@ -29,29 +23,6 @@ const Navbar = () => {
           <a href="#" className="text-white/80 hover:text-white transition-colors">Company</a>
           <a href="#" className="text-white/80 hover:text-white transition-colors">Pricing</a>
           
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-5 w-5 text-white/80" />
-                <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80">
-              <DropdownMenuItem className="cursor-pointer">
-                <div className="flex flex-col">
-                  <span className="font-medium">New Trade Alert</span>
-                  <span className="text-sm text-gray-500">BTC/USDT position opened</span>
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
-                <div className="flex flex-col">
-                  <span className="font-medium">Market Update</span>
-                  <span className="text-sm text-gray-500">ETH price increased by 5%</span>
-                </div>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
           <Dialog open={openAccount} onOpenChange={setOpenAccount}>
             <DialogTrigger asChild>
               <Button variant="outline" className="text-white border-white/20 hover:bg-white/10">

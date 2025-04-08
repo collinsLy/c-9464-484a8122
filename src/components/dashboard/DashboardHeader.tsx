@@ -38,41 +38,9 @@ const DashboardHeader = () => {
       </div>
 
       <div className="flex items-center space-x-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative text-white/70 hover:text-white hover:bg-white/10">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-80 bg-background/95 backdrop-blur-lg border-white/10">
-            <div className="flex items-center justify-between px-4 py-2 border-b border-white/10">
-              <span className="font-medium">Notifications</span>
-              <Button variant="ghost" size="sm">Mark all as read</Button>
-            </div>
-            <div className="max-h-96 overflow-y-auto">
-              <DropdownMenuItem className="cursor-pointer flex items-start gap-4 p-4">
-                <div className="h-2 w-2 mt-2 bg-blue-500 rounded-full"></div>
-                <div className="space-y-1">
-                  <p className="font-medium">Market Alert</p>
-                  <p className="text-sm text-white/70">BTC price increased by 5% in the last hour</p>
-                  <p className="text-xs text-white/50">2 minutes ago</p>
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer flex items-start gap-4 p-4">
-                <div className="h-2 w-2 mt-2 bg-green-500 rounded-full"></div>
-                <div className="space-y-1">
-                  <p className="font-medium">Trade Executed</p>
-                  <p className="text-sm text-white/70">Your limit order for ETH/USDT was filled</p>
-                  <p className="text-xs text-white/50">1 hour ago</p>
-                </div>
-              </DropdownMenuItem>
-            </div>
-            <div className="p-4 border-t border-white/10">
-              <Button variant="outline" className="w-full">View all notifications</Button>
-            </div>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10" onClick={() => setNotificationsOpen(true)}>
+          <Bell className="w-5 h-5" />
+        </Button>
         <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10" onClick={() => navigate('/settings')}>
           <User className="w-5 h-5" />
         </Button>
