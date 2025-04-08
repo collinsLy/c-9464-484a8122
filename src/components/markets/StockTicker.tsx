@@ -47,7 +47,7 @@ export function StockTicker() {
   return (
     <Card className="bg-background/40 backdrop-blur-lg border-white/10">
       <CardHeader>
-        <CardTitle>Stock Ticker</CardTitle>
+        <CardTitle className="text-white">Stock Ticker</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-[440px] overflow-y-auto">
