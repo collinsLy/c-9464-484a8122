@@ -115,9 +115,7 @@ const MarketPage = () => {
               </CardContent>
             </Card>
 
-            <div className="mt-4">
-              <StockTicker />
-            </div>
+            <StockTicker />
           </div>
 
           {/* Crypto Section */}
