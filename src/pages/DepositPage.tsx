@@ -150,7 +150,7 @@ const DepositPage = () => {
                           onClick={() => setSelectedCrypto('WLD')}
                           className="flex items-center gap-2"
                         >
-                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/wld.svg" alt="WLD" className="w-5 h-5" />
+                          <img src="https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg" alt="WLD" className="w-5 h-5" />
                           WLD
                         </Button>
                         <Button 
