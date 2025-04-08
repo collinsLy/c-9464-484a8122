@@ -19,17 +19,33 @@ export function TwelveDataTicker() {
   };
 
   useEffect(() => {
-    const ws = new WebSocket('wss://ws.twelvedata.com/v1/quotes/price');
+    let ws: WebSocket;
+    
+    const connectWebSocket = () => {
+      ws = new WebSocket('wss://ws.twelvedata.com/v1/quotes/price');
 
-    ws.onopen = () => {
-      ws.send(JSON.stringify({
-        action: 'subscribe',
-        params: {
-          symbols: [...symbols.stocks, ...symbols.forex, ...symbols.etfs].join(','),
-          apikey: 'bd6542a7833b4e4ebb503631cc1cb780'
-        }
-      }));
+      ws.onopen = () => {
+        console.log('WebSocket connected');
+        ws.send(JSON.stringify({
+          action: 'subscribe',
+          params: {
+            symbols: [...symbols.stocks, ...symbols.forex, ...symbols.etfs].join(','),
+            apikey: 'bd6542a7833b4e4ebb503631cc1cb780'
+          }
+        }));
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      };
+
+      ws.onclose = () => {
+        console.log('WebSocket disconnected, attempting to reconnect...');
+        setTimeout(connectWebSocket, 3000);
+      };
     };
+
+    connectWebSocket();
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -89,7 +105,10 @@ export function TwelveDataTicker() {
   return (
     <Card className="bg-background/40 backdrop-blur-lg border-white/10">
       <CardHeader>
-        <CardTitle>Market Data</CardTitle>
+        <CardTitle>Live Market Data</CardTitle>
+        {Object.keys(marketData).length === 0 && (
+          <div className="text-sm text-white/70">Connecting to live feed...</div>
+        )}
       </CardHeader>
       <CardContent className="space-y-6">
         {renderSection('Stocks', 'stock')}
