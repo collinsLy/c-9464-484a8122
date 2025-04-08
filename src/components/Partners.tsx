@@ -38,7 +38,7 @@ const partners = [
 
 const Partners = () => {
   return (
-    <div className="py-12 bg-background border-t border-white/10">
+    <div className="py-12 bg-[#0F1115] border-t border-white/10">
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-2xl font-bold text-center text-white mb-8">Our Partners</h2>
         <Marquee
