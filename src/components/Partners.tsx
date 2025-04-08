@@ -45,6 +45,7 @@ const Partners = () => {
           speed={40}
           gradient={false}
           pauseOnHover
+          loop={0}
         >
           {partners.map((partner) => (
             <div key={partner.name} className="mx-12">

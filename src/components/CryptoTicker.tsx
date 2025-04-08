@@ -65,6 +65,7 @@ export function CryptoTicker() {
         speed={40}
         gradient={false}
         pauseOnHover
+        loop={0}
         className="[&>*]:mx-4"
       >
         {prices.map((crypto) => (
