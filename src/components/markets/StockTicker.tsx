@@ -1,7 +1,6 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface StockPrice {
   symbol: string;
@@ -82,13 +81,14 @@ export function StockTicker() {
                         stock.changePercent >= 0 ? "text-green-500" : "text-red-500"
                       }`}
                     >
-                    {stock.changePercent >= 0 ? "+" : ""}
-                    {stock.changePercent.toFixed(2)}%
-                  </span>
+                      {stock.changePercent >= 0 ? "+" : ""}
+                      {stock.changePercent.toFixed(2)}%
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </CardContent>
     </Card>
