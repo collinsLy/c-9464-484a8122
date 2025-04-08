@@ -42,10 +42,11 @@ const Partners = () => {
       <div className="max-w-7xl mx-auto px-4">
         <h2 className="text-2xl font-bold text-center text-white mb-8">Our Partners</h2>
         <Marquee
-          speed={40}
+          speed={50}
           gradient={false}
           pauseOnHover
           loop={0}
+          autoFill={true}
         >
           {partners.map((partner) => (
             <div key={partner.name} className="mx-12">
