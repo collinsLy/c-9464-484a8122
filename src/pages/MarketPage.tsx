@@ -10,7 +10,7 @@ import MarketOverview from "@/components/markets/MarketOverview";
 import CoinGeckoData from "@/components/markets/CoinGeckoData";
 import MarketNews from "@/components/markets/MarketNews";
 import { LivePriceTicker } from "@/components/markets/LivePriceTicker";
-import { StockTicker } from "@/components/markets/StockTicker";
+
 import { TwelveDataTicker } from "@/components/markets/TwelveDataTicker";
 import { toast } from "sonner";
 
@@ -115,8 +115,7 @@ const MarketPage = () => {
               </CardContent>
             </Card>
 
-            <StockTicker />
-          </div>
+            </div>
 
           {/* Crypto Section */}
           <div className="space-y-4">
