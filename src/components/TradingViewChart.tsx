@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 
 interface TradingViewChartProps {
@@ -17,6 +16,7 @@ export default function TradingViewChart({ symbol }: TradingViewChartProps) {
     script.onload = () => {
       if (typeof TradingView !== 'undefined') {
         new TradingView.widget({
+          container_id: 'tradingview_chart',
           autosize: true,
           symbol: `BINANCE:${symbol}`,
           interval: 'D',
@@ -50,7 +50,7 @@ export default function TradingViewChart({ symbol }: TradingViewChartProps) {
 
   return (
     <div 
-      id="tradingview_widget" 
+      id="tradingview_chart" 
       ref={container} 
       style={{ height: '600px', width: '100%' }}
       className="rounded-lg overflow-hidden"
