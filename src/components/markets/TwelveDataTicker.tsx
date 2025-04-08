@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -11,7 +10,7 @@ interface TickerData {
 
 export function TwelveDataTicker() {
   const [marketData, setMarketData] = useState<Record<string, TickerData>>({});
-  
+
   const symbols = {
     stocks: ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA'],
     forex: ['EUR/USD', 'GBP/USD', 'USD/JPY', 'USD/CAD'],
@@ -19,56 +18,38 @@ export function TwelveDataTicker() {
   };
 
   useEffect(() => {
-    let ws: WebSocket;
-    
-    const connectWebSocket = () => {
-      ws = new WebSocket('wss://ws.twelvedata.com/v1/quotes/price');
+    const fetchPrices = async () => {
+      try {
+        const allSymbols = [...symbols.stocks, ...symbols.forex, ...symbols.etfs];
+        const response = await fetch(
+          `https://api.twelvedata.com/price?symbol=${allSymbols.join(',')}&apikey=bd6542a7833b4e4ebb503631cc1cb780`
+        );
+        const data = await response.json();
 
-      ws.onopen = () => {
-        console.log('WebSocket connected');
-        ws.send(JSON.stringify({
-          action: 'subscribe',
-          params: {
-            symbols: [...symbols.stocks, ...symbols.forex, ...symbols.etfs].join(','),
-            apikey: 'bd6542a7833b4e4ebb503631cc1cb780'
-          }
-        }));
-      };
-
-      ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-      };
-
-      ws.onclose = () => {
-        console.log('WebSocket disconnected, attempting to reconnect...');
-        setTimeout(connectWebSocket, 3000);
-      };
-    };
-
-    connectWebSocket();
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.price && data.symbol) {
         setMarketData(prev => {
-          const type = symbols.stocks.includes(data.symbol) ? 'stock' 
-            : symbols.forex.includes(data.symbol) ? 'forex' 
-            : 'etf';
-            
-          return {
-            ...prev,
-            [data.symbol]: {
-              symbol: data.symbol,
-              price: parseFloat(data.price),
-              previousPrice: prev[data.symbol]?.price || parseFloat(data.price),
+          const newData: Record<string, TickerData> = {};
+          for (const symbol in data) {
+            const type = symbols.stocks.includes(symbol) ? 'stock' 
+              : symbols.forex.includes(symbol) ? 'forex' 
+              : 'etf';
+
+            newData[symbol] = {
+              symbol,
+              price: parseFloat(data[symbol].price),
+              previousPrice: prev[symbol]?.price || parseFloat(data[symbol].price),
               type
-            }
-          };
+            };
+          }
+          return newData;
         });
+      } catch (error) {
+        console.error('Failed to fetch prices:', error);
       }
     };
 
-    return () => ws.close();
+    fetchPrices();
+    const interval = setInterval(fetchPrices, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const renderSection = (title: string, type: 'stock' | 'forex' | 'etf') => (
@@ -107,7 +88,7 @@ export function TwelveDataTicker() {
       <CardHeader>
         <CardTitle>Live Market Data</CardTitle>
         {Object.keys(marketData).length === 0 && (
-          <div className="text-sm text-white/70">Connecting to live feed...</div>
+          <div className="text-sm text-white/70">Loading market data...</div>
         )}
       </CardHeader>
       <CardContent className="space-y-6">
