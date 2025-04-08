@@ -1,3 +1,4 @@
+
 import Marquee from 'react-fast-marquee';
 
 const partners = [
