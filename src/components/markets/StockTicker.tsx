@@ -56,12 +56,12 @@ export function StockTicker() {
   }, []);
 
   return (
-    <Card className="bg-background/40 backdrop-blur-lg border-white/10 h-[400px]">
-      <CardHeader>
-        <CardTitle>Stock Ticker</CardTitle>
+    <Card className="bg-background/40 backdrop-blur-lg border-white/10 h-[300px] mt-4">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg">Stock Ticker</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="overflow-y-auto h-[320px] space-y-2 smooth-scroll">
+        <div className="overflow-y-auto h-[220px] space-y-2 smooth-scroll">
           {stocks.map((stock) => (
             <div
               key={stock.symbol}
