@@ -15,7 +15,7 @@ import {
 
 const BotsPage = () => {
   const { isDemoMode } = useDashboardContext();
-  const [activeTab, setActiveTab] = useState("my-bots");
+  const [activeTab, setActiveTab] = useState("marketplace");
   
   return (
     <DashboardLayout>
@@ -27,11 +27,11 @@ const BotsPage = () => {
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white mb-6">
-                <TabsTrigger value="my-bots" className="text-white data-[state=active]:bg-accent">
-                  My Bots
-                </TabsTrigger>
                 <TabsTrigger value="marketplace" className="text-white data-[state=active]:bg-accent">
                   Marketplace
+                </TabsTrigger>
+                <TabsTrigger value="my-bots" className="text-white data-[state=active]:bg-accent">
+                  My Bots
                 </TabsTrigger>
                 <TabsTrigger value="create" className="text-white data-[state=active]:bg-accent">
                   Create New
