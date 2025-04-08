@@ -1,28 +1,55 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { binanceService } from '@/lib/binance-service';
+import { cn } from '@/lib/utils';
 
 interface BinanceOrderBookProps {
   symbol: string;
 }
 
+interface OrderData {
+  price: string;
+  amount: string;
+  total?: number;
+  isNew?: boolean;
+  hasChanged?: boolean;
+}
+
 const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
   const [orderType, setOrderType] = useState<"market" | "limit">("market");
-  const [orderBook, setOrderBook] = useState<{ bids: string[][], asks: string[][] }>({ bids: [], asks: [] });
+  const [orderBook, setOrderBook] = useState<{ bids: OrderData[], asks: OrderData[] }>({ bids: [], asks: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  const processOrders = useCallback((orders: string[][], prevOrders: OrderData[] = []): OrderData[] => {
+    return orders.slice(0, 15).map((order, i) => {
+      const [price, amount] = order;
+      const prevOrder = prevOrders[i];
+      const total = parseFloat(amount) * parseFloat(price);
+      
+      return {
+        price,
+        amount,
+        total,
+        isNew: !prevOrder,
+        hasChanged: prevOrder && (prevOrder.price !== price || prevOrder.amount !== amount)
+      };
+    });
+  }, []);
 
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    const updateInterval = 1000; // Batch updates every second
+
     const fetchOrderBook = async () => {
       if (!symbol) return;
       
       try {
-        setLoading(true);
         setError(null);
         const data = await binanceService.getOrderBook(symbol);
         
@@ -30,42 +57,58 @@ const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
           throw new Error('Invalid order book data received');
         }
         
-        setOrderBook(data);
-        setError(null);
+        setOrderBook(prev => ({
+          bids: processOrders(data.bids, prev.bids),
+          asks: processOrders(data.asks, prev.asks)
+        }));
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to fetch order book';
         setError(errorMessage);
         console.error('Error fetching order book:', err);
       } finally {
         setLoading(false);
+        timeoutId = setTimeout(fetchOrderBook, updateInterval);
       }
     };
 
-    if (symbol) {
-      fetchOrderBook();
-      const interval = setInterval(fetchOrderBook, 5000);
-      return () => clearInterval(interval);
-    }
-  }, [symbol]);
+    fetchOrderBook();
+    return () => clearTimeout(timeoutId);
+  }, [symbol, processOrders]);
+
+  const renderOrders = (orders: OrderData[], isAsk: boolean) => (
+    <div className="space-y-1 h-[300px] overflow-y-auto">
+      {orders.map((order, i) => (
+        <div 
+          key={`${order.price}-${i}`}
+          className={cn(
+            "grid grid-cols-2 gap-2 text-sm relative transition-all duration-200",
+            order.isNew && "animate-fade-in",
+            order.hasChanged && (isAsk ? "bg-red-500/10" : "bg-green-500/10")
+          )}
+          style={{
+            opacity: Math.max(0.4, 1 - (i * 0.05)) // Progressive fading
+          }}
+        >
+          <div className="absolute left-0 h-full bg-accent/10" 
+               style={{ 
+                 width: `${(order.total || 0) / (Math.max(...orders.map(o => o.total || 0)) || 1) * 100}%`,
+                 backgroundColor: isAsk ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)'
+               }} />
+          <div className={cn(
+            "z-10",
+            isAsk ? "text-red-400" : "text-green-400"
+          )}>
+            {parseFloat(order.price).toFixed(2)}
+          </div>
+          <div className="text-right text-white/70 z-10">
+            {parseFloat(order.amount).toFixed(4)}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   if (loading) {
-    return (
-      <Card className="bg-background/40 backdrop-blur-lg border-white/10">
-        <CardHeader>
-          <CardTitle className="text-white">Order Book</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <Skeleton key={i} className="h-4 w-full bg-white/10" />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (error) {
     return (
       <Card className="bg-background/40 backdrop-blur-lg border-white/10">
         <CardHeader>
@@ -132,25 +175,9 @@ const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
                 <div className="text-right">Amount</div>
               </div>
               
-              {orderBook.asks.slice().reverse().map(([price, amount], i) => (
-                <div key={`ask-${i}`} className="grid grid-cols-2 gap-2 text-sm relative">
-                  <div className="absolute left-0 h-full bg-red-500/10" 
-                       style={{ width: `${(parseFloat(amount) / 10) * 100}%` }} />
-                  <div className="text-red-400 z-10">{parseFloat(price).toFixed(2)}</div>
-                  <div className="text-right text-white/70 z-10">{parseFloat(amount).toFixed(4)}</div>
-                </div>
-              ))}
-              
+              {renderOrders(orderBook.asks.slice().reverse(), true)}
               <div className="border-t border-white/10 my-2" />
-              
-              {orderBook.bids.map(([price, amount], i) => (
-                <div key={`bid-${i}`} className="grid grid-cols-2 gap-2 text-sm relative">
-                  <div className="absolute left-0 h-full bg-green-500/10" 
-                       style={{ width: `${(parseFloat(amount) / 10) * 100}%` }} />
-                  <div className="text-green-400 z-10">{parseFloat(price).toFixed(2)}</div>
-                  <div className="text-right text-white/70 z-10">{parseFloat(amount).toFixed(4)}</div>
-                </div>
-              ))}
+              {renderOrders(orderBook.bids, false)}
             </div>
           </div>
         </Tabs>
