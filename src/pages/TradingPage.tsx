@@ -40,15 +40,20 @@ const TradingPage = () => {
           </CardContent>
         </Card>
 
-        <CryptoTicker />
-
-        <div className="grid grid-cols-3 gap-4">
-          <div className="col-span-2">
-            <TradingPanel symbol={selectedSymbol} />
+        <div className="grid grid-cols-4 gap-4">
+          <div className="col-span-3">
+            <CryptoTicker />
+            <div className="mt-4 grid grid-cols-3 gap-4">
+              <div className="col-span-2">
+                <TradingPanel symbol={selectedSymbol} />
+              </div>
+              <div className="col-span-1">
+                <BinanceOrderBook symbol={selectedSymbol} />
+              </div>
+            </div>
           </div>
-          <div className="col-span-1 space-y-4">
+          <div className="col-span-1">
             <VerticalPriceTicker />
-            <BinanceOrderBook symbol={selectedSymbol} />
           </div>
         </div>
       </div>
