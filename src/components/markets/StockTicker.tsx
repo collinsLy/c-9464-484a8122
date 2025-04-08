@@ -49,12 +49,12 @@ export function StockTicker() {
         <CardTitle>Stock Ticker</CardTitle>
       </CardHeader>
       <CardContent className="p-4">
-        <div className="space-y-2 h-[300px] overflow-y-auto">
+        <div className="space-y-2 h-[480px] overflow-y-auto">
           <div className="space-y-2">
             {stocks.map((stock) => (
               <div
                 key={stock.symbol}
-                className="grid grid-cols-2 gap-2 text-sm relative transition-all duration-200 p-3 rounded-lg bg-white/5 border border-white/10"
+                className="p-3 rounded-lg bg-white/5 border border-white/10"
               >
                 <div className="flex justify-between items-center">
                   <span className="font-medium text-white">{stock.symbol}</span>
