@@ -1,15 +1,10 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import TradingViewChart from "@/components/TradingViewChart";
 import BinanceOrderBook from "@/components/markets/BinanceOrderBook";
 import { TradingPanel } from "@/components/trading/TradingPanel";
-import { CryptoTicker } from "@/components/CryptoTicker";
-import { VerticalPriceTicker } from "@/components/markets/VerticalPriceTicker";
 
 const TradingPage = () => {
-  const { isDemoMode } = useDashboardContext();
   const [selectedSymbol, setSelectedSymbol] = useState("BTCUSDT");
   const [selectedTimeframe, setSelectedTimeframe] = useState("1D");
 
@@ -34,8 +29,8 @@ const TradingPage = () => {
                 key={tf}
                 onClick={() => setSelectedTimeframe(tf)}
                 className={`px-3 py-1 rounded ${
-                  selectedTimeframe === tf 
-                    ? "bg-white/10 text-white" 
+                  selectedTimeframe === tf
+                    ? "bg-white/10 text-white"
                     : "text-white/60 hover:text-white"
                 }`}
               >
@@ -45,25 +40,18 @@ const TradingPage = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-4 bg-background/40 p-4 rounded-lg">
-          <div className="col-span-3">
-            <TradingViewChart 
-              symbol={selectedSymbol} 
+        <div className="grid grid-cols-4 gap-4">
+          <div className="col-span-3 bg-background/40 p-4 rounded-lg">
+            <TradingViewChart
+              symbol={selectedSymbol}
               exchange="BINANCE"
-              theme="dark"
               containerId="trading_chart"
             />
           </div>
-
-        <div className="col-span-1 space-y-4">
+          <div className="col-span-1 space-y-4">
             <BinanceOrderBook symbol={selectedSymbol} />
             <TradingPanel symbol={selectedSymbol} />
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4">
-          <CryptoTicker />
-          <VerticalPriceTicker />
         </div>
       </div>
     </DashboardLayout>
