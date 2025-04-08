@@ -19,7 +19,7 @@ export default function TradingViewChart({ symbol }: TradingViewChartProps) {
         new TradingView.widget({
           container_id: 'tradingview_chart',
           autosize: true,
-          symbol: `BINANCE:${symbol}`,
+          symbol: exchange ? `${exchange}:${symbol}` : symbol,
           interval: 'D',
           timezone: 'Etc/UTC',
           theme: 'dark',
