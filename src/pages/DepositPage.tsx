@@ -126,7 +126,7 @@ const DepositPage = () => {
                           onClick={() => setSelectedCrypto('BTC')}
                           className="flex items-center gap-2"
                         >
-                          <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=040" alt="BTC" className="w-5 h-5" />
+                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/btc.svg" alt="BTC" className="w-5 h-5" />
                           BTC
                         </Button>
                         <Button 
@@ -134,7 +134,7 @@ const DepositPage = () => {
                           onClick={() => setSelectedCrypto('USDT')}
                           className="flex items-center gap-2"
                         >
-                          <img src="https://cryptologos.cc/logos/tether-usdt-logo.svg?v=040" alt="USDT" className="w-5 h-5" />
+                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/usdt.svg" alt="USDT" className="w-5 h-5" />
                           USDT
                         </Button>
                         <Button 
@@ -166,7 +166,7 @@ const DepositPage = () => {
                           onClick={() => setSelectedCrypto('SOL')}
                           className="flex items-center gap-2"
                         >
-                          <img src="https://cryptologos.cc/logos/solana-sol-logo.svg?v=040" alt="SOL" className="w-5 h-5" />
+                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/sol.svg" alt="SOL" className="w-5 h-5" />
                           SOL
                         </Button>
                       </div>
