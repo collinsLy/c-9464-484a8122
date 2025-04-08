@@ -65,14 +65,16 @@ export function StockTicker() {
           {stocks.map((stock) => (
             <div
               key={stock.symbol}
-              className="p-2 rounded-lg transition-all duration-300 hover:bg-white/5"
+              className="p-3 rounded-lg transition-all duration-300 hover:bg-white/5 border-b border-white/10"
             >
-              <div className="flex justify-between items-center">
-                <span className="font-medium">{stock.symbol}</span>
-                <div className="space-x-4">
-                  <span className="font-mono">${stock.price.toFixed(2)}</span>
+              <div className="flex flex-col space-y-1">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium text-lg text-white">{stock.symbol}</span>
+                  <span className="font-mono text-lg text-white">${stock.price.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-end">
                   <span
-                    className={`text-sm ${
+                    className={`text-sm font-semibold ${
                       stock.changePercent >= 0 ? "text-green-500" : "text-red-500"
                     }`}
                   >
