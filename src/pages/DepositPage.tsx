@@ -14,7 +14,7 @@ import { networkAddresses } from '@/lib/network-addresses';
 const DepositPage = () => {
   const { isDemoMode } = useDashboardContext();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("crypto");
+  const [activeTab, setActiveTab] = useState("fiat");
   const [selectedCrypto, setSelectedCrypto] = useState("BTC");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("card");
   const [amount, setAmount] = useState("");
@@ -97,15 +97,15 @@ const DepositPage = () => {
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white mb-6 grid grid-cols-2 w-full">
-                <TabsTrigger value="crypto" className="text-white data-[state=active]:bg-accent">
-                  Crypto
-                </TabsTrigger>
                 <TabsTrigger value="fiat" className="text-white data-[state=active]:bg-accent">
                   Fiat
                 </TabsTrigger>
+                <TabsTrigger value="crypto" className="text-white data-[state=active]:bg-accent">
+                  Crypto
+                </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="crypto">
+              <TabsContent value="fiat">
                 <div className="space-y-8">
                   <div className="space-y-6">
                     <div>
