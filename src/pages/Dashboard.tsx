@@ -49,7 +49,7 @@ const Dashboard = () => {
             <AccountOverview />
 
             {/* Market Chart and Assets Grid */}
-            <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 mb-6">
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
               <div className="xl:col-span-3">
                 <MarketChart 
                   selectedSymbol={selectedSymbol} 
@@ -64,7 +64,7 @@ const Dashboard = () => {
             </div>
 
             {/* Recent Transactions */}
-            <div className="mt-6">
+            <div className="mt-12">
               <TransactionHistory />
             </div>
           </>
