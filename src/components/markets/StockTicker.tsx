@@ -48,8 +48,8 @@ export function StockTicker() {
       <CardHeader>
         <CardTitle>Stock Ticker</CardTitle>
       </CardHeader>
-      <CardContent className="p-4">
-        <div className="space-y-2 h-[480px] overflow-y-auto">
+      <CardContent>
+        <div className="h-[300px] overflow-y-auto">
           <div className="space-y-2">
             {stocks.map((stock) => (
               <div
