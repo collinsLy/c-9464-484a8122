@@ -1,0 +1,31 @@
+Failed to load resource: the server responded with a status of 404 ()Understand this error
+coingecko.ts:100 CoinGecko API error: Error: CoinGecko API error: 404
+    at fetchCoinGeckoData (coingecko.ts:94:13)
+fetchCoinGeckoData @ coingecko.ts:100Understand this error
+cryptologos.cc/logos/vibe-vibe-logo.svg?v=040:1 
+            
+            
+           Failed to load resource: net::ERR_BLOCKED_BY_RESPONSE.NotSameOriginUnderstand this error
+76175.52a7cafd4057efc011b8.js:60 2025-04-08T19:23:54.792Z:Property:The state with a data type: unknown does not match a schema
+y @ 76175.52a7cafd4057efc011b8.js:60Understand this warning
+api.coingecko.com/api/v3/coins/btc?localization=false&tickers=false&market_data=true&community_data=true&developer_data=true&x_cg_api_key=CG-vfbBd2nG74YmzzoytroimuaZ:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 ()Understand this error
+coingecko.ts:100 CoinGecko API error: Error: CoinGecko API error: 404
+    at fetchCoinGeckoData (coingecko.ts:94:13)
+fetchCoinGeckoData @ coingecko.ts:100Understand this error
+ 2025-04-08T19:23:56.286Z:Property:The state with a data type: unknown does not match a schema
+y @ 76175.52a7caf….js:60Understand this warning
+src/components/markets/VerticalPriceTicker.tsx?t=1744140261092:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+ [hmr] Failed to reload /src/components/markets/VerticalPriceTicker.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+warnFailedUpdate @ @vite/client:176Understand this error
+api.coingecko.com/api/v3/coins/btc?localization=false&tickers=false&market_data=true&community_data=true&developer_data=true&x_cg_api_key=CG-vfbBd2nG74YmzzoytroimuaZ:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 ()Understand this error
+coingecko.ts:100 CoinGecko API error: Error: CoinGecko API error: 404
+    at fetchCoinGeckoData (coingecko.ts:94:13)
