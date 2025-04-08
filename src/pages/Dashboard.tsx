@@ -62,11 +62,6 @@ const Dashboard = () => {
                 <AssetsList />
               </div>
             </div>
-
-            {/* Recent Transactions */}
-            <div className="mt-12">
-              <TransactionHistory />
-            </div>
           </>
         );
 
