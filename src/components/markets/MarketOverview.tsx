@@ -40,7 +40,7 @@ const MarketOverview = () => {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
+    <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
       <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
         <CardHeader>
           <CardTitle>Market Overview</CardTitle>
@@ -48,9 +48,9 @@ const MarketOverview = () => {
         <CardContent>
           <div className="space-y-4">
             {marketData.map((coin) => (
-              <div key={coin.name} className="flex justify-between items-center">
-                <span className="font-medium">{coin.name}/USDT</span>
-                <div className="flex space-x-4">
+              <div key={coin.name} className="flex flex-wrap justify-between items-center gap-2">
+                <span className="font-medium text-sm sm:text-base">{coin.name}/USDT</span>
+                <div className="flex flex-wrap gap-2 sm:gap-4">
                   <span>${coin.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   <span className={coin.change >= 0 ? "text-green-500" : "text-red-500"}>
                     {coin.change >= 0 ? "+" : ""}{coin.change.toFixed(2)}%
