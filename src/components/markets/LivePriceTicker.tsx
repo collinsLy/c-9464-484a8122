@@ -15,13 +15,30 @@ export function LivePriceTicker({ symbol }: { symbol: string }) {
   const [latestPrice, setLatestPrice] = useState<PriceUpdate | null>(null);
 
   useEffect(() => {
-    const ws = new WebSocket(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@trade`);
+    const ws = symbol.includes('USDT') 
+  ? new WebSocket(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@trade`)
+  : new WebSocket(`wss://ws.finnhub.io?token=${process.env.VITE_FINNHUB_API_KEY}`);
+
+if (!symbol.includes('USDT')) {
+  ws.onopen = () => {
+    ws.send(JSON.stringify({ type: 'subscribe', symbol: symbol }));
+  };
+}
     
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      const newPrice = parseFloat(data.p);
-      const previousPrice = priceHistory[0]?.price || newPrice;
-      const percentageChange = ((newPrice - previousPrice) / previousPrice) * 100;
+      let newPrice, previousPrice, percentageChange;
+      
+      if (symbol.includes('USDT')) {
+        newPrice = parseFloat(data.p);
+        previousPrice = priceHistory[0]?.price || newPrice;
+        percentageChange = ((newPrice - previousPrice) / previousPrice) * 100;
+      } else {
+        if (data.type !== 'trade') return;
+        newPrice = parseFloat(data.data[0].p);
+        previousPrice = priceHistory[0]?.price || newPrice;
+        percentageChange = ((newPrice - previousPrice) / previousPrice) * 100;
+      }
       
       const update: PriceUpdate = {
         symbol: symbol,

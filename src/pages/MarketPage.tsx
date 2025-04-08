@@ -117,7 +117,7 @@ const MarketPage = () => {
               <CardHeader>
                 <CardTitle>Live Price Updates</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4">
                 <LivePriceTicker symbol={selectedStockSymbol} />
               </CardContent>
             </Card>
