@@ -18,7 +18,7 @@ export default function TradingViewChart({ symbol }: TradingViewChartProps) {
       if (typeof TradingView !== 'undefined') {
         new TradingView.widget({
           autosize: true,
-          symbol: symbol,
+          symbol: `BINANCE:${symbol}`,
           interval: 'D',
           timezone: 'Etc/UTC',
           theme: 'dark',
@@ -33,6 +33,8 @@ export default function TradingViewChart({ symbol }: TradingViewChartProps) {
           show_popup_button: false,
           popup_width: '1000',
           popup_height: '650',
+          withdateranges: true,
+          range: '1D',
         });
       }
     };
