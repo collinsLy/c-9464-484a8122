@@ -10,6 +10,7 @@ import MarketOverview from "@/components/markets/MarketOverview";
 import CoinGeckoData from "@/components/markets/CoinGeckoData";
 import MarketNews from "@/components/markets/MarketNews";
 import { LivePriceTicker } from "@/components/markets/LivePriceTicker";
+import { StockTicker } from "@/components/markets/StockTicker";
 import { toast } from "sonner";
 
 interface StockData {
@@ -59,7 +60,8 @@ const MarketPage = () => {
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           {/* Stock Section */}
-          <div className="space-y-4">
+          <div className="space-y-4 flex flex-col">
+            <StockTicker />
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-white">Stocks</h2>
               <select 
