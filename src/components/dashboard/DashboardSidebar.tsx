@@ -101,12 +101,7 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
       {!collapsed && (
         <div className="mt-auto p-4">
           <div className="rounded-lg p-4 bg-white/5">
-            <p className="text-sm text-white/90 font-medium mb-2">Pro Trading Upgrade</p>
-            <p className="text-xs text-white/60 mb-3">Access advanced tools and higher limits with Pro Trading.</p>
-            <Button className="w-full" size="sm">
-              Upgrade Now
-            </Button>
-          </div>
+            </div>
         </div>
       )}
     </aside>
