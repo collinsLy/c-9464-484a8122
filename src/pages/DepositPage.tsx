@@ -142,7 +142,7 @@ const DepositPage = () => {
                           onClick={() => setSelectedCrypto('BNB')}
                           className="flex items-center gap-2"
                         >
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/1/1c/BNB%2C_native_cryptocurrency_for_the_Binance_Smart_Chain.svg" alt="BNB" className="w-5 h-5" />
+                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/bnb.svg" alt="BNB" className="w-5 h-5" />
                           BNB
                         </Button>
                         <Button 
@@ -150,7 +150,7 @@ const DepositPage = () => {
                           onClick={() => setSelectedCrypto('WLD')}
                           className="flex items-center gap-2"
                         >
-                          <img src="https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040" alt="WLD" className="w-5 h-5" />
+                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/wld.svg" alt="WLD" className="w-5 h-5" />
                           WLD
                         </Button>
                         <Button 
@@ -158,7 +158,7 @@ const DepositPage = () => {
                           onClick={() => setSelectedCrypto('USDC')}
                           className="flex items-center gap-2"
                         >
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Circle_USDC_Logo.svg" alt="USDC" className="w-5 h-5" />
+                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/usdc.svg" alt="USDC" className="w-5 h-5" />
                           USDC
                         </Button>
                         <Button 

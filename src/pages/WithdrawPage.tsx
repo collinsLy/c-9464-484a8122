@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
@@ -97,7 +96,7 @@ const WithdrawPage = () => {
                           onClick={() => setSelectedCrypto('BTC')}
                           className="flex items-center gap-2"
                         >
-                          <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=040" alt="BTC" className="w-5 h-5" />
+                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/btc.svg" alt="BTC" className="w-5 h-5" />
                           BTC
                         </Button>
                         <Button 
@@ -105,15 +104,15 @@ const WithdrawPage = () => {
                           onClick={() => setSelectedCrypto('USDT')}
                           className="flex items-center gap-2"
                         >
-                          <img src="https://cryptologos.cc/logos/tether-usdt-logo.svg?v=040" alt="USDT" className="w-5 h-5" />
+                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/usdt.svg" alt="USDT" className="w-5 h-5" />
                           USDT
                         </Button>
-                        <Button 
+                        <Button
                           variant={selectedCrypto === 'BNB' ? 'secondary' : 'outline'}
                           onClick={() => setSelectedCrypto('BNB')}
                           className="flex items-center gap-2"
                         >
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/1/1c/BNB%2C_native_cryptocurrency_for_the_Binance_Smart_Chain.svg" alt="BNB" className="w-5 h-5" />
+                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/bnb.svg" alt="BNB" className="w-5 h-5" />
                           BNB
                         </Button>
                       </div>
