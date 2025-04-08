@@ -61,7 +61,6 @@ const MarketPage = () => {
         <div className="grid grid-cols-2 gap-4">
           {/* Stock Section */}
           <div className="space-y-4 flex flex-col">
-            <StockTicker />
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-white">Stocks</h2>
               <select 
@@ -114,6 +113,8 @@ const MarketPage = () => {
                 />
               </CardContent>
             </Card>
+
+            <StockTicker />
 
             <Card className="bg-background/40 backdrop-blur-lg border-white/10 mt-4">
               <CardHeader>
