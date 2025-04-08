@@ -78,28 +78,17 @@ const fetchCoinGeckoData = async <T>(endpoint: string, params: Record<string, st
     });
     
     const url = `${COINGECKO_BASE_URL}${endpoint}?${queryParams.toString()}`;
-    const response = await fetch(url, {
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
-    });
-    
-    if (response.status === 429) {
-      toast.error("Rate limit exceeded. Please try again later.");
-      return {} as T;
-    }
+    const response = await fetch(url);
     
     if (!response.ok) {
       throw new Error(`CoinGecko API error: ${response.status}`);
     }
     
-    const data = await response.json();
-    return data as T;
+    return await response.json() as T;
   } catch (error) {
     console.error("CoinGecko API error:", error);
     toast.error("Failed to fetch market data");
-    return {} as T;
+    throw error;
   }
 };
 
