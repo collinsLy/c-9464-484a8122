@@ -1,12 +1,15 @@
+
 import React, { useEffect, useRef } from 'react';
 
 interface TradingViewChartProps {
   symbol: string;
   exchange?: 'NYSE' | 'BINANCE';
+  containerId?: string;
 }
 
-export default function TradingViewChart({ symbol, exchange }: TradingViewChartProps) {
+export default function TradingViewChart({ symbol, exchange, containerId }: TradingViewChartProps) {
   const container = useRef<HTMLDivElement>(null);
+  const chartId = containerId || `tradingview_${exchange}_${symbol}`.toLowerCase();
 
   useEffect(() => {
     if (!container.current) return;
@@ -17,7 +20,7 @@ export default function TradingViewChart({ symbol, exchange }: TradingViewChartP
     script.onload = () => {
       if (typeof TradingView !== 'undefined') {
         new TradingView.widget({
-          container_id: container.current?.id,
+          container_id: chartId,
           autosize: true,
           symbol: exchange ? `${exchange}:${symbol}` : symbol,
           interval: 'D',
@@ -46,11 +49,11 @@ export default function TradingViewChart({ symbol, exchange }: TradingViewChartP
         container.current.innerHTML = '';
       }
     };
-  }, [symbol]);
+  }, [symbol, exchange, chartId]);
 
   return (
     <div 
-      id="tradingview_chart" 
+      id={chartId}
       ref={container} 
       style={{ height: '600px', width: '100%' }}
       className="rounded-lg overflow-hidden"

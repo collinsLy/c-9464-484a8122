@@ -105,7 +105,11 @@ const MarketPage = () => {
 
             <Card className="bg-background/40 backdrop-blur-lg border-white/10">
               <CardContent className="p-4">
-                <TradingViewChart symbol={selectedStockSymbol} exchange="NYSE" />
+                <TradingViewChart 
+                  symbol={selectedStockSymbol} 
+                  exchange="NYSE" 
+                  containerId="stock_chart"
+                />
               </CardContent>
             </Card>
 
@@ -138,7 +142,11 @@ const MarketPage = () => {
 
             <Card className="bg-background/40 backdrop-blur-lg border-white/10">
               <CardContent className="p-4">
-                <TradingViewChart symbol={selectedCryptoSymbol} exchange="BINANCE" />
+                <TradingViewChart 
+                  symbol={selectedCryptoSymbol} 
+                  exchange="BINANCE" 
+                  containerId="crypto_chart"
+                />
               </CardContent>
             </Card>
 
