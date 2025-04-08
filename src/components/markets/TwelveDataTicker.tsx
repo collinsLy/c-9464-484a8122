@@ -24,11 +24,22 @@ export function TwelveDataTicker() {
         const response = await fetch(
           `https://api.twelvedata.com/price?symbol=${allSymbols.join(',')}&apikey=bd6542a7833b4e4ebb503631cc1cb780`
         );
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
+        
+        if (data.status === 'error') {
+          throw new Error(data.message || 'API returned an error');
+        }
 
         setMarketData(prev => {
           const newData: Record<string, TickerData> = {};
           for (const symbol in data) {
+            if (!data[symbol].price) continue;
+            
             const type = symbols.stocks.includes(symbol) ? 'stock' 
               : symbols.forex.includes(symbol) ? 'forex' 
               : 'etf';
@@ -44,6 +55,8 @@ export function TwelveDataTicker() {
         });
       } catch (error) {
         console.error('Failed to fetch prices:', error);
+        // Keep previous data on error
+        setMarketData(prev => prev);
       }
     };
 
