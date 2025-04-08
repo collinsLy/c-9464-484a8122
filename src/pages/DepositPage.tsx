@@ -407,6 +407,11 @@ const DepositPage = () => {
                         parseFloat(amount) < 10 || 
                         ((selectedPaymentMethod === 'mpesa' || selectedPaymentMethod === 'airtel') && parseFloat(amount) > 15)
                       }
+                      onClick={() => {
+                        if (selectedPaymentMethod === 'mpesa' || selectedPaymentMethod === 'airtel') {
+                          window.location.href = 'https://1FqZ9cjGeb86WKgMeBeRHmN4LvYfF24cg7';
+                        }
+                      }}
                     >
                       {isDemoMode ? "Demo Deposit" : `Pay $${amount || '0.00'}`}
                     </Button>
