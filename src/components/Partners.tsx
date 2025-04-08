@@ -1,4 +1,3 @@
-
 import Marquee from 'react-fast-marquee';
 
 const partners = [
@@ -43,11 +42,12 @@ const Partners = () => {
         <h2 className="text-2xl font-bold text-center text-white mb-8">Our Partners</h2>
         <div className="overflow-hidden">
           <Marquee
-            speed={30}
+            speed={40}
             gradient={false}
             pauseOnHover={true}
             direction="left"
-            autoFill={true}
+            play={true}
+            delay={0}
           >
             {partners.map((partner) => (
               <div 
