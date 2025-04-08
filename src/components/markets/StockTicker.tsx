@@ -1,5 +1,4 @@
-
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface StockPrice {
@@ -13,60 +12,35 @@ export function StockTicker() {
   const stockSymbols = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'META', 'TSLA', 'NVDA', 'IBM'];
 
   useEffect(() => {
-    const apiKey = import.meta.env.VITE_FINNHUB_API_KEY;
-    if (!apiKey) {
-      console.error('Finnhub API key not found');
-      return;
-    }
-
-    const socket = new WebSocket(`wss://ws.finnhub.io?token=${apiKey}`);
-
-    socket.onopen = () => {
-      console.log('Connected to Finnhub');
-      stockSymbols.forEach(symbol => {
-        socket.send(JSON.stringify({ type: 'subscribe', symbol }));
-      });
-    };
-
-    socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === 'trade') {
-        data.data.forEach((trade: any) => {
-          const symbol = trade.s;
-          const price = trade.p;
-          
-          setStocks(prevStocks => {
-            const existingStock = prevStocks.find(s => s.symbol === symbol);
-            const changePercent = existingStock 
-              ? ((price - existingStock.price) / existingStock.price) * 100 
-              : 0;
-
-            if (!existingStock) {
-              return [...prevStocks, { symbol, price, changePercent }];
-            }
-
-            return prevStocks.map(stock => 
-              stock.symbol === symbol 
-                ? { ...stock, price, changePercent } 
-                : stock
+    const fetchStockData = async () => {
+      try {
+        const results = await Promise.all(
+          stockSymbols.map(async (symbol) => {
+            const response = await fetch(
+              `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=KD8VEONNC7ZSMKQO`
             );
-          });
-        });
+            const data = await response.json();
+
+            if (data['Global Quote']) {
+              return {
+                symbol,
+                price: parseFloat(data['Global Quote']['05. price']),
+                changePercent: parseFloat(data['Global Quote']['10. change percent'].replace('%', ''))
+              };
+            }
+            return null;
+          })
+        );
+
+        setStocks(results.filter((stock): stock is StockPrice => stock !== null));
+      } catch (error) {
+        console.error('Failed to fetch stock data:', error);
       }
     };
 
-    socket.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    };
-
-    return () => {
-      if (socket.readyState === WebSocket.OPEN) {
-        stockSymbols.forEach(symbol => {
-          socket.send(JSON.stringify({ type: 'unsubscribe', symbol }));
-        });
-        socket.close();
-      }
-    };
+    fetchStockData();
+    const interval = setInterval(fetchStockData, 60000); // Update every minute
+    return () => clearInterval(interval);
   }, []);
 
   return (
