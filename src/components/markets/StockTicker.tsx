@@ -5,85 +5,80 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 interface StockPrice {
   symbol: string;
   price: number;
-  change: number;
   changePercent: number;
 }
 
 export function StockTicker() {
   const [stocks, setStocks] = useState<StockPrice[]>([]);
   const stockSymbols = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'META', 'TSLA', 'NVDA', 'IBM'];
-  
-  useEffect(() => {
-    const ws = new WebSocket(`wss://ws.finnhub.io?token=${import.meta.env.VITE_FINNHUB_API_KEY}`);
 
-    ws.onopen = () => {
+  useEffect(() => {
+    const socket = new WebSocket(`wss://ws.finnhub.io?token=${import.meta.env.VITE_FINNHUB_API_KEY}`);
+    let lastPrices = new Map<string, number>();
+
+    socket.onopen = () => {
       stockSymbols.forEach(symbol => {
-        ws.send(JSON.stringify({ type: 'subscribe', symbol: symbol }));
+        socket.send(JSON.stringify({ type: 'subscribe', symbol }));
       });
     };
 
-    ws.onmessage = (event) => {
+    socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
+      
       if (data.type === 'trade') {
-        const symbol = data.data[0].s;
-        setStocks(prev => {
-          const newStocks = [...prev];
-          const index = newStocks.findIndex(s => s.symbol === symbol);
-          const newPrice = data.data[0].p;
+        data.data.forEach((trade: any) => {
+          const symbol = trade.s;
+          const price = trade.p;
           
-          if (index !== -1) {
-            const oldPrice = newStocks[index].price;
-            newStocks[index] = {
-              symbol,
-              price: newPrice,
-              change: newPrice - oldPrice,
-              changePercent: ((newPrice - oldPrice) / oldPrice) * 100
-            };
-          } else {
-            newStocks.push({
-              symbol,
-              price: newPrice,
-              change: 0,
-              changePercent: 0
-            });
-          }
-          return newStocks;
+          setStocks(prevStocks => {
+            const stockIndex = prevStocks.findIndex(s => s.symbol === symbol);
+            const lastPrice = lastPrices.get(symbol) || price;
+            const changePercent = ((price - lastPrice) / lastPrice) * 100;
+            
+            lastPrices.set(symbol, price);
+            
+            if (stockIndex === -1) {
+              return [...prevStocks, { symbol, price, changePercent }];
+            }
+            
+            const newStocks = [...prevStocks];
+            newStocks[stockIndex] = { symbol, price, changePercent };
+            return newStocks;
+          });
         });
       }
     };
 
-    return () => ws.close();
+    return () => {
+      socket.close();
+    };
   }, []);
 
   return (
-    <Card className="bg-background/40 backdrop-blur-lg border-white/10 h-[300px] mt-4">
-      <CardHeader className="pb-2">
+    <Card className="bg-background/40 backdrop-blur-lg border-white/10">
+      <CardHeader>
         <CardTitle className="text-lg text-white">Stock Ticker</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="overflow-hidden h-[220px]">
-          <div className="animate-scroll space-y-2">
+        <div className="h-[300px] overflow-hidden">
+          <div className="space-y-2 animate-scroll">
             {stocks.map((stock) => (
               <div
                 key={stock.symbol}
-                className={`p-3 rounded-lg transition-all duration-300 hover:bg-white/5 border-b border-white/10 ${
-                  stock.changePercent >= 0 ? 'bg-green-500/5' : 'bg-red-500/5'
-                }`}
+                className="p-3 rounded-lg bg-white/5 border-b border-white/10"
               >
-                <div className="flex flex-col space-y-1">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium text-lg text-white">{stock.symbol}</span>
-                    <span className="font-mono text-lg text-white">${stock.price.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-end">
-                    <span
-                      className={`text-sm font-semibold ${
+                <div className="flex justify-between items-center">
+                  <span className="font-medium text-white">{stock.symbol}</span>
+                  <div className="text-right">
+                    <div className="font-mono text-white">${stock.price.toFixed(2)}</div>
+                    <div
+                      className={`text-sm ${
                         stock.changePercent >= 0 ? "text-green-500" : "text-red-500"
                       }`}
                     >
                       {stock.changePercent >= 0 ? "+" : ""}
                       {stock.changePercent.toFixed(2)}%
-                    </span>
+                    </div>
                   </div>
                 </div>
               </div>
