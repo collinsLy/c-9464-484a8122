@@ -25,7 +25,8 @@ const MarketOverview = () => {
         setMarketData(formattedData);
         setLoading(false);
       } catch (err) {
-        setError(err.message);
+        console.error('Failed to fetch market data:', err);
+        // Silently handle the error without showing toast
         setLoading(false);
       }
     };
@@ -37,7 +38,7 @@ const MarketOverview = () => {
   }, []);
 
   if (loading) return <div>Loading market data...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (error) return <div>Error: {error}</div>; //This line remains as it is for other potential errors.
 
   return (
     <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
