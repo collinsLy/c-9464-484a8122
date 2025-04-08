@@ -7,6 +7,10 @@ import TradingViewChart from "@/components/TradingViewChart";
 import BinanceOrderBook from "@/components/markets/BinanceOrderBook";
 import { TradingPanel } from "@/components/trading/TradingPanel";
 import { CryptoTicker } from "@/components/CryptoTicker";
+import MarketOverview from "@/components/markets/MarketOverview";
+import BinanceOrderBook from "@/components/markets/BinanceOrderBook";
+import CoinGeckoData from "@/components/markets/CoinGeckoData";
+import MarketNews from "@/components/markets/MarketNews";
 import { toast } from "sonner";
 
 interface StockData {
@@ -135,6 +139,21 @@ const MarketPage = () => {
         </div>
 
         <CryptoTicker />
+
+      <div className="grid gap-6 mt-6">
+        <MarketOverview />
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <CoinGeckoData symbol={selectedCryptoSymbol} />
+          </div>
+          <div>
+            <BinanceOrderBook symbol={selectedCryptoSymbol} />
+          </div>
+        </div>
+
+        <MarketNews />
+      </div>
       </div>
     </DashboardLayout>
   );
