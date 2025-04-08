@@ -10,7 +10,11 @@ export default defineConfig(({ mode }) => ({
     port: 5000,
     hmr: {
       clientPort: 443,
-      protocol: 'wss'
+      protocol: 'wss',
+      timeout: 120000
+    },
+    watch: {
+      usePolling: true
     }
   },
   plugins: [
