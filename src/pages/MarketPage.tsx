@@ -8,7 +8,6 @@ import BinanceOrderBook from "@/components/markets/BinanceOrderBook";
 import { TradingPanel } from "@/components/trading/TradingPanel";
 import { CryptoTicker } from "@/components/CryptoTicker";
 import MarketOverview from "@/components/markets/MarketOverview";
-import BinanceOrderBook from "@/components/markets/BinanceOrderBook";
 import CoinGeckoData from "@/components/markets/CoinGeckoData";
 import MarketNews from "@/components/markets/MarketNews";
 import { toast } from "sonner";
