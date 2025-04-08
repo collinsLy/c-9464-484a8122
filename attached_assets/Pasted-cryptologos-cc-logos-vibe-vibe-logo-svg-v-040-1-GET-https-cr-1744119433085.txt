@@ -1,0 +1,42 @@
+cryptologos.cc/logos/vibe-vibe-logo.svg?v=040:1 
+            
+            
+           GET https://cryptologos.cc/logos/vibe-vibe-logo.svg?v=040 net::ERR_BLOCKED_BY_RESPONSE.NotSameOrigin 403 (Forbidden)Understand this error
+TwelveDataTicker.tsx:25 WebSocket connection to 'wss://ws.twelvedata.com/v1/quotes/price' failed: 
+connectWebSocket @ TwelveDataTicker.tsx:25Understand this error
+TwelveDataTicker.tsx:39 WebSocket error: Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+overrideMethod @ hook.js:608
+ws.onerror @ TwelveDataTicker.tsx:39Understand this error
+TwelveDataTicker.tsx:43 WebSocket disconnected, attempting to reconnect...
+TwelveDataTicker.tsx:25 WebSocket connection to 'wss://ws.twelvedata.com/v1/quotes/price' failed: 
+connectWebSocket @ TwelveDataTicker.tsx:25Understand this error
+TwelveDataTicker.tsx:39 WebSocket error: Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+overrideMethod @ hook.js:608
+ws.onerror @ TwelveDataTicker.tsx:39Understand this error
+TwelveDataTicker.tsx:43 WebSocket disconnected, attempting to reconnect...
+TwelveDataTicker.tsx:25 WebSocket connection to 'wss://ws.twelvedata.com/v1/quotes/price' failed: 
+connectWebSocket @ TwelveDataTicker.tsx:25Understand this error
+TwelveDataTicker.tsx:39 WebSocket error: Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+overrideMethod @ hook.js:608
+ws.onerror @ TwelveDataTicker.tsx:39Understand this error
+TwelveDataTicker.tsx:43 WebSocket disconnected, attempting to reconnect...
+market:1 Uncaught (in promise) {name: 'i', httpError: false, httpStatus: 200, httpStatusText: '', code: 403, …}Understand this error
+market:1 Uncaught (in promise) {name: 'i', httpError: false, httpStatus: 200, httpStatusText: '', code: 403, …}Understand this error
+TwelveDataTicker.tsx:25 WebSocket connection to 'wss://ws.twelvedata.com/v1/quotes/price' failed: 
+connectWebSocket @ TwelveDataTicker.tsx:25Understand this error
+TwelveDataTicker.tsx:39 WebSocket error: Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+overrideMethod @ hook.js:608
+ws.onerror @ TwelveDataTicker.tsx:39Understand this error
+TwelveDataTicker.tsx:43 WebSocket disconnected, attempting to reconnect...
+TwelveDataTicker.tsx:25 WebSocket connection to 'wss://ws.twelvedata.com/v1/quotes/price' failed: 
+connectWebSocket @ TwelveDataTicker.tsx:25Understand this error
+TwelveDataTicker.tsx:39 WebSocket error: Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+overrideMethod @ hook.js:608
+ws.onerror @ TwelveDataTicker.tsx:39Understand this error
+TwelveDataTicker.tsx:43 WebSocket disconnected, attempting to reconnect...
+TwelveDataTicker.tsx:25 WebSocket connection to 'wss://ws.twelvedata.com/v1/quotes/price' failed: 
+connectWebSocket @ TwelveDataTicker.tsx:25Understand this error
+TwelveDataTicker.tsx:39 WebSocket error: Event {isTrusted: true, type: 'error', target: WebSocket, currentTarget: WebSocket, eventPhase: 2, …}
+overrideMethod @ hook.js:608
+ws.onerror @ TwelveDataTicker.tsx:39Understand this error
+TwelveDataTicker.tsx:43 WebSocket disconnected, attempting to reconnect...
