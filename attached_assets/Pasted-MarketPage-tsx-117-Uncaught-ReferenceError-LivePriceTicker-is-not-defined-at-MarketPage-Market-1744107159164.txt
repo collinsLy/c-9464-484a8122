@@ -1,0 +1,111 @@
+MarketPage.tsx:117 Uncaught ReferenceError: LivePriceTicker is not defined
+    at MarketPage (MarketPage.tsx:117:18)
+    at renderWithHooks (chunk-R6S4VRB5.js?v=921bd81b:11548:26)
+    at mountIndeterminateComponent (chunk-R6S4VRB5.js?v=921bd81b:14926:21)
+    at beginWork (chunk-R6S4VRB5.js?v=921bd81b:15914:22)
+    at HTMLUnknownElement.callCallback2 (chunk-R6S4VRB5.js?v=921bd81b:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-R6S4VRB5.js?v=921bd81b:3699:24)
+    at invokeGuardedCallback (chunk-R6S4VRB5.js?v=921bd81b:3733:39)
+    at beginWork$1 (chunk-R6S4VRB5.js?v=921bd81b:19765:15)
+    at performUnitOfWork (chunk-R6S4VRB5.js?v=921bd81b:19198:20)
+    at workLoopSync (chunk-R6S4VRB5.js?v=921bd81b:19137:13)
+MarketPage @ MarketPage.tsx:117
+renderWithHooks @ chunk-R6S4VRB5.js?v=921bd81b:11548
+mountIndeterminateComponent @ chunk-R6S4VRB5.js?v=921bd81b:14926
+beginWork @ chunk-R6S4VRB5.js?v=921bd81b:15914
+callCallback2 @ chunk-R6S4VRB5.js?v=921bd81b:3674
+invokeGuardedCallbackDev @ chunk-R6S4VRB5.js?v=921bd81b:3699
+invokeGuardedCallback @ chunk-R6S4VRB5.js?v=921bd81b:3733
+beginWork$1 @ chunk-R6S4VRB5.js?v=921bd81b:19765
+performUnitOfWork @ chunk-R6S4VRB5.js?v=921bd81b:19198
+workLoopSync @ chunk-R6S4VRB5.js?v=921bd81b:19137
+renderRootSync @ chunk-R6S4VRB5.js?v=921bd81b:19116
+performConcurrentWorkOnRoot @ chunk-R6S4VRB5.js?v=921bd81b:18678
+workLoop @ chunk-R6S4VRB5.js?v=921bd81b:197
+flushWork @ chunk-R6S4VRB5.js?v=921bd81b:176
+performWorkUntilDeadline @ chunk-R6S4VRB5.js?v=921bd81b:384Understand this error
+MarketPage.tsx:117 Uncaught ReferenceError: LivePriceTicker is not defined
+    at MarketPage (MarketPage.tsx:117:18)
+    at renderWithHooks (chunk-R6S4VRB5.js?v=921bd81b:11548:26)
+    at mountIndeterminateComponent (chunk-R6S4VRB5.js?v=921bd81b:14926:21)
+    at beginWork (chunk-R6S4VRB5.js?v=921bd81b:15914:22)
+    at HTMLUnknownElement.callCallback2 (chunk-R6S4VRB5.js?v=921bd81b:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-R6S4VRB5.js?v=921bd81b:3699:24)
+    at invokeGuardedCallback (chunk-R6S4VRB5.js?v=921bd81b:3733:39)
+    at beginWork$1 (chunk-R6S4VRB5.js?v=921bd81b:19765:15)
+    at performUnitOfWork (chunk-R6S4VRB5.js?v=921bd81b:19198:20)
+    at workLoopSync (chunk-R6S4VRB5.js?v=921bd81b:19137:13)
+MarketPage @ MarketPage.tsx:117
+renderWithHooks @ chunk-R6S4VRB5.js?v=921bd81b:11548
+mountIndeterminateComponent @ chunk-R6S4VRB5.js?v=921bd81b:14926
+beginWork @ chunk-R6S4VRB5.js?v=921bd81b:15914
+callCallback2 @ chunk-R6S4VRB5.js?v=921bd81b:3674
+invokeGuardedCallbackDev @ chunk-R6S4VRB5.js?v=921bd81b:3699
+invokeGuardedCallback @ chunk-R6S4VRB5.js?v=921bd81b:3733
+beginWork$1 @ chunk-R6S4VRB5.js?v=921bd81b:19765
+performUnitOfWork @ chunk-R6S4VRB5.js?v=921bd81b:19198
+workLoopSync @ chunk-R6S4VRB5.js?v=921bd81b:19137
+renderRootSync @ chunk-R6S4VRB5.js?v=921bd81b:19116
+recoverFromConcurrentError @ chunk-R6S4VRB5.js?v=921bd81b:18736
+performConcurrentWorkOnRoot @ chunk-R6S4VRB5.js?v=921bd81b:18684
+workLoop @ chunk-R6S4VRB5.js?v=921bd81b:197
+flushWork @ chunk-R6S4VRB5.js?v=921bd81b:176
+performWorkUntilDeadline @ chunk-R6S4VRB5.js?v=921bd81b:384Understand this error
+chunk-R6S4VRB5.js?v=921bd81b:14032 The above error occurred in the <MarketPage> component:
+
+    at MarketPage (https://781e37ec-0f68-49a4-91b2-9b20e039d5fa-00-2zqooe6ujld11.kirk.replit.dev/src/pages/MarketPage.tsx:24:28)
+    at RenderedRoute (https://781e37ec-0f68-49a4-91b2-9b20e039d5fa-00-2zqooe6ujld11.kirk.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=921bd81b:4069:5)
+    at Routes (https://781e37ec-0f68-49a4-91b2-9b20e039d5fa-00-2zqooe6ujld11.kirk.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=921bd81b:4508:5)
+    at DashboardProvider (https://781e37ec-0f68-49a4-91b2-9b20e039d5fa-00-2zqooe6ujld11.kirk.replit.dev/src/components/dashboard/DashboardLayout.tsx:16:37)
+    at Router (https://781e37ec-0f68-49a4-91b2-9b20e039d5fa-00-2zqooe6ujld11.kirk.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=921bd81b:4451:15)
+    at BrowserRouter (https://781e37ec-0f68-49a4-91b2-9b20e039d5fa-00-2zqooe6ujld11.kirk.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=921bd81b:5196:5)
+    at Provider (https://781e37ec-0f68-49a4-91b2-9b20e039d5fa-00-2zqooe6ujld11.kirk.replit.dev/node_modules/.vite/deps/chunk-AFJ6VPUJ.js?v=921bd81b:38:15)
+    at TooltipProvider (https://781e37ec-0f68-49a4-91b2-9b20e039d5fa-00-2zqooe6ujld11.kirk.replit.dev/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=921bd81b:63:5)
+    at QueryClientProvider (https://781e37ec-0f68-49a4-91b2-9b20e039d5fa-00-2zqooe6ujld11.kirk.replit.dev/node_modules/.vite/deps/@tanstack_react-query.js?v=921bd81b:2794:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-R6S4VRB5.js?v=921bd81b:14032
+update.callback @ chunk-R6S4VRB5.js?v=921bd81b:14052
+callCallback @ chunk-R6S4VRB5.js?v=921bd81b:11248
+commitUpdateQueue @ chunk-R6S4VRB5.js?v=921bd81b:11265
+commitLayoutEffectOnFiber @ chunk-R6S4VRB5.js?v=921bd81b:17093
+commitLayoutMountEffects_complete @ chunk-R6S4VRB5.js?v=921bd81b:17980
+commitLayoutEffects_begin @ chunk-R6S4VRB5.js?v=921bd81b:17969
+commitLayoutEffects @ chunk-R6S4VRB5.js?v=921bd81b:17920
+commitRootImpl @ chunk-R6S4VRB5.js?v=921bd81b:19353
+commitRoot @ chunk-R6S4VRB5.js?v=921bd81b:19277
+finishConcurrentRender @ chunk-R6S4VRB5.js?v=921bd81b:18760
+performConcurrentWorkOnRoot @ chunk-R6S4VRB5.js?v=921bd81b:18718
+workLoop @ chunk-R6S4VRB5.js?v=921bd81b:197
+flushWork @ chunk-R6S4VRB5.js?v=921bd81b:176
+performWorkUntilDeadline @ chunk-R6S4VRB5.js?v=921bd81b:384Understand this error
+chunk-R6S4VRB5.js?v=921bd81b:19413 Uncaught ReferenceError: LivePriceTicker is not defined
+    at MarketPage (MarketPage.tsx:117:18)
+    at renderWithHooks (chunk-R6S4VRB5.js?v=921bd81b:11548:26)
+    at mountIndeterminateComponent (chunk-R6S4VRB5.js?v=921bd81b:14926:21)
+    at beginWork (chunk-R6S4VRB5.js?v=921bd81b:15914:22)
+    at beginWork$1 (chunk-R6S4VRB5.js?v=921bd81b:19753:22)
+    at performUnitOfWork (chunk-R6S4VRB5.js?v=921bd81b:19198:20)
+    at workLoopSync (chunk-R6S4VRB5.js?v=921bd81b:19137:13)
+    at renderRootSync (chunk-R6S4VRB5.js?v=921bd81b:19116:15)
+    at recoverFromConcurrentError (chunk-R6S4VRB5.js?v=921bd81b:18736:28)
+    at performConcurrentWorkOnRoot (chunk-R6S4VRB5.js?v=921bd81b:18684:30)
+MarketPage @ MarketPage.tsx:117
+renderWithHooks @ chunk-R6S4VRB5.js?v=921bd81b:11548
+mountIndeterminateComponent @ chunk-R6S4VRB5.js?v=921bd81b:14926
+beginWork @ chunk-R6S4VRB5.js?v=921bd81b:15914
+beginWork$1 @ chunk-R6S4VRB5.js?v=921bd81b:19753
+performUnitOfWork @ chunk-R6S4VRB5.js?v=921bd81b:19198
+workLoopSync @ chunk-R6S4VRB5.js?v=921bd81b:19137
+renderRootSync @ chunk-R6S4VRB5.js?v=921bd81b:19116
+recoverFromConcurrentError @ chunk-R6S4VRB5.js?v=921bd81b:18736
+performConcurrentWorkOnRoot @ chunk-R6S4VRB5.js?v=921bd81b:18684
+workLoop @ chunk-R6S4VRB5.js?v=921bd81b:197
+flushWork @ chunk-R6S4VRB5.js?v=921bd81b:176
+performWorkUntilDeadline @ chunk-R6S4VRB5.js?v=921bd81b:384Understand this error
+cryptologos.cc/logos/vibe-vibe-logo.svg?v=040:1 
+            
+            
+           GET https://cryptologos.cc/logos/vibe-vibe-logo.svg?v=040 net::ERR_BLOCKED_BY_RESPONSE.NotSameOrigin 403 (Forbidden)
