@@ -105,7 +105,7 @@ const DepositPage = () => {
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="fiat">
+              <TabsContent value="crypto">
                 <div className="space-y-8">
                   <div className="space-y-6">
                     <div>
