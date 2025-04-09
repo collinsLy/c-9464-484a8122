@@ -28,6 +28,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
     
     // Subscribe to real-time balance updates
     const unsubscribe = UserBalanceService.subscribeToBalanceUpdates(uid, (newBalance) => {
+      console.log('Balance updated:', newBalance);
       setBalance(newBalance);
       setIsLoading(false);
     });
