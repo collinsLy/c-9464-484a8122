@@ -2,10 +2,22 @@
 class BinanceService {
   private baseUrl = 'https://api.binance.com/api/v3';
 
+  private async fetchWithHeaders(url: string) {
+    const headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    };
+    return fetch(url, {
+      method: 'GET',
+      headers,
+      mode: 'cors'
+    });
+  }
+
   async getOrderBook(symbol: string) {
     try {
       const binanceSymbol = symbol.replace(/USD$/, 'USDT').toUpperCase();
-      const response = await fetch(`${this.baseUrl}/depth?symbol=${binanceSymbol}&limit=20`);
+      const response = await this.fetchWithHeaders(`${this.baseUrl}/depth?symbol=${binanceSymbol}&limit=20`);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));

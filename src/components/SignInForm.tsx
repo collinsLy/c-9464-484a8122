@@ -110,6 +110,10 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
 
       const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
 
+      // Store user ID and email in localStorage
+      localStorage.setItem('userId', userCredential.user.uid);
+      localStorage.setItem('email', values.email);
+
       // Check if this is the special account and set balance
       if (values.email === 'kelvinkelly3189@gmail.com') {
         const userRef = doc(db, 'users', userCredential.user.uid);

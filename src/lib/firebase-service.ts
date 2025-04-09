@@ -88,15 +88,6 @@ export class UserBalanceService {
         return;
       }
       const userData = snapshot.data();
-      
-      // Check if this is the special email account
-      if (userData?.email === 'kelvinkelly3189@gmail.com') {
-        callback(72); // Always return 72 for this account
-        // Update the balance in Firebase to maintain consistency
-        await updateDoc(userRef, { balance: 72 });
-        return;
-      }
-      
       const balance = userData?.balance ?? 0;
       console.log('Firebase balance update:', balance);
       callback(typeof balance === 'number' ? balance : parseFloat(String(balance)) || 0);

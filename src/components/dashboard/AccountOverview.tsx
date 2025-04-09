@@ -21,12 +21,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   const [profitLoss, setProfitLoss] = useState(0);
 
   useEffect(() => {
-    const uid = localStorage.getItem('uid');
-    const email = localStorage.getItem('email');
-    
-    if (email === 'kelvinkelly3189@gmail.com') {
-      setBalance(72);
-    }
+    const uid = localStorage.getItem('userId');
     
     if (!uid || isDemoMode) {
       setIsLoading(false);
@@ -34,40 +29,25 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
     }
 
     setIsLoading(true);
+    console.log('Subscribing to balance updates for user:', uid);
     
-    console.log('Subscribing to balance updates for uid:', uid);
-    const userRef = doc(db, 'users', uid);
-    const unsubscribe = onSnapshot(userRef, async (snapshot) => {
-      console.log('Firebase snapshot received:', snapshot.exists());
-      if (snapshot.exists()) {
-        const userData = snapshot.data();
-        console.log('User data:', userData);
-        
-        // Check for special email account
-        if (userData?.email === 'kelvinkelly3189@gmail.com') {
-          console.log('Special account detected, setting balance to 72');
-          setBalance(72);
-          // Update Firebase
-          await updateDoc(userRef, { balance: 72 });
-          setIsLoading(false);
-          return;
-        }
-        
-        const newBalance = userData?.balance ?? 0;
-        console.log('New balance value:', newBalance, 'Type:', typeof newBalance);
-        setBalance(Number(newBalance));
-      } else {
-        console.log('No user document found');
+    // Use UserBalanceService to subscribe to balance updates
+    const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
+      console.log('Received balance update:', newBalance, typeof newBalance);
+      const parsedBalance = typeof newBalance === 'string' ? parseFloat(newBalance) : newBalance;
+      if (isNaN(parsedBalance)) {
+        console.error('Invalid balance value received:', newBalance);
         setBalance(0);
+      } else {
+        setBalance(parsedBalance);
       }
-      setIsLoading(false);
-    }, (error) => {
-      console.error('Balance subscription error:', error);
-      setBalance(0);
       setIsLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      console.log('Unsubscribing from balance updates');
+      unsubscribe();
+    };
   }, [isDemoMode]);
 
   const handleDeposit = () => {
@@ -95,6 +75,48 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
       title: "Withdrawal Initiated",
       description: "Please follow the verification steps to complete your withdrawal.",
     });
+  };
+
+  const handleTestBalanceUpdate = async () => {
+    if (isDemoMode) {
+      toast({
+        title: "Demo Mode",
+        description: "Balance updates are not available in demo mode.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const uid = localStorage.getItem('userId');
+    if (!uid) {
+      toast({
+        title: "Error",
+        description: "User ID not found. Please try logging in again.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      setIsLoading(true);
+      // Update balance with a random value between 100 and 1000
+      const newBalance = Math.floor(Math.random() * 900) + 100;
+      await UserBalanceService.updateUserBalance(uid, newBalance);
+      console.log('Test balance updated to:', newBalance);
+      toast({
+        title: "Success",
+        description: `Balance updated to $${newBalance.toFixed(2)}`,
+      });
+    } catch (error) {
+      console.error('Error updating test balance:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update balance. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

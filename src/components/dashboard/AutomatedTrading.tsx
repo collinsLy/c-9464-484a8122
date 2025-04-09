@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { botTiers } from "@/features/automated-trading/data/bots";
 import { BotCard } from "@/features/automated-trading/components/BotCard";
@@ -7,13 +7,34 @@ import { BotStatistics } from "@/features/automated-trading/components/BotStatis
 import { StrategyLibrary } from "@/features/automated-trading/components/StrategyLibrary";
 import { OverviewCard } from "@/features/automated-trading/components/OverviewCard";
 import { BotTier } from "@/features/automated-trading/types";
+import { UserBalanceService } from "@/lib/firebase-service";
 
 interface AutomatedTradingProps {
   isDemoMode?: boolean;
 }
 
 const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
-  const [userBalance] = useState(isDemoMode ? 10000 : 0);
+  const [userBalance, setUserBalance] = useState(isDemoMode ? 10000 : 0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const uid = localStorage.getItem('userId');
+    
+    if (!uid || isDemoMode) {
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    
+    const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
+      const parsedBalance = typeof newBalance === 'string' ? parseFloat(newBalance) : newBalance;
+      setUserBalance(isNaN(parsedBalance) ? 0 : parsedBalance);
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [isDemoMode]);
 
   const handleTradeClick = (bot: BotTier) => {
     if (isDemoMode) {
