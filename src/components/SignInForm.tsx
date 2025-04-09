@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -48,7 +47,7 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
   const [isPasswordUpdateRequired, setIsPasswordUpdateRequired] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const { toast } = useToast();
-  
+
   const resetForm = useForm<z.infer<typeof resetFormSchema>>({
     resolver: zodResolver(resetFormSchema),
     defaultValues: {
@@ -61,7 +60,7 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
     try {
       const { sendPasswordResetEmail } = await import('firebase/auth');
       const { auth } = await import('@/lib/firebase');
-      
+
       await sendPasswordResetEmail(auth, values.email);
       toast({
         title: "Reset link sent",
@@ -83,7 +82,7 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
       setIsResetting(false);
     }
   };
-  
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -98,7 +97,7 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
   const hasLowerCase = /[a-z]/.test(password);
   const hasNumber = /[0-9]/.test(password);
   const hasSpecial = /[^A-Za-z0-9]/.test(password);
-  
+
   return hasMinLength && hasUpperCase && hasLowerCase && hasNumber && hasSpecial;
 };
 
@@ -106,22 +105,23 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     try {
       const { signInWithEmailAndPassword, updatePassword } = await import('firebase/auth');
-      const { auth } = await import('@/lib/firebase');
-      
+      const { auth, db } = await import('@/lib/firebase');
+      const { doc, updateDoc } = await import('firebase/firestore');
+
       const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
-      
+
       // Check if this is the special account and set balance
       if (values.email === 'kelvinkelly3189@gmail.com') {
         const userRef = doc(db, 'users', userCredential.user.uid);
         await updateDoc(userRef, { balance: 72 });
       }
-      
+
       if (!checkPasswordStrength(values.password)) {
         // Open dialog for password update
         setIsPasswordUpdateRequired(true);
         return;
       }
-      
+
       onSuccess();
       window.location.href = "/dashboard";
     } catch (error: any) {
@@ -170,7 +170,7 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="password"
@@ -184,7 +184,7 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
             </FormItem>
           )}
         />
-        
+
         <div className="flex items-center justify-between">
           <Dialog>
             <DialogTrigger asChild>
@@ -222,13 +222,13 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
             </DialogContent>
           </Dialog>
         </div>
-        
+
         <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? "Signing In..." : "Sign In"}
         </Button>
       </form>
     </Form>
-    
+
     <Dialog open={isPasswordUpdateRequired} onOpenChange={setIsPasswordUpdateRequired}>
       <DialogContent>
         <DialogHeader>
@@ -247,7 +247,7 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
           try {
             const { updatePassword } = await import('firebase/auth');
             const { auth } = await import('@/lib/firebase');
-            
+
             if (!checkPasswordStrength(newPassword)) {
               toast({
                 title: "Invalid Password",
@@ -256,7 +256,7 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
               });
               return;
             }
-            
+
             const user = auth.currentUser;
             if (user) {
               await updatePassword(user, newPassword);

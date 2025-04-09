@@ -22,6 +22,11 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
 
   useEffect(() => {
     const uid = localStorage.getItem('uid');
+    const email = localStorage.getItem('email');
+    
+    if (email === 'kelvinkelly3189@gmail.com') {
+      setBalance(72);
+    }
     
     if (!uid || isDemoMode) {
       setIsLoading(false);
