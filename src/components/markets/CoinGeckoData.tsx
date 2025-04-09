@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -12,22 +11,22 @@ interface CoinGeckoDataProps {
 
 const CoinGeckoData = ({ symbol }: CoinGeckoDataProps) => {
   const coinId = getCoingeckoIdFromSymbol(symbol);
-  
+
   // Fetch coin data
   const { data: coinData, isLoading: isLoadingCoinData } = useQuery({
     queryKey: ['coinData', coinId],
     queryFn: () => getCoinData(coinId),
   });
-  
+
   // Fetch top coins
   const { data: topCoins, isLoading: isLoadingTopCoins } = useQuery({
     queryKey: ['topCoins'],
     queryFn: () => getTopCoins(),
   });
-  
+
   // Calculate 24h change
   const change24h = coinData?.market_data?.price_change_percentage_24h || 0;
-  
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white lg:col-span-2">
@@ -84,7 +83,7 @@ const CoinGeckoData = ({ symbol }: CoinGeckoDataProps) => {
                 </div>
               </dl>
             </div>
-            
+
             <div>
               <h3 className="text-lg font-medium mb-4">Market Information</h3>
               <dl className="space-y-2">
@@ -133,7 +132,7 @@ const CoinGeckoData = ({ symbol }: CoinGeckoDataProps) => {
               </dl>
             </div>
           </div>
-          
+
           <div className="mt-6">
             <h3 className="text-lg font-medium mb-4">Community Trust Score</h3>
             <div className="flex items-center gap-2">
@@ -156,7 +155,7 @@ const CoinGeckoData = ({ symbol }: CoinGeckoDataProps) => {
           </div>
         </CardContent>
       </Card>
-      
+
       <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
         <CardHeader>
           <CardTitle>Top Cryptocurrencies</CardTitle>

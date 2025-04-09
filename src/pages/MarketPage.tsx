@@ -45,9 +45,9 @@ const MarketPage = () => {
       }
       setLoading(false);
     } catch (error) {
-      toast.error("Failed to fetch stock data");
-      setLoading(false);
-    }
+        // Silently handle errors
+        setLoading(false);
+      }
   };
 
   useEffect(() => {
