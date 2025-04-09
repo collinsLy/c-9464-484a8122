@@ -1,3 +1,7 @@
+
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+
 import { ArrowUpRight, Wallet, CreditCard, TrendingUp, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,23 +30,25 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
 
     setIsLoading(true);
     
-    // Subscribe to real-time balance updates using UserService
-    const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
-      console.log('Balance update received:', newBalance);
-      setBalance(Number(newBalance) || 0);
+    const userRef = doc(db, 'users', uid);
+    const unsubscribe = onSnapshot(userRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const userData = snapshot.data();
+        const newBalance = userData?.balance ?? 0;
+        console.log('Firebase balance update:', newBalance);
+        setBalance(Number(newBalance));
+      } else {
+        console.log('No user document found');
+        setBalance(0);
+      }
+      setIsLoading(false);
+    }, (error) => {
+      console.error('Balance subscription error:', error);
+      setBalance(0);
       setIsLoading(false);
     });
 
-    // Initial fetch is handled by the subscription
-    setIsLoading(false);
-
-    return () => {
-      try {
-        unsubscribe();
-      } catch (err) {
-        console.error('Error unsubscribing:', err);
-      }
-    };
+    return () => unsubscribe();
   }, [isDemoMode]);
 
   const handleDeposit = () => {
