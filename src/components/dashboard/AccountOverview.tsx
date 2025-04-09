@@ -26,23 +26,15 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
 
     setIsLoading(true);
     
-    // Subscribe to real-time balance updates
+    // Subscribe to real-time balance updates using UserService
     const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
       console.log('Balance update received:', newBalance);
       setBalance(Number(newBalance) || 0);
       setIsLoading(false);
     });
 
-    // Fetch initial balance
-    UserBalanceService.getUserBalance(uid)
-      .then(initialBalance => {
-        setBalance(initialBalance);
-        setIsLoading(false);
-      })
-      .catch(error => {
-        console.error('Error fetching initial balance:', error);
-        setIsLoading(false);
-      });
+    // Initial fetch is handled by the subscription
+    setIsLoading(false);
 
     return () => {
       try {
