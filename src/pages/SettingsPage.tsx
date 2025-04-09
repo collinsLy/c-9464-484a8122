@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, getDoc } from "firebase/firestore";
+import { updateEmail } from "firebase/auth";
 import { db } from "@/lib/firebase";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
@@ -26,20 +27,83 @@ const SettingsPage = () => {
   const [activeTab, setActiveTab] = useState("profile");
   const [darkMode, setDarkMode] = useState(true);
 
-  const profileForm = useForm({
-    defaultValues: {
-      name: "",
-      email: "",
-      phone: ""
-    }
+  const [initialValues, setInitialValues] = useState({
+    name: "",
+    email: "",
+    phone: ""
   });
 
-  const onSubmit = (data: any) => {
-    console.log('Profile updated:', data);
-    toast({
-      title: "Profile Updated",
-      description: "Your profile information has been saved successfully.",
-    });
+  const profileForm = useForm({
+    defaultValues: initialValues
+  });
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            setInitialValues({
+              name: userData.fullName || "",
+              email: user.email || "",
+              phone: userData.phone || ""
+            });
+            profileForm.reset({
+              name: userData.fullName || "",
+              email: user.email || "",
+              phone: userData.phone || ""
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load profile data",
+          variant: "destructive"
+        });
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  const onSubmit = async (data: any) => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to update your profile",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      await updateDoc(doc(db, 'users', user.uid), {
+        fullName: data.name,
+        phone: data.phone,
+        updatedAt: new Date().toISOString()
+      });
+
+      if (data.email !== user.email) {
+        await updateEmail(user, data.email);
+      }
+
+      toast({
+        title: "Success",
+        description: "Your profile information has been updated successfully",
+      });
+    } catch (error: any) {
+      console.error("Error updating profile:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update profile",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
