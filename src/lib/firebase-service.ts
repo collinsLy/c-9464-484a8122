@@ -80,20 +80,9 @@ export class UserBalanceService {
       return () => {};
     }
     
-    const userRef = doc(db, 'users', userId);
-    return onSnapshot(userRef, (snapshot) => {
-      if (!snapshot.exists()) {
-        console.log('No user document found');
-        callback(0);
-        return;
-      }
-      const userData = snapshot.data();
+    return UserService.subscribeToUserData(userId, (userData) => {
       const balance = userData?.balance ?? 0;
-      console.log('Firebase balance update:', balance);
       callback(typeof balance === 'number' ? balance : parseFloat(String(balance)) || 0);
-    }, (error) => {
-      console.error('Balance subscription error:', error);
-      callback(0);
     });
   }
 
