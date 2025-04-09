@@ -30,12 +30,15 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
 
     setIsLoading(true);
     
+    console.log('Subscribing to balance updates for uid:', uid);
     const userRef = doc(db, 'users', uid);
     const unsubscribe = onSnapshot(userRef, (snapshot) => {
+      console.log('Firebase snapshot received:', snapshot.exists());
       if (snapshot.exists()) {
         const userData = snapshot.data();
+        console.log('User data:', userData);
         const newBalance = userData?.balance ?? 0;
-        console.log('Firebase balance update:', newBalance);
+        console.log('New balance value:', newBalance, 'Type:', typeof newBalance);
         setBalance(Number(newBalance));
       } else {
         console.log('No user document found');
