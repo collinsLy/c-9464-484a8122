@@ -27,10 +27,6 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
   const hasRequiredBalance = isDemoMode || userBalance >= minBalance;
 
   const handleClick = async () => {
-    if (!hasRequiredBalance) {
-      return;
-    }
-
     if (isDemoMode) {
       toast.success(`${bot.type} Bot Activated`, {
         description: `Your ${bot.type} bot is now trading ${bot.pair} with demo funds.`,
@@ -59,18 +55,44 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
 
       window.dispatchEvent(new Event('storage'));
     } else {
-      if (userBalance < bot.price) {
-        toast.error("Insufficient Funds", {
-          description: `You need a minimum balance of $${bot.price} to use the ${bot.type} bot.`,
+      const requiredBalance = getMinBalance(bot.id);
+      
+      if (userBalance < requiredBalance) {
+        toast.error("Insufficient Balance", {
+          description: `You need a minimum balance of $${requiredBalance} to use the ${bot.type} bot. Current balance: $${userBalance}`,
         });
         return;
       }
 
-      toast.success(`${bot.type} Bot Activated`, {
-        description: `Your ${bot.type} bot is now trading ${bot.pair} with real funds.`,
-      });
-      
-      onTradeClick(bot);
+      try {
+        // Verify balance one more time before execution
+        const uid = localStorage.getItem('userId');
+        if (!uid) {
+          toast.error("Authentication Error", {
+            description: "Please log in to continue trading.",
+          });
+          return;
+        }
+
+        const currentBalance = await UserBalanceService.getUserBalance(uid);
+        if (currentBalance < requiredBalance) {
+          toast.error("Insufficient Balance", {
+            description: `You need a minimum balance of $${requiredBalance} to use the ${bot.type} bot.`,
+          });
+          return;
+        }
+
+        toast.success(`${bot.type} Bot Activated`, {
+          description: `Your ${bot.type} bot is now trading ${bot.pair} with real funds.`,
+        });
+        
+        onTradeClick(bot);
+      } catch (error) {
+        console.error('Error verifying balance:', error);
+        toast.error("Trading Error", {
+          description: "Unable to verify balance. Please try again.",
+        });
+      }
     }
   };
 
