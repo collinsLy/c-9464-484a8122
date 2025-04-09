@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { botTiers } from "@/features/automated-trading/data/bots";
 import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
@@ -12,11 +12,56 @@ import {
   SearchIcon, PlusCircle, TrendingUp, TrendingDown, 
   ArrowUpRight, ArrowDownRight, Filter, SlidersHorizontal 
 } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
+import UserBalanceService from "@/services/UserBalanceService"; // Assuming this service exists
+
 
 const BotsPage = () => {
   const { isDemoMode } = useDashboardContext();
-  const [activeTab, setActiveTab] = useState("marketplace");
-  
+  const [selectedTab, setSelectedTab] = useState("marketplace");
+  const [userBalance, setUserBalance] = useState(0);
+
+  useEffect(() => {
+    const uid = localStorage.getItem('userId');
+    if (!uid) return;
+
+    const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
+      setUserBalance(newBalance);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleTradeClick = async (bot: any) => { // Assuming BotTier type is available
+    const uid = localStorage.getItem('userId');
+    if (!uid) {
+      toast.error("Authentication Required", {
+        description: "Please log in to trade with bots.",
+      });
+      return;
+    }
+
+    try {
+      const currentBalance = await UserBalanceService.getUserBalance(uid);
+      const requiredBalance = bot.price;
+
+      if (currentBalance < requiredBalance) {
+        toast.error("Insufficient Balance", {
+          description: `You need a minimum balance of $${requiredBalance} to use the ${bot.type} bot.`,
+        });
+        return;
+      }
+
+      toast.success(`${bot.type} Bot Activated`, {
+        description: `Your ${bot.type} bot is now trading ${bot.pair} with real funds.`,
+      });
+    } catch (error) {
+      toast.error("Error", {
+        description: "Failed to verify balance. Please try again.",
+      });
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -25,7 +70,7 @@ const BotsPage = () => {
             <CardTitle>Trading Bots</CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
               <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white mb-6">
                 <TabsTrigger value="marketplace" className="text-white data-[state=active]:bg-accent">
                   Marketplace
@@ -37,7 +82,7 @@ const BotsPage = () => {
                   Create New
                 </TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="my-bots">
                 <div className="flex flex-col space-y-4">
                   <div className="flex items-center justify-between">
@@ -53,7 +98,7 @@ const BotsPage = () => {
                       Filters
                     </Button>
                   </div>
-                  
+
                   <ScrollArea className="h-[calc(100vh-300px)] rounded-md border border-white/10 p-4">
                     <div className="grid gap-4">
                       {/* Bot cards would go here */}
@@ -64,7 +109,7 @@ const BotsPage = () => {
                   </ScrollArea>
                 </div>
               </TabsContent>
-              
+
               <TabsContent value="marketplace">
                 <div className="flex flex-col space-y-4">
                   <div className="flex items-center justify-between">
@@ -80,53 +125,17 @@ const BotsPage = () => {
                       Sort & Filter
                     </Button>
                   </div>
-                  
+
                   <ScrollArea className="h-[calc(100vh-300px)] rounded-md border border-white/10 p-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {botTiers.map((bot) => {
-                        const handleTradeClick = async () => {
-                          if (bot.id === "standard" && demoBalance < 20) {
-                            toast.error("Insufficient Funds", {
-                              description: "You need a minimum balance of $20 to use the Standard bot.",
-                            });
-                            return;
-                          }
-
-                          toast.success(`${bot.type} Bot Activated`, {
-                            description: `Your ${bot.type} bot is now trading ${bot.pair} with demo funds.`,
-                          });
-
-                          await new Promise(resolve => setTimeout(resolve, 2000));
-
-                          const isWin = Math.random() < 0.7;
-                          const amount = bot.price;
-                          const profitMultiplier = isWin ? 1.8 : -1.0;
-                          const profitLoss = amount * profitMultiplier;
-
-                          const currentBalance = parseFloat(localStorage.getItem('demoBalance') || '10000');
-                          const newBalance = currentBalance + profitLoss;
-                          localStorage.setItem('demoBalance', newBalance.toString());
-
-                          if (isWin) {
-                            toast.success(`Trade Won!`, {
-                              description: `Profit: $${profitLoss.toFixed(2)}. New Balance: $${newBalance.toFixed(2)}`,
-                            });
-                          } else {
-                            toast.error(`Trade Lost`, {
-                              description: `Loss: $${Math.abs(profitLoss).toFixed(2)}. New Balance: $${newBalance.toFixed(2)}`,
-                            });
-                          }
-
-                          window.dispatchEvent(new Event('storage'));
-                        };
-
                         return (
                           <BotCard
                             key={bot.id}
                             bot={bot}
                             onTradeClick={handleTradeClick}
                             isDemoMode={isDemoMode}
-                            userBalance={parseFloat(localStorage.getItem('demoBalance') || '10000')}
+                            userBalance={userBalance}
                           />
                         );
                       })}
@@ -134,7 +143,7 @@ const BotsPage = () => {
                   </ScrollArea>
                 </div>
               </TabsContent>
-              
+
               <TabsContent value="create">
                 <div className="text-center py-8 text-muted-foreground">
                   Bot creation wizard coming soon.
