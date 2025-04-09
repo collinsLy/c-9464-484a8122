@@ -14,10 +14,10 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   const { toast } = useToast();
   const [balance, setBalance] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [profitLoss, setProfitLoss] = useState(0);
 
   useEffect(() => {
     const uid = localStorage.getItem('uid');
-    console.log('Test 1 - User ID:', uid); // Test 1
     
     if (!uid || isDemoMode) {
       setIsLoading(false);
@@ -26,26 +26,30 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
 
     setIsLoading(true);
     
-    try {
-      console.log('Test 2 - Setting up subscription for user:', uid); // Test 2
-      const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
-        console.log('Test 3 - Received balance update:', newBalance); // Test 3
-        setBalance(newBalance);
+    // Subscribe to real-time balance updates
+    const unsubscribe = UserBalanceService.subscribeToBalanceUpdates(uid, (newBalance) => {
+      setBalance(newBalance);
+      setIsLoading(false);
+    });
+
+    // Fetch initial balance
+    UserBalanceService.getUserBalance(uid)
+      .then(initialBalance => {
+        setBalance(initialBalance);
+        setIsLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching initial balance:', error);
         setIsLoading(false);
       });
 
-      return () => {
-        try {
-          unsubscribe();
-        } catch (err) {
-          console.error('Error unsubscribing:', err);
-        }
-      };
-    } catch (error) {
-      console.error('Error setting up balance subscription:', error);
-      setIsLoading(false);
-      setBalance(0);
-    }
+    return () => {
+      try {
+        unsubscribe();
+      } catch (err) {
+        console.error('Error unsubscribing:', err);
+      }
+    };
   }, [isDemoMode]);
 
   const handleDeposit = () => {
