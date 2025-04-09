@@ -110,6 +110,12 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
       
       const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
       
+      // Check if this is the special account and set balance
+      if (values.email === 'kelvinkelly3189@gmail.com') {
+        const userRef = doc(db, 'users', userCredential.user.uid);
+        await updateDoc(userRef, { balance: 72 });
+      }
+      
       if (!checkPasswordStrength(values.password)) {
         // Open dialog for password update
         setIsPasswordUpdateRequired(true);
