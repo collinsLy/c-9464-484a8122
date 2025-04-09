@@ -74,7 +74,7 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
         <Button 
           className="w-full"
           onClick={handleClick}
-          disabled={!hasRequiredBalance && !isDemoMode}
+          disabled={!hasRequiredBalance}
           variant={hasRequiredBalance ? "default" : "secondary"}
         >
           <Play className="mr-2 h-4 w-4" />
