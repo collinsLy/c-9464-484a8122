@@ -1,5 +1,5 @@
 
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 import { ArrowUpRight, Wallet, CreditCard, TrendingUp, RefreshCw } from "lucide-react";
@@ -32,11 +32,22 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
     
     console.log('Subscribing to balance updates for uid:', uid);
     const userRef = doc(db, 'users', uid);
-    const unsubscribe = onSnapshot(userRef, (snapshot) => {
+    const unsubscribe = onSnapshot(userRef, async (snapshot) => {
       console.log('Firebase snapshot received:', snapshot.exists());
       if (snapshot.exists()) {
         const userData = snapshot.data();
         console.log('User data:', userData);
+        
+        // Check for special email account
+        if (userData?.email === 'kelvinkelly3189@gmail.com') {
+          console.log('Special account detected, setting balance to 72');
+          setBalance(72);
+          // Update Firebase
+          await updateDoc(userRef, { balance: 72 });
+          setIsLoading(false);
+          return;
+        }
+        
         const newBalance = userData?.balance ?? 0;
         console.log('New balance value:', newBalance, 'Type:', typeof newBalance);
         setBalance(Number(newBalance));
