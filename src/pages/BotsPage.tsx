@@ -83,15 +83,53 @@ const BotsPage = () => {
                   
                   <ScrollArea className="h-[calc(100vh-300px)] rounded-md border border-white/10 p-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {botTiers.map((bot) => (
-                        <BotCard
-                          key={bot.id}
-                          bot={bot}
-                          onTradeClick={() => {}}
-                          isDemoMode={isDemoMode}
-                          userBalance={0}
-                        />
-                      ))}
+                      {botTiers.map((bot) => {
+                        const handleTradeClick = async () => {
+                          if (bot.id === "standard" && demoBalance < 20) {
+                            toast.error("Insufficient Funds", {
+                              description: "You need a minimum balance of $20 to use the Standard bot.",
+                            });
+                            return;
+                          }
+
+                          toast.success(`${bot.type} Bot Activated`, {
+                            description: `Your ${bot.type} bot is now trading ${bot.pair} with demo funds.`,
+                          });
+
+                          await new Promise(resolve => setTimeout(resolve, 2000));
+
+                          const isWin = Math.random() < 0.7;
+                          const amount = bot.price;
+                          const profitMultiplier = isWin ? 1.8 : -1.0;
+                          const profitLoss = amount * profitMultiplier;
+
+                          const currentBalance = parseFloat(localStorage.getItem('demoBalance') || '10000');
+                          const newBalance = currentBalance + profitLoss;
+                          localStorage.setItem('demoBalance', newBalance.toString());
+
+                          if (isWin) {
+                            toast.success(`Trade Won!`, {
+                              description: `Profit: $${profitLoss.toFixed(2)}. New Balance: $${newBalance.toFixed(2)}`,
+                            });
+                          } else {
+                            toast.error(`Trade Lost`, {
+                              description: `Loss: $${Math.abs(profitLoss).toFixed(2)}. New Balance: $${newBalance.toFixed(2)}`,
+                            });
+                          }
+
+                          window.dispatchEvent(new Event('storage'));
+                        };
+
+                        return (
+                          <BotCard
+                            key={bot.id}
+                            bot={bot}
+                            onTradeClick={handleTradeClick}
+                            isDemoMode={isDemoMode}
+                            userBalance={parseFloat(localStorage.getItem('demoBalance') || '10000')}
+                          />
+                        );
+                      })}
                     </div>
                   </ScrollArea>
                 </div>
