@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { botTiers } from "@/features/automated-trading/data/bots";
@@ -18,14 +19,14 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
 
   useEffect(() => {
     const uid = localStorage.getItem('userId');
-
+    
     if (!uid || isDemoMode) {
       setIsLoading(false);
       return;
     }
 
     setIsLoading(true);
-
+    
     const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
       const parsedBalance = typeof newBalance === 'string' ? parseFloat(newBalance) : newBalance;
       setUserBalance(isNaN(parsedBalance) ? 0 : parsedBalance);
@@ -52,14 +53,14 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
     };
 
     const requiredBalance = minimumBalanceRequired[bot.id as keyof typeof minimumBalanceRequired];
-
+    
     if (userBalance < requiredBalance) {
       toast.error("Insufficient Funds", {
         description: `You need a minimum balance of $${requiredBalance} to activate the ${bot.type} bot. Please deposit funds to continue.`,
       });
       return;
     }
-
+    
     toast.success(`Bot Activated`, {
       description: `${bot.type} bot has been successfully activated with real funds.`,
     });
@@ -70,7 +71,7 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <OverviewCard isDemoMode={isDemoMode} />
       </div>
-
+      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {botTiers.map((bot) => (
           <BotCard 
@@ -82,7 +83,7 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
           />
         ))}
       </div>
-
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <BotStatistics isDemoMode={isDemoMode} />
         <StrategyLibrary isDemoMode={isDemoMode} />
