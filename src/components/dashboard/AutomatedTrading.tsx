@@ -66,6 +66,36 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
     });
   };
 
+  const handleTradeClick = (bot: BotTier) => {
+    if (isDemoMode) {
+      toast.success(`Demo Bot Activated`, {
+        description: `${bot.type} bot is now running with virtual funds. No real money is being used.`,
+      });
+      return;
+    }
+
+    // Check minimum balance requirements for each bot
+    const minimumBalanceRequired = {
+      standard: 20,
+      master: 40,
+      'pro-basic': 100,
+      'pro-premium': 200
+    };
+
+    const requiredBalance = minimumBalanceRequired[bot.id as keyof typeof minimumBalanceRequired];
+    
+    if (userBalance < requiredBalance) {
+      toast.error("Insufficient Funds", {
+        description: `You need a minimum balance of $${requiredBalance} to activate the ${bot.type} bot. Please deposit funds to continue.`,
+      });
+      return;
+    }
+    
+    toast.success(`Bot Activated`, {
+      description: `${bot.type} bot has been successfully activated with real funds.`,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
