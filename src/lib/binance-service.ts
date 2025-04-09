@@ -2,6 +2,20 @@
 class BinanceService {
   private baseUrl = 'https://api.binance.com/api/v3';
 
+  interface BinanceError {
+    code: number;
+    msg: string;
+  }
+
+  const handleBinanceError = (error: any) => {
+    if (error.code === 403) {
+      console.error('Access forbidden. Please check API permissions and rate limits');
+      throw new Error('Unable to access Binance API. Please try again later.');
+    }
+    throw error;
+  };
+
+
   async getOrderBook(symbol: string) {
     try {
       const binanceSymbol = symbol.replace(/USD$/, 'USDT').toUpperCase();
@@ -9,6 +23,7 @@ class BinanceService {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        this.handleBinanceError(errorData); // Use the new error handler
         throw new Error(errorData.msg || `Failed to fetch order book: ${response.statusText}`);
       }
 
@@ -28,9 +43,14 @@ class BinanceService {
     try {
       const response = await fetch(`${this.baseUrl}/ticker/price?symbol=${symbol}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch price');
+        const errorData = await response.json().catch(() => ({}));
+        this.handleBinanceError(errorData);
+        throw new Error(`Failed to fetch price: ${response.statusText}`);
       }
       const data = await response.json();
+      if ('code' in data) {
+        this.handleBinanceError(data);
+      }
       return data;
     } catch (error) {
       console.error('Error fetching price:', error);
@@ -42,9 +62,14 @@ class BinanceService {
     try {
       const response = await fetch(`${this.baseUrl}/klines?symbol=${symbol}&interval=${interval}&limit=1000`); // Adjust limit as needed
       if (!response.ok) {
-          throw new Error('Failed to fetch klines');
+        const errorData = await response.json().catch(() => ({}));
+        this.handleBinanceError(errorData);
+        throw new Error(`Failed to fetch klines: ${response.statusText}`);
       }
       const data = await response.json();
+      if ('code' in data) {
+        this.handleBinanceError(data);
+      }
       return data;
     } catch (error) {
       console.error('Error fetching klines:', error);
@@ -56,9 +81,14 @@ class BinanceService {
     try {
       const response = await fetch(`${this.baseUrl}/ticker/24hr?symbol=${symbol}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch 24hr ticker');
+        const errorData = await response.json().catch(() => ({}));
+        this.handleBinanceError(errorData);
+        throw new Error(`Failed to fetch 24hr ticker: ${response.statusText}`);
       }
       const data = await response.json();
+      if ('code' in data) {
+        this.handleBinanceError(data);
+      }
       return data;
     } catch (error) {
       console.error('Error fetching 24hr ticker:', error);
@@ -84,9 +114,14 @@ class BinanceService {
       });
 
       if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        this.handleBinanceError(errorData);
         throw new Error(`Failed to place buy order: ${response.statusText}`);
       }
       const data = await response.json();
+      if ('code' in data) {
+        this.handleBinanceError(data);
+      }
       return data;
     } catch (error) {
       console.error('Error placing buy order:', error);
@@ -110,9 +145,14 @@ class BinanceService {
           }
       });
       if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        this.handleBinanceError(errorData);
         throw new Error(`Failed to place sell order: ${response.statusText}`);
       }
       const data = await response.json();
+      if ('code' in data) {
+        this.handleBinanceError(data);
+      }
       return data;
     } catch (error) {
       console.error('Error placing sell order:', error);
@@ -130,9 +170,14 @@ class BinanceService {
       });
 
       if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        this.handleBinanceError(errorData);
         throw new Error(`Failed to fetch account balance: ${response.statusText}`);
       }
       const data = await response.json();
+      if ('code' in data) {
+        this.handleBinanceError(data);
+      }
       return data.balances;
     } catch (error) {
       console.error('Error fetching balance:', error);
