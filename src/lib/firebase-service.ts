@@ -1,15 +1,73 @@
 
-import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, query, where, getDocs } from 'firebase/firestore';
 import { auth } from './firebase';
 import { db } from './firebase';
+
+export class UserService {
+  static async createUser(userId: string, userData: {
+    fullName: string,
+    email: string,
+    balance: number,
+    phone?: string,
+    profilePhoto?: string
+  }) {
+    try {
+      await setDoc(doc(db, 'users', userId), {
+        ...userData,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        tradingHistory: [],
+        activeStrategies: [],
+        settings: {
+          notifications: true,
+          demoMode: false,
+          theme: 'dark'
+        }
+      });
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw error;
+    }
+  }
+
+  static async getUserData(userId: string) {
+    try {
+      const docRef = doc(db, 'users', userId);
+      const docSnap = await getDoc(docRef);
+      return docSnap.exists() ? docSnap.data() : null;
+    } catch (error) {
+      console.error('Error getting user data:', error);
+      throw error;
+    }
+  }
+
+  static async updateUserData(userId: string, data: Partial<any>) {
+    try {
+      const docRef = doc(db, 'users', userId);
+      await updateDoc(docRef, {
+        ...data,
+        updatedAt: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error updating user data:', error);
+      throw error;
+    }
+  }
+
+  static subscribeToUserData(userId: string, callback: (data: any) => void) {
+    const userRef = doc(db, 'users', userId);
+    return onSnapshot(userRef, (doc) => {
+      if (doc.exists()) {
+        callback(doc.data());
+      }
+    });
+  }
+}
 
 export class UserBalanceService {
   static async createUserBalance(userId: string, initialBalance: number = 0) {
     try {
-      await setDoc(doc(db, 'users', userId), {
-        balance: initialBalance,
-        createdAt: new Date().toISOString()
-      });
+      await UserService.updateUserData(userId, { balance: initialBalance });
     } catch (error) {
       console.error('Error creating user balance:', error);
       throw error;
@@ -22,46 +80,16 @@ export class UserBalanceService {
       return () => {};
     }
     
-    const userRef = doc(db, 'users', userId);
-    
-    return onSnapshot(userRef, {
-      next: (snapshot) => {
-        if (!snapshot.exists()) {
-          console.log('Creating new user document');
-          this.createUserBalance(userId, 0)
-            .then(() => callback(0))
-            .catch(err => console.error('Error creating user balance:', err));
-          return;
-        }
-
-        const data = snapshot.data();
-        const balance = data?.balance;
-        
-        if (balance === undefined) {
-          console.warn('No balance field in document');
-          callback(0);
-          return;
-        }
-
-        const numericBalance = typeof balance === 'number' ? 
-          balance : 
-          parseFloat(String(balance)) || 0;
-        
-        console.log('Updated balance:', numericBalance);
-        callback(numericBalance);
-      },
-      error: (error) => {
-        console.error('Balance subscription error:', error);
-        callback(0);
-      }
+    return UserService.subscribeToUserData(userId, (userData) => {
+      const balance = userData?.balance ?? 0;
+      callback(typeof balance === 'number' ? balance : parseFloat(String(balance)) || 0);
     });
   }
 
   static async getUserBalance(userId: string): Promise<number> {
     try {
-      const docRef = doc(db, 'users', userId);
-      const docSnap = await getDoc(docRef);
-      return docSnap.exists() ? docSnap.data().balance : 0;
+      const userData = await UserService.getUserData(userId);
+      return userData?.balance ?? 0;
     } catch (error) {
       console.error('Error getting user balance:', error);
       throw error;
@@ -70,32 +98,10 @@ export class UserBalanceService {
 
   static async updateUserBalance(userId: string, newBalance: number) {
     try {
-      const docRef = doc(db, 'users', userId);
-      await updateDoc(docRef, {
-        balance: newBalance,
-        updatedAt: new Date().toISOString()
-      });
+      await UserService.updateUserData(userId, { balance: newBalance });
     } catch (error) {
       console.error('Error updating user balance:', error);
       throw error;
     }
-  }
-
-  static subscribeToBalanceUpdates(userId: string, callback: (balance: number) => void) {
-    const docRef = doc(db, 'users', userId);
-    return onSnapshot(docRef, (doc) => {
-      if (doc.exists()) {
-        const data = doc.data();
-        const balance = typeof data.balance === 'number' ? data.balance : parseFloat(data.balance) || 0;
-        console.log('Firebase data update:', data); // Debug log
-        callback(balance);
-      } else {
-        console.log('No document exists for user:', userId);
-        callback(0);
-      }
-    }, (error) => {
-      console.error('Firebase subscription error:', error);
-      callback(0);
-    });
   }
 }
