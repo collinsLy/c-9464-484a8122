@@ -92,6 +92,20 @@ const SettingsPage = () => {
         await updateEmail(user, data.email);
       }
 
+      // Update the initial values after successful save
+      setInitialValues({
+        name: data.name,
+        email: data.email,
+        phone: data.phone
+      });
+      
+      // Reset form with new values
+      profileForm.reset({
+        name: data.name,
+        email: data.email,
+        phone: data.phone
+      });
+
       toast({
         title: "Success",
         description: "Your profile information has been updated successfully",
