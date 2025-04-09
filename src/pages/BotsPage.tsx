@@ -13,7 +13,7 @@ import {
   ArrowUpRight, ArrowDownRight, Filter, SlidersHorizontal 
 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-import UserBalanceService from "@/services/UserBalanceService"; // Assuming this service exists
+import { UserBalanceService } from "@/lib/firebase-service";
 
 
 const BotsPage = () => {
