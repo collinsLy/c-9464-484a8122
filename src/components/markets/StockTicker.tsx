@@ -35,7 +35,7 @@ export function StockTicker() {
           await new Promise(resolve => setTimeout(resolve, 1000));
         }
       } catch (error) {
-        console.error('Failed to fetch stock data:', error);
+        // Silently handle errors
       }
     };
 

@@ -25,8 +25,7 @@ const MarketOverview = () => {
         setMarketData(formattedData);
         setLoading(false);
       } catch (err) {
-        console.error('Failed to fetch market data:', err);
-        // Silently handle the error without showing toast
+        // Silently handle errors
         setLoading(false);
       }
     };
