@@ -83,9 +83,15 @@ const BotsPage = () => {
                   
                   <ScrollArea className="h-[calc(100vh-300px)] rounded-md border border-white/10 p-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <div className="text-center py-8 text-muted-foreground col-span-full">
-                        No bots available in marketplace at the moment.
-                      </div>
+                      {botTiers.map((bot) => (
+                        <BotCard
+                          key={bot.id}
+                          bot={bot}
+                          onTradeClick={() => {}}
+                          isDemoMode={isDemoMode}
+                          userBalance={0}
+                        />
+                      ))}
                     </div>
                   </ScrollArea>
                 </div>
