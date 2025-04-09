@@ -26,6 +26,12 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
   const minBalance = getMinBalance(bot.id);
   const hasRequiredBalance = isDemoMode || userBalance >= minBalance;
 
+  const handleClick = () => {
+    if (hasRequiredBalance) {
+      onTradeClick(bot);
+    }
+  };
+
   return (
     <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white overflow-hidden">
       <CardHeader>
@@ -67,11 +73,12 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
       <CardFooter>
         <Button 
           className="w-full"
-          onClick={() => onTradeClick(bot)}
+          onClick={handleClick}
           disabled={!hasRequiredBalance && !isDemoMode}
+          variant={hasRequiredBalance ? "default" : "secondary"}
         >
           <Play className="mr-2 h-4 w-4" />
-          {hasRequiredBalance ? 'Trade' : `Deposit $${minBalance} to Trade`}
+          {hasRequiredBalance ? 'Trade' : `Deposit $${minBalance - userBalance} more to Trade`}
         </Button>
       </CardFooter>
     </Card>
