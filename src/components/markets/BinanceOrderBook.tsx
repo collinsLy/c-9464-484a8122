@@ -1,12 +1,12 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { binanceService } from '@/lib/binance-service';
 import { cn } from '@/lib/utils';
-import { fetchBinanceData } from "@/lib/api-proxy"; // Added import statement
+import { fetchBinanceData } from "@/lib/api-proxy";
 
 interface BinanceOrderBookProps {
   symbol: string;
@@ -44,14 +44,14 @@ const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
-    const updateInterval = 1000; // Batch updates every second
+    const updateInterval = 1000;
 
     const fetchOrderBook = async () => {
       if (!symbol) return;
 
       try {
         setError(null);
-        const data = await fetchBinanceData(`depth?symbol=${symbol}&limit=20`); // Updated fetch call
+        const data = await fetchBinanceData(`depth?symbol=${symbol}&limit=20`);
 
         if (!data || !data.bids || !data.asks) {
           throw new Error('Invalid order book data received');
@@ -73,7 +73,7 @@ const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
 
     fetchOrderBook();
     return () => clearTimeout(timeoutId);
-  }, [symbol, processOrders, fetchBinanceData]); // Added fetchBinanceData to dependencies
+  }, [symbol, processOrders]);
 
   const renderOrders = (orders: OrderData[], isAsk: boolean) => (
     <div className="space-y-1 h-[300px] overflow-y-auto">
@@ -86,7 +86,7 @@ const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
             order.hasChanged && (isAsk ? "bg-red-500/10" : "bg-green-500/10")
           )}
           style={{
-            opacity: Math.max(0.4, 1 - (i * 0.05)) // Progressive fading
+            opacity: Math.max(0.4, 1 - (i * 0.05))
           }}
         >
           <div className="absolute left-0 h-full bg-accent/10" 
