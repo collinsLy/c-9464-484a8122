@@ -7,6 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 
+import React, { useEffect, useState } from 'react';
+import { PriceService } from '@/lib/price-service';
+
 const AssetsPage = () => {
   const [balance, setBalance] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
