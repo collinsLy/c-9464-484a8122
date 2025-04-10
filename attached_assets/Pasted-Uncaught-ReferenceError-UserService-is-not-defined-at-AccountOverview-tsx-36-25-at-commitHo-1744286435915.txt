@@ -1,0 +1,51 @@
+Uncaught ReferenceError: UserService is not defined
+    at AccountOverview.tsx:36:25
+    at commitHookEffectListMount (chunk-R6S4VRB5.js?v=797645a7:16915:34)
+    at commitPassiveMountOnFiber (chunk-R6S4VRB5.js?v=797645a7:18156:19)
+    at commitPassiveMountEffects_complete (chunk-R6S4VRB5.js?v=797645a7:18129:17)
+    at commitPassiveMountEffects_begin (chunk-R6S4VRB5.js?v=797645a7:18119:15)
+    at commitPassiveMountEffects (chunk-R6S4VRB5.js?v=797645a7:18109:11)
+    at flushPassiveEffectsImpl (chunk-R6S4VRB5.js?v=797645a7:19490:11)
+    at flushPassiveEffects (chunk-R6S4VRB5.js?v=797645a7:19447:22)
+    at performSyncWorkOnRoot (chunk-R6S4VRB5.js?v=797645a7:18868:11)
+    at flushSyncCallbacks (chunk-R6S4VRB5.js?v=797645a7:9119:30)Understand this error
+hook.js:608 The above error occurred in the <AccountOverview> component:
+
+    at AccountOverview (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/src/components/dashboard/AccountOverview.tsx:17:28)
+    at div
+    at div
+    at main
+    at div
+    at div
+    at DashboardProvider (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/src/components/dashboard/DashboardLayout.tsx:16:37)
+    at DashboardLayout (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/src/components/dashboard/DashboardLayout.tsx:45:43)
+    at Dashboard (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/src/pages/Dashboard.tsx:23:49)
+    at RenderedRoute (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=797645a7:4069:5)
+    at Routes (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=797645a7:4508:5)
+    at DashboardProvider (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/src/components/dashboard/DashboardLayout.tsx:16:37)
+    at Router (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=797645a7:4451:15)
+    at BrowserRouter (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=797645a7:5196:5)
+    at Provider (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/node_modules/.vite/deps/chunk-AFJ6VPUJ.js?v=797645a7:38:15)
+    at TooltipProvider (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=797645a7:63:5)
+    at QueryClientProvider (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/node_modules/.vite/deps/@tanstack_react-query.js?v=797645a7:2794:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+overrideMethod @ hook.js:608Understand this error
+chunk-R6S4VRB5.js?v=797645a7:9129 Uncaught ReferenceError: UserService is not defined
+    at AccountOverview.tsx:36:25
+    at commitHookEffectListMount (chunk-R6S4VRB5.js?v=797645a7:16915:34)
+    at commitPassiveMountOnFiber (chunk-R6S4VRB5.js?v=797645a7:18156:19)
+    at commitPassiveMountEffects_complete (chunk-R6S4VRB5.js?v=797645a7:18129:17)
+    at commitPassiveMountEffects_begin (chunk-R6S4VRB5.js?v=797645a7:18119:15)
+    at commitPassiveMountEffects (chunk-R6S4VRB5.js?v=797645a7:18109:11)
+    at flushPassiveEffectsImpl (chunk-R6S4VRB5.js?v=797645a7:19490:11)
+    at flushPassiveEffects (chunk-R6S4VRB5.js?v=797645a7:19447:22)
+    at performSyncWorkOnRoot (chunk-R6S4VRB5.js?v=797645a7:18868:11)
+    at flushSyncCallbacks (chunk-R6S4VRB5.js?v=797645a7:9119:30)Understand this error
+tv.js:1 Uncaught TypeError: Cannot read properties of null (reading 'parentNode')
+    at h (tv.js:1:20097)
+    at widget.create (tv.js:1:11966)
+    at new widget (tv.js:1:7578)
+    at script.onload (TradingViewChart.tsx:22:9)Understand this error
