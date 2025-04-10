@@ -102,15 +102,19 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
       
       <aside className={cn(
         "flex flex-col bg-background/40 backdrop-blur-lg border-r border-white/10 transition-all duration-300 h-screen z-40",
-        collapsed ? "w-16" : "w-60",
+        collapsed ? "w-24" : "w-64", // Increased width for both states
         isMobile ? "fixed left-0 top-0" : "relative",
         isMobile && !mobileOpen ? "-translate-x-full" : "translate-x-0"
       )}>
         <div className={cn(
-          "flex items-center h-16 px-3 mb-6",
-          collapsed ? "justify-center" : "justify-between"
+          "flex items-center h-16 px-3 mb-4",
+          collapsed ? "justify-between" : "justify-between"
         )}>
-          {!collapsed && <div className="text-xl font-bold text-white truncate">Vertex Trading</div>}
+          <div className={cn("flex items-center", collapsed ? "justify-center" : "")}>
+            <div className={cn("font-bold text-white", collapsed ? "text-sm" : "text-lg")}>
+              {collapsed ? "Vertex" : "Vertex Trading"}
+            </div>
+          </div>
           <Button 
             variant="ghost" 
             size="icon"
@@ -131,16 +135,17 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
               className={cn(
                 "w-full justify-start text-white/70 hover:text-white hover:bg-white/10",
                 activeTab === item.id && "bg-white/10 text-white",
-                collapsed ? "px-2" : "justify-start",
-                "h-11" // Slightly taller buttons for better mobile touch targets
+                "h-11 px-3", // Consistent padding for better alignment
               )}
               onClick={() => isMobile && setMobileOpen(false)} // Close sidebar on nav click (mobile)
             >
               <Link to={item.path} className="flex items-center w-full">
-                <item.icon className="h-5 w-5 flex-shrink-0 mr-2" />
-                <span className={cn("truncate", collapsed ? "text-xs" : "text-sm")}>
-                  {item.label}
-                </span>
+                <div className="flex items-center">
+                  <item.icon className={cn("h-5 w-5 flex-shrink-0", collapsed ? "mr-1" : "mr-3")} />
+                  <span className={cn("font-medium", collapsed ? "text-xs" : "text-sm")}>
+                    {item.label}
+                  </span>
+                </div>
               </Link>
             </Button>
           ))}
