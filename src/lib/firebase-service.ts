@@ -67,9 +67,49 @@ export class UserService {
 export class UserBalanceService {
   static async createUserBalance(userId: string, initialBalance: number = 0) {
     try {
-      await UserService.updateUserData(userId, { balance: initialBalance });
+      await UserService.updateUserData(userId, { 
+        balance: initialBalance,
+        initialBalance: initialBalance,
+        totalProfitLoss: 0,
+        trades: {
+          totalWins: 0,
+          totalLosses: 0,
+          winAmount: 0,
+          lossAmount: 0
+        }
+      });
     } catch (error) {
       console.error('Error creating user balance:', error);
+      throw error;
+    }
+  }
+
+  static async updateTradeStats(userId: string, isWin: boolean, amount: number, profitLoss: number) {
+    try {
+      const userData = await UserService.getUserData(userId);
+      const trades = userData?.trades || {
+        totalWins: 0,
+        totalLosses: 0,
+        winAmount: 0,
+        lossAmount: 0
+      };
+
+      if (isWin) {
+        trades.totalWins++;
+        trades.winAmount += profitLoss;
+      } else {
+        trades.totalLosses++;
+        trades.lossAmount += amount;
+      }
+
+      const totalProfitLoss = trades.winAmount - trades.lossAmount;
+
+      await UserService.updateUserData(userId, { 
+        trades,
+        totalProfitLoss
+      });
+    } catch (error) {
+      console.error('Error updating trade stats:', error);
       throw error;
     }
   }

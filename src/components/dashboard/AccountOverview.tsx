@@ -19,6 +19,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   const [balance, setBalance] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [profitLoss, setProfitLoss] = useState(0);
+  const [profitLossPercent, setProfitLossPercent] = useState(0);
 
   useEffect(() => {
     const uid = localStorage.getItem('userId');
@@ -32,14 +33,18 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
     console.log('Subscribing to balance updates for user:', uid);
     
     // Use UserBalanceService to subscribe to balance updates
-    const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
-      console.log('Received balance update:', newBalance, typeof newBalance);
-      const parsedBalance = typeof newBalance === 'string' ? parseFloat(newBalance) : newBalance;
+    const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
+      const parsedBalance = typeof userData.balance === 'string' ? parseFloat(userData.balance) : userData.balance;
+      const initialBalance = userData.initialBalance || parsedBalance;
+      const totalPL = userData.totalProfitLoss || 0;
+      
       if (isNaN(parsedBalance)) {
-        console.error('Invalid balance value received:', newBalance);
+        console.error('Invalid balance value received:', userData.balance);
         setBalance(0);
       } else {
         setBalance(parsedBalance);
+        setProfitLoss(totalPL);
+        setProfitLossPercent((totalPL / initialBalance) * 100);
       }
       setIsLoading(false);
     });
@@ -208,12 +213,18 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold text-green-400">
-            {isDemoMode ? "+$0.00" : "+$0.00"}
+          <div className={`text-3xl font-bold ${profitLoss >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            {isDemoMode ? "+$0.00" : `${profitLoss >= 0 ? '+' : '-'}$${Math.abs(profitLoss).toFixed(2)}`}
           </div>
           <div className="flex items-center mt-1 text-sm">
-            <TrendingUp className="w-4 h-4 mr-1 text-green-400" />
-            <span className="text-green-400">+0.00%</span>
+            {profitLoss >= 0 ? (
+              <TrendingUp className="w-4 h-4 mr-1 text-green-400" />
+            ) : (
+              <TrendingDown className="w-4 h-4 mr-1 text-red-400" />
+            )}
+            <span className={profitLoss >= 0 ? 'text-green-400' : 'text-red-400'}>
+              {profitLoss >= 0 ? '+' : '-'}{Math.abs(profitLossPercent).toFixed(2)}%
+            </span>
             <span className="ml-1 text-white/60">all time</span>
           </div>
         </CardContent>

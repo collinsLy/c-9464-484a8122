@@ -104,12 +104,15 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
 
         localStorage.setItem(`liveTradeCount_${uid}`, (tradeCount + 1).toString());
         if (isWin) {
+          const profit = minBalance * 0.8;
           const finalBalance = newBalance + (minBalance * 1.8);
           await UserBalanceService.updateUserBalance(uid, finalBalance);
+          await UserBalanceService.updateTradeStats(uid, true, minBalance, profit);
           toast.success(`Trade Won!`, {
-            description: `Profit: $${(minBalance * 0.8).toFixed(2)}. New Balance: $${finalBalance.toFixed(2)}`,
+            description: `Profit: $${profit.toFixed(2)}. New Balance: $${finalBalance.toFixed(2)}`,
           });
         } else {
+          await UserBalanceService.updateTradeStats(uid, false, minBalance, 0);
           toast.error(`Trade Lost`, {
             description: `Loss: $${minBalance.toFixed(2)}. New Balance: $${newBalance.toFixed(2)}`,
           });
