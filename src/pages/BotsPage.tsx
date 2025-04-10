@@ -22,6 +22,7 @@ const BotsPage = () => {
   const { isDemoMode } = useDashboardContext();
   const [selectedTab, setSelectedTab] = useState("marketplace");
   const [userBalance, setUserBalance] = useState(0);
+  const [profitLossPercent, setProfitLossPercent] = useState(0);
   const [selectedSymbol, setSelectedSymbol] = useState("BTCUSD");
   const [selectedTimeframe, setSelectedTimeframe] = useState("1D");
 
@@ -69,22 +70,6 @@ const BotsPage = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between mb-6">
-          <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white w-64">
-            <CardHeader className="py-3">
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle className="text-sm text-white/70">Available Balance</CardTitle>
-                  <div className="text-xl font-bold mt-1">
-                    ${isDemoMode ? parseFloat(localStorage.getItem('demoBalance') || '10000').toFixed(2) : userBalance.toFixed(2)}
-                  </div>
-                </div>
-                <Wallet className="h-8 w-8 text-white/50" />
-              </div>
-            </CardHeader>
-          </Card>
-        </div>
-
         <MarketChart
           selectedSymbol={selectedSymbol}
           selectedTimeframe={selectedTimeframe}
@@ -146,10 +131,26 @@ const BotsPage = () => {
                         className="pl-10 bg-background/40 backdrop-blur-lg border-white/10 text-white"
                       />
                     </div>
-                    <Button variant="outline" className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
-                      <SlidersHorizontal className="mr-2 h-4 w-4" />
-                      Sort & Filter
-                    </Button>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center bg-background/40 backdrop-blur-lg border border-white/10 rounded-md px-4 py-2">
+                        <div className="mr-4">
+                          <div className="text-sm text-white/70">Available Balance</div>
+                          <div className="text-lg font-bold text-white">
+                            ${isDemoMode ? parseFloat(localStorage.getItem('demoBalance') || '10000').toFixed(2) : userBalance.toFixed(2)}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-sm text-white/70">P/L %</div>
+                          <div className={`text-lg font-bold ${profitLossPercent >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {profitLossPercent >= 0 ? '+' : ''}{profitLossPercent?.toFixed(2)}%
+                          </div>
+                        </div>
+                      </div>
+                      <Button variant="outline" className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
+                        <SlidersHorizontal className="mr-2 h-4 w-4" />
+                        Sort & Filter
+                      </Button>
+                    </div>
                   </div>
 
                   <ScrollArea className="h-[calc(100vh-300px)] rounded-md border border-white/10 p-4">
