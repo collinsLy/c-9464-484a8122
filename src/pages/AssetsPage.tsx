@@ -71,9 +71,7 @@ const AssetsPage = () => {
                 </span>
               </div>
             </div>
-            <div className="mt-6 h-[200px]">
-              <TradingViewChart symbol="USDTUSD" height={200} interval="1D" theme="dark" />
-            </div>
+            
           </CardContent>
         </Card>
 
