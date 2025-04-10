@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { UserBalanceService } from "@/lib/firebase-service";
+import { Wallet } from "@/components/ui/icons"; // Assuming this import is correct
 
 
 const BotsPage = () => {
@@ -68,6 +69,22 @@ const BotsPage = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
+        <div className="flex items-center justify-between mb-6">
+          <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white w-64">
+            <CardHeader className="py-3">
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle className="text-sm text-white/70">Available Balance</CardTitle>
+                  <div className="text-xl font-bold mt-1">
+                    ${isDemoMode ? parseFloat(localStorage.getItem('demoBalance') || '10000').toFixed(2) : userBalance.toFixed(2)}
+                  </div>
+                </div>
+                <Wallet className="h-8 w-8 text-white/50" />
+              </div>
+            </CardHeader>
+          </Card>
+        </div>
+
         <MarketChart
           selectedSymbol={selectedSymbol}
           selectedTimeframe={selectedTimeframe}
