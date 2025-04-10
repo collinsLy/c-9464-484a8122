@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -168,7 +167,7 @@ export const CryptoConverter = () => {
                 disabled={!isValidAmount()}
                 onClick={async () => {
                   if (!isValidAmount()) return;
-                  
+
                   const uid = localStorage.getItem('userId');
                   if (!uid) return;
 
@@ -176,22 +175,18 @@ export const CryptoConverter = () => {
                     setLoading(true);
                     const numAmount = parseFloat(amount);
                     const convertedAmount = numAmount / currentPrice;
-                    
+
                     // Get current user data
                     const userData = await UserService.getUserData(uid);
                     if (!userData) {
                       throw new Error('User data not found');
                     }
 
-                    // Calculate new balances
-                    const fromAsset = fromCurrency.symbol;
-                    const toAsset = toCurrency.symbol;
-                    
                     // Create transaction record first
                     const transaction = {
                       type: 'Conversion',
-                      fromAsset,
-                      toAsset,
+                      fromAsset: fromCurrency.symbol,
+                      toAsset: toCurrency.symbol,
                       fromAmount: numAmount,
                       toAmount: convertedAmount,
                       timestamp: new Date().toISOString(),
@@ -201,36 +196,38 @@ export const CryptoConverter = () => {
 
                     // Initialize assets if not exists
                     const updatedAssets = { ...(userData.assets || {}) };
-                    
-                    // Deduct from source
-                    if (fromAsset === 'USDT') {
+
+                    // Handle the conversion
+                    if (fromCurrency.symbol === 'USDT') {
+                      // Check USDT balance
                       if (userData.balance < numAmount) {
                         throw new Error('Insufficient USDT balance');
                       }
                       userData.balance = Number((userData.balance - numAmount).toFixed(8));
                     } else {
-                      const currentFromAmount = updatedAssets[fromAsset]?.amount || 0;
-                      if (currentFromAmount < numAmount) {
-                        throw new Error(`Insufficient ${fromAsset} balance`);
+                      // Check crypto balance
+                      const fromAssetBalance = updatedAssets[fromCurrency.symbol]?.amount || 0;
+                      if (fromAssetBalance < numAmount) {
+                        throw new Error(`Insufficient ${fromCurrency.symbol} balance`);
                       }
-                      updatedAssets[fromAsset] = {
-                        amount: Number((currentFromAmount - numAmount).toFixed(8)),
-                        symbol: fromAsset
-                      };
-                    }
-                    
-                    // Add to target
-                    if (toAsset === 'USDT') {
-                      userData.balance = Number((userData.balance + convertedAmount).toFixed(8));
-                    } else {
-                      const currentToAmount = updatedAssets[toAsset]?.amount || 0;
-                      updatedAssets[toAsset] = {
-                        amount: Number((currentToAmount + convertedAmount).toFixed(8)),
-                        symbol: toAsset
+                      updatedAssets[fromCurrency.symbol] = {
+                        amount: Number((fromAssetBalance - numAmount).toFixed(8)),
+                        symbol: fromCurrency.symbol
                       };
                     }
 
-                    // Prepare final update
+                    // Add converted amount to destination
+                    if (toCurrency.symbol === 'USDT') {
+                      userData.balance = Number((userData.balance + convertedAmount).toFixed(8));
+                    } else {
+                      const toAssetBalance = updatedAssets[toCurrency.symbol]?.amount || 0;
+                      updatedAssets[toCurrency.symbol] = {
+                        amount: Number((toAssetBalance + convertedAmount).toFixed(8)),
+                        symbol: toCurrency.symbol
+                      };
+                    }
+
+                    // Prepare final update with all changes
                     const finalData = {
                       ...userData,
                       balance: userData.balance,
