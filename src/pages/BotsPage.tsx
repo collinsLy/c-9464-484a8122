@@ -32,19 +32,18 @@ const BotsPage = () => {
       const percentChange = ((currentBalance - initialBalance) / initialBalance) * 100;
       setProfitLossPercent(percentChange);
     } else if (uid) {
-      const unsubscribe = UserBalanceService.subscribeToTradeStats(uid, (stats) => {
-        if (stats) {
-          const wins = stats.wins || 0;
-          const losses = stats.losses || 0;
-          const totalTrades = wins + losses;
-          const profitAmount = stats.totalProfit || 0;
-          const percentChange = totalTrades > 0 ? (profitAmount / (stats.initialBalance || userBalance)) * 100 : 0;
+      const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
+        if (userData) {
+          const initialBalance = userData.initialBalance || userData.balance;
+          const currentBalance = userData.balance;
+          const totalProfitLoss = userData.totalProfitLoss || 0;
+          const percentChange = initialBalance > 0 ? (totalProfitLoss / initialBalance) * 100 : 0;
           setProfitLossPercent(percentChange);
         }
       });
       return () => unsubscribe();
     }
-  }, [isDemoMode, userBalance]);
+  }, [isDemoMode]);
   const [selectedSymbol, setSelectedSymbol] = useState("BTCUSD");
   const [selectedTimeframe, setSelectedTimeframe] = useState("1D");
 
