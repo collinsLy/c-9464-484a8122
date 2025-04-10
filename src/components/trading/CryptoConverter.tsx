@@ -68,14 +68,7 @@ export const CryptoConverter = () => {
         <p className="text-sm text-white/70">Instant Price | Guaranteed Price | Any Pair</p>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="instant" className="w-full">
-          <TabsList className="w-full mb-6">
-            <TabsTrigger value="instant" className="flex-1">Instant</TabsTrigger>
-            <TabsTrigger value="recurring" className="flex-1">Recurring</TabsTrigger>
-            <TabsTrigger value="limit" className="flex-1">Limit</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="instant">
+        <div className="w-full">
             <div className="space-y-4">
               <div className="space-y-2">
                 <div className="flex justify-between">
@@ -156,8 +149,7 @@ export const CryptoConverter = () => {
                 {!amount ? 'Enter an amount' : isValidAmount() ? 'Convert' : 'Insufficient balance'}
               </Button>
             </div>
-          </TabsContent>
-        </Tabs>
+        </div>
       </CardContent>
     </Card>
   );
