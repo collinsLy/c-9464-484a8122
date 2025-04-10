@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import MarketChart from "@/components/dashboard/MarketChart";
 import { botTiers } from "@/features/automated-trading/data/bots";
 import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
 import { BotCard } from "@/features/automated-trading/components/BotCard";
@@ -20,6 +21,8 @@ const BotsPage = () => {
   const { isDemoMode } = useDashboardContext();
   const [selectedTab, setSelectedTab] = useState("marketplace");
   const [userBalance, setUserBalance] = useState(0);
+  const [selectedSymbol, setSelectedSymbol] = useState("BTCUSD");
+  const [selectedTimeframe, setSelectedTimeframe] = useState("1D");
 
   useEffect(() => {
     const uid = localStorage.getItem('userId');
@@ -65,6 +68,12 @@ const BotsPage = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
+        <MarketChart
+          selectedSymbol={selectedSymbol}
+          selectedTimeframe={selectedTimeframe}
+          onSymbolChange={setSelectedSymbol}
+          onTimeframeChange={setSelectedTimeframe}
+        />
         <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
           <CardHeader>
             <CardTitle>Trading Bots</CardTitle>
