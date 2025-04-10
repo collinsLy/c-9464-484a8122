@@ -49,18 +49,37 @@ const SupportPage = () => {
     message: ""
   });
 
-  const handleContactSubmit = (e: React.FormEvent) => {
+  const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Support ticket submitted",
-      description: "We'll get back to you within 24 hours.",
-    });
-    setContactForm({
-      name: "",
-      email: "",
-      subject: "",
-      message: ""
-    });
+    try {
+      const { collection, addDoc } = await import('firebase/firestore');
+      const { db } = await import('@/lib/firebase');
+      
+      await addDoc(collection(db, 'support_tickets'), {
+        ...contactForm,
+        createdAt: new Date().toISOString(),
+        status: 'pending'
+      });
+
+      toast({
+        title: "Support ticket submitted",
+        description: "We'll get back to you within 24 hours.",
+      });
+      
+      setContactForm({
+        name: "",
+        email: "",
+        subject: "",
+        message: ""
+      });
+    } catch (error) {
+      console.error('Error submitting support ticket:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit support ticket. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
