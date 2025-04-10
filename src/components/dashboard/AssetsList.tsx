@@ -64,7 +64,7 @@ const AssetsList = ({ isDemoMode = false }: AssetsListProps) => {
               name: symbol,
               symbol: symbol,
               balance: data.amount,
-              value: data.amount, // You might want to fetch current prices to calculate accurate value
+              value: data.amount * (await binanceService.getPrice(`${symbol}USDT`).then(price => parseFloat(price.price)).catch(() => 1)),
               change: 0,
               logoUrl: `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${symbol.toLowerCase()}.svg`
             });
