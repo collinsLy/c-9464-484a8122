@@ -101,9 +101,7 @@ const TransactionHistory = ({ isDemoMode = false }: TransactionHistoryProps) => 
                   <TableCell>{formatMethod(tx.method, tx.details)}</TableCell>
                   <TableCell>${tx.amount.toLocaleString()}</TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      tx.status === 'completed' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
-                    }`}>
+                    <span className="px-2 py-1 rounded-full text-xs bg-green-500/20 text-green-400">
                       {tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}
                     </span>
                   </TableCell>
