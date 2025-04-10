@@ -32,16 +32,18 @@ const BotsPage = () => {
       const percentChange = ((currentBalance - initialBalance) / initialBalance) * 100;
       setProfitLossPercent(percentChange);
     } else if (uid) {
-      // For real trading mode
-      const unsubscribe = UserBalanceService.subscribeToTradeStats(uid, (stats) => {
-        if (stats && stats.initialBalance > 0) {
-          const percentChange = ((userBalance - stats.initialBalance) / stats.initialBalance) * 100;
+      const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
+        const currentBalance = userData?.balance || 0;
+        const initialBalance = userData?.initialBalance || currentBalance;
+        const totalPL = userData?.totalProfitLoss || 0;
+        if (initialBalance > 0) {
+          const percentChange = (totalPL / initialBalance) * 100;
           setProfitLossPercent(percentChange);
         }
       });
       return () => unsubscribe();
     }
-  }, [isDemoMode, userBalance]);
+  }, [isDemoMode]);
   const [selectedSymbol, setSelectedSymbol] = useState("BTCUSD");
   const [selectedTimeframe, setSelectedTimeframe] = useState("1D");
 
@@ -151,10 +153,18 @@ const BotsPage = () => {
                       />
                     </div>
                     <div className="flex items-center gap-4">
-                      <div>
-                        <div className="text-sm text-white/70">Available Balance</div>
-                        <div className="text-lg font-bold text-white">
-                          ${isDemoMode ? parseFloat(localStorage.getItem('demoBalance') || '10000').toFixed(2) : userBalance.toFixed(2)}
+                      <div className="flex items-center bg-background/40 backdrop-blur-lg border border-white/10 rounded-md px-4 py-2">
+                        <div className="mr-4">
+                          <div className="text-sm text-white/70">Available Balance</div>
+                          <div className="text-lg font-bold text-white">
+                            ${isDemoMode ? parseFloat(localStorage.getItem('demoBalance') || '10000').toFixed(2) : userBalance.toFixed(2)}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-sm text-white/70">P/L %</div>
+                          <div className={`text-lg font-bold ${profitLossPercent >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {profitLossPercent >= 0 ? '+' : ''}{profitLossPercent?.toFixed(2)}%
+                          </div>
                         </div>
                       </div>
                       <Button variant="outline" className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
