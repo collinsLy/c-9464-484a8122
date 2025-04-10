@@ -1,3 +1,4 @@
+
 import { doc, onSnapshot, updateDoc, getDoc } from 'firebase/firestore';
 import { db, auth } from './firebase';
 
@@ -21,7 +22,21 @@ export class UserService {
     return updateDoc(userRef, data);
   }
 
-  async getUserBalance(userId: string): Promise<number> {
+  static async getUserData(uid: string) {
+    try {
+      const userRef = doc(db, 'users', uid);
+      const userDoc = await getDoc(userRef);
+      if (userDoc.exists()) {
+        return userDoc.data();
+      }
+      return null;
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      return null;
+    }
+  }
+
+  static async getUserBalance(userId: string): Promise<number> {
     try {
       const userRef = doc(db, 'users', userId);
       const userDoc = await getDoc(userRef);
@@ -36,7 +51,7 @@ export class UserService {
     }
   }
 
-  async updateUserBalance(userId: string, newBalance: number): Promise<void> {
+  static async updateUserBalance(userId: string, newBalance: number): Promise<void> {
     try {
       const userRef = doc(db, 'users', userId);
       await updateDoc(userRef, { balance: newBalance });
@@ -46,10 +61,9 @@ export class UserService {
     }
   }
 
-  getCurrentUserId(): string | null {
+  static getCurrentUserId(): string | null {
     return auth.currentUser?.uid || localStorage.getItem('userId');
   }
 }
 
-//Keeping the export for backward compatibility, but encourage use of static methods.
 export const userService = new UserService();
