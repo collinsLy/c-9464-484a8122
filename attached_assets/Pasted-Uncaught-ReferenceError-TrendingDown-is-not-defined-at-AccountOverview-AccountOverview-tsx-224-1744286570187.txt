@@ -1,0 +1,119 @@
+Uncaught ReferenceError: TrendingDown is not defined
+    at AccountOverview (AccountOverview.tsx:224:16)
+    at renderWithHooks (chunk-R6S4VRB5.js?v=797645a7:11548:26)
+    at updateFunctionComponent (chunk-R6S4VRB5.js?v=797645a7:14582:28)
+    at beginWork (chunk-R6S4VRB5.js?v=797645a7:15924:22)
+    at HTMLUnknownElement.callCallback2 (chunk-R6S4VRB5.js?v=797645a7:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-R6S4VRB5.js?v=797645a7:3699:24)
+    at invokeGuardedCallback (chunk-R6S4VRB5.js?v=797645a7:3733:39)
+    at beginWork$1 (chunk-R6S4VRB5.js?v=797645a7:19765:15)
+    at performUnitOfWork (chunk-R6S4VRB5.js?v=797645a7:19198:20)
+    at workLoopSync (chunk-R6S4VRB5.js?v=797645a7:19137:13)
+AccountOverview @ AccountOverview.tsx:224
+renderWithHooks @ chunk-R6S4VRB5.js?v=797645a7:11548
+updateFunctionComponent @ chunk-R6S4VRB5.js?v=797645a7:14582
+beginWork @ chunk-R6S4VRB5.js?v=797645a7:15924
+callCallback2 @ chunk-R6S4VRB5.js?v=797645a7:3674
+invokeGuardedCallbackDev @ chunk-R6S4VRB5.js?v=797645a7:3699
+invokeGuardedCallback @ chunk-R6S4VRB5.js?v=797645a7:3733
+beginWork$1 @ chunk-R6S4VRB5.js?v=797645a7:19765
+performUnitOfWork @ chunk-R6S4VRB5.js?v=797645a7:19198
+workLoopSync @ chunk-R6S4VRB5.js?v=797645a7:19137
+renderRootSync @ chunk-R6S4VRB5.js?v=797645a7:19116
+performConcurrentWorkOnRoot @ chunk-R6S4VRB5.js?v=797645a7:18678
+workLoop @ chunk-R6S4VRB5.js?v=797645a7:197
+flushWork @ chunk-R6S4VRB5.js?v=797645a7:176
+performWorkUntilDeadline @ chunk-R6S4VRB5.js?v=797645a7:384Understand this error
+AccountOverview.tsx:224 Uncaught ReferenceError: TrendingDown is not defined
+    at AccountOverview (AccountOverview.tsx:224:16)
+    at renderWithHooks (chunk-R6S4VRB5.js?v=797645a7:11548:26)
+    at updateFunctionComponent (chunk-R6S4VRB5.js?v=797645a7:14582:28)
+    at beginWork (chunk-R6S4VRB5.js?v=797645a7:15924:22)
+    at HTMLUnknownElement.callCallback2 (chunk-R6S4VRB5.js?v=797645a7:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-R6S4VRB5.js?v=797645a7:3699:24)
+    at invokeGuardedCallback (chunk-R6S4VRB5.js?v=797645a7:3733:39)
+    at beginWork$1 (chunk-R6S4VRB5.js?v=797645a7:19765:15)
+    at performUnitOfWork (chunk-R6S4VRB5.js?v=797645a7:19198:20)
+    at workLoopSync (chunk-R6S4VRB5.js?v=797645a7:19137:13)
+AccountOverview @ AccountOverview.tsx:224
+renderWithHooks @ chunk-R6S4VRB5.js?v=797645a7:11548
+updateFunctionComponent @ chunk-R6S4VRB5.js?v=797645a7:14582
+beginWork @ chunk-R6S4VRB5.js?v=797645a7:15924
+callCallback2 @ chunk-R6S4VRB5.js?v=797645a7:3674
+invokeGuardedCallbackDev @ chunk-R6S4VRB5.js?v=797645a7:3699
+invokeGuardedCallback @ chunk-R6S4VRB5.js?v=797645a7:3733
+beginWork$1 @ chunk-R6S4VRB5.js?v=797645a7:19765
+performUnitOfWork @ chunk-R6S4VRB5.js?v=797645a7:19198
+workLoopSync @ chunk-R6S4VRB5.js?v=797645a7:19137
+renderRootSync @ chunk-R6S4VRB5.js?v=797645a7:19116
+recoverFromConcurrentError @ chunk-R6S4VRB5.js?v=797645a7:18736
+performConcurrentWorkOnRoot @ chunk-R6S4VRB5.js?v=797645a7:18684
+workLoop @ chunk-R6S4VRB5.js?v=797645a7:197
+flushWork @ chunk-R6S4VRB5.js?v=797645a7:176
+performWorkUntilDeadline @ chunk-R6S4VRB5.js?v=797645a7:384Understand this error
+hook.js:608 The above error occurred in the <AccountOverview> component:
+
+    at AccountOverview (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/src/components/dashboard/AccountOverview.tsx:18:28)
+    at div
+    at div
+    at main
+    at div
+    at div
+    at DashboardProvider (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/src/components/dashboard/DashboardLayout.tsx:16:37)
+    at DashboardLayout (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/src/components/dashboard/DashboardLayout.tsx:45:43)
+    at Dashboard (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/src/pages/Dashboard.tsx:23:49)
+    at RenderedRoute (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=797645a7:4069:5)
+    at Routes (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=797645a7:4508:5)
+    at DashboardProvider (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/src/components/dashboard/DashboardLayout.tsx:16:37)
+    at Router (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=797645a7:4451:15)
+    at BrowserRouter (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=797645a7:5196:5)
+    at Provider (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/node_modules/.vite/deps/chunk-AFJ6VPUJ.js?v=797645a7:38:15)
+    at TooltipProvider (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=797645a7:63:5)
+    at QueryClientProvider (https://fbe9c4ce-214e-4917-ad65-7d7301ebadab-00-2kuj34saa8hmh.janeway.replit.dev/node_modules/.vite/deps/@tanstack_react-query.js?v=797645a7:2794:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+overrideMethod @ hook.js:608
+logCapturedError @ chunk-R6S4VRB5.js?v=797645a7:14032
+update.callback @ chunk-R6S4VRB5.js?v=797645a7:14052
+callCallback @ chunk-R6S4VRB5.js?v=797645a7:11248
+commitUpdateQueue @ chunk-R6S4VRB5.js?v=797645a7:11265
+commitLayoutEffectOnFiber @ chunk-R6S4VRB5.js?v=797645a7:17093
+commitLayoutMountEffects_complete @ chunk-R6S4VRB5.js?v=797645a7:17980
+commitLayoutEffects_begin @ chunk-R6S4VRB5.js?v=797645a7:17969
+commitLayoutEffects @ chunk-R6S4VRB5.js?v=797645a7:17920
+commitRootImpl @ chunk-R6S4VRB5.js?v=797645a7:19353
+commitRoot @ chunk-R6S4VRB5.js?v=797645a7:19277
+finishConcurrentRender @ chunk-R6S4VRB5.js?v=797645a7:18760
+performConcurrentWorkOnRoot @ chunk-R6S4VRB5.js?v=797645a7:18718
+workLoop @ chunk-R6S4VRB5.js?v=797645a7:197
+flushWork @ chunk-R6S4VRB5.js?v=797645a7:176
+performWorkUntilDeadline @ chunk-R6S4VRB5.js?v=797645a7:384Understand this error
+chunk-R6S4VRB5.js?v=797645a7:19413 Uncaught ReferenceError: TrendingDown is not defined
+    at AccountOverview (AccountOverview.tsx:224:16)
+    at renderWithHooks (chunk-R6S4VRB5.js?v=797645a7:11548:26)
+    at updateFunctionComponent (chunk-R6S4VRB5.js?v=797645a7:14582:28)
+    at beginWork (chunk-R6S4VRB5.js?v=797645a7:15924:22)
+    at beginWork$1 (chunk-R6S4VRB5.js?v=797645a7:19753:22)
+    at performUnitOfWork (chunk-R6S4VRB5.js?v=797645a7:19198:20)
+    at workLoopSync (chunk-R6S4VRB5.js?v=797645a7:19137:13)
+    at renderRootSync (chunk-R6S4VRB5.js?v=797645a7:19116:15)
+    at recoverFromConcurrentError (chunk-R6S4VRB5.js?v=797645a7:18736:28)
+    at performConcurrentWorkOnRoot (chunk-R6S4VRB5.js?v=797645a7:18684:30)
+AccountOverview @ AccountOverview.tsx:224
+renderWithHooks @ chunk-R6S4VRB5.js?v=797645a7:11548
+updateFunctionComponent @ chunk-R6S4VRB5.js?v=797645a7:14582
+beginWork @ chunk-R6S4VRB5.js?v=797645a7:15924
+beginWork$1 @ chunk-R6S4VRB5.js?v=797645a7:19753
+performUnitOfWork @ chunk-R6S4VRB5.js?v=797645a7:19198
+workLoopSync @ chunk-R6S4VRB5.js?v=797645a7:19137
+renderRootSync @ chunk-R6S4VRB5.js?v=797645a7:19116
+recoverFromConcurrentError @ chunk-R6S4VRB5.js?v=797645a7:18736
+performConcurrentWorkOnRoot @ chunk-R6S4VRB5.js?v=797645a7:18684
+workLoop @ chunk-R6S4VRB5.js?v=797645a7:197
+flushWork @ chunk-R6S4VRB5.js?v=797645a7:176
+performWorkUntilDeadline @ chunk-R6S4VRB5.js?v=797645a7:384Understand this error
+AccountOverview.tsx:54 Unsubscribing from balance updates
+3content.js:37 Uncaught (in promise) Error: Could not establish connection. Receiving end does not exist.
+    at P (content.js:37:8945)
