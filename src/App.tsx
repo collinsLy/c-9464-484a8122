@@ -1,6 +1,5 @@
-
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+//import { Toaster as Sonner } from "@/components/ui/sonner"; //Removed conflicting toaster
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DashboardProvider } from "@/components/dashboard/DashboardLayout";
@@ -24,23 +23,21 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
-      <Sonner />
       <BrowserRouter>
         <DashboardProvider>
           <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/market" element={<MarketPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/assets" element={<AssetsPage />} />
-          <Route path="/demo" element={<DemoPage />} />
-          <Route path="/bots" element={<BotsPage />} />
-          <Route path="/deposit" element={<DepositPage />} />
-          <Route path="/strategies" element={<StrategiesPage />} />
-          <Route path="/support" element={<SupportPage />} />
-          
-          <Route path="/withdraw" element={<WithdrawPage />} />
-        </Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/market" element={<MarketPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/assets" element={<AssetsPage />} />
+            <Route path="/demo" element={<DemoPage />} />
+            <Route path="/bots" element={<BotsPage />} />
+            <Route path="/deposit" element={<DepositPage />} />
+            <Route path="/strategies" element={<StrategiesPage />} />
+            <Route path="/support" element={<SupportPage />} />
+            <Route path="/withdraw" element={<WithdrawPage />} />
+          </Routes>
         </DashboardProvider>
       </BrowserRouter>
     </TooltipProvider>
