@@ -177,21 +177,72 @@ export const CryptoConverter = () => {
                     const numAmount = parseFloat(amount);
                     const convertedAmount = numAmount / currentPrice;
                     
-                    // Update user's balances
+                    // Get current user data
                     const userData = await UserService.getUserData(uid);
-                    const updatedData = {
-                      balance: userData.balance - numAmount,
-                      assets: {
-                        ...(userData.assets || {}),
-                        [toCurrency.symbol]: {
-                          amount: ((userData.assets?.[toCurrency.symbol]?.amount || 0) + convertedAmount),
-                          symbol: toCurrency.symbol
-                        }
+                    
+                    // Calculate new balances
+                    const fromAsset = fromCurrency.symbol;
+                    const toAsset = toCurrency.symbol;
+                    
+                    // Create updated assets object
+                    const updatedAssets = { ...(userData.assets || {}) };
+                    
+                    // Handle from asset (deduction)
+                    if (fromAsset === 'USDT') {
+                      // Update main balance if converting from USDT
+                      userData.balance -= numAmount;
+                    } else {
+                      // Update asset balance
+                      const currentFromAmount = updatedAssets[fromAsset]?.amount || 0;
+                      if (currentFromAmount >= numAmount) {
+                        updatedAssets[fromAsset] = {
+                          amount: currentFromAmount - numAmount,
+                          symbol: fromAsset
+                        };
                       }
+                    }
+                    
+                    // Handle to asset (credit)
+                    if (toAsset === 'USDT') {
+                      // Update main balance if converting to USDT
+                      userData.balance = (userData.balance || 0) + convertedAmount;
+                    } else {
+                      // Update or create asset entry
+                      const currentToAmount = updatedAssets[toAsset]?.amount || 0;
+                      updatedAssets[toAsset] = {
+                        amount: currentToAmount + convertedAmount,
+                        symbol: toAsset
+                      };
+                    }
+                    
+                    // Update user data with new balances
+                    const updatedData = {
+                      ...userData,
+                      balance: userData.balance,
+                      assets: updatedAssets
                     };
                     
                     await UserService.updateUserData(uid, updatedData);
                     setAmount('');
+                    
+                    // Record the transaction
+                    const transaction = {
+                      type: 'Conversion',
+                      fromAsset,
+                      toAsset,
+                      fromAmount: numAmount,
+                      toAmount: convertedAmount,
+                      timestamp: new Date().toISOString(),
+                      status: 'Completed'
+                    };
+                    
+                    if (!userData.transactions) {
+                      userData.transactions = [];
+                    }
+                    
+                    await UserService.updateUserData(uid, {
+                      transactions: [...userData.transactions, transaction]
+                    });
                     toast({
                       title: "Conversion Successful",
                       description: `Converted ${numAmount} ${fromCurrency.symbol} to ${convertedAmount.toFixed(8)} ${toCurrency.symbol}`,
