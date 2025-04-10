@@ -35,7 +35,15 @@ const AssetsList = ({ isDemoMode = false }: AssetsListProps) => {
   ];
   
   const liveAssets = userBalance > 0 ? [
-    { id: 1, name: "Tether", symbol: "USDT", balance: userBalance, value: userBalance, change: 0 }
+    { 
+      id: 1, 
+      name: "Tether", 
+      symbol: "USDT", 
+      balance: userBalance, 
+      value: userBalance, 
+      change: 0,
+      logoUrl: "https://upload.wikimedia.org/wikipedia/commons/e/e9/Tether_USDT.png"
+    }
   ] : [];
   
   const assets = isDemoMode ? demoAssets : liveAssets;
@@ -54,9 +62,13 @@ const AssetsList = ({ isDemoMode = false }: AssetsListProps) => {
                 className="flex items-center justify-between p-3 rounded-lg hover:bg-white/5 transition-colors"
               >
                 <div className="flex items-center">
-                  <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center mr-3">
-                    {asset.symbol.charAt(0)}
-                  </div>
+                  {asset.logoUrl ? (
+                    <img src={asset.logoUrl} alt={asset.symbol} className="w-8 h-8 rounded-full mr-3" />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center mr-3">
+                      {asset.symbol.charAt(0)}
+                    </div>
+                  )}
                   <div>
                     <div className="font-medium">{asset.name}</div>
                     <div className="text-sm text-white/60">{asset.balance.toFixed(2)} {asset.symbol}</div>
