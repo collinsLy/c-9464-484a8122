@@ -10,12 +10,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
-  SearchIcon, PlusCircle, TrendingUp, TrendingDown, 
+  Search, PlusCircle, TrendingUp, TrendingDown, 
   ArrowUpRight, ArrowDownRight, Filter, SlidersHorizontal,
   Wallet
 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-import { UserBalanceService } from "@/lib/firebase-service";
+import { UserService } from "@/lib/firebase-service";
 
 
 const BotsPage = () => {
@@ -35,8 +35,10 @@ const BotsPage = () => {
       return ((balance - initialBalance) / initialBalance) * 100;
     };
 
-    const unsubscribe = UserBalanceService.subscribeToUserData(uid, (userData) => {
-      const currentBalance = typeof userData.balance === 'string' ? parseFloat(userData.balance) : userData.balance;
+    const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
+      if (!userData) return;
+      
+      const currentBalance = typeof userData.balance === 'string' ? parseFloat(userData.balance) : (userData.balance || 0);
       const initialBalance = userData.initialBalance || currentBalance;
       
       setUserBalance(currentBalance);
