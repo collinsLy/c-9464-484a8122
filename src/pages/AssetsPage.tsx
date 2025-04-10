@@ -128,63 +128,7 @@ const AssetsPage = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
-          <CardHeader>
-            <CardTitle>Available Cryptocurrencies</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-2 flex-wrap mb-6">
-              <Button 
-                variant={selectedCrypto === 'BTC' ? 'secondary' : 'outline'}
-                onClick={() => setSelectedCrypto('BTC')}
-                className="flex items-center gap-2"
-              >
-                <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/btc.svg" alt="BTC" className="w-5 h-5" />
-                BTC
-              </Button>
-              <Button 
-                variant={selectedCrypto === 'USDT' ? 'secondary' : 'outline'}
-                onClick={() => setSelectedCrypto('USDT')}
-                className="flex items-center gap-2"
-              >
-                <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/usdt.svg" alt="USDT" className="w-5 h-5" />
-                USDT
-              </Button>
-              <Button 
-                variant={selectedCrypto === 'BNB' ? 'secondary' : 'outline'}
-                onClick={() => setSelectedCrypto('BNB')}
-                className="flex items-center gap-2"
-              >
-                <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/bnb.svg" alt="BNB" className="w-5 h-5" />
-                BNB
-              </Button>
-              <Button 
-                variant={selectedCrypto === 'WLD' ? 'secondary' : 'outline'}
-                onClick={() => setSelectedCrypto('WLD')}
-                className="flex items-center gap-2"
-              >
-                <img src="https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg" alt="WLD" className="w-5 h-5" />
-                WLD
-              </Button>
-              <Button 
-                variant={selectedCrypto === 'USDC' ? 'secondary' : 'outline'}
-                onClick={() => setSelectedCrypto('USDC')}
-                className="flex items-center gap-2"
-              >
-                <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/usdc.svg" alt="USDC" className="w-5 h-5" />
-                USDC
-              </Button>
-              <Button 
-                variant={selectedCrypto === 'SOL' ? 'secondary' : 'outline'}
-                onClick={() => setSelectedCrypto('SOL')}
-                className="flex items-center gap-2"
-              >
-                <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/sol.svg" alt="SOL" className="w-5 h-5" />
-                SOL
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        
 
         <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
           <CardHeader>
