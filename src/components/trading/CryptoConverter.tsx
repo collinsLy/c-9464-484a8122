@@ -143,7 +143,7 @@ export const CryptoConverter = () => {
               </div>
 
               <Button 
-                className="w-full bg-[#f0b90b] hover:bg-[#f0b90b]/90 text-black"
+                className="w-full bg-[#e3ef3b] hover:bg-[#e3ef3b]/90 text-black"
                 disabled={!isValidAmount()}
               >
                 {!amount ? 'Enter an amount' : isValidAmount() ? 'Convert' : 'Insufficient balance'}
