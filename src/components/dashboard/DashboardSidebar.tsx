@@ -127,7 +127,7 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
           </Button>
         </div>
         
-        <nav className="space-y-2 px-2 flex-1 overflow-y-auto smooth-scroll">
+        <nav className="space-y-2 px-2 flex-1">
           {navItems.map((item) => (
             <Button
               key={item.id}
