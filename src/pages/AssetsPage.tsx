@@ -79,30 +79,12 @@ const AssetsPage = () => {
   ];
 
   useEffect(() => {
-    const fetchPrices = async () => {
-      try {
-        const coinIds = ['bitcoin', 'tether', 'binancecoin', 'worldcoin', 'usd-coin', 'solana'];
-        const pricesData = await Promise.all(
-          coinIds.map(id => getCoinData(id))
-        );
-        
-        const newPrices = {};
-        pricesData.forEach((data, index) => {
-          const symbol = baseAssets[index].symbol;
-          if (data && data.market_data && data.market_data.current_price) {
-            newPrices[symbol] = data.market_data.current_price.usd;
-          }
-        });
-        setPrices(newPrices);
-      } catch (error) {
-        console.error('Error fetching prices from CoinGecko:', error);
-      }
-    };
+    // Subscribe to cached prices
+    const unsubscribe = PriceService.subscribeToPrices((newPrices) => {
+      setPrices(newPrices);
+    });
 
-    fetchPrices();
-    const interval = setInterval(fetchPrices, 30000); // Update every 30 seconds to respect rate limits
-
-    return () => clearInterval(interval);
+    return () => unsubscribe();
   }, []);
 
   const assets = baseAssets.map(asset => ({
