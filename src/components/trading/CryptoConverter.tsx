@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -142,7 +143,7 @@ export const CryptoConverter = () => {
               </div>
 
               <Button 
-                className="w-full bg-accent hover:bg-accent/90 text-black"
+                className="w-full bg-[#f0b90b] hover:bg-[#f0b90b]/90 text-black"
                 disabled={!isValidAmount()}
               >
                 {!amount ? 'Enter an amount' : isValidAmount() ? 'Convert' : 'Insufficient balance'}

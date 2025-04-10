@@ -24,7 +24,6 @@ export default {
         ring: "hsl(var(--ring))",
         background: "#0F1115",
         foreground: "#FFFFFF",
-        highlight: "#e3ef3b",
         primary: {
           DEFAULT: "#141413",
           foreground: "#FFFFFF",
