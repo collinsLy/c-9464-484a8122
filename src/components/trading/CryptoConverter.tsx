@@ -89,10 +89,10 @@ export const CryptoConverter = () => {
                     <select 
                       value={fromCurrency.symbol}
                       onChange={(e) => setFromCurrency(prev => ({ ...prev, symbol: e.target.value }))}
-                      className="bg-transparent text-white font-medium cursor-pointer outline-none"
+                      className="bg-transparent text-white font-medium cursor-pointer outline-none [&>option]:bg-[#0F1115]"
                     >
                       {cryptocurrencies.map(crypto => (
-                        <option key={crypto.symbol} value={crypto.symbol} className="bg-black">
+                        <option key={crypto.symbol} value={crypto.symbol}>
                           {crypto.symbol}
                         </option>
                       ))}
@@ -130,10 +130,10 @@ export const CryptoConverter = () => {
                     <select 
                       value={toCurrency.symbol}
                       onChange={(e) => setToCurrency(prev => ({ ...prev, symbol: e.target.value }))}
-                      className="bg-transparent text-white font-medium cursor-pointer outline-none"
+                      className="bg-transparent text-white font-medium cursor-pointer outline-none [&>option]:bg-[#0F1115]"
                     >
                       {cryptocurrencies.filter(crypto => crypto.symbol !== fromCurrency.symbol).map(crypto => (
-                        <option key={crypto.symbol} value={crypto.symbol} className="bg-black">
+                        <option key={crypto.symbol} value={crypto.symbol}>
                           {crypto.symbol}
                         </option>
                       ))}
