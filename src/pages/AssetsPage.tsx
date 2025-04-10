@@ -38,8 +38,8 @@ const AssetsPage = () => {
       name: "BTC",
       symbol: "BTC",
       fullName: "Bitcoin",
-      balance: balance * 0.000037,
-      amount: (balance * 0.000037).toFixed(8)
+      balance: 0,
+      amount: "0.00000000"
     },
     {
       name: "USDT",
@@ -52,29 +52,29 @@ const AssetsPage = () => {
       name: "BNB",
       symbol: "BNB",
       fullName: "Binance Coin",
-      balance: balance * 0.0033,
-      amount: (balance * 0.0033).toFixed(8)
+      balance: 0,
+      amount: "0.00000000"
     },
     {
       name: "WLD",
       symbol: "WLD",
       fullName: "Worldcoin",
-      balance: balance * 0.5,
-      amount: (balance * 0.5).toFixed(8)
+      balance: 0,
+      amount: "0.00000000"
     },
     {
       name: "USDC",
       symbol: "USDC",
       fullName: "USD Coin",
-      balance: balance * 0.8,
-      amount: (balance * 0.8).toFixed(8)
+      balance: 0,
+      amount: "0.00000000"
     },
     {
       name: "SOL",
       symbol: "SOL",
       fullName: "Solana",
-      balance: balance * 0.015,
-      amount: (balance * 0.015).toFixed(8)
+      balance: 0,
+      amount: "0.00000000"
     }
   ];
 
