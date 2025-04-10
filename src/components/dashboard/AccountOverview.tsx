@@ -143,8 +143,14 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
           </div>
           {!isDemoMode ? (
             <div className="flex items-center mt-1 text-sm">
-              <ArrowUpRight className="w-4 h-4 mr-1 text-green-400" />
-              <span className="text-green-400">+0.00%</span>
+              {profitLoss >= 0 ? (
+                <TrendingUp className="w-4 h-4 mr-1 text-green-400" />
+              ) : (
+                <TrendingDown className="w-4 h-4 mr-1 text-red-400" />
+              )}
+              <span className={profitLoss >= 0 ? 'text-green-400' : 'text-red-400'}>
+                {profitLoss >= 0 ? '+' : '-'}0.00%
+              </span>
               <span className="ml-1 text-white/60">today</span>
             </div>
           ) : (
