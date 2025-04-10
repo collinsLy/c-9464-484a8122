@@ -15,7 +15,7 @@ import {
   Wallet
 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-import { UserBalanceService } from "@/lib/firebase-service";
+import { UserBalanceService, UserService } from "@/lib/firebase-service";
 
 
 const BotsPage = () => {
