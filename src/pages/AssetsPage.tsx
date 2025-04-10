@@ -1,13 +1,11 @@
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import { UserService } from "@/lib/firebase-service";
 import { getCoinData } from "@/lib/api/coingecko";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-
-import React, { useEffect, useState } from 'react';
 import { PriceService } from '@/lib/price-service';
 
 const AssetsPage = () => {
