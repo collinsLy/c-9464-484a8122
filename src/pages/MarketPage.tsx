@@ -13,6 +13,7 @@ import { LivePriceTicker } from "@/components/markets/LivePriceTicker";
 
 import { TwelveDataTicker } from "@/components/markets/TwelveDataTicker";
 import { toast } from "sonner";
+import { StockTicker } from '@/components/markets/StockTicker';
 
 interface StockData {
   symbol: string;

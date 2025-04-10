@@ -1,8 +1,8 @@
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { UserService } from '@/lib/firebase-service'; // Added UserService import
+import { UserService } from '@/lib/firebase-service'; 
 
-import { ArrowDownRight as TrendingDown, ArrowUpRight as TrendingUp, RefreshCw, Wallet, CreditCard } from "lucide-react"; //Corrected import for TrendingDown and TrendingUp
+import { ArrowDownRight as TrendingDown, ArrowUpRight as TrendingUp, RefreshCw, Wallet, CreditCard } from "lucide-react"; 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
