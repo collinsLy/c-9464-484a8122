@@ -67,17 +67,35 @@ const Dashboard = () => {
 
       case "trading":
         return (
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-            <div className="xl:col-span-3">
-              <MarketChart 
-                selectedSymbol={selectedSymbol} 
-                selectedTimeframe={selectedTimeframe}
-                onSymbolChange={setSelectedSymbol}
-                onTimeframeChange={setSelectedTimeframe}
-              />
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+              <div className="xl:col-span-3">
+                <MarketChart 
+                  selectedSymbol={selectedSymbol} 
+                  selectedTimeframe={selectedTimeframe}
+                  onSymbolChange={setSelectedSymbol}
+                  onTimeframeChange={setSelectedTimeframe}
+                />
+              </div>
+              <div className="xl:col-span-1">
+                <BinanceOrderBook symbol={selectedSymbol} />
+              </div>
             </div>
-            <div className="xl:col-span-1">
-              <BinanceOrderBook symbol={selectedSymbol} />
+            <div className="grid grid-cols-4 gap-4">
+              <div className="col-span-3">
+                <CryptoTicker />
+                <div className="mt-4 grid grid-cols-3 gap-4">
+                  <div className="col-span-2">
+                    <TradingPanel symbol={selectedSymbol} isDemoMode={false} />
+                  </div>
+                  <div className="col-span-1">
+                    <BinanceOrderBook symbol={selectedSymbol} />
+                  </div>
+                </div>
+              </div>
+              <div className="col-span-1">
+                <VerticalPriceTicker />
+              </div>
             </div>
           </div>
         );
