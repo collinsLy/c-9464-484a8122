@@ -165,8 +165,49 @@ export const CryptoConverter = () => {
               <Button 
                 className="w-full bg-[#e3ef3b] hover:bg-[#e3ef3b]/90 text-black"
                 disabled={!isValidAmount()}
+                onClick={async () => {
+                  if (!isValidAmount()) return;
+                  
+                  const uid = localStorage.getItem('userId');
+                  if (!uid) return;
+
+                  try {
+                    setLoading(true);
+                    const numAmount = parseFloat(amount);
+                    const convertedAmount = numAmount / currentPrice;
+                    
+                    // Update user's balances
+                    const userData = await UserService.getUserData(uid);
+                    const updatedData = {
+                      balance: userData.balance - numAmount,
+                      assets: {
+                        ...(userData.assets || {}),
+                        [toCurrency.symbol]: {
+                          amount: ((userData.assets?.[toCurrency.symbol]?.amount || 0) + convertedAmount),
+                          symbol: toCurrency.symbol
+                        }
+                      }
+                    };
+                    
+                    await UserService.updateUserData(uid, updatedData);
+                    setAmount('');
+                    toast({
+                      title: "Conversion Successful",
+                      description: `Converted ${numAmount} ${fromCurrency.symbol} to ${convertedAmount.toFixed(8)} ${toCurrency.symbol}`,
+                    });
+                  } catch (error) {
+                    console.error('Conversion error:', error);
+                    toast({
+                      title: "Conversion Failed",
+                      description: "There was an error processing your conversion",
+                      variant: "destructive",
+                    });
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
               >
-                {!amount ? 'Enter an amount' : isValidAmount() ? 'Convert' : 'Insufficient balance'}
+                {loading ? 'Converting...' : !amount ? 'Enter an amount' : isValidAmount() ? 'Convert' : 'Insufficient balance'}
               </Button>
             </div>
         </div>
