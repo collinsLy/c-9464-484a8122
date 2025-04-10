@@ -30,8 +30,17 @@ const BotsPage = () => {
     const uid = localStorage.getItem('userId');
     if (!uid) return;
 
-    const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
-      setUserBalance(newBalance);
+    const calculateProfitLoss = (balance: number, initialBalance: number) => {
+      if (initialBalance === 0) return 0;
+      return ((balance - initialBalance) / initialBalance) * 100;
+    };
+
+    const unsubscribe = UserBalanceService.subscribeToUserData(uid, (userData) => {
+      const currentBalance = typeof userData.balance === 'string' ? parseFloat(userData.balance) : userData.balance;
+      const initialBalance = userData.initialBalance || currentBalance;
+      
+      setUserBalance(currentBalance);
+      setProfitLossPercent(calculateProfitLoss(currentBalance, initialBalance));
     });
 
     return () => unsubscribe();
