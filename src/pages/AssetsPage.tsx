@@ -23,6 +23,26 @@ const AssetsPage = () => {
   const { isDemoMode } = useDashboardContext();
   const [selectedAsset, setSelectedAsset] = useState("BTC");
   const [activeTab, setActiveTab] = useState("all-assets");
+  const [balance, setBalance] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const uid = localStorage.getItem('userId');
+    if (!uid || isDemoMode) {
+      setIsLoading(false);
+      return;
+    }
+
+    const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
+      if (userData) {
+        const parsedBalance = typeof userData.balance === 'string' ? parseFloat(userData.balance) : userData.balance;
+        setBalance(parsedBalance || 0);
+      }
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [isDemoMode]);
   
   // Demo assets with predefined values for portfolio
   const demoAssets = [
@@ -301,14 +321,32 @@ const AssetsPage = () => {
             <div className="h-24 w-24 rounded-full bg-white/5 flex items-center justify-center mb-4">
               <PlusCircle className="h-12 w-12 text-white/60" />
             </div>
-            <h2 className="text-xl font-medium text-white mb-2">No Assets Found</h2>
-            <p className="text-white/60 mb-6">Start by depositing funds and purchasing assets</p>
-            <Button 
-  className="bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34]"
-  onClick={() => window.location.href = '/deposit'}
->
-  Deposit Funds
-</Button>
+            {isLoading ? (
+              <div className="text-white/60">Loading...</div>
+            ) : balance > 0 ? (
+              <>
+                <h2 className="text-xl font-medium text-white mb-2">Ready to Trade</h2>
+                <p className="text-white/60 mb-2">Balance: ${balance.toFixed(2)}</p>
+                <p className="text-white/60 mb-6">Start purchasing assets to build your portfolio</p>
+                <Button 
+                  className="bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34]"
+                  onClick={() => window.location.href = '/trading'}
+                >
+                  Start Trading
+                </Button>
+              </>
+            ) : (
+              <>
+                <h2 className="text-xl font-medium text-white mb-2">No Assets Found</h2>
+                <p className="text-white/60 mb-6">Start by depositing funds and purchasing assets</p>
+                <Button 
+                  className="bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34]"
+                  onClick={() => window.location.href = '/deposit'}
+                >
+                  Deposit Funds
+                </Button>
+              </>
+            )}
           </div>
         )}
       </div>
