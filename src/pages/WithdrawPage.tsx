@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
@@ -50,7 +49,7 @@ const WithdrawPage = () => {
     const amountValue = parseFloat(amount);
     const isWalletMethod = selectedPaymentMethod === 'mpesa' || selectedPaymentMethod === 'airtel';
     const minAmount = isWalletMethod ? 20 : 50;
-    
+
     if (!amount || amountValue <= 0) {
       toast({
         title: "Invalid Amount",
@@ -119,14 +118,15 @@ const WithdrawPage = () => {
       await UserBalanceService.updateUserBalance(uid, newBalance);
 
       const transaction = {
-        type: 'withdrawal',
+        type: 'Withdrawal',
         method: selectedPaymentMethod,
         amount: amountValue,
-        status: 'completed',
+        status: 'Completed',
         timestamp: new Date().toISOString(),
+        txId: `TX${Date.now()}`,
         details: {
-          ...accountDetails,
-          paymentMethod: selectedPaymentMethod
+          paymentMethod: selectedPaymentMethod,
+          ...accountDetails
         }
       };
 
@@ -135,7 +135,7 @@ const WithdrawPage = () => {
       });
 
       setIsSuccessDialogOpen(true);
-      
+
       toast({
         title: "Withdrawal Successful",
         description: `Your withdrawal of $${amountValue.toFixed(2)} has been processed`,
