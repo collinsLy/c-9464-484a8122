@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { UserService } from "@/lib/firebase-service";
+import { binanceService } from "@/lib/binance-service";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -30,56 +31,81 @@ const AssetsPage = () => {
     return () => unsubscribe();
   }, []);
 
-  const assets = [
+  const [prices, setPrices] = useState({});
+  
+  const baseAssets = [
     {
       name: "BTC",
       symbol: "BTC",
       fullName: "Bitcoin",
       balance: balance * 0.000037,
-      amount: (balance * 0.000037).toFixed(8),
-      price: 27000.00
+      amount: (balance * 0.000037).toFixed(8)
     },
     {
       name: "USDT",
       symbol: "USDT",
       fullName: "TetherUS",
       balance: balance,
-      amount: balance.toFixed(8),
-      price: 1.00
+      amount: balance.toFixed(8)
     },
     {
       name: "BNB",
       symbol: "BNB",
       fullName: "Binance Coin",
       balance: balance * 0.0033,
-      amount: (balance * 0.0033).toFixed(8),
-      price: 300.00
+      amount: (balance * 0.0033).toFixed(8)
     },
     {
       name: "WLD",
       symbol: "WLD",
       fullName: "Worldcoin",
       balance: balance * 0.5,
-      amount: (balance * 0.5).toFixed(8),
-      price: 2.00
+      amount: (balance * 0.5).toFixed(8)
     },
     {
       name: "USDC",
       symbol: "USDC",
       fullName: "USD Coin",
       balance: balance * 0.8,
-      amount: (balance * 0.8).toFixed(8),
-      price: 1.00
+      amount: (balance * 0.8).toFixed(8)
     },
     {
       name: "SOL",
       symbol: "SOL",
       fullName: "Solana",
       balance: balance * 0.015,
-      amount: (balance * 0.015).toFixed(8),
-      price: 66.00
+      amount: (balance * 0.015).toFixed(8)
     }
   ];
+
+  useEffect(() => {
+    const fetchPrices = async () => {
+      try {
+        const symbols = baseAssets.map(asset => `${asset.symbol}USDT`);
+        const response = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=' + JSON.stringify(symbols));
+        const data = await response.json();
+        
+        const newPrices = {};
+        data.forEach(item => {
+          const symbol = item.symbol.replace('USDT', '');
+          newPrices[symbol] = parseFloat(item.price);
+        });
+        setPrices(newPrices);
+      } catch (error) {
+        console.error('Error fetching prices:', error);
+      }
+    };
+
+    fetchPrices();
+    const interval = setInterval(fetchPrices, 10000); // Update every 10 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const assets = baseAssets.map(asset => ({
+    ...asset,
+    price: prices[asset.symbol] || 0
+  }));
 
   return (
     <DashboardLayout>
