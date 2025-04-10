@@ -40,7 +40,7 @@ const FAQData = [
 
 const SupportPage = () => {
   const { isDemoMode } = useDashboardContext();
-  const [activeTab, setActiveTab] = useState("faq");
+  const [activeTab, setActiveTab] = useState("contact");
   const { toast } = useToast();
   const [contactForm, setContactForm] = useState({
     name: "",
@@ -73,13 +73,52 @@ const SupportPage = () => {
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white mb-6">
-                <TabsTrigger value="faq" className="text-white data-[state=active]:bg-accent">
-                  FAQ
-                </TabsTrigger>
                 <TabsTrigger value="contact" className="text-white data-[state=active]:bg-accent">
                   Contact Us
                 </TabsTrigger>
+                <TabsTrigger value="faq" className="text-white data-[state=active]:bg-accent">
+                  FAQ
+                </TabsTrigger>
               </TabsList>
+              
+              <TabsContent value="contact">
+                <form onSubmit={handleContactSubmit} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Input
+                      placeholder="Your Name"
+                      value={contactForm.name}
+                      onChange={(e) => setContactForm({...contactForm, name: e.target.value})}
+                      required
+                      className="bg-background/40"
+                    />
+                    <Input
+                      type="email"
+                      placeholder="Email Address"
+                      value={contactForm.email}
+                      onChange={(e) => setContactForm({...contactForm, email: e.target.value})}
+                      required
+                      className="bg-background/40"
+                    />
+                  </div>
+                  <Input
+                    placeholder="Subject"
+                    value={contactForm.subject}
+                    onChange={(e) => setContactForm({...contactForm, subject: e.target.value})}
+                    required
+                    className="bg-background/40"
+                  />
+                  <Textarea
+                    placeholder="How can we help you?"
+                    value={contactForm.message}
+                    onChange={(e) => setContactForm({...contactForm, message: e.target.value})}
+                    required
+                    className="min-h-[150px] bg-background/40"
+                  />
+                  <Button type="submit" className="w-full">
+                    Submit Support Ticket
+                  </Button>
+                </form>
+              </TabsContent>
               
               <TabsContent value="faq">
                 <Accordion type="single" collapsible className="w-full">
@@ -95,8 +134,6 @@ const SupportPage = () => {
                   ))}
                 </Accordion>
               </TabsContent>
-              
-              <TabsContent value="contact">
                 <form onSubmit={handleContactSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Input
