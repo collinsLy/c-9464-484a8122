@@ -7,19 +7,17 @@ import { Check } from 'lucide-react';
 import { UserBalanceService } from '@/lib/firebase-service';
 import { UserService } from '@/lib/user-service';
 import firebase from 'firebase/app';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useDashboardContext } from '@/components/dashboard/DashboardLayout';
 import { useToast } from "@/components/ui/use-toast";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { VisaIcon, MastercardIcon, PayPalIcon, BankIcon, MpesaIcon, AirtelMoneyIcon } from '@/assets/payment-icons';
+import { BankIcon, PayPalIcon, MpesaIcon, AirtelMoneyIcon } from '@/assets/payment-icons';
 import { cn } from '@/lib/utils';
 
 const WithdrawPage = () => {
   const { isDemoMode } = useDashboardContext();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("fiat");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("bank");
   const [amount, setAmount] = useState("");
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
@@ -49,78 +47,11 @@ const WithdrawPage = () => {
       return;
     }
 
-    // Validate inputs based on payment method
     const amountValue = parseFloat(amount);
     const isWalletMethod = selectedPaymentMethod === 'mpesa' || selectedPaymentMethod === 'airtel';
     const minAmount = isWalletMethod ? 20 : 50;
     
     if (!amount || amountValue <= 0) {
-      toast({
-        title: "Invalid Amount",
-        description: "Please enter a valid withdrawal amount",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const uid = localStorage.getItem('userId');
-    if (!uid) {
-      toast({
-        title: "Authentication Error",
-        description: "Please log in to continue",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      // Check user balance
-      const currentBalance = await UserBalanceService.getUserBalance(uid);
-      if (currentBalance < amountValue) {
-        toast({
-          title: "Insufficient Balance",
-          description: `Your balance ($${currentBalance.toFixed(2)}) is insufficient for this withdrawal`,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Deduct amount from user balance
-      const newBalance = currentBalance - amountValue;
-      await UserBalanceService.updateUserBalance(uid, newBalance);
-
-      // Record withdrawal transaction
-      const transaction = {
-        type: 'withdrawal',
-        method: selectedPaymentMethod,
-        amount: amountValue,
-        status: 'completed',
-        timestamp: new Date().toISOString(),
-        details: {
-          ...accountDetails,
-          paymentMethod: selectedPaymentMethod
-        }
-      };
-
-      await UserService.updateUserData(uid, {
-        transactions: firebase.firestore.FieldValue.arrayUnion(transaction)
-      });
-
-      // Show success dialog
-      setIsSuccessDialogOpen(true);
-      
-      toast({
-        title: "Withdrawal Successful",
-        description: `Your withdrawal of $${amountValue.toFixed(2)} has been processed`,
-      });
-    } catch (error) {
-      console.error('Withdrawal error:', error);
-      toast({
-        title: "Withdrawal Failed",
-        description: "An error occurred while processing your withdrawal",
-        variant: "destructive",
-      });
-    }
       toast({
         title: "Invalid Amount",
         description: "Please enter a valid withdrawal amount",
@@ -163,10 +94,60 @@ const WithdrawPage = () => {
       return;
     }
 
-    toast({
-      title: "Withdrawal Initiated",
-      description: "Your withdrawal request has been submitted for processing",
-    });
+    const uid = localStorage.getItem('userId');
+    if (!uid) {
+      toast({
+        title: "Authentication Error",
+        description: "Please log in to continue",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const currentBalance = await UserBalanceService.getUserBalance(uid);
+      if (currentBalance < amountValue) {
+        toast({
+          title: "Insufficient Balance",
+          description: `Your balance ($${currentBalance.toFixed(2)}) is insufficient for this withdrawal`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const newBalance = currentBalance - amountValue;
+      await UserBalanceService.updateUserBalance(uid, newBalance);
+
+      const transaction = {
+        type: 'withdrawal',
+        method: selectedPaymentMethod,
+        amount: amountValue,
+        status: 'completed',
+        timestamp: new Date().toISOString(),
+        details: {
+          ...accountDetails,
+          paymentMethod: selectedPaymentMethod
+        }
+      };
+
+      await UserService.updateUserData(uid, {
+        transactions: firebase.firestore.FieldValue.arrayUnion(transaction)
+      });
+
+      setIsSuccessDialogOpen(true);
+      
+      toast({
+        title: "Withdrawal Successful",
+        description: `Your withdrawal of $${amountValue.toFixed(2)} has been processed`,
+      });
+    } catch (error) {
+      console.error('Withdrawal error:', error);
+      toast({
+        title: "Withdrawal Failed",
+        description: "An error occurred while processing your withdrawal",
+        variant: "destructive",
+      });
+    }
   };
 
   const renderPaymentMethodFields = () => {
@@ -238,6 +219,8 @@ const WithdrawPage = () => {
             />
           </div>
         );
+      default:
+        return null;
     }
   };
 
@@ -302,34 +285,6 @@ const WithdrawPage = () => {
                   className="w-full bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34] h-12 text-lg"
                   onClick={handleWithdraw}
                 >
-
-      <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
-        <DialogContent className="bg-background/95 backdrop-blur-lg border-white/10 text-white">
-          <div className="flex flex-col items-center justify-center p-6 space-y-4">
-            <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center">
-              <Check className="w-8 h-8 text-black" />
-            </div>
-            <h2 className="text-2xl font-bold">Withdrawal Successful</h2>
-            <p className="text-3xl font-bold">${amount} USD</p>
-            <div className="w-full bg-white/10 rounded-lg p-4 mt-4">
-              <p className="text-center text-sm text-white/70">
-                Please check your {selectedPaymentMethod === 'bank' ? 'bank account' : 
-                  selectedPaymentMethod === 'paypal' ? 'PayPal account' : 'mobile money account'} 
-                for the received funds.
-              </p>
-            </div>
-            <div className="flex gap-4 mt-4">
-              <Button variant="outline" onClick={() => setIsSuccessDialogOpen(false)}>
-                Close
-              </Button>
-              <Button onClick={() => window.location.href = '/history'}>
-                View History
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
                   {isDemoMode ? "Demo Withdraw" : "Withdraw Funds"}
                 </Button>
 
@@ -358,6 +313,33 @@ const WithdrawPage = () => {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
+        <DialogContent className="bg-background/95 backdrop-blur-lg border-white/10 text-white">
+          <div className="flex flex-col items-center justify-center p-6 space-y-4">
+            <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center">
+              <Check className="w-8 h-8 text-black" />
+            </div>
+            <h2 className="text-2xl font-bold">Withdrawal Successful</h2>
+            <p className="text-3xl font-bold">${amount} USD</p>
+            <div className="w-full bg-white/10 rounded-lg p-4 mt-4">
+              <p className="text-center text-sm text-white/70">
+                Please check your {selectedPaymentMethod === 'bank' ? 'bank account' : 
+                  selectedPaymentMethod === 'paypal' ? 'PayPal account' : 'mobile money account'} 
+                for the received funds.
+              </p>
+            </div>
+            <div className="flex gap-4 mt-4">
+              <Button variant="outline" onClick={() => setIsSuccessDialogOpen(false)}>
+                Close
+              </Button>
+              <Button onClick={() => window.location.href = '/history'}>
+                View History
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };
