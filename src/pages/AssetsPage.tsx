@@ -32,12 +32,52 @@ const AssetsPage = () => {
 
   const assets = [
     {
+      name: "BTC",
+      symbol: "BTC",
+      fullName: "Bitcoin",
+      balance: balance * 0.000037,
+      amount: (balance * 0.000037).toFixed(8),
+      price: 27000.00
+    },
+    {
       name: "USDT",
       symbol: "USDT",
       fullName: "TetherUS",
       balance: balance,
       amount: balance.toFixed(8),
       price: 1.00
+    },
+    {
+      name: "BNB",
+      symbol: "BNB",
+      fullName: "Binance Coin",
+      balance: balance * 0.0033,
+      amount: (balance * 0.0033).toFixed(8),
+      price: 300.00
+    },
+    {
+      name: "WLD",
+      symbol: "WLD",
+      fullName: "Worldcoin",
+      balance: balance * 0.5,
+      amount: (balance * 0.5).toFixed(8),
+      price: 2.00
+    },
+    {
+      name: "USDC",
+      symbol: "USDC",
+      fullName: "USD Coin",
+      balance: balance * 0.8,
+      amount: (balance * 0.8).toFixed(8),
+      price: 1.00
+    },
+    {
+      name: "SOL",
+      symbol: "SOL",
+      fullName: "Solana",
+      balance: balance * 0.015,
+      amount: (balance * 0.015).toFixed(8),
+      price: 66.00
     }
   ];
 
@@ -142,9 +182,12 @@ const AssetsPage = () => {
                       <div key={index} className="grid grid-cols-3 p-3">
                         <div className="flex items-center gap-2">
                           <img
-                            src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Tether_USDT.png"
+                            src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${asset.symbol.toLowerCase()}.svg`}
                             alt={asset.symbol}
                             className="w-6 h-6"
+                            onError={(e) => {
+                              e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                            }}
                           />
                           <div>
                             <div>{asset.symbol}</div>
