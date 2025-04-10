@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import MarketChart from "@/components/dashboard/MarketChart";
-import AccountOverview from "@/components/dashboard/AccountOverview";
 import { botTiers } from "@/features/automated-trading/data/bots";
 import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
 import { BotCard } from "@/features/automated-trading/components/BotCard";
@@ -69,7 +68,6 @@ const BotsPage = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <AccountOverview isDemoMode={isDemoMode} />
         <MarketChart
           selectedSymbol={selectedSymbol}
           selectedTimeframe={selectedTimeframe}
