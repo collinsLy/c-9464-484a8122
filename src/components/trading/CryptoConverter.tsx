@@ -86,17 +86,27 @@ export const CryptoConverter = () => {
                     className="bg-background/40 border-white/10 text-white"
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <select 
-                      value={fromCurrency.symbol}
-                      onChange={(e) => setFromCurrency(prev => ({ ...prev, symbol: e.target.value }))}
-                      className="bg-transparent text-white font-medium cursor-pointer outline-none [&>option]:bg-[#0F1115]"
-                    >
-                      {cryptocurrencies.map(crypto => (
-                        <option key={crypto.symbol} value={crypto.symbol}>
-                          {crypto.symbol}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="flex items-center gap-2">
+                      <img 
+                        src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${fromCurrency.symbol.toLowerCase()}.svg`}
+                        alt={fromCurrency.symbol}
+                        className="w-5 h-5"
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/generic.svg';
+                        }}
+                      />
+                      <select 
+                        value={fromCurrency.symbol}
+                        onChange={(e) => setFromCurrency(prev => ({ ...prev, symbol: e.target.value }))}
+                        className="bg-transparent text-white font-medium cursor-pointer outline-none [&>option]:bg-[#0F1115]"
+                      >
+                        {cryptocurrencies.map(crypto => (
+                          <option key={crypto.symbol} value={crypto.symbol}>
+                            {crypto.symbol}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -127,17 +137,27 @@ export const CryptoConverter = () => {
                     className="bg-background/40 border-white/10 text-white"
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <select 
-                      value={toCurrency.symbol}
-                      onChange={(e) => setToCurrency(prev => ({ ...prev, symbol: e.target.value }))}
-                      className="bg-transparent text-white font-medium cursor-pointer outline-none [&>option]:bg-[#0F1115]"
-                    >
-                      {cryptocurrencies.filter(crypto => crypto.symbol !== fromCurrency.symbol).map(crypto => (
-                        <option key={crypto.symbol} value={crypto.symbol}>
-                          {crypto.symbol}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="flex items-center gap-2">
+                      <img 
+                        src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${toCurrency.symbol.toLowerCase()}.svg`}
+                        alt={toCurrency.symbol}
+                        className="w-5 h-5"
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/generic.svg';
+                        }}
+                      />
+                      <select 
+                        value={toCurrency.symbol}
+                        onChange={(e) => setToCurrency(prev => ({ ...prev, symbol: e.target.value }))}
+                        className="bg-transparent text-white font-medium cursor-pointer outline-none [&>option]:bg-[#0F1115]"
+                      >
+                        {cryptocurrencies.filter(crypto => crypto.symbol !== fromCurrency.symbol).map(crypto => (
+                          <option key={crypto.symbol} value={crypto.symbol}>
+                            {crypto.symbol}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
