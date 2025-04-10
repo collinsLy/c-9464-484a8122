@@ -1,11 +1,12 @@
+
 import { useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { 
   ChevronRight, ChevronLeft, Home, LineChart, BarChart3, 
-  Wallet, CreditCard, TrendingUp, History, Settings, PlayCircle
+  Wallet, CreditCard, TrendingUp, History, Settings, PlayCircle, Menu, X
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
@@ -35,6 +36,27 @@ interface SidebarProps {
 const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  
+  // Check if screen is mobile-sized
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      
+      // Auto-collapse sidebar on mobile if not already collapsed
+      if (mobile && !collapsed) {
+        setCollapsed(true);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Initial check
+    
+    return () => window.removeEventListener('resize', handleResize);
+  }, [collapsed]);
 
   // Extract the active tab from the location pathname or query parameters
   const getActiveTab = () => {
@@ -58,53 +80,84 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
   
   const activeTab = getActiveTab();
 
+  // Handle toggling sidebar on mobile
+  const toggleMobileSidebar = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
   return (
-    <aside className={cn(
-      "flex flex-col bg-background/40 backdrop-blur-lg border-r border-white/10 transition-all duration-300",
-      collapsed ? "w-16" : "w-60"
-    )}>
-      <div className={cn(
-        "flex items-center h-14 px-3 mb-8",
-        collapsed ? "justify-center" : "justify-between"
-      )}>
-        {!collapsed && <div className="text-xl font-bold text-white">Vertex Trading</div>}
+    <>
+      {/* Mobile menu button - fixed at the top left corner */}
+      {isMobile && (
         <Button 
           variant="ghost" 
           size="icon"
-          onClick={() => setCollapsed(!collapsed)}
-          className="text-white/70 hover:text-white hover:bg-white/10"
+          onClick={toggleMobileSidebar}
+          className="fixed top-4 left-4 z-50 rounded-full bg-background/80 backdrop-blur-sm border border-white/10 text-white/70 hover:text-white hover:bg-white/10 lg:hidden"
         >
-          {collapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </Button>
-      </div>
-      
-      <nav className="space-y-1.5 px-2">
-        {navItems.map((item) => (
-          <Button
-            key={item.id}
-            variant="ghost"
-            asChild
-            className={cn(
-              "w-full justify-start text-white/70 hover:text-white hover:bg-white/10",
-              activeTab === item.id && "bg-white/10 text-white",
-              collapsed && "justify-center px-0"
-            )}
-          >
-            <Link to={item.path}>
-              <item.icon className={cn("h-5 w-5", collapsed ? "" : "mr-3")} />
-              {!collapsed && <span>{item.label}</span>}
-            </Link>
-          </Button>
-        ))}
-      </nav>
-      
-      {!collapsed && (
-        <div className="mt-auto p-4">
-          <div className="rounded-lg p-4 bg-white/5">
-            </div>
-        </div>
       )}
-    </aside>
+      
+      <aside className={cn(
+        "flex flex-col bg-background/40 backdrop-blur-lg border-r border-white/10 transition-all duration-300 h-screen z-40",
+        collapsed ? "w-16" : "w-60",
+        isMobile ? "fixed left-0 top-0" : "relative",
+        isMobile && !mobileOpen ? "-translate-x-full" : "translate-x-0"
+      )}>
+        <div className={cn(
+          "flex items-center h-16 px-3 mb-6",
+          collapsed ? "justify-center" : "justify-between"
+        )}>
+          {!collapsed && <div className="text-xl font-bold text-white truncate">Vertex Trading</div>}
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={() => setCollapsed(!collapsed)}
+            className="text-white/70 hover:text-white hover:bg-white/10"
+          >
+            {collapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+          </Button>
+        </div>
+        
+        <nav className="space-y-2 px-2 flex-1 overflow-y-auto smooth-scroll">
+          {navItems.map((item) => (
+            <Button
+              key={item.id}
+              variant="ghost"
+              asChild
+              className={cn(
+                "w-full justify-start text-white/70 hover:text-white hover:bg-white/10",
+                activeTab === item.id && "bg-white/10 text-white",
+                collapsed ? "justify-center px-0" : "justify-start",
+                "h-11" // Slightly taller buttons for better mobile touch targets
+              )}
+              onClick={() => isMobile && setMobileOpen(false)} // Close sidebar on nav click (mobile)
+            >
+              <Link to={item.path} className="flex items-center w-full">
+                <item.icon className={cn("h-5 w-5 flex-shrink-0", collapsed ? "" : "mr-3")} />
+                {!collapsed && <span className="truncate">{item.label}</span>}
+              </Link>
+            </Button>
+          ))}
+        </nav>
+        
+        {!collapsed && !isMobile && (
+          <div className="mt-auto p-4">
+            <div className="rounded-lg p-3 bg-white/5">
+            </div>
+          </div>
+        )}
+      </aside>
+
+      {/* Overlay when mobile sidebar is open */}
+      {isMobile && mobileOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+    </>
   );
 };
 
