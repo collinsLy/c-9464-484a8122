@@ -11,11 +11,11 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   SearchIcon, PlusCircle, TrendingUp, TrendingDown, 
-  ArrowUpRight, ArrowDownRight, Filter, SlidersHorizontal 
+  ArrowUpRight, ArrowDownRight, Filter, SlidersHorizontal,
+  Wallet
 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { UserBalanceService } from "@/lib/firebase-service";
-import { Wallet } from "@/components/ui/icons"; // Assuming this import is correct
 
 
 const BotsPage = () => {
