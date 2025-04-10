@@ -95,7 +95,7 @@ const TransactionHistory = ({ isDemoMode = false }: TransactionHistoryProps) => 
               {displayTransactions.map((tx, index) => (
                 <TableRow key={index} className="border-white/10">
                   <TableCell>{formatDate(tx.timestamp)}</TableCell>
-                  <TableCell className={tx.type === 'deposit' ? 'text-green-400' : 'text-red-400'}>
+                  <TableCell className="text-white">
                     {tx.type.charAt(0).toUpperCase() + tx.type.slice(1)}
                   </TableCell>
                   <TableCell>{formatMethod(tx.method, tx.details)}</TableCell>
