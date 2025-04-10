@@ -9,6 +9,15 @@ import { binanceService } from '@/lib/binance-service';
 import { UserService } from '@/lib/user-service';
 
 export const CryptoConverter = () => {
+  const cryptocurrencies = [
+    { symbol: 'USDT', name: 'Tether' },
+    { symbol: 'BTC', name: 'Bitcoin' },
+    { symbol: 'ETH', name: 'Ethereum' },
+    { symbol: 'BNB', name: 'BNB' },
+    { symbol: 'SOL', name: 'Solana' },
+    { symbol: 'ADA', name: 'Cardano' },
+    { symbol: 'DOGE', name: 'Dogecoin' }
+  ];
   const [fromCurrency, setFromCurrency] = useState({ symbol: 'USDT', balance: 0 });
   const [toCurrency, setToCurrency] = useState({ symbol: 'BTC', balance: 0 });
   const [amount, setAmount] = useState('');
@@ -84,7 +93,17 @@ export const CryptoConverter = () => {
                     className="bg-background/40 border-white/10 text-white"
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <span className="text-white font-medium">{fromCurrency.symbol}</span>
+                    <select 
+                      value={fromCurrency.symbol}
+                      onChange={(e) => setFromCurrency(prev => ({ ...prev, symbol: e.target.value }))}
+                      className="bg-transparent text-white font-medium cursor-pointer outline-none"
+                    >
+                      {cryptocurrencies.map(crypto => (
+                        <option key={crypto.symbol} value={crypto.symbol} className="bg-black">
+                          {crypto.symbol}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
@@ -115,7 +134,17 @@ export const CryptoConverter = () => {
                     className="bg-background/40 border-white/10 text-white"
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <span className="text-white font-medium">{toCurrency.symbol}</span>
+                    <select 
+                      value={toCurrency.symbol}
+                      onChange={(e) => setToCurrency(prev => ({ ...prev, symbol: e.target.value }))}
+                      className="bg-transparent text-white font-medium cursor-pointer outline-none"
+                    >
+                      {cryptocurrencies.filter(crypto => crypto.symbol !== fromCurrency.symbol).map(crypto => (
+                        <option key={crypto.symbol} value={crypto.symbol} className="bg-black">
+                          {crypto.symbol}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
