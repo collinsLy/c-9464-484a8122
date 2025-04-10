@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { UserService } from "@/lib/firebase-service";
-import { getCoinData } from "@/lib/api/coingecko";
+import { binanceService } from "@/lib/binance-service";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -81,26 +81,23 @@ const AssetsPage = () => {
   useEffect(() => {
     const fetchPrices = async () => {
       try {
-        const coinIds = ['bitcoin', 'tether', 'binancecoin', 'worldcoin', 'usd-coin', 'solana'];
-        const pricesData = await Promise.all(
-          coinIds.map(id => getCoinData(id))
-        );
+        const symbols = baseAssets.map(asset => `${asset.symbol}USDT`);
+        const response = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=' + JSON.stringify(symbols));
+        const data = await response.json();
         
         const newPrices = {};
-        pricesData.forEach((data, index) => {
-          const symbol = baseAssets[index].symbol;
-          if (data && data.market_data && data.market_data.current_price) {
-            newPrices[symbol] = data.market_data.current_price.usd;
-          }
+        data.forEach(item => {
+          const symbol = item.symbol.replace('USDT', '');
+          newPrices[symbol] = parseFloat(item.price);
         });
         setPrices(newPrices);
       } catch (error) {
-        console.error('Error fetching prices from CoinGecko:', error);
+        console.error('Error fetching prices:', error);
       }
     };
 
     fetchPrices();
-    const interval = setInterval(fetchPrices, 30000); // Update every 30 seconds to respect rate limits
+    const interval = setInterval(fetchPrices, 10000); // Update every 10 seconds
 
     return () => clearInterval(interval);
   }, []);
