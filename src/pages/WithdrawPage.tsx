@@ -235,7 +235,7 @@ const WithdrawPage = () => {
                     <ul className="list-disc pl-4 space-y-1">
                       <li>Bank Transfer: 1-3 business days</li>
                       <li>PayPal: Within 24 hours</li>
-                      <li>Mobile Money: 1-2 hours</li>
+                      <li>Mobile Money: 5-10 minutes</li>
                     </ul>
                   </div>
                   <div>
