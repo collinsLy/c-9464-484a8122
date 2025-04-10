@@ -149,7 +149,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
                 <TrendingDown className="w-4 h-4 mr-1 text-red-400" />
               )}
               <span className={profitLoss >= 0 ? 'text-green-400' : 'text-red-400'}>
-                {profitLoss >= 0 ? '+' : '-'}0.00%
+                {profitLoss >= 0 ? '+' : '-'}{Math.abs(profitLossPercent).toFixed(2)}%
               </span>
               <span className="ml-1 text-white/60">today</span>
             </div>
