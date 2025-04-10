@@ -1,4 +1,4 @@
-import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, query, where, getDocs } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, query, where, getDocs, increment } from 'firebase/firestore';
 import { auth } from './firebase';
 import { db } from './firebase';
 
@@ -159,10 +159,27 @@ export class UserBalanceService {
     const userRef = doc(db, 'users', userId);
     return onSnapshot(userRef, (doc) => {
       if (doc.exists()) {
-        callback(doc.data()?.trades); // Assuming trades data is under trades field
+        callback(doc.data()?.trades); 
       } else {
         callback(null);
       }
     });
+  }
+
+  static async calculatePLPercentage(userId: string): Promise<number> {
+    try {
+      const userData = await UserService.getUserData(userId);
+      if (!userData) return 0; // Handle case where user data is not found
+
+      const initialBalance = userData.initialBalance || 0;
+      const currentBalance = userData.balance || 0;
+
+      if (initialBalance === 0) return 0; // Avoid division by zero
+
+      return ((currentBalance - initialBalance) / initialBalance) * 100;
+    } catch (error) {
+      console.error('Error calculating P/L percentage:', error);
+      throw error;
+    }
   }
 }

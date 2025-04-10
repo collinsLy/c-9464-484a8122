@@ -32,10 +32,13 @@ const BotsPage = () => {
       const percentChange = ((currentBalance - initialBalance) / initialBalance) * 100;
       setProfitLossPercent(percentChange);
     } else if (uid) {
-      // For real trading mode
       const unsubscribe = UserBalanceService.subscribeToTradeStats(uid, (stats) => {
-        if (stats && stats.initialBalance > 0) {
-          const percentChange = ((userBalance - stats.initialBalance) / stats.initialBalance) * 100;
+        if (stats) {
+          const wins = stats.wins || 0;
+          const losses = stats.losses || 0;
+          const totalTrades = wins + losses;
+          const profitAmount = stats.totalProfit || 0;
+          const percentChange = totalTrades > 0 ? (profitAmount / (stats.initialBalance || userBalance)) * 100 : 0;
           setProfitLossPercent(percentChange);
         }
       });
