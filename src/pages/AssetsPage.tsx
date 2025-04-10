@@ -1,12 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { UserService } from "@/lib/firebase-service";
 import { getCoinData } from "@/lib/api/coingecko";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { PriceService } from '@/lib/price-service';
 
 const AssetsPage = () => {
   const [balance, setBalance] = useState(0);
@@ -80,12 +79,30 @@ const AssetsPage = () => {
   ];
 
   useEffect(() => {
-    // Subscribe to cached prices
-    const unsubscribe = PriceService.subscribeToPrices((newPrices) => {
-      setPrices(newPrices);
-    });
+    const fetchPrices = async () => {
+      try {
+        const coinIds = ['bitcoin', 'tether', 'binancecoin', 'worldcoin', 'usd-coin', 'solana'];
+        const pricesData = await Promise.all(
+          coinIds.map(id => getCoinData(id))
+        );
+        
+        const newPrices = {};
+        pricesData.forEach((data, index) => {
+          const symbol = baseAssets[index].symbol;
+          if (data && data.market_data && data.market_data.current_price) {
+            newPrices[symbol] = data.market_data.current_price.usd;
+          }
+        });
+        setPrices(newPrices);
+      } catch (error) {
+        console.error('Error fetching prices from CoinGecko:', error);
+      }
+    };
 
-    return () => unsubscribe();
+    fetchPrices();
+    const interval = setInterval(fetchPrices, 30000); // Update every 30 seconds to respect rate limits
+
+    return () => clearInterval(interval);
   }, []);
 
   const assets = baseAssets.map(asset => ({
