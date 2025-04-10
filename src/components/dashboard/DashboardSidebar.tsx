@@ -7,6 +7,7 @@ import {
   Wallet, CreditCard, TrendingUp, History, Settings, PlayCircle, Menu, X
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
@@ -115,6 +116,7 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
             size="icon"
             onClick={() => setCollapsed(!collapsed)}
             className="text-white/70 hover:text-white hover:bg-white/10"
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {collapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
           </Button>
@@ -122,23 +124,33 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
         
         <nav className="space-y-2 px-2 flex-1 overflow-y-auto smooth-scroll">
           {navItems.map((item) => (
-            <Button
-              key={item.id}
-              variant="ghost"
-              asChild
-              className={cn(
-                "w-full justify-start text-white/70 hover:text-white hover:bg-white/10",
-                activeTab === item.id && "bg-white/10 text-white",
-                collapsed ? "justify-center px-0" : "justify-start",
-                "h-11" // Slightly taller buttons for better mobile touch targets
-              )}
-              onClick={() => isMobile && setMobileOpen(false)} // Close sidebar on nav click (mobile)
-            >
-              <Link to={item.path} className="flex items-center w-full">
-                <item.icon className={cn("h-5 w-5 flex-shrink-0", collapsed ? "" : "mr-3")} />
-                {!collapsed && <span className="truncate">{item.label}</span>}
-              </Link>
-            </Button>
+            <TooltipProvider key={item.id} delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    asChild
+                    className={cn(
+                      "w-full justify-start text-white/70 hover:text-white hover:bg-white/10",
+                      activeTab === item.id && "bg-white/10 text-white",
+                      collapsed ? "justify-center px-0" : "justify-start",
+                      "h-11" // Slightly taller buttons for better mobile touch targets
+                    )}
+                    onClick={() => isMobile && setMobileOpen(false)} // Close sidebar on nav click (mobile)
+                  >
+                    <Link to={item.path} className="flex items-center w-full">
+                      <item.icon className={cn("h-5 w-5 flex-shrink-0", collapsed ? "" : "mr-3")} />
+                      {!collapsed && <span className="truncate">{item.label}</span>}
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                {collapsed && (
+                  <TooltipContent side="right" className="bg-background/90 backdrop-blur-sm border border-white/10 text-white">
+                    {item.label}
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           ))}
         </nav>
         
