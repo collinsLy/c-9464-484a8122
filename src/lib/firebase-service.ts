@@ -1,4 +1,3 @@
-
 import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, query, where, getDocs } from 'firebase/firestore';
 import { auth } from './firebase';
 import { db } from './firebase';
@@ -119,7 +118,7 @@ export class UserBalanceService {
       console.error('No userId provided for balance subscription');
       return () => {};
     }
-    
+
     const userRef = doc(db, 'users', userId);
     return onSnapshot(userRef, async (snapshot) => {
       if (!snapshot.exists()) {
@@ -154,5 +153,16 @@ export class UserBalanceService {
       console.error('Error updating user balance:', error);
       throw error;
     }
+  }
+
+  static subscribeToTradeStats(userId: string, callback: (stats: any) => void) {
+    const userRef = doc(db, 'users', userId);
+    return onSnapshot(userRef, (doc) => {
+      if (doc.exists()) {
+        callback(doc.data()?.trades); // Assuming trades data is under trades field
+      } else {
+        callback(null);
+      }
+    });
   }
 }

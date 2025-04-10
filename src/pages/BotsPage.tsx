@@ -23,6 +23,25 @@ const BotsPage = () => {
   const [selectedTab, setSelectedTab] = useState("marketplace");
   const [userBalance, setUserBalance] = useState(0);
   const [profitLossPercent, setProfitLossPercent] = useState(0);
+
+  useEffect(() => {
+    const uid = localStorage.getItem('userId');
+    if (isDemoMode) {
+      const initialBalance = 10000;
+      const currentBalance = parseFloat(localStorage.getItem('demoBalance') || '10000');
+      const percentChange = ((currentBalance - initialBalance) / initialBalance) * 100;
+      setProfitLossPercent(percentChange);
+    } else if (uid) {
+      // For real trading mode
+      const unsubscribe = UserBalanceService.subscribeToTradeStats(uid, (stats) => {
+        if (stats && stats.initialBalance > 0) {
+          const percentChange = ((userBalance - stats.initialBalance) / stats.initialBalance) * 100;
+          setProfitLossPercent(percentChange);
+        }
+      });
+      return () => unsubscribe();
+    }
+  }, [isDemoMode, userBalance]);
   const [selectedSymbol, setSelectedSymbol] = useState("BTCUSD");
   const [selectedTimeframe, setSelectedTimeframe] = useState("1D");
 
