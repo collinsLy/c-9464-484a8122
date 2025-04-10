@@ -62,11 +62,11 @@ const Navbar = () => {
         {/* Mobile Navigation */}
         <Sheet>
           <SheetTrigger asChild className="md:hidden">
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" className="hover:bg-white/10">
               <Menu className="h-6 w-6 text-white" />
             </Button>
           </SheetTrigger>
-          <SheetContent className="bg-background text-white">
+          <SheetContent side="left" className="bg-background/95 backdrop-blur-xl border-white/10 w-[280px] p-6">
             <div className="flex flex-col space-y-6 pt-10">
               <a href="#" className="text-white/80 hover:text-white transition-colors text-lg">Markets</a>
               <a href="#" className="text-white/80 hover:text-white transition-colors text-lg">Trading</a>

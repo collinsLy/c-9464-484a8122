@@ -101,10 +101,11 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
       )}
       
       <aside className={cn(
-        "flex flex-col bg-background/40 backdrop-blur-lg border-r border-white/10 transition-all duration-300 h-screen z-40",
-        collapsed ? "w-32" : "w-72", // Further increased width for better text display
+        "flex flex-col bg-background/95 backdrop-blur-xl border-r border-white/10 transition-all duration-300 h-screen z-40",
+        collapsed ? "w-20 md:w-32" : "w-[280px] md:w-72",
         isMobile ? "fixed left-0 top-0" : "relative",
-        isMobile && !mobileOpen ? "-translate-x-full" : "translate-x-0"
+        isMobile && !mobileOpen ? "-translate-x-full" : "translate-x-0",
+        "shadow-xl shadow-black/10"
       )}>
         <div className={cn(
           "flex items-center h-16 px-3 mb-4",
