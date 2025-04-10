@@ -6,7 +6,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Check } from 'lucide-react';
 import { UserBalanceService } from '@/lib/firebase-service';
 import { UserService } from '@/lib/user-service';
-import firebase from 'firebase/app';
+import { getFirestore, arrayUnion } from 'firebase/firestore';
 import { useDashboardContext } from '@/components/dashboard/DashboardLayout';
 import { useToast } from "@/components/ui/use-toast";
 import { Input } from '@/components/ui/input';
@@ -131,7 +131,7 @@ const WithdrawPage = () => {
       };
 
       await UserService.updateUserData(uid, {
-        transactions: firebase.firestore.FieldValue.arrayUnion(transaction)
+        transactions: arrayUnion(transaction)
       });
 
       setIsSuccessDialogOpen(true);
