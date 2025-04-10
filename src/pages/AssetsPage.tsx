@@ -221,7 +221,9 @@ const AssetsPage = () => {
                           </div>
                         </div>
                         <div className="text-right">{asset.amount}</div>
-                        <div className="text-right">${asset.price.toFixed(2)}</div>
+                        <div className="text-right">
+                          ${asset.symbol === 'USDT' ? '1.00' : prices[asset.symbol]?.toFixed(2) || '0.00'}
+                        </div>
                       </div>
                     ))}
                   </div>
