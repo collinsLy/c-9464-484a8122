@@ -1,12 +1,30 @@
 
+import { useEffect, useState } from "react";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { UserService } from "@/lib/firebase-service";
 
 interface AssetsListProps {
   isDemoMode?: boolean;
 }
 
 const AssetsList = ({ isDemoMode = false }: AssetsListProps) => {
+  const [userBalance, setUserBalance] = useState(0);
+  
+  useEffect(() => {
+    const uid = localStorage.getItem('userId');
+    if (!uid || isDemoMode) return;
+
+    const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
+      if (userData) {
+        const balance = typeof userData.balance === 'number' ? userData.balance : parseFloat(userData.balance);
+        setUserBalance(balance || 0);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [isDemoMode]);
+
   // Demo assets with predefined values
   const demoAssets = [
     { id: 1, name: "Bitcoin", symbol: "BTC", balance: 0.05, value: 3271.61, change: 1.24 },
@@ -16,8 +34,9 @@ const AssetsList = ({ isDemoMode = false }: AssetsListProps) => {
     { id: 5, name: "BNB", symbol: "BNB", balance: 2.2, value: 1332.72, change: 0.75 },
   ];
   
-  // Show empty state for live mode since there's no real data
-  const liveAssets: typeof demoAssets = [];
+  const liveAssets = userBalance > 0 ? [
+    { id: 1, name: "Tether", symbol: "USDT", balance: userBalance, value: userBalance, change: 0 }
+  ] : [];
   
   const assets = isDemoMode ? demoAssets : liveAssets;
   
@@ -40,14 +59,18 @@ const AssetsList = ({ isDemoMode = false }: AssetsListProps) => {
                   </div>
                   <div>
                     <div className="font-medium">{asset.name}</div>
-                    <div className="text-sm text-white/60">{asset.balance} {asset.symbol}</div>
+                    <div className="text-sm text-white/60">{asset.balance.toFixed(2)} {asset.symbol}</div>
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="font-medium">${asset.value.toLocaleString()}</div>
-                  <div className={`text-sm flex items-center justify-end ${asset.change > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {asset.change > 0 ? <ArrowUpRight className="w-3 h-3 mr-1" /> : <ArrowDownRight className="w-3 h-3 mr-1" />}
-                    {asset.change > 0 ? '+' : ''}{asset.change}%
+                  <div className={`text-sm flex items-center justify-end ${asset.change > 0 ? 'text-green-400' : asset.change < 0 ? 'text-red-400' : 'text-white/60'}`}>
+                    {asset.change !== 0 && (
+                      <>
+                        {asset.change > 0 ? <ArrowUpRight className="w-3 h-3 mr-1" /> : <ArrowDownRight className="w-3 h-3 mr-1" />}
+                        {asset.change > 0 ? '+' : ''}{asset.change}%
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
