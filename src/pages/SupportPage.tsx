@@ -7,13 +7,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
+import { auth } from "@/lib/firebase";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { useToast } from "@/components/ui/use-toast";
 
 const FAQData = [
   {
@@ -51,12 +52,23 @@ const SupportPage = () => {
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!auth.currentUser) {
+      toast({
+        title: "Error",
+        description: "Please sign in to submit a support ticket.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       const { collection, addDoc } = await import('firebase/firestore');
       const { db } = await import('@/lib/firebase');
       
       await addDoc(collection(db, 'support_tickets'), {
         ...contactForm,
+        userId: auth.currentUser.uid,
         createdAt: new Date().toISOString(),
         status: 'pending'
       });
