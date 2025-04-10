@@ -238,9 +238,54 @@ export const CryptoConverter = () => {
                       transactions: [...(userData.transactions || []), transaction]
                     };
 
+                    // Update the user's assets with the conversion
+                    const updatedAssets = { ...(userData.assets || {}) };
+                    
+                    // Handle USDT balance separately
+                    if (fromCurrency.symbol === 'USDT') {
+                      finalData.balance = userData.balance - numAmount;
+                    } else {
+                      const fromAssetBalance = updatedAssets[fromCurrency.symbol]?.amount || 0;
+                      updatedAssets[fromCurrency.symbol] = {
+                        amount: fromAssetBalance - numAmount,
+                        symbol: fromCurrency.symbol
+                      };
+                    }
+
+                    // Add converted amount to destination asset
+                    if (toCurrency.symbol === 'USDT') {
+                      finalData.balance = (userData.balance || 0) + convertedAmount;
+                    } else {
+                      const toAssetBalance = updatedAssets[toCurrency.symbol]?.amount || 0;
+                      updatedAssets[toCurrency.symbol] = {
+                        amount: toAssetBalance + convertedAmount,
+                        symbol: toCurrency.symbol
+                      };
+                    }
+
+                    finalData.assets = updatedAssets;
+
                     // Update everything in one call
                     await UserService.updateUserData(uid, finalData);
                     setAmount('');
+                    
+                    // Refresh balances
+                    const newUserData = await UserService.getUserData(uid);
+                    if (newUserData) {
+                      setFromCurrency(prev => ({ 
+                        ...prev, 
+                        balance: fromCurrency.symbol === 'USDT' ? 
+                          newUserData.balance : 
+                          newUserData.assets?.[fromCurrency.symbol]?.amount || 0 
+                      }));
+                      setToCurrency(prev => ({ 
+                        ...prev, 
+                        balance: toCurrency.symbol === 'USDT' ? 
+                          newUserData.balance : 
+                          newUserData.assets?.[toCurrency.symbol]?.amount || 0 
+                      }));
+                    }
+
                     toast({
                       title: "Conversion Successful",
                       description: `Converted ${numAmount} ${fromCurrency.symbol} to ${convertedAmount.toFixed(8)} ${toCurrency.symbol}`,
