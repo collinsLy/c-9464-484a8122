@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
@@ -21,7 +20,7 @@ interface Transaction {
 
 const TransactionHistory = ({ isDemoMode = false }: TransactionHistoryProps) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  
+
   useEffect(() => {
     const fetchTransactions = async () => {
       if (!isDemoMode) {
