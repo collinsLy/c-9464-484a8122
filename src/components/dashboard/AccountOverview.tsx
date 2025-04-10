@@ -1,6 +1,7 @@
 
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { UserService } from '@/lib/firebase-service';
 
 import { ArrowUpRight, Wallet, CreditCard, TrendingUp, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
