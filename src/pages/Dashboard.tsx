@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import AccountOverview from "@/components/dashboard/AccountOverview";
 import MarketChart from "@/components/dashboard/MarketChart";
+import { CryptoConverter } from "@/components/trading/CryptoConverter";
 import AssetsList from "@/components/dashboard/AssetsList";
 import TransactionHistory from "@/components/dashboard/TransactionHistory";
 import TradingPanel from "@/components/dashboard/TradingPanel";
@@ -67,13 +68,16 @@ const Dashboard = () => {
 
       case "trading":
         return (
-          <div>
+          <div className="space-y-6">
             <MarketChart 
               selectedSymbol={selectedSymbol} 
               selectedTimeframe={selectedTimeframe}
               onSymbolChange={setSelectedSymbol}
               onTimeframeChange={setSelectedTimeframe}
             />
+            <div className="max-w-md mx-auto">
+              <CryptoConverter />
+            </div>
           </div>
         );
 
