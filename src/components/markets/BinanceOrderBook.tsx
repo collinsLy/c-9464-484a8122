@@ -81,7 +81,7 @@ const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
         <div 
           key={`${order.price}-${i}`}
           className={cn(
-            "grid grid-cols-2 gap-2 text-sm relative transition-all duration-200",
+            "grid grid-cols-1 gap-2 text-sm relative transition-all duration-200",
             order.isNew && "animate-fade-in",
             order.hasChanged && (isAsk ? "bg-red-500/10" : "bg-green-500/10")
           )}
@@ -94,13 +94,7 @@ const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
                  width: `${(order.total || 0) / (Math.max(...orders.map(o => o.total || 0)) || 1) * 100}%`,
                  backgroundColor: isAsk ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)'
                }} />
-          <div className={cn(
-            "z-10",
-            isAsk ? "text-red-400" : "text-green-400"
-          )}>
-            {parseFloat(order.price).toFixed(2)}
-          </div>
-          <div className="text-right text-white/70 z-10">
+          <div className="text-center text-white/70 z-10">
             {parseFloat(order.amount).toFixed(4)}
           </div>
         </div>
