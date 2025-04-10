@@ -48,13 +48,10 @@ const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
 
     const fetchOrderBook = async () => {
       if (!symbol) return;
-      
-      // Ensure symbol ends with USDT
-      const formattedSymbol = symbol.endsWith('USDT') ? symbol : symbol.replace('USD', 'USDT');
 
       try {
         setError(null);
-        const data = await fetchBinanceData(`depth?symbol=${formattedSymbol}&limit=20`);
+        const data = await fetchBinanceData(`depth?symbol=${symbol}&limit=20`);
 
         if (!data || !data.bids || !data.asks) {
           throw new Error('Invalid order book data received');
