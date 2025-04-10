@@ -10,12 +10,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
-  Search, PlusCircle, TrendingUp, TrendingDown, 
+  SearchIcon, PlusCircle, TrendingUp, TrendingDown, 
   ArrowUpRight, ArrowDownRight, Filter, SlidersHorizontal,
   Wallet
 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-import { UserService } from "@/lib/firebase-service";
+import { UserBalanceService } from "@/lib/firebase-service";
 
 
 const BotsPage = () => {
@@ -30,19 +30,8 @@ const BotsPage = () => {
     const uid = localStorage.getItem('userId');
     if (!uid) return;
 
-    const calculateProfitLoss = (balance: number, initialBalance: number) => {
-      if (initialBalance === 0) return 0;
-      return ((balance - initialBalance) / initialBalance) * 100;
-    };
-
-    const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
-      if (!userData) return;
-      
-      const currentBalance = typeof userData.balance === 'string' ? parseFloat(userData.balance) : (userData.balance || 0);
-      const initialBalance = userData.initialBalance || currentBalance;
-      
-      setUserBalance(currentBalance);
-      setProfitLossPercent(calculateProfitLoss(currentBalance, initialBalance));
+    const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
+      setUserBalance(newBalance);
     });
 
     return () => unsubscribe();
