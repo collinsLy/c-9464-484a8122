@@ -44,7 +44,11 @@ const WithdrawPage = () => {
     }
 
     // Validate inputs based on payment method
-    if (!amount || parseFloat(amount) <= 0) {
+    const amountValue = parseFloat(amount);
+    const isWalletMethod = selectedPaymentMethod === 'mpesa' || selectedPaymentMethod === 'airtel';
+    const minAmount = isWalletMethod ? 20 : 50;
+    
+    if (!amount || amountValue <= 0) {
       toast({
         title: "Invalid Amount",
         description: "Please enter a valid withdrawal amount",
@@ -241,7 +245,8 @@ const WithdrawPage = () => {
                   <div>
                     <p className="font-medium text-white mb-2">Important Notes</p>
                     <ul className="list-disc pl-4 space-y-1">
-                      <li>Minimum withdrawal: $50.00</li>
+                      <li>Minimum withdrawal (Bank Transfer/PayPal): $50.00</li>
+                      <li>Minimum withdrawal (Mobile Money): $20.00</li>
                       <li>Maximum withdrawal: $50,000.00 per day</li>
                       <li>Verify your withdrawal details before confirming</li>
                       <li>Customer support available 24/7</li>
