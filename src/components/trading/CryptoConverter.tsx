@@ -165,6 +165,46 @@ export const CryptoConverter = () => {
               <Button 
                 className="w-full bg-[#e3ef3b] hover:bg-[#e3ef3b]/90 text-black"
                 disabled={!isValidAmount()}
+                onClick={async () => {
+                  if (!isValidAmount()) return;
+                  
+                  const uid = localStorage.getItem('userId');
+                  if (!uid) return;
+
+                  try {
+                    // Get current user data
+                    const userData = await UserService.getUserData(uid);
+                    if (!userData) return;
+
+                    const numAmount = parseFloat(amount);
+                    const convertedAmount = (numAmount / currentPrice);
+
+                    // Update from currency balance
+                    const newFromBalance = fromCurrency.balance - numAmount;
+                    
+                    // Get current "to" currency balance or initialize to 0
+                    const currentToBalance = userData[toCurrency.symbol.toLowerCase() + '_balance'] || 0;
+                    const newToBalance = currentToBalance + convertedAmount;
+
+                    // Update both balances
+                    await UserService.updateUserData(uid, {
+                      balance: newFromBalance,
+                      [toCurrency.symbol.toLowerCase() + '_balance']: newToBalance
+                    });
+
+                    // Reset input
+                    setAmount('');
+                    
+                    // Update local state
+                    setFromCurrency(prev => ({ ...prev, balance: newFromBalance }));
+                    setToCurrency(prev => ({ ...prev, balance: newToBalance }));
+
+                    alert('Conversion successful!');
+                  } catch (error) {
+                    console.error('Error during conversion:', error);
+                    alert('Failed to convert. Please try again.');
+                  }
+                }}
               >
                 {!amount ? 'Enter an amount' : isValidAmount() ? 'Convert' : 'Insufficient balance'}
               </Button>
