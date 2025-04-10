@@ -1,8 +1,16 @@
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-interface PriceUpdate {
+interface PriceData {
+  symbol: string;
+  price: number;
+  priceChange: string;
+}
+
+interface PriceUpdateSymbol {
   symbol: string;
   price: number;
   previousPrice: number;
@@ -10,20 +18,24 @@ interface PriceUpdate {
   percentageChange: number;
 }
 
-export function LivePriceTicker({ symbol }: { symbol: string }) {
-  const [priceHistory, setPriceHistory] = useState<PriceUpdate[]>([]);
-  const [latestPrice, setLatestPrice] = useState<PriceUpdate | null>(null);
-
+export function LivePriceTicker({ symbol }: { symbol?: string }) {
+  const [prices, setPrices] = useState<PriceData[]>([]);
+  const [priceHistory, setPriceHistory] = useState<PriceUpdateSymbol[]>([]);
+  const [latestPrice, setLatestPrice] = useState<PriceUpdateSymbol | null>(null);
+  
+  // For the single symbol ticker display
   useEffect(() => {
+    if (!symbol) return;
+    
     const ws = symbol.includes('USDT') 
       ? new WebSocket(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@trade`)
       : new WebSocket(`wss://ws.finnhub.io?token=${import.meta.env.VITE_FINNHUB_API_KEY}`);
 
-if (!symbol.includes('USDT')) {
-  ws.onopen = () => {
-    ws.send(JSON.stringify({ type: 'subscribe', symbol: symbol }));
-  };
-}
+    if (!symbol.includes('USDT')) {
+      ws.onopen = () => {
+        ws.send(JSON.stringify({ type: 'subscribe', symbol: symbol }));
+      };
+    }
     
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -40,7 +52,7 @@ if (!symbol.includes('USDT')) {
         percentageChange = ((newPrice - previousPrice) / previousPrice) * 100;
       }
       
-      const update: PriceUpdate = {
+      const update: PriceUpdateSymbol = {
         symbol: symbol,
         price: newPrice,
         previousPrice,
@@ -54,8 +66,41 @@ if (!symbol.includes('USDT')) {
 
     return () => ws.close();
   }, [symbol]);
+  
+  // For the multi-symbol ticker display
+  useEffect(() => {
+    if (symbol) return; // Don't run this effect if a specific symbol is provided
+    
+    const symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'DOGEUSDT'];
+    
+    const fetchPrices = async () => {
+      try {
+        const responses = await Promise.all(
+          symbols.map(symbol =>
+            fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`)
+              .then(res => res.json())
+          )
+        );
+        
+        const formattedData = responses.map(data => ({
+          symbol: data.symbol.replace('USDT', ''),
+          price: parseFloat(data.lastPrice),
+          priceChange: data.priceChangePercent
+        }));
+        
+        setPrices(formattedData);
+      } catch (error) {
+        console.error('Error fetching prices:', error);
+      }
+    };
+    
+    fetchPrices();
+    const interval = setInterval(fetchPrices, 10000);
+    return () => clearInterval(interval);
+  }, [symbol]);
 
-  return (
+  // Render the single symbol ticker with history
+  const renderSingleTicker = () => (
     <div className="space-y-4">
       {/* Sticky Latest Price */}
       {latestPrice && (
@@ -97,50 +142,9 @@ if (!symbol.includes('USDT')) {
       </div>
     </div>
   );
-}
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 
-interface PriceData {
-  symbol: string;
-  price: number;
-  priceChange: string;
-}
-
-export function LivePriceTicker() {
-  const [prices, setPrices] = useState<PriceData[]>([]);
-  
-  useEffect(() => {
-    const symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'DOGEUSDT'];
-    
-    const fetchPrices = async () => {
-      try {
-        const responses = await Promise.all(
-          symbols.map(symbol =>
-            fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`)
-              .then(res => res.json())
-          )
-        );
-        
-        const formattedData = responses.map(data => ({
-          symbol: data.symbol.replace('USDT', ''),
-          price: parseFloat(data.lastPrice),
-          priceChange: data.priceChangePercent
-        }));
-        
-        setPrices(formattedData);
-      } catch (error) {
-        console.error('Error fetching prices:', error);
-      }
-    };
-    
-    fetchPrices();
-    const interval = setInterval(fetchPrices, 10000);
-    return () => clearInterval(interval);
-  }, []);
-  
-  return (
+  // Render the multi-symbol ticker
+  const renderMultiTicker = () => (
     <Card className="w-full bg-background/20 border-0">
       <CardHeader>
         <CardTitle className="text-white">Live Market Prices</CardTitle>
@@ -164,4 +168,8 @@ export function LivePriceTicker() {
       </CardContent>
     </Card>
   );
+
+  // If a symbol is specified, show the single ticker with history
+  // Otherwise, show the multi-symbol ticker
+  return symbol ? renderSingleTicker() : renderMultiTicker();
 }

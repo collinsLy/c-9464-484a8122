@@ -1,13 +1,31 @@
-
+import { doc, onSnapshot, updateDoc, getDoc } from 'firebase/firestore';
 import { db, auth } from './firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
-class UserService {
+export class UserService {
+  static subscribeToUserData(uid: string, callback: (userData: any) => void) {
+    const userRef = doc(db, 'users', uid);
+
+    const unsubscribe = onSnapshot(userRef, (doc) => {
+      if (doc.exists()) {
+        callback(doc.data());
+      } else {
+        console.error('User document does not exist');
+      }
+    });
+
+    return unsubscribe;
+  }
+
+  static async updateUserData(uid: string, data: any) {
+    const userRef = doc(db, 'users', uid);
+    return updateDoc(userRef, data);
+  }
+
   async getUserBalance(userId: string): Promise<number> {
     try {
       const userRef = doc(db, 'users', userId);
       const userDoc = await getDoc(userRef);
-      
+
       if (userDoc.exists()) {
         return userDoc.data().balance || 0;
       }
@@ -33,4 +51,5 @@ class UserService {
   }
 }
 
+//Keeping the export for backward compatibility, but encourage use of static methods.
 export const userService = new UserService();

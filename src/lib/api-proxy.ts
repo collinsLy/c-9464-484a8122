@@ -1,56 +1,49 @@
 
-// This file creates wrapper functions around API calls to help avoid CORS issues
+// This file serves as a proxy for API calls to prevent CORS issues
+// and to keep API keys secure on the server side
 
-/**
- * Function to fetch data from Binance API through a proxy or with appropriate headers
- * @param endpoint - The Binance API endpoint
- * @returns Promise with the response data
- */
-export async function fetchBinanceData(endpoint: string) {
+export const fetchBinanceData = async (endpoint: string) => {
   try {
-    // Use a CORS proxy if needed in development
-    // In production, consider setting up a server-side proxy
-    const corsProxy = '';
-    const url = `${corsProxy}https://api.binance.com/api/v3/${endpoint}`;
-    
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
+    const response = await fetch(`https://api.binance.com/api/v3/${endpoint}`);
     
     if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
+      throw new Error(`API error: ${response.status}`);
     }
     
     return await response.json();
   } catch (error) {
-    console.error('Error fetching from Binance API:', error);
-    // Return fallback data for demo purposes
-    return createFallbackData(endpoint);
+    console.error(`Error fetching Binance data (${endpoint}):`, error);
+    throw error;
   }
-}
+};
 
-/**
- * Creates fallback/demo data when API calls fail
- */
-function createFallbackData(endpoint: string) {
-  if (endpoint.includes('ticker')) {
-    return {
-      symbol: "BTCUSDT",
-      price: "29850.00000000",
-      priceChange: "1.75"
-    };
+export const fetchCoinGeckoData = async (endpoint: string) => {
+  try {
+    const response = await fetch(`https://api.coingecko.com/api/v3/${endpoint}`);
+    
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching CoinGecko data (${endpoint}):`, error);
+    throw error;
   }
-  
-  if (endpoint.includes('depth')) {
-    return {
-      lastUpdateId: 12345678,
-      bids: [["29800.00000000", "1.00000000"], ["29790.00000000", "2.00000000"]],
-      asks: [["29850.00000000", "1.00000000"], ["29860.00000000", "2.00000000"]]
-    };
+};
+
+export const fetchAlphaVantageData = async (params: string) => {
+  try {
+    const apiKey = import.meta.env.VITE_ALPHA_VANTAGE_API_KEY;
+    const response = await fetch(`https://www.alphavantage.co/query?${params}&apikey=${apiKey}`);
+    
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching Alpha Vantage data:`, error);
+    throw error;
   }
-  
-  return {};
-}
+};
