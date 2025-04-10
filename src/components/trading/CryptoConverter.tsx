@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { SwapVertical } from 'lucide-react';
+import { ArrowUpDown } from 'lucide-react';
 import { binanceService } from '@/lib/binance-service';
 import { UserService } from '@/lib/user-service';
 
@@ -95,7 +95,7 @@ export const CryptoConverter = () => {
                   className="text-white"
                   onClick={handleSwap}
                 >
-                  <SwapVertical className="h-6 w-6" />
+                  <ArrowUpDown className="h-6 w-6" />
                 </Button>
               </div>
 
