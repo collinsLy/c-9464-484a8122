@@ -333,7 +333,7 @@ const WithdrawPage = () => {
               <Button variant="outline" onClick={() => setIsSuccessDialogOpen(false)}>
                 Close
               </Button>
-              <Button onClick={() => window.location.href = '/history'}>
+              <Button onClick={() => window.location.href = '/dashboard?tab=history'}>
                 View History
               </Button>
             </div>
