@@ -1,15 +1,14 @@
-
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { UserService } from '@/lib/firebase-service';
+import { UserService } from '@/lib/firebase-service'; // Added UserService import
 
-import { ArrowUpRight, Wallet, CreditCard, TrendingUp, TrendingDown, RefreshCw } from "lucide-react";
+import { ArrowDownRight as TrendingDown, ArrowUpRight as TrendingUp, RefreshCw, Wallet, CreditCard } from "lucide-react"; //Corrected import for TrendingDown and TrendingUp
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { UserBalanceService } from "@/lib/firebase-service";
-//import { UserBalanceService } from "@/lib/firebase-service"; // This line is removed as UserBalanceService is not used in the updated code.
+
 
 interface AccountOverviewProps {
   isDemoMode?: boolean;
@@ -24,7 +23,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
 
   useEffect(() => {
     const uid = localStorage.getItem('userId');
-    
+
     if (!uid || isDemoMode) {
       setIsLoading(false);
       return;
@@ -32,13 +31,13 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
 
     setIsLoading(true);
     console.log('Subscribing to balance updates for user:', uid);
-    
+
     // Use UserBalanceService to subscribe to balance updates
     const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
       const parsedBalance = typeof userData.balance === 'string' ? parseFloat(userData.balance) : userData.balance;
       const initialBalance = userData.initialBalance || parsedBalance;
       const totalPL = userData.totalProfitLoss || 0;
-      
+
       if (isNaN(parsedBalance)) {
         console.error('Invalid balance value received:', userData.balance);
         setBalance(0);
@@ -102,7 +101,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
       });
       return;
     }
-    
+
     try {
       setIsLoading(true);
       // Update balance with a random value between 100 and 1000

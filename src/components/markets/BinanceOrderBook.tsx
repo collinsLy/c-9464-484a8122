@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -7,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { binanceService } from '@/lib/binance-service';
 import { cn } from '@/lib/utils';
+import { fetchBinanceData } from "@/lib/api-proxy"; // Added import statement
 
 interface BinanceOrderBookProps {
   symbol: string;
@@ -25,13 +25,13 @@ const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
   const [orderBook, setOrderBook] = useState<{ bids: OrderData[], asks: OrderData[] }>({ bids: [], asks: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   const processOrders = useCallback((orders: string[][], prevOrders: OrderData[] = []): OrderData[] => {
     return orders.slice(0, 15).map((order, i) => {
       const [price, amount] = order;
       const prevOrder = prevOrders[i];
       const total = parseFloat(amount) * parseFloat(price);
-      
+
       return {
         price,
         amount,
@@ -48,15 +48,15 @@ const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
 
     const fetchOrderBook = async () => {
       if (!symbol) return;
-      
+
       try {
         setError(null);
-        const data = await binanceService.getOrderBook(symbol);
-        
+        const data = await fetchBinanceData(`depth?symbol=${symbol}&limit=20`); // Updated fetch call
+
         if (!data || !data.bids || !data.asks) {
           throw new Error('Invalid order book data received');
         }
-        
+
         setOrderBook(prev => ({
           bids: processOrders(data.bids, prev.bids),
           asks: processOrders(data.asks, prev.asks)
@@ -73,7 +73,7 @@ const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
 
     fetchOrderBook();
     return () => clearTimeout(timeoutId);
-  }, [symbol, processOrders]);
+  }, [symbol, processOrders, fetchBinanceData]); // Added fetchBinanceData to dependencies
 
   const renderOrders = (orders: OrderData[], isAsk: boolean) => (
     <div className="space-y-1 h-[300px] overflow-y-auto">
@@ -136,7 +136,7 @@ const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
             <TabsTrigger value="buy" className="text-white">Buy</TabsTrigger>
             <TabsTrigger value="sell" className="text-white">Sell</TabsTrigger>
           </TabsList>
-          
+
           <div className="mt-4 space-y-4">
             <div className="flex space-x-2">
               <Button
@@ -174,7 +174,7 @@ const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
                 <div>Price</div>
                 <div className="text-right">Amount</div>
               </div>
-              
+
               {renderOrders(orderBook.asks.slice().reverse(), true)}
               <div className="border-t border-white/10 my-2" />
               {renderOrders(orderBook.bids, false)}

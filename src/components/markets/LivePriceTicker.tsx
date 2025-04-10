@@ -98,3 +98,70 @@ if (!symbol.includes('USDT')) {
     </div>
   );
 }
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+
+interface PriceData {
+  symbol: string;
+  price: number;
+  priceChange: string;
+}
+
+export function LivePriceTicker() {
+  const [prices, setPrices] = useState<PriceData[]>([]);
+  
+  useEffect(() => {
+    const symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'DOGEUSDT'];
+    
+    const fetchPrices = async () => {
+      try {
+        const responses = await Promise.all(
+          symbols.map(symbol =>
+            fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`)
+              .then(res => res.json())
+          )
+        );
+        
+        const formattedData = responses.map(data => ({
+          symbol: data.symbol.replace('USDT', ''),
+          price: parseFloat(data.lastPrice),
+          priceChange: data.priceChangePercent
+        }));
+        
+        setPrices(formattedData);
+      } catch (error) {
+        console.error('Error fetching prices:', error);
+      }
+    };
+    
+    fetchPrices();
+    const interval = setInterval(fetchPrices, 10000);
+    return () => clearInterval(interval);
+  }, []);
+  
+  return (
+    <Card className="w-full bg-background/20 border-0">
+      <CardHeader>
+        <CardTitle className="text-white">Live Market Prices</CardTitle>
+      </CardHeader>
+      <CardContent className="px-2">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          {prices.map((item) => (
+            <Card key={item.symbol} className="bg-background/40 border-white/10 overflow-hidden">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-sm text-white">{item.symbol}</span>
+                  <Badge variant={parseFloat(item.priceChange) >= 0 ? "success" : "destructive"} className="text-xs">
+                    {parseFloat(item.priceChange) >= 0 ? '+' : ''}{item.priceChange}%
+                  </Badge>
+                </div>
+                <p className="text-lg font-bold text-white mt-1">${item.price.toFixed(2)}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
