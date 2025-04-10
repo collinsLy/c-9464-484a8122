@@ -7,6 +7,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ArrowUpDown } from 'lucide-react';
 import { binanceService } from '@/lib/binance-service';
 import { UserService } from '@/lib/user-service';
+import { toast } from "@/hooks/use-toast";
 
 export const CryptoConverter = () => {
   const cryptocurrencies = [
