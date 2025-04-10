@@ -1,4 +1,6 @@
 
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Play, Info } from "lucide-react";
@@ -27,72 +29,13 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
   const hasRequiredBalance = isDemoMode || userBalance >= minBalance;
 
   const handleClick = async () => {
-    if (isDemoMode) {
-      toast.success(`${bot.type} Bot Activated`, {
-        description: `Your ${bot.type} bot is now trading ${bot.pair} with demo funds.`,
+    try {
+      onTradeClick(bot);
+    } catch (error) {
+      console.error('Error during trade:', error);
+      toast.error("Trading Error", {
+        description: "An error occurred during trading. Please try again.",
       });
-
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      const isWin = Math.random() < 0.7;
-      const amount = bot.price;
-      const profitMultiplier = isWin ? 1.8 : -1.0;
-      const profitLoss = amount * profitMultiplier;
-
-      const currentBalance = parseFloat(localStorage.getItem('demoBalance') || '10000');
-      const newBalance = currentBalance + profitLoss;
-      localStorage.setItem('demoBalance', newBalance.toString());
-
-      if (isWin) {
-        toast.success(`Trade Won!`, {
-          description: `Profit: $${profitLoss.toFixed(2)}. New Balance: $${newBalance.toFixed(2)}`,
-        });
-      } else {
-        toast.error(`Trade Lost`, {
-          description: `Loss: $${Math.abs(profitLoss).toFixed(2)}. New Balance: $${newBalance.toFixed(2)}`,
-        });
-      }
-
-      window.dispatchEvent(new Event('storage'));
-    } else {
-      const requiredBalance = getMinBalance(bot.id);
-      
-      if (userBalance < requiredBalance) {
-        toast.error("Insufficient Balance", {
-          description: `You need a minimum balance of $${requiredBalance} to use the ${bot.type} bot. Current balance: $${userBalance}`,
-        });
-        return;
-      }
-
-      try {
-        // Verify balance one more time before execution
-        const uid = localStorage.getItem('userId');
-        if (!uid) {
-          toast.error("Authentication Error", {
-            description: "Please log in to continue trading.",
-          });
-          return;
-        }
-
-        const currentBalance = await UserBalanceService.getUserBalance(uid);
-        if (currentBalance < requiredBalance) {
-          toast.error("Insufficient Balance", {
-            description: `You need a minimum balance of $${requiredBalance} to use the ${bot.type} bot.`,
-          });
-          return;
-        }
-
-        toast.success(`${bot.type} Bot Activated`, {
-          description: `Your ${bot.type} bot is now trading ${bot.pair} with real funds.`,
-        });
-        
-        onTradeClick(bot);
-      } catch (error) {
-        console.error('Error verifying balance:', error);
-        toast.error("Trading Error", {
-          description: "Unable to verify balance. Please try again.",
-        });
-      }
     }
   };
 

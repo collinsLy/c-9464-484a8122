@@ -36,10 +36,43 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
     return () => unsubscribe();
   }, [isDemoMode]);
 
-  const handleTradeClick = (bot: BotTier) => {
+  const handleTradeClick = async (bot: BotTier) => {
     if (isDemoMode) {
+      if (userBalance < 20) {
+        toast.error("Insufficient Demo Balance", {
+          description: `You need a minimum balance of $20 to use demo trading. Current balance: $${userBalance}`,
+        });
+        return;
+      }
+
       toast.success(`Demo Bot Activated`, {
         description: `${bot.type} bot is now running with virtual funds. No real money is being used.`,
+      });
+
+      // Simulate trade execution and outcome for demo mode
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      const isWin = Math.random() < 0.7;
+      const tradeAmount = 20; // Fixed demo trade amount
+      const profitMultiplier = isWin ? 1.8 : -1.0;
+      const profitLoss = tradeAmount * profitMultiplier;
+      const newBalance = userBalance + profitLoss;
+
+      if (isWin) {
+        toast.success(`Demo Trade Won!`, {
+          description: `Profit: $${(tradeAmount * 0.8).toFixed(2)}. New Balance: $${newBalance.toFixed(2)}`,
+        });
+      } else {
+        toast.error(`Demo Trade Lost`, {
+          description: `Loss: $${tradeAmount.toFixed(2)}. New Balance: $${newBalance.toFixed(2)}`,
+        });
+      }
+      return;
+    }
+
+    const uid = localStorage.getItem('userId');
+    if (!uid) {
+      toast.error("Authentication Error", {
+        description: "Please log in to continue trading.",
       });
       return;
     }
@@ -54,16 +87,48 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
 
     const requiredBalance = minimumBalanceRequired[bot.id as keyof typeof minimumBalanceRequired];
     
-    if (userBalance < requiredBalance) {
-      toast.error("Insufficient Funds", {
-        description: `You need a minimum balance of $${requiredBalance} to activate the ${bot.type} bot. Please deposit funds to continue.`,
+    try {
+      const currentBalance = await UserBalanceService.getUserBalance(uid);
+      if (currentBalance < requiredBalance) {
+        toast.error("Insufficient Funds", {
+          description: `You need a minimum balance of $${requiredBalance} to activate the ${bot.type} bot. Please deposit funds to continue.`,
+        });
+        return;
+      }
+
+      // Deduct the trade amount from user's balance
+      const tradeAmount = requiredBalance;
+      const newBalance = currentBalance - tradeAmount;
+      await UserBalanceService.updateUserBalance(uid, newBalance);
+      
+      toast.success(`Bot Activated`, {
+        description: `${bot.type} bot has been successfully activated with real funds.`,
       });
-      return;
+
+      // Simulate trade execution and outcome
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      const isWin = Math.random() < 0.7;
+      const profitMultiplier = isWin ? 1.8 : -1.0;
+      const profitLoss = tradeAmount * profitMultiplier;
+
+      if (isWin) {
+        // Add profit to user's balance
+        const finalBalance = newBalance + (tradeAmount * 1.8);
+        await UserBalanceService.updateUserBalance(uid, finalBalance);
+        toast.success(`Trade Won!`, {
+          description: `Profit: $${(tradeAmount * 0.8).toFixed(2)}. New Balance: $${finalBalance.toFixed(2)}`,
+        });
+      } else {
+        toast.error(`Trade Lost`, {
+          description: `Loss: $${tradeAmount.toFixed(2)}. New Balance: $${newBalance.toFixed(2)}`,
+        });
+      }
+    } catch (error) {
+      console.error('Error during trade:', error);
+      toast.error("Trading Error", {
+        description: "An error occurred during trading. Please try again.",
+      });
     }
-    
-    toast.success(`Bot Activated`, {
-      description: `${bot.type} bot has been successfully activated with real funds.`,
-    });
   };
 
   return (
