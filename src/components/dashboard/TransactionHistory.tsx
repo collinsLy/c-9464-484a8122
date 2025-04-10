@@ -69,17 +69,9 @@ const TransactionHistory = ({ isDemoMode = false }: TransactionHistoryProps) => 
       paypal: "PayPal",
       mpesa: "M-Pesa",
       airtel: "Airtel Money",
-      card: "Credit Card",
-      conversion: "Crypto Conversion"
+      card: "Credit Card"
     };
     return details?.paymentMethod || methodMap[method] || method;
-  };
-
-  const formatTransactionDescription = (tx: Transaction) => {
-    if (tx.type === 'conversion') {
-      return `${tx.fromAmount} ${tx.fromCurrency} → ${tx.toAmount.toFixed(8)} ${tx.toCurrency}`;
-    }
-    return `$${tx.amount.toLocaleString()}`;
   };
 
   return (
@@ -107,7 +99,7 @@ const TransactionHistory = ({ isDemoMode = false }: TransactionHistoryProps) => 
                     {tx.type.charAt(0).toUpperCase() + tx.type.slice(1)}
                   </TableCell>
                   <TableCell>{formatMethod(tx.method, tx.details)}</TableCell>
-                  <TableCell>{formatTransactionDescription(tx)}</TableCell>
+                  <TableCell>${tx.amount.toLocaleString()}</TableCell>
                   <TableCell>
                     <span className="px-2 py-1 rounded-full text-xs bg-green-500/20 text-green-400">
                       {tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}

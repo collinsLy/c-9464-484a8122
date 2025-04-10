@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserService } from "@/lib/firebase-service";
-import { binanceService } from "@/lib/binance-service";
 
 interface AssetsListProps {
   isDemoMode?: boolean;
@@ -59,33 +58,17 @@ const AssetsList = ({ isDemoMode = false }: AssetsListProps) => {
         
         // Add other assets
         if (userData.assets) {
-          const entries = Object.entries(userData.assets);
-          for (const [symbol, data] of entries) {
-            try {
-              const price = await binanceService.getPrice(`${symbol}USDT`);
-              const priceValue = parseFloat(price.price) || 1;
-              assets.push({
-                id: symbol.toLowerCase(),
-                name: symbol,
-                symbol: symbol,
-                balance: data.amount,
-                value: data.amount * priceValue,
-                change: 0,
-                logoUrl: `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${symbol.toLowerCase()}.svg`
-              });
-            } catch (error) {
-              console.error(`Error fetching price for ${symbol}:`, error);
-              assets.push({
-                id: symbol.toLowerCase(),
-                name: symbol,
-                symbol: symbol,
-                balance: data.amount,
-                value: data.amount,
-                change: 0,
-                logoUrl: `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${symbol.toLowerCase()}.svg`
-              });
-            }
-          }
+          Object.entries(userData.assets).forEach(([symbol, data]: [string, any]) => {
+            assets.push({
+              id: symbol.toLowerCase(),
+              name: symbol,
+              symbol: symbol,
+              balance: data.amount,
+              value: data.amount, // You might want to fetch current prices to calculate accurate value
+              change: 0,
+              logoUrl: `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${symbol.toLowerCase()}.svg`
+            });
+          });
         }
         setLiveAssets(assets);
       }

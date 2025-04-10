@@ -189,29 +189,7 @@ export const CryptoConverter = () => {
                       }
                     };
                     
-                    // Create transaction record
-                    const transactionRecord = {
-                      type: 'conversion',
-                      fromCurrency: fromCurrency.symbol,
-                      toCurrency: toCurrency.symbol,
-                      fromAmount: numAmount,
-                      toAmount: convertedAmount,
-                      rate: currentPrice,
-                      timestamp: new Date().toISOString(),
-                      status: 'completed',
-                      transactionId: `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-                    };
-
-                    // Update user data with new balances and transaction
-                    const updatedDataWithTransaction = {
-                      ...updatedData,
-                      transactions: [
-                        transactionRecord,
-                        ...(userData.transactions || [])
-                      ]
-                    };
-
-                    await UserService.updateUserData(uid, updatedDataWithTransaction);
+                    await UserService.updateUserData(uid, updatedData);
                     setAmount('');
                     toast({
                       title: "Conversion Successful",
