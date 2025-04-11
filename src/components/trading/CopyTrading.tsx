@@ -116,7 +116,7 @@ export const CopyTrading = () => {
                   <h3 className="text-lg font-semibold text-white">{trader.name}</h3>
                   <p className="text-sm text-white/70">Rank: {trader.rank}</p>
                 </div>
-                <Button variant="outline" className="bg-yellow-400 text-black hover:bg-yellow-500">
+                <Button variant="outline" className="bg-[#e3ef3b] text-black hover:bg-[#e3ef3b]/90">
                   Copy
                 </Button>
               </div>
