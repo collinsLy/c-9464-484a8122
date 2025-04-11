@@ -5,6 +5,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
+  base: '/',
   build: {
     chunkSizeWarningLimit: 2000,
     rollupOptions: {
