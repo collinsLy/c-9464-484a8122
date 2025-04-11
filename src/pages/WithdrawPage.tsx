@@ -306,65 +306,73 @@ const WithdrawPage = () => {
         transactions: arrayUnion(transaction)
       });
       
-      // Simulate blockchain confirmation process with status updates
-      // Use shorter timeframes for testing purposes
-      if (!isDemoMode) {
-        // After 10-30 seconds, update to Processing (for demo/testing)
-        const processingDelay = Math.floor(Math.random() * 20 * 1000) + 10 * 1000; // 10-30 seconds
-        console.log(`Transaction ${transaction.txId} will move to Processing in ${processingDelay/1000} seconds`);
-        
-        setTimeout(async () => {
-          try {
-            const userData = await UserService.getUserData(uid);
-            if (!userData || !userData.transactions) return;
-            
-            // Find the transaction
-            const updatedTransactions = userData.transactions.map((tx: any) => {
-              if (tx.txId === transaction.txId) {
-                return { ...tx, status: 'Processing' };
-              }
-              return tx;
-            });
-            
-            await UserService.updateUserData(uid, { transactions: updatedTransactions });
-            
-            toast({
-              title: "Withdrawal Update",
-              description: `Your ${cryptoAmountValue} ${selectedCrypto} withdrawal is now processing.`,
-            });
-            
-            // After additional 20-40 seconds, update to Completed (for demo/testing)
-            const completionDelay = Math.floor(Math.random() * 20 * 1000) + 20 * 1000; // 20-40 seconds
-            console.log(`Transaction ${transaction.txId} will move to Completed in ${completionDelay/1000} additional seconds`);
-            
-            setTimeout(async () => {
-              try {
-                const userData = await UserService.getUserData(uid);
-                if (!userData || !userData.transactions) return;
-                
-                const finalTransactions = userData.transactions.map((tx: any) => {
-                  if (tx.txId === transaction.txId) {
-                    return { ...tx, status: 'Completed' };
-                  }
-                  return tx;
-                });
-                
-                await UserService.updateUserData(uid, { transactions: finalTransactions });
-                
-                toast({
-                  title: "Withdrawal Completed",
-                  description: `Your ${cryptoAmountValue} ${selectedCrypto} withdrawal has been completed.`,
-                });
-              } catch (err) {
-                console.error("Error updating transaction status to Completed:", err);
-              }
-            }, completionDelay);
-            
-          } catch (err) {
-            console.error("Error updating transaction status to Processing:", err);
-          }
-        }, processingDelay);
-      }
+      // Force immediate status updates for testing/demo purposes
+      // No delay based logic, immediately update statuses
+      console.log(`Processing transaction ${transaction.txId} immediately`);
+      
+      // Immediately update to Processing
+      setTimeout(async () => {
+        try {
+          console.log(`Updating ${transaction.txId} to Processing status`);
+          
+          // Direct update to Processing without fetching first
+          await UserService.updateUserData(uid, {
+            transactions: arrayUnion({
+              ...transaction,
+              status: 'Processing'
+            })
+          });
+          
+          toast({
+            title: "Withdrawal Update",
+            description: `Your ${cryptoAmountValue} ${selectedCrypto} withdrawal is now processing.`,
+          });
+          
+          // Then update to Completed after just 5 seconds
+          setTimeout(async () => {
+            try {
+              console.log(`Updating ${transaction.txId} to Completed status`);
+              
+              // Get updated data first
+              const userData = await UserService.getUserData(uid);
+              if (!userData || !userData.transactions) return;
+              
+              // Filter out duplicate transactions and keep only the most recent one
+              const uniqueTxIds = new Set();
+              const filteredTransactions = userData.transactions.filter((tx: any) => {
+                if (uniqueTxIds.has(tx.txId)) {
+                  return false;
+                }
+                uniqueTxIds.add(tx.txId);
+                return true;
+              });
+              
+              // Update the specific transaction
+              const finalTransactions = filteredTransactions.map((tx: any) => {
+                if (tx.txId === transaction.txId) {
+                  return { ...tx, status: 'Completed' };
+                }
+                return tx;
+              });
+              
+              // Replace all transactions
+              await UserService.updateUserData(uid, { 
+                transactions: finalTransactions 
+              });
+              
+              toast({
+                title: "Withdrawal Completed",
+                description: `Your ${cryptoAmountValue} ${selectedCrypto} withdrawal has been completed.`,
+              });
+            } catch (err) {
+              console.error("Error updating transaction status to Completed:", err);
+            }
+          }, 5000); // Just 5 seconds later
+          
+        } catch (err) {
+          console.error("Error updating transaction status to Processing:", err);
+        }
+      }, 100); // Almost immediate
 
       setIsSuccessDialogOpen(true);
 

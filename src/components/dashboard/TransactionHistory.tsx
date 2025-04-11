@@ -56,19 +56,23 @@ const TransactionHistory = () => {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const uid = auth.currentUser?.uid;
+        const uid = auth.currentUser?.uid || localStorage.getItem('userId');
         if (!uid) return;
 
+        console.log('Fetching transactions for user:', uid);
+        
         // First, get the initial data
         const userData = await UserService.getUserData(uid);
         if (userData && userData.transactions) {
+          console.log('Initial transactions loaded:', userData.transactions.length);
           setTransactions(userData.transactions);
           setFilteredTransactions(userData.transactions);
         }
         
-        // Then set up real-time updates
+        // Then set up real-time updates with increased responsiveness
         const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
           if (userData && userData.transactions) {
+            console.log('Real-time transaction update received:', userData.transactions.length);
             setTransactions(userData.transactions);
             setFilteredTransactions(prevFiltered => {
               // Apply current filters to the new data
