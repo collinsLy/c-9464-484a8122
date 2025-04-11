@@ -408,8 +408,14 @@ const DepositPage = () => {
                         ((selectedPaymentMethod === 'mpesa' || selectedPaymentMethod === 'airtel') && parseFloat(amount) > 15)
                       }
                       onClick={() => {
-                        if (selectedPaymentMethod === 'mpesa' || selectedPaymentMethod === 'airtel') {
-                          window.location.href = 'https://vertexdeposit-production.up.railway.app/';
+                        if (selectedPaymentMethod !== 'crypto') {
+                          toast({
+                            title: "Flat Deposits Unavailable",
+                            description: "Flat deposits are temporarily unavailable due to technical issues. In the meantime, please use cryptocurrency for deposits. We're working to resolve the issue as quickly as possible—thank you for your understanding.",
+                            variant: "destructive",
+                            duration: 5000,
+                          });
+                          return;
                         }
                       }}
                     >
