@@ -35,6 +35,35 @@ const AssetsList = ({ isDemoMode = false }: AssetsListProps) => {
   ];
   
   const [liveAssets, setLiveAssets] = useState([]);
+  const [assetPrices, setAssetPrices] = useState<Record<string, number>>({});
+
+  // Fetch current prices for assets
+  useEffect(() => {
+    const fetchPrices = async () => {
+      try {
+        const symbols = ['BTC', 'ETH', 'BNB', 'SOL', 'ADA', 'DOGE', 'XRP', 'DOT', 'LINK', 'MATIC'];
+        const symbolsQuery = symbols.map(s => `${s}USDT`);
+        const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
+        const data = await response.json();
+        
+        const prices: Record<string, number> = {};
+        data.forEach((item: any) => {
+          const symbol = item.symbol.replace('USDT', '');
+          prices[symbol] = parseFloat(item.price);
+        });
+        // Add USDT itself with value of 1
+        prices['USDT'] = 1;
+        setAssetPrices(prices);
+      } catch (error) {
+        console.error('Error fetching asset prices:', error);
+      }
+    };
+
+    fetchPrices();
+    // Update prices every 30 seconds
+    const interval = setInterval(fetchPrices, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const uid = localStorage.getItem('userId');
@@ -56,16 +85,21 @@ const AssetsList = ({ isDemoMode = false }: AssetsListProps) => {
           });
         }
         
-        // Add other assets
+        // Add other assets with accurate price data
         if (userData.assets) {
           Object.entries(userData.assets).forEach(([symbol, data]: [string, any]) => {
+            const amount = data.amount || 0;
+            const price = assetPrices[symbol] || 0;
+            const valueInUsdt = amount * price;
+            
             assets.push({
               id: symbol.toLowerCase(),
               name: symbol,
               symbol: symbol,
-              balance: data.amount,
-              value: data.amount, // You might want to fetch current prices to calculate accurate value
-              change: 0,
+              balance: amount,
+              value: valueInUsdt, // Calculate actual value based on current price
+              price: price, // Store current price
+              change: 0, // You could calculate this if you store historical prices
               logoUrl: `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${symbol.toLowerCase()}.svg`
             });
           });
@@ -75,7 +109,7 @@ const AssetsList = ({ isDemoMode = false }: AssetsListProps) => {
     });
 
     return () => unsubscribe();
-  }, [isDemoMode]);
+  }, [isDemoMode, assetPrices]);
   
   const assets = isDemoMode ? demoAssets : liveAssets;
   
@@ -106,7 +140,12 @@ const AssetsList = ({ isDemoMode = false }: AssetsListProps) => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-medium">${asset.value.toLocaleString()}</div>
+                  <div className="font-medium">${asset.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                  {asset.symbol !== 'USDT' && (
+                    <div className="text-sm text-white/60">
+                      @ ${asset.price?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}/coin
+                    </div>
+                  )}
                   <div className={`text-sm flex items-center justify-end ${asset.change > 0 ? 'text-green-400' : asset.change < 0 ? 'text-red-400' : 'text-white/60'}`}>
                     {asset.change !== 0 && (
                       <>

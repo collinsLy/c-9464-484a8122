@@ -21,6 +21,38 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   const [profitLoss, setProfitLoss] = useState(0);
   const [profitLossPercent, setProfitLossPercent] = useState(0);
 
+  // Track total portfolio value
+  const [totalPortfolioValue, setTotalPortfolioValue] = useState(0);
+  const [assetPrices, setAssetPrices] = useState<Record<string, number>>({});
+
+  // Fetch current prices for all assets
+  useEffect(() => {
+    const fetchPrices = async () => {
+      try {
+        const symbols = ['BTC', 'ETH', 'BNB', 'SOL', 'ADA'];
+        const symbolsQuery = symbols.map(s => `${s}USDT`);
+        const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
+        const data = await response.json();
+        
+        const prices: Record<string, number> = {};
+        data.forEach((item: any) => {
+          const symbol = item.symbol.replace('USDT', '');
+          prices[symbol] = parseFloat(item.price);
+        });
+        // Add USDT itself with value of 1
+        prices['USDT'] = 1;
+        setAssetPrices(prices);
+      } catch (error) {
+        console.error('Error fetching asset prices:', error);
+      }
+    };
+
+    fetchPrices();
+    // Update prices every 30 seconds
+    const interval = setInterval(fetchPrices, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     const uid = localStorage.getItem('userId');
 
@@ -38,11 +70,26 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
       const initialBalance = userData.initialBalance || parsedBalance;
       const totalPL = userData.totalProfitLoss || 0;
 
+      // Calculate total portfolio value including all assets
+      let portfolioValue = parsedBalance; // Start with USDT balance
+      
+      // Add value of all other assets
+      if (userData.assets && Object.keys(assetPrices).length > 0) {
+        Object.entries(userData.assets).forEach(([symbol, data]: [string, any]) => {
+          const amount = data.amount || 0;
+          const price = assetPrices[symbol] || 0;
+          const valueInUsdt = amount * price;
+          portfolioValue += valueInUsdt;
+        });
+      }
+
       if (isNaN(parsedBalance)) {
         console.error('Invalid balance value received:', userData.balance);
         setBalance(0);
+        setTotalPortfolioValue(0);
       } else {
-        setBalance(parsedBalance);
+        setBalance(parsedBalance); // This is just USDT balance
+        setTotalPortfolioValue(portfolioValue); // This is total value including all assets
         setProfitLoss(totalPL);
         setProfitLossPercent((totalPL / initialBalance) * 100);
       }
@@ -53,7 +100,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
       console.log('Unsubscribing from balance updates');
       unsubscribe();
     };
-  }, [isDemoMode]);
+  }, [isDemoMode, assetPrices]);
 
   const handleDeposit = () => {
     if (isDemoMode) {
@@ -129,7 +176,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
       <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg font-medium text-white/70">
-            {isDemoMode ? "Demo Balance" : "Total Balance"}
+            {isDemoMode ? "Demo Balance" : "Total Portfolio Value"}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -137,22 +184,28 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
             {isLoading ? (
               <span className="text-white/60">Loading...</span>
             ) : (
-              `$${isDemoMode ? parseFloat(localStorage.getItem('demoBalance') || '10000').toFixed(2) : balance.toFixed(2)}`
+              `$${isDemoMode ? parseFloat(localStorage.getItem('demoBalance') || '10000').toFixed(2) : totalPortfolioValue.toFixed(2)}`
             )}
           </div>
-          {!isDemoMode ? (
-            <div className="flex items-center mt-1 text-sm">
-              {profitLoss >= 0 ? (
-                <TrendingUp className="w-4 h-4 mr-1 text-green-400" />
-              ) : (
-                <TrendingDown className="w-4 h-4 mr-1 text-red-400" />
-              )}
-              <span className={profitLoss >= 0 ? 'text-green-400' : 'text-red-400'}>
-                {profitLoss >= 0 ? '+' : '-'}{Math.abs(profitLossPercent).toFixed(2)}%
-              </span>
-              <span className="ml-1 text-white/60">today</span>
-            </div>
-          ) : (
+          {!isDemoMode && (
+            <>
+              <div className="text-sm text-white/70 mt-1">
+                USDT Balance: ${balance.toFixed(2)}
+              </div>
+              <div className="flex items-center mt-1 text-sm">
+                {profitLoss >= 0 ? (
+                  <TrendingUp className="w-4 h-4 mr-1 text-green-400" />
+                ) : (
+                  <TrendingDown className="w-4 h-4 mr-1 text-red-400" />
+                )}
+                <span className={profitLoss >= 0 ? 'text-green-400' : 'text-red-400'}>
+                  {profitLoss >= 0 ? '+' : '-'}{Math.abs(profitLossPercent).toFixed(2)}%
+                </span>
+                <span className="ml-1 text-white/60">today</span>
+              </div>
+            </>
+          )}
+          {isDemoMode && (
             <div className="text-xs text-white/60 mt-1">Virtual funds for practice</div>
           )}
         </CardContent>

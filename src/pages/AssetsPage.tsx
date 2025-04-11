@@ -11,6 +11,58 @@ const AssetsPage = () => {
   const [profitLoss, setProfitLoss] = useState(0);
   const [selectedCrypto, setSelectedCrypto] = useState("BTC");
 
+  const [totalPortfolioValue, setTotalPortfolioValue] = useState(0);
+  const [assetPrices, setAssetPrices] = useState<Record<string, number>>({});
+  const [userAssets, setUserAssets] = useState<Record<string, any>>({});
+
+  // Fetch current prices for all assets
+  useEffect(() => {
+    const fetchPrices = async () => {
+      try {
+        const symbols = ['BTC', 'ETH', 'BNB', 'SOL', 'ADA', 'DOGE', 'XRP', 'DOT', 'LINK', 'MATIC'];
+        const symbolsQuery = symbols.map(s => `${s}USDT`);
+        const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
+        const data = await response.json();
+        
+        const prices: Record<string, number> = {};
+        data.forEach((item: any) => {
+          const symbol = item.symbol.replace('USDT', '');
+          prices[symbol] = parseFloat(item.price);
+        });
+        // Add USDT itself with value of 1
+        prices['USDT'] = 1;
+        setAssetPrices(prices);
+        
+        // Recalculate portfolio value when prices update
+        calculatePortfolioValue(userAssets, prices, balance);
+      } catch (error) {
+        console.error('Error fetching asset prices:', error);
+      }
+    };
+
+    fetchPrices();
+    // Update prices every 30 seconds
+    const interval = setInterval(fetchPrices, 30000);
+    return () => clearInterval(interval);
+  }, [userAssets, balance]);
+
+  // Calculate total portfolio value with current prices
+  const calculatePortfolioValue = (assets: Record<string, any>, prices: Record<string, number>, usdtBalance: number) => {
+    let total = usdtBalance; // Start with USDT balance
+    
+    // Add value of all other assets
+    if (assets) {
+      Object.entries(assets).forEach(([symbol, data]) => {
+        const amount = data.amount || 0;
+        const price = prices[symbol] || 0;
+        const valueInUsdt = amount * price;
+        total += valueInUsdt;
+      });
+    }
+    
+    setTotalPortfolioValue(total);
+  };
+
   useEffect(() => {
     const uid = localStorage.getItem('userId');
     if (!uid) {
@@ -22,12 +74,16 @@ const AssetsPage = () => {
       if (userData) {
         const parsedBalance = typeof userData.balance === 'string' ? parseFloat(userData.balance) : userData.balance;
         setBalance(parsedBalance || 0);
+        setUserAssets(userData.assets || {});
+        
+        // Calculate portfolio value
+        calculatePortfolioValue(userData.assets || {}, assetPrices, parsedBalance || 0);
       }
       setIsLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [assetPrices]);
 
   const [prices, setPrices] = useState({});
   
@@ -114,8 +170,11 @@ const AssetsPage = () => {
           </CardHeader>
           <CardContent className="p-4 sm:p-6 pt-0">
             <div className="space-y-2">
-              <div className="text-2xl sm:text-3xl font-bold">{balance.toFixed(8)} USDT</div>
-              <div className="text-sm text-white/60">≈ ${balance.toFixed(2)}</div>
+              <div className="text-2xl sm:text-3xl font-bold">${totalPortfolioValue.toFixed(2)}</div>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
+                <div className="text-sm text-white/60">USDT Balance: {balance.toFixed(2)} USDT</div>
+                <div className="text-sm text-white/60">Other Assets: ~${(totalPortfolioValue - balance).toFixed(2)}</div>
+              </div>
               <div className="flex items-center gap-2 text-sm">
                 <span>Today's PnL</span>
                 <span className={`${profitLoss >= 0 ? 'text-green-400' : 'text-red-400'}`}>
