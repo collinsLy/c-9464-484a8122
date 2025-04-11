@@ -17,7 +17,7 @@ const MarketNews = () => {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const response = await fetch('https://cryptopanic.com/api/free/v1/posts/?auth_token=8bff507b6560f15012d5dbb6899e54ca009818c3&kind=news');
+        const response = await fetch('https://cryptopanic.com/api/free/v1/posts/?auth_token=5571b1c477f713a5608fef71abfdfef75c88c4cf&kind=news');
         if (!response.ok) throw new Error('Failed to fetch news');
 
         const data = await response.json();
