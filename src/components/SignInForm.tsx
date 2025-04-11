@@ -257,8 +257,8 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
         <form onSubmit={async (e) => {
           e.preventDefault();
           try {
-            const { updatePassword } = await import('firebase/auth');
-            const { auth } = await import('@/lib/firebase');
+            const { updatePassword } = require('firebase/auth');
+            const { auth } = require('@/lib/firebase');
 
             if (!checkPasswordStrength(newPassword)) {
               toast({
