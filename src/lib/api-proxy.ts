@@ -19,6 +19,9 @@ export const fetchBinanceData = async (endpoint: string) => {
 };
 
 export const FINNHUB_API_KEY = "cvqhhhpr01qp88clnd60cvqhhhpr01qp88clnd6g";
+export const ALPHA_VANTAGE_API_KEY = "BUURNND6LTNPWVJE";
+export const TWELVE_DATA_API_KEY = "your_twelve_data_key_here";
+export const CRYPTO_PANIC_API_KEY = "8bff507";
 
 export const fetchCoinGeckoData = async (endpoint: string) => {
   try {
