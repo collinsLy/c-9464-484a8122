@@ -94,6 +94,18 @@ const WithdrawPage = () => {
     if (cryptoAmount && parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0)) {
       setCryptoAmount("");
     }
+
+    // Set appropriate networks based on the selected crypto
+    if (selectedCrypto === 'BTC' && !['NATIVE', 'BSC'].includes(network)) {
+      setNetwork('NATIVE');
+    } else if (selectedCrypto === 'ETH' && !['ERC20', 'ARBITRUM', 'OPTIMISM'].includes(network)) {
+      setNetwork('ERC20');
+    } else if (selectedCrypto === 'BNB' && network !== 'BSC') {
+      setNetwork('BSC');
+    } else if ((selectedCrypto === 'USDT' || selectedCrypto === 'USDC') && 
+               !['ERC20', 'TRC20', 'BSC'].includes(network)) {
+      setNetwork('ERC20');
+    }
   }, [selectedCrypto, userCryptoBalances]);
 
   const paymentMethods = [
@@ -296,6 +308,19 @@ const WithdrawPage = () => {
     }
   };
 
+  // Get minimum withdrawal amount for each cryptocurrency
+  const getMinimumWithdrawalAmount = (crypto: string): number => {
+    const minimums: Record<string, number> = {
+      'BTC': 0.001,
+      'ETH': 0.01,
+      'USDT': 10,
+      'USDC': 10,
+      'BNB': 0.01,
+      'WLD': 10
+    };
+    return minimums[crypto] || 0.001;
+  };
+
   // Handle crypto withdrawal
   const handleCryptoWithdraw = async () => {
     const cryptoAmountValue = parseFloat(cryptoAmount);
@@ -304,6 +329,17 @@ const WithdrawPage = () => {
       toast({
         title: "Invalid Amount",
         description: "Please enter a valid withdrawal amount",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Check minimum withdrawal amount
+    const minAmount = getMinimumWithdrawalAmount(selectedCrypto);
+    if (cryptoAmountValue < minAmount) {
+      toast({
+        title: "Below Minimum",
+        description: `Minimum withdrawal amount is ${minAmount} ${selectedCrypto}`,
         variant: "destructive",
       });
       return;
@@ -567,6 +603,44 @@ const WithdrawPage = () => {
     return rates[crypto] || 1;
   };
   
+  // Validate wallet address format based on cryptocurrency and network
+  const isValidWalletAddress = (address: string, crypto: string, network: string): boolean => {
+    if (!address.trim()) return false;
+    
+    // Basic validation patterns
+    const patterns = {
+      BTC_NATIVE: /^(1|3|bc1)[a-zA-Z0-9]{25,42}$/,
+      ETH_ERC20: /^0x[a-fA-F0-9]{40}$/,
+      BNB_BSC: /^0x[a-fA-F0-9]{40}$/,
+      USDT_TRC20: /^T[a-zA-Z0-9]{33}$/,
+      USDT_ERC20: /^0x[a-fA-F0-9]{40}$/,
+      USDT_BSC: /^0x[a-fA-F0-9]{40}$/,
+      USDC_ERC20: /^0x[a-fA-F0-9]{40}$/,
+      USDC_BSC: /^0x[a-fA-F0-9]{40}$/,
+      ETH_ARBITRUM: /^0x[a-fA-F0-9]{40}$/,
+      ETH_OPTIMISM: /^0x[a-fA-F0-9]{40}$/,
+    };
+    
+    const key = `${crypto}_${network}`;
+    
+    // If specific pattern exists, use it
+    if (patterns[key as keyof typeof patterns]) {
+      return patterns[key as keyof typeof patterns].test(address);
+    }
+    
+    // Default pattern based on network
+    if (network === 'BSC' || network === 'ERC20' || network === 'ARBITRUM' || network === 'OPTIMISM') {
+      return /^0x[a-fA-F0-9]{40}$/.test(address);
+    } else if (network === 'TRC20') {
+      return /^T[a-zA-Z0-9]{33}$/.test(address);
+    } else if (network === 'NATIVE' && crypto === 'BTC') {
+      return /^(1|3|bc1)[a-zA-Z0-9]{25,42}$/.test(address);
+    }
+    
+    // Basic length check for other networks
+    return address.length >= 25 && address.length <= 128;
+  };
+  
   return (
     <DashboardLayout>
       <div className="space-y-4">
@@ -682,29 +756,43 @@ const WithdrawPage = () => {
                       { symbol: 'USDT', name: 'Tether' },
                       { symbol: 'USDC', name: 'USD Coin' },
                       { symbol: 'BNB', name: 'Binance Coin' }
-                    ].map((crypto) => (
-                      <Button 
-                        key={crypto.symbol}
-                        variant={selectedCrypto === crypto.symbol ? 'secondary' : 'outline'}
-                        onClick={() => setSelectedCrypto(crypto.symbol)}
-                        className="flex items-center gap-2"
-                      >
-                        <img 
-                          src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${crypto.symbol.toLowerCase()}.svg`} 
-                          alt={crypto.symbol} 
-                          className="w-5 h-5" 
-                          onError={(e) => {
-                            e.currentTarget.src = "https://assets.coingecko.com/coins/images/1/small/bitcoin.png";
+                    ].map((crypto) => {
+                      const balance = userCryptoBalances[crypto.symbol] || 0;
+                      return (
+                        <Button 
+                          key={crypto.symbol}
+                          variant={selectedCrypto === crypto.symbol ? 'secondary' : 'outline'}
+                          onClick={() => {
+                            setSelectedCrypto(crypto.symbol);
+                            console.log(`Selected ${crypto.symbol}, balance: ${balance}`);
+                            // Reset network to appropriate default for this crypto
+                            if (crypto.symbol === 'BTC') {
+                              setNetwork('NATIVE');
+                            } else if (crypto.symbol === 'ETH') {
+                              setNetwork('ERC20');
+                            } else if (crypto.symbol === 'BNB') {
+                              setNetwork('BSC');
+                            } else {
+                              setNetwork('ERC20'); // Default for USDT, USDC, etc.
+                            }
                           }}
-                        />
-                        {crypto.symbol}
-                        <span className="text-xs ml-1 opacity-70">
-                          {(userCryptoBalances[crypto.symbol] || 0) > 0 ? 
-                            `(${userCryptoBalances[crypto.symbol]?.toFixed(4)})` : 
-                            ''}
-                        </span>
-                      </Button>
-                    ))}
+                          className="flex items-center gap-2"
+                        >
+                          <img 
+                            src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${crypto.symbol.toLowerCase()}.svg`} 
+                            alt={crypto.symbol} 
+                            className="w-5 h-5" 
+                            onError={(e) => {
+                              e.currentTarget.src = "https://assets.coingecko.com/coins/images/1/small/bitcoin.png";
+                            }}
+                          />
+                          {crypto.symbol}
+                          <span className="text-xs ml-1 opacity-70">
+                            {`(${balance.toFixed(4)})`}
+                          </span>
+                        </Button>
+                      );
+                    })}
                   </div>
                 </div>
                 
@@ -799,10 +887,20 @@ const WithdrawPage = () => {
                         type="text"
                         value={walletAddress}
                         onChange={(e) => setWalletAddress(e.target.value)}
-                        className="bg-background/40 border-white/10 text-white"
-                        placeholder={`Enter your ${selectedCrypto} address`}
+                        className={`bg-background/40 border-white/10 text-white ${
+                          walletAddress && !isValidWalletAddress(walletAddress, selectedCrypto, network) ? 
+                            'border-red-500 focus-visible:ring-red-500' : ''
+                        }`}
+                        placeholder={`Enter your ${selectedCrypto} address for ${network} network`}
                       />
-                      <p className="text-sm text-white/50">Make sure the address is correct and supports the {network} network.</p>
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm text-white/50">
+                          Make sure the address is correct and supports the {network} network.
+                        </p>
+                        {walletAddress && !isValidWalletAddress(walletAddress, selectedCrypto, network) && (
+                          <p className="text-sm text-red-400">Invalid address format for {network}</p>
+                        )}
+                      </div>
                     </div>
                     
                     <div className="grid gap-2">
@@ -822,7 +920,15 @@ const WithdrawPage = () => {
                         <Input
                           type="number"
                           value={cryptoAmount}
-                          onChange={(e) => setCryptoAmount(e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            // Prevent negative values
+                            if (parseFloat(value) >= 0 || value === '') {
+                              setCryptoAmount(value);
+                            }
+                          }}
+                          min="0"
+                          step="0.00000001"
                           className={`bg-background/40 border-white/10 text-white pr-16 ${
                             cryptoAmount && parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0) 
                               ? 'border-red-500 focus-visible:ring-red-500' 
@@ -835,13 +941,34 @@ const WithdrawPage = () => {
                         </div>
                       </div>
                       {cryptoAmount && (
-                        <div className="flex justify-between text-sm">
-                          <p className="text-white/70">
-                            ≈ ${(parseFloat(cryptoAmount || '0') * getEstimatedRate(selectedCrypto)).toFixed(2)} USD
-                          </p>
-                          {parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0) && (
-                            <p className="text-red-400">Insufficient {selectedCrypto} balance</p>
-                          )}
+                        <div className="flex flex-col gap-1 text-sm">
+                          <div className="flex justify-between">
+                            <p className="text-white/70">
+                              ≈ ${(parseFloat(cryptoAmount || '0') * getEstimatedRate(selectedCrypto)).toFixed(2)} USD
+                            </p>
+                            {parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0) && (
+                              <p className="text-red-400">Insufficient {selectedCrypto} balance</p>
+                            )}
+                          </div>
+                          
+                          {/* Network fee estimate */}
+                          <div className="flex justify-between text-xs text-white/60">
+                            <span>Network Fee:</span>
+                            <span>{network === 'ERC20' ? '~0.001 ETH' : 
+                                  network === 'TRC20' ? '~1 TRX' : 
+                                  network === 'BSC' ? '~0.0005 BNB' :
+                                  network === 'NATIVE' && selectedCrypto === 'BTC' ? '~0.0001 BTC' :
+                                  '~0.0001'}</span>
+                          </div>
+                          
+                          {/* Minimum withdrawal amount */}
+                          <div className="flex justify-between text-xs text-white/60">
+                            <span>Minimum withdrawal:</span>
+                            <span>{selectedCrypto === 'BTC' ? '0.001 BTC' : 
+                                  selectedCrypto === 'ETH' ? '0.01 ETH' : 
+                                  selectedCrypto === 'BNB' ? '0.01 BNB' :
+                                  '10 ' + selectedCrypto}</span>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -849,9 +976,37 @@ const WithdrawPage = () => {
                     <Button 
                       className="w-full bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34] h-12 text-lg mt-4"
                       onClick={handleWithdraw}
+                      disabled={
+                        !walletAddress || 
+                        !isValidWalletAddress(walletAddress, selectedCrypto, network) ||
+                        !cryptoAmount || 
+                        parseFloat(cryptoAmount) <= 0 ||
+                        parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0) ||
+                        parseFloat(cryptoAmount) < getMinimumWithdrawalAmount(selectedCrypto)
+                      }
                     >
                       {isDemoMode ? "Demo Withdraw" : "Withdraw Crypto"}
                     </Button>
+                    
+                    {/* Validation messages */}
+                    {(
+                      (!walletAddress || !isValidWalletAddress(walletAddress, selectedCrypto, network)) ||
+                      (!cryptoAmount || parseFloat(cryptoAmount) <= 0) ||
+                      (parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0)) ||
+                      (cryptoAmount && parseFloat(cryptoAmount) < getMinimumWithdrawalAmount(selectedCrypto))
+                    ) && (
+                      <div className="mt-2 p-2 bg-red-500/10 rounded-md">
+                        {!walletAddress && <p className="text-xs text-red-400 mb-1">⚠️ Please enter a wallet address</p>}
+                        {walletAddress && !isValidWalletAddress(walletAddress, selectedCrypto, network) && 
+                          <p className="text-xs text-red-400 mb-1">⚠️ Invalid wallet address format</p>}
+                        {(!cryptoAmount || parseFloat(cryptoAmount) <= 0) && 
+                          <p className="text-xs text-red-400 mb-1">⚠️ Please enter a valid amount</p>}
+                        {parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0) && 
+                          <p className="text-xs text-red-400 mb-1">⚠️ Insufficient balance</p>}
+                        {cryptoAmount && parseFloat(cryptoAmount) < getMinimumWithdrawalAmount(selectedCrypto) && 
+                          <p className="text-xs text-red-400 mb-1">⚠️ Amount below minimum withdrawal</p>}
+                      </div>
+                    )}
 
                     <div className="text-sm text-white/70 p-4 bg-white/5 rounded-lg space-y-4">
                       <div>
