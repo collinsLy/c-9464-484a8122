@@ -8,6 +8,7 @@ channel = "stable-24_05"
 build_command = "npm run build"
 run_command = ""
 output_dir = "dist"
+run = ["sh", "-c", "npm run dev"]
 
 [[deployment.rewrites]]
 from = "/*"
