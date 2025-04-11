@@ -39,6 +39,9 @@ const Dashboard = () => {
     } else if (activeTab === "dashboard" && currentTab) {
       navigate('/dashboard', { replace: true });
     }
+    
+    // Debug
+    console.log("Current active tab:", activeTab);
   }, [activeTab, location.search, navigate]);
 
   // Render different content based on the active tab
@@ -88,10 +91,10 @@ const Dashboard = () => {
 
       case "history":
         return (
-          <>
+          <div className="space-y-6">
             <h2 className="text-2xl font-bold text-white mb-6">Transaction History</h2>
             <TransactionHistory />
-          </>
+          </div>
         );
 
       case "funding":

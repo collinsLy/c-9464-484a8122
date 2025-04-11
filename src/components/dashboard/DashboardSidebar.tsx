@@ -1,4 +1,3 @@
-
 import { useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -38,7 +37,7 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  
+
   // Check if screen is mobile-sized
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
@@ -46,7 +45,7 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      
+
       // Auto-collapse sidebar on mobile if not already collapsed
       if (mobile && !collapsed) {
         setCollapsed(true);
@@ -55,30 +54,30 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
 
     window.addEventListener('resize', handleResize);
     handleResize(); // Initial check
-    
+
     return () => window.removeEventListener('resize', handleResize);
   }, [collapsed]);
 
   // Extract the active tab from the location pathname or query parameters
   const getActiveTab = () => {
     const pathname = location.pathname;
-    
+
     if (pathname === '/dashboard') {
       const params = new URLSearchParams(location.search);
       const tab = params.get('tab');
       return tab || "dashboard";
     }
-    
+
     // Check if we're on a specific page
     if (pathname === '/market') return 'markets';
     if (pathname === '/assets') return 'assets';
     if (pathname === '/settings') return 'settings';
     if (pathname === '/demo') return 'demo';
-    
+
     // Default to dashboard if no match is found
     return "dashboard";
   };
-  
+
   const activeTab = getActiveTab();
 
   // Handle toggling sidebar on mobile
@@ -99,7 +98,7 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </Button>
       )}
-      
+
       <aside className={cn(
         "flex flex-col bg-background/95 backdrop-blur-xl border-r border-white/10 transition-all duration-300 h-screen z-40",
         collapsed ? "w-24 md:w-40" : "w-[320px] md:w-80",
@@ -126,7 +125,7 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
             {collapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
           </Button>
         </div>
-        
+
         <nav className="space-y-2 px-2 flex-1 overflow-y-auto smooth-scroll">
           {navItems.map((item) => (
             <Button
@@ -151,7 +150,7 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
             </Button>
           ))}
         </nav>
-        
+
         {!collapsed && !isMobile && (
           <div className="mt-auto p-4">
             <div className="rounded-lg p-3 bg-white/5">
