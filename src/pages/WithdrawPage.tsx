@@ -59,10 +59,18 @@ const WithdrawPage = () => {
           
           // Process each asset and add to our balances object
           Object.entries(userData.assets).forEach(([key, asset]: [string, any]) => {
-            if (asset && typeof asset.amount === 'number') {
-              defaultBalances[key] = asset.amount;
+            if (asset && (typeof asset.amount === 'number' || typeof asset.amount === 'string')) {
+              // Convert to number if it's a string
+              defaultBalances[key] = Number(asset.amount);
             }
           });
+          
+          // Ensure USDT is correctly processed
+          if (userData.assets.USDT) {
+            const usdtAmount = userData.assets.USDT.amount;
+            defaultBalances['USDT'] = Number(usdtAmount) || 0;
+            console.log("USDT amount specifically:", usdtAmount, "Converted:", defaultBalances['USDT']);
+          }
           
           console.log("Processed crypto balances:", defaultBalances);
         } else {
@@ -822,20 +830,28 @@ const WithdrawPage = () => {
                               try {
                                 const userData = await UserService.getUserData(uid);
                                 if (userData && userData.assets) {
+                                  // Log all assets for debugging
+                                  console.log("All user assets:", userData.assets);
+                                  
                                   // Get fresh balance with proper null/undefined handling
                                   let freshBalance = 0;
                                   
-                                  // Check if the asset exists in the user data
-                                  if (userData.assets[crypto.symbol]) {
+                                  // Special handling for USDT to ensure it works correctly
+                                  if (crypto.symbol === 'USDT' && userData.assets.USDT) {
+                                    freshBalance = userData.assets.USDT.amount || 0;
+                                    console.log(`USDT balance specifically: ${freshBalance}`);
+                                  } 
+                                  // Standard handling for other assets
+                                  else if (userData.assets[crypto.symbol]) {
                                     freshBalance = userData.assets[crypto.symbol].amount || 0;
                                   }
                                   
                                   console.log(`Firebase check for ${crypto.symbol}: ${freshBalance}`);
 
-                                  // Update UI with fresh balance
+                                  // Update UI with fresh balance - force it to be a number
                                   setUserCryptoBalances(prev => ({
                                     ...prev,
-                                    [crypto.symbol]: freshBalance
+                                    [crypto.symbol]: Number(freshBalance)
                                   }));
                                 }
                               } catch (error) {
