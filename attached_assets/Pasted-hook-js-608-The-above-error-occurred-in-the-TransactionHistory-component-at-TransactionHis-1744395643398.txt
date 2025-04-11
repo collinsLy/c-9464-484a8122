@@ -1,0 +1,27 @@
+hook.js:608 The above error occurred in the <TransactionHistory> component:
+
+    at TransactionHistory (https://f477e5b1-62ba-44e0-9c2c-889d9108c3bf-00-2i4nlzb6y5nhc.worf.replit.dev/src/components/dashboard/TransactionHistory.tsx:26:45)
+    at div
+    at div
+    at main
+    at div
+    at div
+    at DashboardProvider (https://f477e5b1-62ba-44e0-9c2c-889d9108c3bf-00-2i4nlzb6y5nhc.worf.replit.dev/src/components/dashboard/DashboardLayout.tsx:16:37)
+    at DashboardLayout (https://f477e5b1-62ba-44e0-9c2c-889d9108c3bf-00-2i4nlzb6y5nhc.worf.replit.dev/src/components/dashboard/DashboardLayout.tsx:45:43)
+    at Dashboard (https://f477e5b1-62ba-44e0-9c2c-889d9108c3bf-00-2i4nlzb6y5nhc.worf.replit.dev/src/pages/Dashboard.tsx?t=1744395052644:24:49)
+    at RenderedRoute (https://f477e5b1-62ba-44e0-9c2c-889d9108c3bf-00-2i4nlzb6y5nhc.worf.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=9011b7e1:4069:5)
+    at Routes (https://f477e5b1-62ba-44e0-9c2c-889d9108c3bf-00-2i4nlzb6y5nhc.worf.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=9011b7e1:4508:5)
+    at DashboardProvider (https://f477e5b1-62ba-44e0-9c2c-889d9108c3bf-00-2i4nlzb6y5nhc.worf.replit.dev/src/components/dashboard/DashboardLayout.tsx:16:37)
+    at Router (https://f477e5b1-62ba-44e0-9c2c-889d9108c3bf-00-2i4nlzb6y5nhc.worf.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=9011b7e1:4451:15)
+    at BrowserRouter (https://f477e5b1-62ba-44e0-9c2c-889d9108c3bf-00-2i4nlzb6y5nhc.worf.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=9011b7e1:5196:5)
+    at Provider (https://f477e5b1-62ba-44e0-9c2c-889d9108c3bf-00-2i4nlzb6y5nhc.worf.replit.dev/node_modules/.vite/deps/chunk-AFJ6VPUJ.js?v=9011b7e1:38:15)
+    at TooltipProvider (https://f477e5b1-62ba-44e0-9c2c-889d9108c3bf-00-2i4nlzb6y5nhc.worf.replit.dev/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=9011b7e1:63:5)
+    at QueryClientProvider (https://f477e5b1-62ba-44e0-9c2c-889d9108c3bf-00-2i4nlzb6y5nhc.worf.replit.dev/node_modules/.vite/deps/@tanstack_react-query.js?v=9011b7e1:2794:3)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+chunk-R6S4VRB5.js?v=9011b7e1:19413 Uncaught TypeError: Cannot read properties of undefined (reading 'substring')
+    at TransactionHistory.tsx:455:41
+    at Array.map (<anonymous>)
+    at TransactionHistory (TransactionHistory.tsx:429:39)
