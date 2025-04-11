@@ -140,9 +140,30 @@
 @layer base {
   * {
     @apply border-border;
+    -webkit-tap-highlight-color: transparent;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground antialiased overflow-x-hidden touch-manipulation;
+  }
+  input, button {
+    @apply focus:outline-none;
+  }
+}
+
+/* Improve mobile touch scrolling */
+.smooth-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  overscroll-behavior-y: contain;
+}
+
+/* Better tap targets for mobile */
+@media (max-width: 768px) {
+  button, a {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  input, select {
+    @apply min-h-[44px];
   }
 }
 

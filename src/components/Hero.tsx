@@ -27,10 +27,10 @@ const Hero = () => {
   const [openAccount, setOpenAccount] = useState(false);
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 pt-20 bg-background">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-        <div className="space-y-8">
-          <h1 className="text-5xl md:text-6xl font-bold text-white leading-tight">
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 pt-16 bg-background">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+        <div className="space-y-6 md:space-y-8">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-tight">
             Trade Crypto with <span className="text-[#F2FF44]">Confidence</span>
           </h1>
           <p className="text-lg text-white/80 max-w-xl">

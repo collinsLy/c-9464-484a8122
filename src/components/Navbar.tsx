@@ -66,8 +66,8 @@ const Navbar = () => {
               <Menu className="h-6 w-6 text-white" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="bg-background/95 backdrop-blur-xl border-white/10 w-[280px] p-6">
-            <div className="flex flex-col space-y-6 pt-10">
+          <SheetContent side="left" className="bg-background/95 backdrop-blur-xl border-white/10 w-[300px] p-6">
+            <div className="flex flex-col space-y-8 pt-12">
               <a href="#" className="text-white/80 hover:text-white transition-colors text-lg">Markets</a>
               <a href="#" className="text-white/80 hover:text-white transition-colors text-lg">Trading</a>
               <a href="#" className="text-white/80 hover:text-white transition-colors text-lg">Company</a>

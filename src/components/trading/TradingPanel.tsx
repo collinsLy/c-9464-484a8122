@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -38,7 +37,7 @@ export const TradingPanel = ({ symbol }: { symbol: string }) => {
             <TabsTrigger value="limit">Limit</TabsTrigger>
             <TabsTrigger value="stop">Stop</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="market" className="space-y-4">
             <Input
               type="number"
@@ -46,7 +45,7 @@ export const TradingPanel = ({ symbol }: { symbol: string }) => {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
             />
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4"> {/*This line was changed*/}
               <Button onClick={() => handleTrade('BUY')} className="bg-green-500">
                 Buy
               </Button>
@@ -55,7 +54,7 @@ export const TradingPanel = ({ symbol }: { symbol: string }) => {
               </Button>
             </div>
           </TabsContent>
-          
+
           {/* Add other order type content */}
         </Tabs>
       </CardContent>

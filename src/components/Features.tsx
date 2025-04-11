@@ -21,10 +21,10 @@ const Features = () => {
   ];
 
   return (
-    <div className="py-12 md:py-20 px-4 bg-background relative overflow-hidden">
+    <div className="py-8 sm:py-12 md:py-20 px-4 bg-background relative overflow-hidden">
       <div className="absolute inset-0 bg-accent/5 backdrop-blur-3xl"></div>
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+        <div className="grid md:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center">
           <div className="space-y-4 md:space-y-6 text-center md:text-left">
             <h2 className="text-3xl md:text-4xl font-bold text-white">
               All the experience in the new application
