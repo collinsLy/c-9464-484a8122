@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -26,6 +26,7 @@ const WithdrawPage = () => {
   const [walletAddress, setWalletAddress] = useState("");
   const [network, setNetwork] = useState("NATIVE");
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
+  const [userCryptoBalances, setUserCryptoBalances] = useState<Record<string, number>>({});
   const [accountDetails, setAccountDetails] = useState({
     bankName: "",
     accountNumber: "",
@@ -34,6 +35,36 @@ const WithdrawPage = () => {
     paypalEmail: "",
     mobileNumber: "",
   });
+  
+  // Fetch user's crypto balances when the component loads
+  useEffect(() => {
+    const fetchUserCryptoBalances = async () => {
+      const uid = localStorage.getItem('userId');
+      if (!uid) return;
+      
+      try {
+        const userData = await UserService.getUserData(uid);
+        if (userData && userData.assets) {
+          setUserCryptoBalances(
+            Object.keys(userData.assets).reduce((acc, key) => {
+              acc[key] = userData.assets[key].amount || 0;
+              return acc;
+            }, {} as Record<string, number>)
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching crypto balances:", error);
+      }
+    };
+    
+    fetchUserCryptoBalances();
+  }, []);
+  
+  // Function to get and display user's current crypto balance
+  const getUserCryptoBalance = () => {
+    const balance = userCryptoBalances[selectedCrypto] || 0;
+    return `Available: ${balance} ${selectedCrypto}`;
+  };
 
   const paymentMethods = [
     { id: "bank", name: "Bank Transfer", icon: <BankIcon className="w-8 h-8 text-white" /> },
@@ -265,6 +296,41 @@ const WithdrawPage = () => {
       toast({
         title: "Authentication Error",
         description: "Please log in to continue",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Check if user has enough of the selected cryptocurrency
+    try {
+      const userData = await UserService.getUserData(uid);
+      
+      if (!userData) {
+        toast({
+          title: "User Data Error",
+          description: "Unable to fetch your account data",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Get user's crypto assets
+      const userAssets = userData.assets || {};
+      const cryptoBalance = userAssets[selectedCrypto]?.amount || 0;
+      
+      if (cryptoBalance < cryptoAmountValue) {
+        toast({
+          title: "Insufficient Crypto Balance",
+          description: `You only have ${cryptoBalance} ${selectedCrypto} available for withdrawal`,
+          variant: "destructive",
+        });
+        return;
+      }
+    } catch (error) {
+      console.error("Error checking crypto balance:", error);
+      toast({
+        title: "Balance Check Failed",
+        description: "Failed to verify your crypto balance",
         variant: "destructive",
       });
       return;
@@ -502,9 +568,14 @@ const WithdrawPage = () => {
               
               <TabsContent value="crypto" className="space-y-6">
                 <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-sm">1</span>
-                    <h3 className="text-lg font-medium text-white">Select Cryptocurrency</h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-sm">1</span>
+                      <h3 className="text-lg font-medium text-white">Select Cryptocurrency</h3>
+                    </div>
+                    <div className="text-sm text-white/70">
+                      {getUserCryptoBalance()}
+                    </div>
                   </div>
                   <div className="flex gap-2 flex-wrap mb-6">
                     <Button 
@@ -648,7 +719,16 @@ const WithdrawPage = () => {
                     </div>
                     
                     <div className="grid gap-2">
-                      <Label>Amount</Label>
+                      <div className="flex justify-between items-center">
+                        <Label>Amount</Label>
+                        <span className="text-sm text-white/70 cursor-pointer hover:text-white/90" 
+                          onClick={() => {
+                            const maxBalance = userCryptoBalances[selectedCrypto] || 0;
+                            setCryptoAmount(maxBalance.toString());
+                          }}>
+                          Max: {userCryptoBalances[selectedCrypto] || 0} {selectedCrypto}
+                        </span>
+                      </div>
                       <div className="relative">
                         <Input
                           type="number"
@@ -662,9 +742,14 @@ const WithdrawPage = () => {
                         </div>
                       </div>
                       {cryptoAmount && (
-                        <p className="text-sm text-white/70">
-                          ≈ ${(parseFloat(cryptoAmount || '0') * getEstimatedRate(selectedCrypto)).toFixed(2)} USD
-                        </p>
+                        <div className="flex justify-between text-sm">
+                          <p className="text-white/70">
+                            ≈ ${(parseFloat(cryptoAmount || '0') * getEstimatedRate(selectedCrypto)).toFixed(2)} USD
+                          </p>
+                          {parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0) && (
+                            <p className="text-red-400">Insufficient balance</p>
+                          )}
+                        </div>
                       )}
                     </div>
 
