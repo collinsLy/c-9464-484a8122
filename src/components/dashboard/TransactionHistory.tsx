@@ -40,6 +40,11 @@ interface Transaction {
   metadata?: Record<string, any>;
   details?: {
     expectedCompletionTime?: string;
+    crypto?: string;
+    amount?: number;
+    network?: string;
+    walletAddress?: string;
+    processingStartTime?: string;
   };
 }
 
@@ -465,6 +470,18 @@ const TransactionHistory = () => {
                             <span className="mx-1">{transaction.toAsset || 'BTC'}</span>
                           </div>
                         </div>
+                      ) : transaction.type === 'Withdrawal' && transaction.details?.crypto ? (
+                        <div className="flex items-center gap-2">
+                          <img 
+                            src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${transaction.details.crypto.toLowerCase()}.svg`} 
+                            alt={transaction.details.crypto} 
+                            className="w-5 h-5"
+                            onError={(e) => {
+                              e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                            }}
+                          />
+                          {transaction.details.crypto} ({transaction.details.amount})
+                        </div>
                       ) : (
                         <div className="flex items-center gap-2">
                           <img 
@@ -787,6 +804,18 @@ const TransactionHistory = () => {
                         <span className="mx-1">{selectedTransaction.toAsset || 'BTC'}</span>
                       </div>
                     </div>
+                  ) : selectedTransaction.type === 'Withdrawal' && selectedTransaction.details?.crypto ? (
+                    <p className="text-white flex items-center gap-2">
+                      <img 
+                        src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${selectedTransaction.details.crypto.toLowerCase()}.svg`} 
+                        alt={selectedTransaction.details.crypto} 
+                        className="w-5 h-5"
+                        onError={(e) => {
+                          e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                        }}
+                      />
+                      {selectedTransaction.details.crypto} ({selectedTransaction.details.amount})
+                    </p>
                   ) : (
                     <p className="text-white flex items-center gap-2">
                       <img 
