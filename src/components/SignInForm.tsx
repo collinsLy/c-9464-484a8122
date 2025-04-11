@@ -58,8 +58,8 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
   const onResetPassword = async (values: z.infer<typeof resetFormSchema>) => {
     setIsResetting(true);
     try {
-      const { sendPasswordResetEmail } = await import('firebase/auth');
-      const { auth } = await import('@/lib/firebase');
+      const { sendPasswordResetEmail } = require('firebase/auth');
+      const { auth } = require('@/lib/firebase');
 
       await sendPasswordResetEmail(auth, values.email);
       toast({
@@ -104,8 +104,8 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
 const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     try {
-      const { signInWithEmailAndPassword, updatePassword } = await import('firebase/auth');
-      const { auth, db } = await import('@/lib/firebase');
+      const { signInWithEmailAndPassword, updatePassword } = require('firebase/auth');
+      const { auth, db } = require('@/lib/firebase');
       const { doc, updateDoc } = await import('firebase/firestore');
 
       if (!auth || !db) {
