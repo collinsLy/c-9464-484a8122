@@ -4,6 +4,7 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import AccountOverview from "@/components/dashboard/AccountOverview";
 import MarketChart from "@/components/dashboard/MarketChart";
 import { CryptoConverter } from '@/components/trading/CryptoConverter';
+import { CryptoTicker } from '@/components/CryptoTicker';
 import { CopyTrading } from '@/components/trading/CopyTrading';
 import AssetsList from "@/components/dashboard/AssetsList";
 import TransactionHistory from "@/components/dashboard/TransactionHistory";
@@ -88,14 +89,14 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Right Sidebar */}
               <div className="xl:col-span-1 space-y-6">
                 <CryptoConverter />
                 <CryptoTicker />
               </div>
             </div>
-            
+
             {/* Copy Trading Section */}
             <div className="mt-6">
               <CopyTrading />
