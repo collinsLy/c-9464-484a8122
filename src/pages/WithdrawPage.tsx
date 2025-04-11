@@ -86,9 +86,14 @@ const WithdrawPage = () => {
     return `Available: ${balance.toFixed(4)} ${selectedCrypto}`;
   };
 
-  // Debug log balance when cryptocurrency is selected
+  // Update the UI when cryptocurrency is selected or balances change
   useEffect(() => {
     console.log(`Selected crypto: ${selectedCrypto}, Available balance:`, userCryptoBalances[selectedCrypto] || 0);
+    
+    // Reset amount if it exceeds the available balance when switching cryptos
+    if (cryptoAmount && parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0)) {
+      setCryptoAmount("");
+    }
   }, [selectedCrypto, userCryptoBalances]);
 
   const paymentMethods = [
@@ -313,6 +318,26 @@ const WithdrawPage = () => {
       return;
     }
 
+    if (!network) {
+      toast({
+        title: "Missing Network",
+        description: "Please select a blockchain network",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Get current balance from state first (for immediate validation)
+    const currentStateBalance = userCryptoBalances[selectedCrypto] || 0;
+    if (cryptoAmountValue > currentStateBalance) {
+      toast({
+        title: "Insufficient Balance",
+        description: `You only have ${currentStateBalance.toFixed(8)} ${selectedCrypto} available for withdrawal`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Estimate USD value based on crypto (in a real app this would fetch current exchange rate)
     const estimatedUsdValue = cryptoAmountValue * getEstimatedRate(selectedCrypto);
     
@@ -326,7 +351,7 @@ const WithdrawPage = () => {
       return;
     }
     
-    // Check if user has enough of the selected cryptocurrency
+    // Double-check with latest data from the database
     let userData;
     let userAssets;
     let cryptoBalance;
@@ -347,10 +372,18 @@ const WithdrawPage = () => {
       userAssets = userData.assets || {};
       cryptoBalance = userAssets[selectedCrypto]?.amount || 0;
       
+      console.log(`Database check - ${selectedCrypto} balance:`, cryptoBalance);
+      
       if (cryptoBalance < cryptoAmountValue) {
+        // Update local state to match database and show error
+        setUserCryptoBalances(prev => ({
+          ...prev,
+          [selectedCrypto]: cryptoBalance
+        }));
+        
         toast({
           title: "Insufficient Crypto Balance",
-          description: `You only have ${cryptoBalance} ${selectedCrypto} available for withdrawal`,
+          description: `You only have ${cryptoBalance.toFixed(8)} ${selectedCrypto} available for withdrawal`,
           variant: "destructive",
         });
         return;
@@ -643,46 +676,35 @@ const WithdrawPage = () => {
                     </div>
                   </div>
                   <div className="flex gap-2 flex-wrap mb-6">
-                    <Button 
-                      variant={selectedCrypto === 'BTC' ? 'secondary' : 'outline'}
-                      onClick={() => setSelectedCrypto('BTC')}
-                      className="flex items-center gap-2"
-                    >
-                      <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/btc.svg" alt="BTC" className="w-5 h-5" />
-                      BTC
-                    </Button>
-                    <Button 
-                      variant={selectedCrypto === 'ETH' ? 'secondary' : 'outline'}
-                      onClick={() => setSelectedCrypto('ETH')}
-                      className="flex items-center gap-2"
-                    >
-                      <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/eth.svg" alt="ETH" className="w-5 h-5" />
-                      ETH
-                    </Button>
-                    <Button 
-                      variant={selectedCrypto === 'USDT' ? 'secondary' : 'outline'}
-                      onClick={() => setSelectedCrypto('USDT')}
-                      className="flex items-center gap-2"
-                    >
-                      <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/usdt.svg" alt="USDT" className="w-5 h-5" />
-                      USDT
-                    </Button>
-                    <Button 
-                      variant={selectedCrypto === 'USDC' ? 'secondary' : 'outline'}
-                      onClick={() => setSelectedCrypto('USDC')}
-                      className="flex items-center gap-2"
-                    >
-                      <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/usdc.svg" alt="USDC" className="w-5 h-5" />
-                      USDC
-                    </Button>
-                    <Button 
-                      variant={selectedCrypto === 'BNB' ? 'secondary' : 'outline'}
-                      onClick={() => setSelectedCrypto('BNB')}
-                      className="flex items-center gap-2"
-                    >
-                      <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/bnb.svg" alt="BNB" className="w-5 h-5" />
-                      BNB
-                    </Button>
+                    {[
+                      { symbol: 'BTC', name: 'Bitcoin' },
+                      { symbol: 'ETH', name: 'Ethereum' },
+                      { symbol: 'USDT', name: 'Tether' },
+                      { symbol: 'USDC', name: 'USD Coin' },
+                      { symbol: 'BNB', name: 'Binance Coin' }
+                    ].map((crypto) => (
+                      <Button 
+                        key={crypto.symbol}
+                        variant={selectedCrypto === crypto.symbol ? 'secondary' : 'outline'}
+                        onClick={() => setSelectedCrypto(crypto.symbol)}
+                        className="flex items-center gap-2"
+                      >
+                        <img 
+                          src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${crypto.symbol.toLowerCase()}.svg`} 
+                          alt={crypto.symbol} 
+                          className="w-5 h-5" 
+                          onError={(e) => {
+                            e.currentTarget.src = "https://assets.coingecko.com/coins/images/1/small/bitcoin.png";
+                          }}
+                        />
+                        {crypto.symbol}
+                        <span className="text-xs ml-1 opacity-70">
+                          {(userCryptoBalances[crypto.symbol] || 0) > 0 ? 
+                            `(${userCryptoBalances[crypto.symbol]?.toFixed(4)})` : 
+                            ''}
+                        </span>
+                      </Button>
+                    ))}
                   </div>
                 </div>
                 
@@ -786,12 +808,14 @@ const WithdrawPage = () => {
                     <div className="grid gap-2">
                       <div className="flex justify-between items-center">
                         <Label>Amount</Label>
-                        <span className="text-sm text-white/70 cursor-pointer hover:text-white/90" 
+                        <span 
+                          className="text-sm text-white/70 cursor-pointer hover:text-white/90 bg-white/5 px-2 py-1 rounded-md transition-colors" 
                           onClick={() => {
                             const maxBalance = userCryptoBalances[selectedCrypto] || 0;
                             setCryptoAmount(maxBalance.toString());
-                          }}>
-                          Max: {userCryptoBalances[selectedCrypto] || 0} {selectedCrypto}
+                          }}
+                        >
+                          Max: {(userCryptoBalances[selectedCrypto] || 0).toFixed(8)} {selectedCrypto}
                         </span>
                       </div>
                       <div className="relative">
@@ -799,7 +823,11 @@ const WithdrawPage = () => {
                           type="number"
                           value={cryptoAmount}
                           onChange={(e) => setCryptoAmount(e.target.value)}
-                          className="bg-background/40 border-white/10 text-white pr-16"
+                          className={`bg-background/40 border-white/10 text-white pr-16 ${
+                            cryptoAmount && parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0) 
+                              ? 'border-red-500 focus-visible:ring-red-500' 
+                              : ''
+                          }`}
                           placeholder="0.00"
                         />
                         <div className="absolute inset-y-0 right-0 flex items-center pr-3">
@@ -812,7 +840,7 @@ const WithdrawPage = () => {
                             ≈ ${(parseFloat(cryptoAmount || '0') * getEstimatedRate(selectedCrypto)).toFixed(2)} USD
                           </p>
                           {parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0) && (
-                            <p className="text-red-400">Insufficient balance</p>
+                            <p className="text-red-400">Insufficient {selectedCrypto} balance</p>
                           )}
                         </div>
                       )}
