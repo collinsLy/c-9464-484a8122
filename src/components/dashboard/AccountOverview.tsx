@@ -1,13 +1,12 @@
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { UserService } from '@/lib/firebase-service'; 
+import { UserService, UserBalanceService } from '@/lib/firebase-service'; 
 
-import { ArrowDownRight as TrendingDown, ArrowUpRight as TrendingUp, RefreshCw, Wallet, CreditCard } from "lucide-react"; 
+import { ArrowDownRight, ArrowUpRight, RefreshCw, Wallet, CreditCard } from "lucide-react"; 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
-import { UserBalanceService } from "@/lib/firebase-service";
 
 
 interface AccountOverviewProps {

@@ -10,8 +10,7 @@ import MarketOverview from "@/components/markets/MarketOverview";
 import CoinGeckoData from "@/components/markets/CoinGeckoData";
 import MarketNews from "@/components/markets/MarketNews";
 import { LivePriceTicker } from "@/components/markets/LivePriceTicker";
-
-import { TwelveDataTicker } from "@/components/markets/TwelveDataTicker";
+import { StockTicker } from '@/components/markets/StockTicker';
 import { toast } from "sonner";
 import { StockTicker } from '@/components/markets/StockTicker';
 

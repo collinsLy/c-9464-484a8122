@@ -184,3 +184,130 @@ const BinanceOrderBook = ({ symbol }: BinanceOrderBookProps) => {
 };
 
 export default BinanceOrderBook;
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+interface OrderBookProps {
+  symbol: string;
+}
+
+interface OrderData {
+  price: number;
+  quantity: number;
+  total: number;
+}
+
+const BinanceOrderBook = ({ symbol }: OrderBookProps) => {
+  const [bids, setBids] = useState<OrderData[]>([]);
+  const [asks, setAsks] = useState<OrderData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchOrderBook = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Use a proxy to avoid CORS issues
+        const response = await fetch(`/api/binance/depth?symbol=${symbol}&limit=10`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch order book: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        // Transform bids data
+        const transformedBids = data.bids.map((bid: string[]) => {
+          const price = parseFloat(bid[0]);
+          const quantity = parseFloat(bid[1]);
+          return {
+            price,
+            quantity,
+            total: price * quantity
+          };
+        });
+        
+        // Transform asks data
+        const transformedAsks = data.asks.map((ask: string[]) => {
+          const price = parseFloat(ask[0]);
+          const quantity = parseFloat(ask[1]);
+          return {
+            price,
+            quantity,
+            total: price * quantity
+          };
+        });
+        
+        setBids(transformedBids);
+        setAsks(transformedAsks);
+      } catch (error) {
+        console.error('Error fetching order book:', error);
+        setError('Failed to load order book data. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchOrderBook();
+    const interval = setInterval(fetchOrderBook, 5000);
+    
+    return () => clearInterval(interval);
+  }, [symbol]);
+
+  return (
+    <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
+      <CardHeader>
+        <CardTitle className="text-lg">{symbol} Order Book</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {loading && <div className="text-center text-white/60 py-4">Loading order book...</div>}
+        
+        {error && <div className="text-center text-red-400 py-4">{error}</div>}
+        
+        {!loading && !error && (
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div className="text-center text-green-400 font-semibold mb-2">Bids</div>
+              <div className="grid grid-cols-3 gap-2 text-xs font-medium text-white/70 mb-1">
+                <div>Price</div>
+                <div>Amount</div>
+                <div>Total</div>
+              </div>
+              <div className="space-y-1">
+                {bids.map((bid, index) => (
+                  <div key={index} className="grid grid-cols-3 gap-2 text-sm">
+                    <div className="text-green-400">${bid.price.toFixed(2)}</div>
+                    <div className="text-white/80">{bid.quantity.toFixed(4)}</div>
+                    <div className="text-white/80">${bid.total.toFixed(2)}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <div className="text-center text-red-400 font-semibold mb-2">Asks</div>
+              <div className="grid grid-cols-3 gap-2 text-xs font-medium text-white/70 mb-1">
+                <div>Price</div>
+                <div>Amount</div>
+                <div>Total</div>
+              </div>
+              <div className="space-y-1">
+                {asks.map((ask, index) => (
+                  <div key={index} className="grid grid-cols-3 gap-2 text-sm">
+                    <div className="text-red-400">${ask.price.toFixed(2)}</div>
+                    <div className="text-white/80">{ask.quantity.toFixed(4)}</div>
+                    <div className="text-white/80">${ask.total.toFixed(2)}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+export default BinanceOrderBook;

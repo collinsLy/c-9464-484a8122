@@ -173,3 +173,68 @@ export function LivePriceTicker({ symbol }: { symbol?: string }) {
   // Otherwise, show the multi-symbol ticker
   return symbol ? renderSingleTicker() : renderMultiTicker();
 }
+import { useState, useEffect } from 'react';
+import { Card, CardContent } from "@/components/ui/card";
+import { ArrowUpRight, ArrowDownRight } from "lucide-react";
+
+interface LivePriceTickerProps {
+  symbol?: string;
+}
+
+export const LivePriceTicker = ({ symbol = "BTCUSDT" }: LivePriceTickerProps) => {
+  const [price, setPrice] = useState<number | null>(null);
+  const [prevPrice, setPrevPrice] = useState<number | null>(null);
+  const [isIncreasing, setIsIncreasing] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const fetchPrice = async () => {
+      try {
+        const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
+        if (!response.ok) throw new Error('Failed to fetch price');
+        const data = await response.json();
+        
+        setPrevPrice(price);
+        setPrice(parseFloat(data.price));
+        
+        if (prevPrice !== null && price !== null) {
+          setIsIncreasing(price > prevPrice);
+        }
+      } catch (error) {
+        console.error('Error fetching price:', error);
+      }
+    };
+
+    fetchPrice();
+    const interval = setInterval(fetchPrice, 5000);
+    
+    return () => clearInterval(interval);
+  }, [symbol, price, prevPrice]);
+
+  if (price === null) {
+    return (
+      <Card className="bg-background/40 backdrop-blur-lg border-white/10">
+        <CardContent className="p-4">
+          <div className="text-center text-white/60">Loading price data...</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="bg-background/40 backdrop-blur-lg border-white/10">
+      <CardContent className="p-4">
+        <div className="flex justify-between items-center">
+          <div className="text-white/70">{symbol} Live Price</div>
+          <div className={`flex items-center ${isIncreasing === null ? '' : isIncreasing ? 'text-green-400' : 'text-red-400'}`}>
+            {isIncreasing !== null && (
+              isIncreasing ? 
+                <ArrowUpRight className="h-4 w-4 mr-1" /> : 
+                <ArrowDownRight className="h-4 w-4 mr-1" />
+            )}
+            <span className="font-bold">${price.toFixed(2)}</span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
