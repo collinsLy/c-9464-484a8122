@@ -438,13 +438,46 @@ const TransactionHistory = () => {
                     <TableCell className="text-white">
                       {transaction.type}
                     </TableCell>
-                    <TableCell className="text-white flex items-center gap-2">
-                      <img 
-                        src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/usdt.svg" 
-                        alt="USDT" 
-                        className="w-5 h-5" 
-                      />
-                      USDT
+                    <TableCell className="text-white">
+                      {transaction.type === 'Conversion' ? (
+                        <div className="flex items-center gap-1">
+                          <div className="flex items-center">
+                            <img 
+                              src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${transaction.fromAsset?.toLowerCase() || 'usdt'}.svg`} 
+                              alt={transaction.fromAsset || 'USDT'} 
+                              className="w-5 h-5"
+                              onError={(e) => {
+                                e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                              }}
+                            />
+                            <span className="mx-1">{transaction.fromAsset || 'USDT'}</span>
+                          </div>
+                          <span className="text-white/60 mx-1">→</span>
+                          <div className="flex items-center">
+                            <img 
+                              src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${transaction.toAsset?.toLowerCase() || 'btc'}.svg`} 
+                              alt={transaction.toAsset || 'BTC'} 
+                              className="w-5 h-5"
+                              onError={(e) => {
+                                e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                              }}
+                            />
+                            <span className="mx-1">{transaction.toAsset || 'BTC'}</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <img 
+                            src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${transaction.asset?.toLowerCase() || 'usdt'}.svg`} 
+                            alt={transaction.asset || 'USDT'} 
+                            className="w-5 h-5"
+                            onError={(e) => {
+                              e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                            }}
+                          />
+                          {transaction.asset || 'USDT'}
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell className="text-white text-right">
                       {formatAmount(transaction.amount, transaction.asset)}
@@ -461,7 +494,159 @@ const TransactionHistory = () => {
                     {/* Method/Network */}
                     <TableCell>
                       <div className="flex items-center space-x-2 text-white">
-                        {transaction.method ? (
+                        {transaction.type === 'Conversion' ? (
+                          <>
+                            {/* DEX logo and name based on the conversion type */}
+                            {(() => {
+                              // Determine which DEX to display based on the assets and network
+                              const fromAsset = transaction.fromAsset?.toUpperCase() || '';
+                              const toAsset = transaction.toAsset?.toUpperCase() || '';
+                              const network = transaction.network?.toUpperCase() || '';
+                              
+                              // ETH → USDC on Ethereum
+                              if ((fromAsset === 'ETH' && toAsset === 'USDC') || 
+                                  (fromAsset.includes('ETH') && network.includes('ERC20'))) {
+                                const useOneInch = Math.random() > 0.5; // Randomly choose between Uniswap and 1inch
+                                if (useOneInch) {
+                                  return (
+                                    <>
+                                      <img 
+                                        src="/logos/1inch-logo.svg" 
+                                        alt="1inch" 
+                                        className="w-5 h-5" 
+                                        onError={(e) => {
+                                          e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                                        }}
+                                      />
+                                      <span>1inch (Ethereum)</span>
+                                    </>
+                                  );
+                                } else {
+                                  return (
+                                    <>
+                                      <img 
+                                        src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/uni.svg" 
+                                        alt="Uniswap" 
+                                        className="w-5 h-5" 
+                                        onError={(e) => {
+                                          e.currentTarget.src = "https://assets.coingecko.com/coins/images/12504/small/uniswap-uni.png";
+                                        }}
+                                      />
+                                      <span>Uniswap (Ethereum)</span>
+                                    </>
+                                  );
+                                }
+                              }
+                              
+                              // USDT → BUSD on BSC
+                              else if ((fromAsset === 'USDT' && toAsset === 'BUSD') || 
+                                       network.includes('BSC') || fromAsset === 'BNB' || toAsset === 'BNB') {
+                                return (
+                                  <>
+                                    <img 
+                                      src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/cake.svg" 
+                                      alt="PancakeSwap" 
+                                      className="w-5 h-5" 
+                                      onError={(e) => {
+                                        e.currentTarget.src = "https://assets.coingecko.com/coins/images/12632/small/pancakeswap-cake-logo.png";
+                                      }}
+                                    />
+                                    <span>PancakeSwap (BSC)</span>
+                                  </>
+                                );
+                              }
+                              
+                              // SOL → USDC on Solana
+                              else if ((fromAsset === 'SOL' && toAsset === 'USDC') || 
+                                       network.includes('SOLANA') || network.includes('SOL') || 
+                                       fromAsset === 'SOL' || toAsset === 'SOL') {
+                                return (
+                                  <>
+                                    <img 
+                                      src="/logos/orca-logo.svg" 
+                                      alt="Jupiter" 
+                                      className="w-5 h-5" 
+                                      onError={(e) => {
+                                        e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                                      }}
+                                    />
+                                    <span>Jupiter (Solana)</span>
+                                  </>
+                                );
+                              }
+                              
+                              // Cross-chain (BTC → ETH)
+                              else if ((fromAsset === 'BTC' && toAsset === 'ETH') || 
+                                       (fromAsset !== toAsset && network === 'NATIVE')) {
+                                return (
+                                  <>
+                                    <img 
+                                      src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/rune.svg" 
+                                      alt="Thorchain" 
+                                      className="w-5 h-5" 
+                                      onError={(e) => {
+                                        e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                                      }}
+                                    />
+                                    <span>Thorchain (Cross-chain)</span>
+                                  </>
+                                );
+                              }
+                              
+                              // Stablecoin swaps
+                              else if ((fromAsset.includes('USD') && toAsset.includes('USD')) ||
+                                       (fromAsset === 'DAI' || toAsset === 'DAI')) {
+                                return (
+                                  <>
+                                    <img 
+                                      src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/crv.svg" 
+                                      alt="Curve" 
+                                      className="w-5 h-5" 
+                                      onError={(e) => {
+                                        e.currentTarget.src = "https://assets.coingecko.com/coins/images/12124/small/Curve.png";
+                                      }}
+                                    />
+                                    <span>Curve Finance</span>
+                                  </>
+                                );
+                              }
+                              
+                              // Fast/cheap L2 swaps
+                              else if (network.includes('ARBITRUM') || network.includes('POLYGON') || network.includes('L2')) {
+                                return (
+                                  <>
+                                    <img 
+                                      src="/logos/poly-logo.svg" 
+                                      alt="Polygon" 
+                                      className="w-5 h-5" 
+                                      onError={(e) => {
+                                        e.currentTarget.src = "https://assets.coingecko.com/coins/images/4713/small/polygon.png";
+                                      }}
+                                    />
+                                    <span>Uniswap ({network.includes('ARBITRUM') ? 'Arbitrum' : 'Polygon'})</span>
+                                  </>
+                                );
+                              }
+                              
+                              // Default case - generic DEX
+                              else {
+                                return (
+                                  <>
+                                    <img 
+                                      src="/logos/1inch-logo.svg" 
+                                      alt="DEX" 
+                                      className="w-5 h-5" 
+                                      onError={(e) => {
+                                        e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                                      }}
+                                    />
+                                    <span>DEX</span>
+                                  </>
+                                );
+                              }
+                            })()}
+                          </>
+                        ) : transaction.method ? (
                           <>
                             {transaction.method.toLowerCase().includes('bank') && (
                               <BankIcon className="w-5 h-5 text-white" />
@@ -576,14 +761,45 @@ const TransactionHistory = () => {
                 </div>
                 <div>
                   <p className="text-sm text-white/70">Asset</p>
-                  <p className="text-white flex items-center gap-2">
-                    <img 
-                      src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/usdt.svg" 
-                      alt="USDT" 
-                      className="w-5 h-5" 
-                    />
-                    USDT
-                  </p>
+                  {selectedTransaction.type === 'Conversion' ? (
+                    <div className="text-white flex items-center gap-1">
+                      <div className="flex items-center">
+                        <img 
+                          src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${selectedTransaction.fromAsset?.toLowerCase() || 'usdt'}.svg`} 
+                          alt={selectedTransaction.fromAsset || 'USDT'} 
+                          className="w-5 h-5"
+                          onError={(e) => {
+                            e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                          }}
+                        />
+                        <span className="mx-1">{selectedTransaction.fromAsset || 'USDT'}</span>
+                      </div>
+                      <span className="text-white/60 mx-1">→</span>
+                      <div className="flex items-center">
+                        <img 
+                          src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${selectedTransaction.toAsset?.toLowerCase() || 'btc'}.svg`} 
+                          alt={selectedTransaction.toAsset || 'BTC'} 
+                          className="w-5 h-5"
+                          onError={(e) => {
+                            e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                          }}
+                        />
+                        <span className="mx-1">{selectedTransaction.toAsset || 'BTC'}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-white flex items-center gap-2">
+                      <img 
+                        src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${selectedTransaction.asset?.toLowerCase() || 'usdt'}.svg`} 
+                        alt={selectedTransaction.asset || 'USDT'} 
+                        className="w-5 h-5"
+                        onError={(e) => {
+                          e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                        }}
+                      />
+                      {selectedTransaction.asset || 'USDT'}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <p className="text-sm text-white/70">Amount</p>
