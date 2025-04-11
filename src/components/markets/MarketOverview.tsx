@@ -40,7 +40,7 @@ const MarketOverview = () => {
     return () => clearInterval(interval);
   }, []);
 
-  if (loading || error) {
+  if (loading) {
     return (
       <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
         <CardHeader>

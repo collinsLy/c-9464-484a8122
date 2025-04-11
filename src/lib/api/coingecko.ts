@@ -91,14 +91,13 @@ const fetchCoinGeckoData = async <T>(endpoint: string, params: Record<string, st
     }
     
     if (!response.ok) {
-      throw new Error(`CoinGecko API error: ${response.status}`);
+      return {} as T;
     }
     
     const data = await response.json();
     return data as T;
   } catch (error) {
     console.error("CoinGecko API error:", error);
-    toast.error("Failed to fetch market data");
     return {} as T;
   }
 };
