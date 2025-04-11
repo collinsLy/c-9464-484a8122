@@ -302,8 +302,12 @@ const WithdrawPage = () => {
     }
     
     // Check if user has enough of the selected cryptocurrency
+    let userData;
+    let userAssets;
+    let cryptoBalance;
+    
     try {
-      const userData = await UserService.getUserData(uid);
+      userData = await UserService.getUserData(uid);
       
       if (!userData) {
         toast({
@@ -315,8 +319,8 @@ const WithdrawPage = () => {
       }
       
       // Get user's crypto assets
-      const userAssets = userData.assets || {};
-      const cryptoBalance = userAssets[selectedCrypto]?.amount || 0;
+      userAssets = userData.assets || {};
+      cryptoBalance = userAssets[selectedCrypto]?.amount || 0;
       
       if (cryptoBalance < cryptoAmountValue) {
         toast({
@@ -347,8 +351,34 @@ const WithdrawPage = () => {
         return;
       }
 
+      // Update USD balance
       const newBalance = currentBalance - estimatedUsdValue;
       await UserBalanceService.updateUserBalance(uid, newBalance);
+      
+      // Update crypto balance by decreasing the amount
+      const updatedUserAssets = { ...userAssets };
+      const newCryptoAmount = cryptoBalance - cryptoAmountValue;
+      
+      if (newCryptoAmount <= 0) {
+        // If balance becomes zero or negative, remove the asset or set to zero
+        if (updatedUserAssets[selectedCrypto]) {
+          updatedUserAssets[selectedCrypto] = {
+            ...updatedUserAssets[selectedCrypto],
+            amount: 0
+          };
+        }
+      } else {
+        // Otherwise update with new amount
+        updatedUserAssets[selectedCrypto] = {
+          ...updatedUserAssets[selectedCrypto],
+          amount: newCryptoAmount
+        };
+      }
+      
+      // Update the user's assets in Firebase
+      await UserService.updateUserData(uid, {
+        assets: updatedUserAssets
+      });
 
       // Create the transaction with Pending status
       const transaction = {
@@ -375,6 +405,12 @@ const WithdrawPage = () => {
       // Force immediate status updates for testing/demo purposes
       // No delay based logic, immediately update statuses
       console.log(`Processing transaction ${transaction.txId} immediately`);
+      
+      // Update balances in state to reflect immediately in UI
+      setUserCryptoBalances(prevBalances => ({
+        ...prevBalances,
+        [selectedCrypto]: newCryptoAmount
+      }));
       
       // Immediately update to Processing
       setTimeout(async () => {
@@ -440,6 +476,10 @@ const WithdrawPage = () => {
         }
       }, 100); // Almost immediate
 
+      // Clear input fields after successful transaction
+      setCryptoAmount("");
+      setWalletAddress("");
+      
       setIsSuccessDialogOpen(true);
 
       toast({
