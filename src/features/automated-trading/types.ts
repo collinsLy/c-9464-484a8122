@@ -1,6 +1,4 @@
 
-import { LucideIcon } from "lucide-react";
-
 export interface BotTier {
   id: string;
   type: string;
@@ -10,6 +8,6 @@ export interface BotTier {
   pair: string;
   marketType: string;
   profit: string;
-  icon: LucideIcon;
+  icon: string;
   iconColor: string;
 }
