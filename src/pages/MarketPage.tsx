@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import TradingViewChart from "@/components/TradingViewChart";
-import BinanceOrderBook from "@/components/markets/BinanceOrderBook";
+
 import { TradingPanel } from "@/components/trading/TradingPanel";
 import { CryptoTicker } from "@/components/CryptoTicker";
 import MarketOverview from "@/components/markets/MarketOverview";
@@ -144,8 +144,6 @@ const MarketPage = () => {
                 />
               </CardContent>
             </Card>
-
-            <BinanceOrderBook symbol={selectedCryptoSymbol} />
           </div>
         </div>
 
