@@ -142,13 +142,17 @@ const TransactionHistory = () => {
     }
   };
 
-  const formatAmount = (amount: number, asset: string): string => {
+  const formatAmount = (amount: number | undefined, asset: string): string => {
+    if (amount === undefined) {
+      return `$0.00`;
+    }
+    
     const formattedNumber = new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 8
     }).format(amount);
     
-    return `${formattedNumber} ${asset}`;
+    return `$${formattedNumber}`;
   };
 
   const formatDate = (timestamp: string): string => {
@@ -372,8 +376,13 @@ const TransactionHistory = () => {
                     <TableCell className="text-white">
                       {transaction.type}
                     </TableCell>
-                    <TableCell className="text-white">
-                      {transaction.asset}
+                    <TableCell className="text-white flex items-center gap-2">
+                      <img 
+                        src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/usdt.svg" 
+                        alt="USDT" 
+                        className="w-5 h-5" 
+                      />
+                      USDT
                     </TableCell>
                     <TableCell className="text-white text-right">
                       {formatAmount(transaction.amount, transaction.asset)}
@@ -439,7 +448,14 @@ const TransactionHistory = () => {
                 </div>
                 <div>
                   <p className="text-sm text-white/70">Asset</p>
-                  <p className="text-white">{selectedTransaction.asset}</p>
+                  <p className="text-white flex items-center gap-2">
+                    <img 
+                      src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/usdt.svg" 
+                      alt="USDT" 
+                      className="w-5 h-5" 
+                    />
+                    USDT
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-white/70">Amount</p>
