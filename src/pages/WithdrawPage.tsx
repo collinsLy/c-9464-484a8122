@@ -51,9 +51,28 @@ const WithdrawPage = () => {
           }, {} as Record<string, number>);
           
           console.log("Fetched crypto balances:", balances);
-          setUserCryptoBalances(balances);
+          
+          // Ensure we have default values for all supported cryptocurrencies
+          const supportedCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB'];
+          const completeBalances = { ...balances };
+          
+          supportedCryptos.forEach(crypto => {
+            if (completeBalances[crypto] === undefined) {
+              completeBalances[crypto] = 0;
+            }
+          });
+          
+          setUserCryptoBalances(completeBalances);
         } else {
           console.log("No assets found in user data");
+          // Set default empty balances for all supported cryptocurrencies
+          setUserCryptoBalances({
+            'BTC': 0,
+            'ETH': 0,
+            'USDT': 0, 
+            'USDC': 0,
+            'BNB': 0
+          });
         }
       } catch (error) {
         console.error("Error fetching crypto balances:", error);
@@ -72,7 +91,18 @@ const WithdrawPage = () => {
             return acc;
           }, {} as Record<string, number>);
           
-          setUserCryptoBalances(balances);
+          // Always maintain all supported cryptocurrencies in the state
+          const supportedCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB'];
+          const completeBalances = { ...balances };
+          
+          supportedCryptos.forEach(crypto => {
+            if (completeBalances[crypto] === undefined) {
+              completeBalances[crypto] = 0;
+            }
+          });
+          
+          console.log("Updated crypto balances from subscription:", completeBalances);
+          setUserCryptoBalances(completeBalances);
         }
       });
       
@@ -98,14 +128,22 @@ const WithdrawPage = () => {
     // Set appropriate networks based on the selected crypto
     if (selectedCrypto === 'BTC' && !['NATIVE', 'BSC'].includes(network)) {
       setNetwork('NATIVE');
+      console.log(`Setting network to NATIVE for BTC`);
     } else if (selectedCrypto === 'ETH' && !['ERC20', 'ARBITRUM', 'OPTIMISM'].includes(network)) {
       setNetwork('ERC20');
+      console.log(`Setting network to ERC20 for ETH`);
     } else if (selectedCrypto === 'BNB' && network !== 'BSC') {
       setNetwork('BSC');
+      console.log(`Setting network to BSC for BNB`);
     } else if ((selectedCrypto === 'USDT' || selectedCrypto === 'USDC') && 
                !['ERC20', 'TRC20', 'BSC'].includes(network)) {
       setNetwork('ERC20');
+      console.log(`Setting network to ERC20 for ${selectedCrypto}`);
     }
+    
+    // Force refresh of balance display
+    const currentBalance = userCryptoBalances[selectedCrypto] || 0;
+    console.log(`Current ${selectedCrypto} balance: ${currentBalance}`);
   }, [selectedCrypto, userCryptoBalances]);
 
   const paymentMethods = [
@@ -325,6 +363,9 @@ const WithdrawPage = () => {
   const handleCryptoWithdraw = async () => {
     const cryptoAmountValue = parseFloat(cryptoAmount);
     
+    console.log(`Processing withdrawal for ${selectedCrypto}, amount: ${cryptoAmountValue}`);
+    console.log(`Current balances in state:`, userCryptoBalances);
+    
     if (!cryptoAmountValue || cryptoAmountValue <= 0) {
       toast({
         title: "Invalid Amount",
@@ -365,6 +406,8 @@ const WithdrawPage = () => {
 
     // Get current balance from state first (for immediate validation)
     const currentStateBalance = userCryptoBalances[selectedCrypto] || 0;
+    console.log(`Validating balance for ${selectedCrypto}: ${currentStateBalance} vs requested: ${cryptoAmountValue}`);
+    
     if (cryptoAmountValue > currentStateBalance) {
       toast({
         title: "Insufficient Balance",
@@ -410,6 +453,7 @@ const WithdrawPage = () => {
       
       console.log(`Database check - ${selectedCrypto} balance:`, cryptoBalance);
       
+      // Ensure we're using the correct cryptocurrency for validation
       if (cryptoBalance < cryptoAmountValue) {
         // Update local state to match database and show error
         setUserCryptoBalances(prev => ({
@@ -418,14 +462,14 @@ const WithdrawPage = () => {
         }));
         
         toast({
-          title: "Insufficient Crypto Balance",
+          title: `Insufficient ${selectedCrypto} Balance`,
           description: `You only have ${cryptoBalance.toFixed(8)} ${selectedCrypto} available for withdrawal`,
           variant: "destructive",
         });
         return;
       }
     } catch (error) {
-      console.error("Error checking crypto balance:", error);
+      console.error(`Error checking ${selectedCrypto} balance:`, error);
       toast({
         title: "Balance Check Failed",
         description: "Failed to verify your crypto balance",
@@ -495,6 +539,10 @@ const WithdrawPage = () => {
       await UserService.updateUserData(uid, {
         transactions: arrayUnion(transaction)
       });
+      
+      // Log the transaction for debugging
+      console.log(`Created withdrawal transaction for ${cryptoAmountValue} ${selectedCrypto}:`, transaction);
+      console.log(`Updated assets after withdrawal:`, updatedUserAssets);
       
       // Force immediate status updates for testing/demo purposes
       // No delay based logic, immediately update statuses
@@ -764,7 +812,27 @@ const WithdrawPage = () => {
                           variant={selectedCrypto === crypto.symbol ? 'secondary' : 'outline'}
                           onClick={() => {
                             setSelectedCrypto(crypto.symbol);
-                            console.log(`Selected ${crypto.symbol}, balance: ${balance}`);
+                            console.log(`Selected ${crypto.symbol}, balance from state: ${balance}`);
+                            
+                            // Refresh the balance from Firebase again to ensure accuracy
+                            const uid = localStorage.getItem('userId');
+                            if (uid) {
+                              UserService.getUserData(uid).then(userData => {
+                                if (userData?.assets && userData.assets[crypto.symbol]) {
+                                  const freshBalance = userData.assets[crypto.symbol].amount || 0;
+                                  console.log(`Fresh ${crypto.symbol} balance from Firebase: ${freshBalance}`);
+                                  
+                                  // Update only this specific crypto's balance
+                                  setUserCryptoBalances(prev => ({
+                                    ...prev,
+                                    [crypto.symbol]: freshBalance
+                                  }));
+                                }
+                              }).catch(err => {
+                                console.error(`Failed to refresh ${crypto.symbol} balance:`, err);
+                              });
+                            }
+                            
                             // Reset network to appropriate default for this crypto
                             if (crypto.symbol === 'BTC') {
                               setNetwork('NATIVE');
@@ -787,7 +855,7 @@ const WithdrawPage = () => {
                             }}
                           />
                           {crypto.symbol}
-                          <span className="text-xs ml-1 opacity-70">
+                          <span className={`text-xs ml-1 ${balance > 0 ? 'text-green-500' : 'opacity-70'}`}>
                             {`(${balance.toFixed(4)})`}
                           </span>
                         </Button>
