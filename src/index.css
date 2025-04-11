@@ -1,4 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* Global Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -10,56 +14,9 @@
   }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-
 @keyframes flipTop {
   0% { transform: rotateX(0deg); }
   100% { transform: rotateX(-90deg); }
-
-@keyframes scroll {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(-50%);
-  }
-}
-
-.animate-scroll {
-  animation: scroll 15s linear infinite;
-}
-
-
-.animate-scroll {
-  animation: scroll 0.3s ease-out;
-}
-
-@keyframes flip {
-  0% {
-    transform: rotateX(0deg);
-  }
-  100% {
-    transform: rotateX(360deg);
-  }
-}
-
-.animate-flip {
-  animation: flip 0.6s ease-out;
-  backface-visibility: hidden;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
 }
 
 @keyframes flipBottom {
@@ -67,16 +24,6 @@
   100% { transform: rotateX(0deg); }
 }
 
-.perspective {
-  perspective: 400px;
-  -webkit-perspective: 400px;
-  -moz-perspective: 400px;
-}
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 @keyframes scroll {
   0% {
     transform: translateY(0);
@@ -86,29 +33,31 @@
   }
 }
 
+@keyframes flip {
+  0% { transform: rotateX(0deg); }
+  100% { transform: rotateX(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Animation Classes */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
 .animate-scroll {
   animation: scroll 20s linear infinite;
 }
 
-.smooth-scroll {
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
+.animate-flip {
+  animation: flip 0.6s ease-out;
+  backface-visibility: hidden;
 }
 
-.smooth-scroll::-webkit-scrollbar {
-  width: 6px;
-}
-
-.smooth-scroll::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
-}
-
-.smooth-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
-}
- 
+/* Base Styles */
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -130,14 +79,35 @@
   }
 }
 
-/* Improve mobile touch scrolling */
+/* Utilities */
+.perspective {
+  perspective: 400px;
+  -webkit-perspective: 400px;
+  -moz-perspective: 400px;
+}
+
+/* Scrollbar Styles */
 .smooth-scroll {
-  -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
 }
 
-/* Better tap targets for mobile */
+.smooth-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.smooth-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.smooth-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+/* Mobile Optimizations */
 @media (max-width: 768px) {
   button, a {
     @apply min-h-[44px] min-w-[44px];
@@ -147,6 +117,7 @@
   }
 }
 
+/* Component Classes */
 .glass-effect {
   @apply bg-white/5 backdrop-blur-lg border border-white/10;
 }
