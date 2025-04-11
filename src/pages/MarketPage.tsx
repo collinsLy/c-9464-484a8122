@@ -61,6 +61,34 @@ const MarketPage = () => {
     <DashboardLayout>
       <div className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Crypto Section */}
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-white">Crypto</h2>
+              <select 
+                value={selectedCryptoSymbol}
+                onChange={(e) => setSelectedCryptoSymbol(e.target.value)}
+                className="bg-background/40 text-white border border-white/10 rounded-md p-2"
+              >
+                <option value="BTCUSDT">BTC/USDT</option>
+                <option value="ETHUSDT">ETH/USDT</option>
+                <option value="BNBUSDT">BNB/USDT</option>
+                <option value="SOLUSDT">SOL/USDT</option>
+                <option value="ADAUSDT">ADA/USDT</option>
+              </select>
+            </div>
+
+            <Card className="bg-background/40 backdrop-blur-lg border-white/10">
+              <CardContent className="p-4">
+                <TradingViewChart 
+                  symbol={selectedCryptoSymbol} 
+                  exchange="BINANCE" 
+                  containerId="crypto_chart"
+                />
+              </CardContent>
+            </Card>
+          </div>
+
           {/* Stock Section */}
           <div className="space-y-4 flex flex-col">
             <div className="flex justify-between items-center">
@@ -117,34 +145,6 @@ const MarketPage = () => {
             </Card>
 
             </div>
-
-          {/* Crypto Section */}
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-white">Crypto</h2>
-              <select 
-                value={selectedCryptoSymbol}
-                onChange={(e) => setSelectedCryptoSymbol(e.target.value)}
-                className="bg-background/40 text-white border border-white/10 rounded-md p-2"
-              >
-                <option value="BTCUSDT">BTC/USDT</option>
-                <option value="ETHUSDT">ETH/USDT</option>
-                <option value="BNBUSDT">BNB/USDT</option>
-                <option value="SOLUSDT">SOL/USDT</option>
-                <option value="ADAUSDT">ADA/USDT</option>
-              </select>
-            </div>
-
-            <Card className="bg-background/40 backdrop-blur-lg border-white/10">
-              <CardContent className="p-4">
-                <TradingViewChart 
-                  symbol={selectedCryptoSymbol} 
-                  exchange="BINANCE" 
-                  containerId="crypto_chart"
-                />
-              </CardContent>
-            </Card>
-          </div>
         </div>
 
         <CryptoTicker />
