@@ -22,7 +22,7 @@ export function TwelveDataTicker() {
       try {
         const allSymbols = [...symbols.stocks, ...symbols.forex, ...symbols.etfs];
         const response = await fetch(
-          `https://api.twelvedata.com/price?symbol=${allSymbols.join(',')}&apikey=bd6542a7833b4e4ebb503631cc1cb780`
+          `https://api.twelvedata.com/price?symbol=${allSymbols.join(',')}&apikey=${TWELVE_DATA_API_KEY}`
         );
         
         if (!response.ok) {
