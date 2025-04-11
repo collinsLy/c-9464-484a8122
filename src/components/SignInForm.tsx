@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { signInWithEmailAndPassword, updatePassword, sendPasswordResetEmail } from 'firebase/auth';
+import { doc, updateDoc } from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -58,8 +61,9 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
   const onResetPassword = async (values: z.infer<typeof resetFormSchema>) => {
     setIsResetting(true);
     try {
-      const { sendPasswordResetEmail } = require('firebase/auth');
-      const { auth } = require('@/lib/firebase');
+      if (!auth) {
+        throw new Error('Firebase auth not initialized');
+      }
 
       await sendPasswordResetEmail(auth, values.email);
       toast({
@@ -104,9 +108,9 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
 const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     try {
-      const { signInWithEmailAndPassword, updatePassword } = require('firebase/auth');
-      const { auth, db } = require('@/lib/firebase');
-      const { doc, updateDoc } = await import('firebase/firestore');
+      if (!auth || !db) {
+        throw new Error('Firebase not initialized');
+      }
 
       if (!auth || !db) {
         throw new Error('Firebase not initialized');
