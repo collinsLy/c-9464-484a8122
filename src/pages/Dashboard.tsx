@@ -4,7 +4,6 @@ import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import AccountOverview from "@/components/dashboard/AccountOverview";
 import MarketChart from "@/components/dashboard/MarketChart";
 import { CryptoConverter } from '@/components/trading/CryptoConverter';
-import { CryptoTicker } from '@/components/CryptoTicker';
 import { CopyTrading } from '@/components/trading/CopyTrading';
 import AssetsList from "@/components/dashboard/AssetsList";
 import TransactionHistory from "@/components/dashboard/TransactionHistory";
@@ -71,40 +70,16 @@ const Dashboard = () => {
       case "trading":
         return (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Main Trading Area */}
-              <div className="lg:col-span-9 space-y-6">
-                <MarketChart 
-                  selectedSymbol={selectedSymbol} 
-                  selectedTimeframe={selectedTimeframe}
-                  onSymbolChange={setSelectedSymbol}
-                  onTimeframeChange={setSelectedTimeframe}
-                />
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <div className="lg:col-span-2">
-                    <TradingPanel symbol={selectedSymbol} />
-                  </div>
-                  <div className="lg:col-span-1">
-                    <BinanceOrderBook symbol={selectedSymbol} />
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Sidebar */}
-              <div className="lg:col-span-3 space-y-6">
-                <div className="bg-background/40 backdrop-blur-lg border border-white/10 rounded-lg p-4">
-                  <CryptoConverter />
-                </div>
-                <div className="bg-background/40 backdrop-blur-lg border border-white/10 rounded-lg p-4">
-                  <CryptoTicker />
-                </div>
-              </div>
+            <MarketChart 
+              selectedSymbol={selectedSymbol} 
+              selectedTimeframe={selectedTimeframe}
+              onSymbolChange={setSelectedSymbol}
+              onTimeframeChange={setSelectedTimeframe}
+            />
+            <div className="max-w-md mx-auto">
+              <CryptoConverter />
             </div>
-
-            {/* Copy Trading Section */}
-            <div className="bg-background/40 backdrop-blur-lg border border-white/10 rounded-lg p-6">
-              <CopyTrading />
-            </div>
+            <CopyTrading />
           </div>
         );
 
