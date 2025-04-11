@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { auth } from '@/lib/firebase';
@@ -35,6 +34,9 @@ interface Transaction {
   method?: string;
   network?: string;
   metadata?: Record<string, any>;
+  details?: {
+    expectedCompletionTime?: string;
+  };
 }
 
 const TransactionHistory = () => {
@@ -43,7 +45,7 @@ const TransactionHistory = () => {
   const [loading, setLoading] = useState(true);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  
+
   // Filter states
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -56,7 +58,7 @@ const TransactionHistory = () => {
       try {
         const uid = auth.currentUser?.uid;
         if (!uid) return;
-        
+
         const userData = await UserService.getUserData(uid);
         if (userData && userData.transactions) {
           setTransactions(userData.transactions);
@@ -75,7 +77,7 @@ const TransactionHistory = () => {
   useEffect(() => {
     // Apply all filters
     let result = [...transactions];
-    
+
     // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -86,28 +88,28 @@ const TransactionHistory = () => {
           tx.type.toLowerCase().includes(query)
       );
     }
-    
+
     // Type filter
     if (typeFilter !== 'all') {
       result = result.filter((tx) => tx.type.toLowerCase() === typeFilter.toLowerCase());
     }
-    
+
     // Status filter
     if (statusFilter !== 'all') {
       result = result.filter((tx) => tx.status.toLowerCase() === statusFilter.toLowerCase());
     }
-    
+
     // Date range filter
     if (startDate) {
       const start = new Date(startDate).getTime();
       result = result.filter((tx) => new Date(tx.timestamp).getTime() >= start);
     }
-    
+
     if (endDate) {
       const end = new Date(endDate).getTime();
       result = result.filter((tx) => new Date(tx.timestamp).getTime() <= end);
     }
-    
+
     setFilteredTransactions(result);
   }, [transactions, searchQuery, typeFilter, statusFilter, startDate, endDate]);
 
@@ -147,12 +149,12 @@ const TransactionHistory = () => {
     if (amount === undefined) {
       return `$0.00`;
     }
-    
+
     const formattedNumber = new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 8
     }).format(amount);
-    
+
     return `$${formattedNumber}`;
   };
 
@@ -190,7 +192,7 @@ const TransactionHistory = () => {
           tx.method || tx.network || 'N/A'
         ].join(','))
       ].join('\n');
-      
+
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -248,7 +250,7 @@ const TransactionHistory = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          
+
           {/* Filters dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -276,7 +278,7 @@ const TransactionHistory = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="space-y-1">
                   <label className="text-xs text-white/70">Status</label>
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -293,7 +295,7 @@ const TransactionHistory = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="space-y-1">
                   <label className="text-xs text-white/70">Date Range</label>
                   <div className="flex gap-2">
@@ -311,7 +313,7 @@ const TransactionHistory = () => {
                     />
                   </div>
                 </div>
-                
+
                 <Button 
                   variant="outline" 
                   className="w-full bg-transparent border-white/10 text-white hover:bg-white/5"
@@ -322,7 +324,7 @@ const TransactionHistory = () => {
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
-          
+
           {/* Export options */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -342,7 +344,7 @@ const TransactionHistory = () => {
           </DropdownMenu>
         </div>
       </CardHeader>
-      
+
       <CardContent>
         {filteredTransactions.length === 0 ? (
           <div className="text-center text-white/70 py-8 space-y-2">
@@ -463,7 +465,7 @@ const TransactionHistory = () => {
           </div>
         )}
       </CardContent>
-      
+
       {/* Transaction Details Modal */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="bg-background/95 backdrop-blur-lg border-white/10 text-white">
@@ -473,7 +475,7 @@ const TransactionHistory = () => {
               Full details for transaction ID: {selectedTransaction?.txId}
             </DialogDescription>
           </DialogHeader>
-          
+
           {selectedTransaction && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -560,7 +562,14 @@ const TransactionHistory = () => {
                   <p className="text-sm text-white/70">Transaction ID</p>
                   <p className="text-white font-mono break-all">{selectedTransaction.txId}</p>
                 </div>
-                
+
+                {selectedTransaction.details?.expectedCompletionTime && selectedTransaction.status === 'pending' && (
+                  <div>
+                    <p className="text-sm text-white/70">Expected Completion</p>
+                    <p className="text-white">{formatDate(selectedTransaction.details.expectedCompletionTime)}</p>
+                  </div>
+                )}
+
                 {/* Metadata if available */}
                 {selectedTransaction.metadata && Object.keys(selectedTransaction.metadata).length > 0 && (
                   <div className="col-span-2 border-t border-white/10 pt-4 mt-2">
@@ -576,7 +585,7 @@ const TransactionHistory = () => {
                   </div>
                 )}
               </div>
-              
+
               <div className="flex justify-end space-x-2 pt-4">
                 {selectedTransaction.status === 'pending' && (
                   <Button variant="destructive" size="sm">

@@ -284,6 +284,7 @@ const WithdrawPage = () => {
       const newBalance = currentBalance - estimatedUsdValue;
       await UserBalanceService.updateUserBalance(uid, newBalance);
 
+      // Create the transaction with Pending status
       const transaction = {
         type: 'Withdrawal',
         method: 'crypto',
@@ -296,12 +297,58 @@ const WithdrawPage = () => {
           network: network,
           amount: cryptoAmountValue,
           walletAddress: walletAddress,
+          processingStartTime: new Date().toISOString(),
+          expectedCompletionTime: new Date(Date.now() + (25 * 60 * 1000)).toISOString() // 25 minutes from now (avg of 10-30 min + buffer)
         }
       };
 
       await UserService.updateUserData(uid, {
         transactions: arrayUnion(transaction)
       });
+      
+      // Simulate blockchain confirmation process with status updates
+      // In a real app, this would be handled by a server-side process or webhook
+      if (!isDemoMode) {
+        // After 2-5 minutes, update to Processing
+        setTimeout(async () => {
+          try {
+            const userData = await UserService.getUserData(uid);
+            if (!userData || !userData.transactions) return;
+            
+            // Find the transaction
+            const updatedTransactions = userData.transactions.map((tx: any) => {
+              if (tx.txId === transaction.txId) {
+                return { ...tx, status: 'Processing' };
+              }
+              return tx;
+            });
+            
+            await UserService.updateUserData(uid, { transactions: updatedTransactions });
+            
+            // After additional 8-20 minutes, update to Completed
+            setTimeout(async () => {
+              try {
+                const userData = await UserService.getUserData(uid);
+                if (!userData || !userData.transactions) return;
+                
+                const finalTransactions = userData.transactions.map((tx: any) => {
+                  if (tx.txId === transaction.txId) {
+                    return { ...tx, status: 'Completed' };
+                  }
+                  return tx;
+                });
+                
+                await UserService.updateUserData(uid, { transactions: finalTransactions });
+              } catch (err) {
+                console.error("Error updating transaction status to Completed:", err);
+              }
+            }, Math.floor(Math.random() * 12 * 60 * 1000) + 8 * 60 * 1000); // 8-20 minutes
+            
+          } catch (err) {
+            console.error("Error updating transaction status to Processing:", err);
+          }
+        }, Math.floor(Math.random() * 3 * 60 * 1000) + 2 * 60 * 1000); // 2-5 minutes
+      }
 
       setIsSuccessDialogOpen(true);
 
