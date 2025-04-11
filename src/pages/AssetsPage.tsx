@@ -87,6 +87,7 @@ const AssetsPage = () => {
 
   const [prices, setPrices] = useState({});
   
+  // Base assets list that will be shown to all users
   const baseAssets = [
     {
       name: "BTC",
@@ -129,6 +130,20 @@ const AssetsPage = () => {
       fullName: "Solana",
       balance: 0,
       amount: "0.00000000"
+    },
+    {
+      name: "ETH",
+      symbol: "ETH",
+      fullName: "Ethereum",
+      balance: 0,
+      amount: "0.00000000"
+    },
+    {
+      name: "XRP",
+      symbol: "XRP",
+      fullName: "Ripple",
+      balance: 0,
+      amount: "0.00000000"
     }
   ];
 
@@ -156,10 +171,32 @@ const AssetsPage = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const assets = baseAssets.map(asset => ({
-    ...asset,
-    price: prices[asset.symbol] || 0
-  }));
+  // Merge base assets with user's actual assets data
+  const assets = baseAssets.map(asset => {
+    // Check if user has this asset
+    const userAsset = userAssets[asset.symbol];
+    
+    return {
+      ...asset,
+      // Override amount and balance if user has this asset
+      amount: userAsset ? userAsset.amount.toFixed(8) : asset.amount,
+      balance: userAsset ? userAsset.amount * (assetPrices[asset.symbol] || prices[asset.symbol] || 0) : asset.balance,
+      price: assetPrices[asset.symbol] || prices[asset.symbol] || 0
+    };
+  });
+  
+  // Sort assets: first show assets with balances, then the rest
+  const sortedAssets = [...assets].sort((a, b) => {
+    // First compare if either asset has a balance
+    const aHasBalance = parseFloat(a.amount) > 0;
+    const bHasBalance = parseFloat(b.amount) > 0;
+    
+    if (aHasBalance && !bHasBalance) return -1;
+    if (!aHasBalance && bHasBalance) return 1;
+    
+    // If both have or don't have balances, sort by value
+    return b.balance - a.balance;
+  });
 
   return (
     <DashboardLayout>
@@ -203,30 +240,37 @@ const AssetsPage = () => {
                     <div className="text-right">Price</div>
                   </div>
                   <div className="divide-y divide-white/10">
-                    {assets.map((asset, index) => (
-                      <div key={index} className="grid grid-cols-3 p-3">
-                        <div className="flex items-center gap-1 sm:gap-2">
-                          <img
-                            src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${asset.symbol.toLowerCase()}.svg`}
-                            alt={asset.symbol}
-                            className="w-5 h-5 sm:w-6 sm:h-6"
-                            onError={(e) => {
-                              e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
-                            }}
-                          />
-                          <div>
-                            <div className="text-sm sm:text-base">{asset.symbol}</div>
-                            <div className="text-xs text-white/60 hidden sm:block">{asset.fullName}</div>
+                    {sortedAssets.map((asset, index) => {
+                      // Get the amount from user assets or use default
+                      const userAssetAmount = userAssets[asset.symbol]?.amount || 0;
+                      // Use the actual amount from userAssets if available
+                      const displayAmount = userAssetAmount > 0 ? userAssetAmount.toFixed(8) : asset.amount;
+                      
+                      return (
+                        <div key={index} className="grid grid-cols-3 p-3">
+                          <div className="flex items-center gap-1 sm:gap-2">
+                            <img
+                              src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${asset.symbol.toLowerCase()}.svg`}
+                              alt={asset.symbol}
+                              className="w-5 h-5 sm:w-6 sm:h-6"
+                              onError={(e) => {
+                                e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                              }}
+                            />
+                            <div>
+                              <div className="text-sm sm:text-base">{asset.symbol}</div>
+                              <div className="text-xs text-white/60 hidden sm:block">{asset.fullName}</div>
+                            </div>
+                          </div>
+                          <div className="text-right text-xs sm:text-sm overflow-hidden text-ellipsis">
+                            {displayAmount}
+                          </div>
+                          <div className="text-right text-xs sm:text-sm">
+                            ${asset.symbol === 'USDT' ? '1.00' : assetPrices[asset.symbol]?.toFixed(2) || prices[asset.symbol]?.toFixed(2) || '0.00'}
                           </div>
                         </div>
-                        <div className="text-right text-xs sm:text-sm overflow-hidden text-ellipsis">
-                          {asset.amount}
-                        </div>
-                        <div className="text-right text-xs sm:text-sm">
-                          ${asset.symbol === 'USDT' ? '1.00' : prices[asset.symbol]?.toFixed(2) || '0.00'}
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </TabsContent>
