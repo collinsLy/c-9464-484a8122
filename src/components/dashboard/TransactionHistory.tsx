@@ -1,120 +1,113 @@
-import { useState, useEffect } from "react";
+
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { UserService } from "@/lib/user-service";
+import { auth } from '@/lib/firebase';
+import { UserService } from '@/lib/user-service';
+import { Loader2 } from 'lucide-react';
 
-interface TransactionHistoryProps {
-  isDemoMode?: boolean;
-}
-
-interface Transaction {
-  type: string;
-  method: string;
-  amount: number;
-  status: string;
-  timestamp: string;
-  details?: {
-    paymentMethod?: string;
-  };
-}
-
-const TransactionHistory = ({ isDemoMode = false }: TransactionHistoryProps) => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+const TransactionHistory = () => {
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchTransactions = async () => {
-      if (!isDemoMode) {
-        const uid = localStorage.getItem('userId');
-        if (uid) {
-          const userData = await UserService.getUserData(uid);
-          if (userData && userData.transactions) {
-            setTransactions(userData.transactions);
-          }
+      try {
+        const uid = auth.currentUser?.uid;
+        if (!uid) return;
+        
+        const userData = await UserService.getUserData(uid);
+        if (userData && userData.transactions) {
+          setTransactions(userData.transactions);
         }
+      } catch (error) {
+        console.error('Error fetching transactions:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchTransactions();
-  }, [isDemoMode]);
+  }, []);
 
-  // Demo transactions with predefined values
-  const demoTransactions = [
-    { 
-      type: "withdrawal",
-      method: "bank",
-      amount: 1000,
-      status: "completed",
-      timestamp: new Date().toISOString(),
-      details: { paymentMethod: "Bank Transfer" }
-    },
-    { 
-      type: "deposit",
-      method: "card",
-      amount: 5000,
-      status: "completed",
-      timestamp: new Date().toISOString(),
-      details: { paymentMethod: "Credit Card" }
+  const getStatusColor = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case 'completed':
+        return 'text-green-500';
+      case 'pending':
+        return 'text-yellow-500';
+      case 'failed':
+        return 'text-red-500';
+      default:
+        return 'text-gray-500';
     }
-  ];
+  };
 
-  const displayTransactions = isDemoMode ? demoTransactions : transactions;
+  const formatAmount = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount);
+  };
 
   const formatDate = (timestamp: string) => {
-    return new Date(timestamp).toLocaleString();
+    if (!timestamp) return 'N/A';
+    try {
+      return new Date(timestamp).toLocaleString();
+    } catch (error) {
+      return 'Invalid Date';
+    }
   };
 
-  const formatMethod = (method: string, details?: { paymentMethod?: string }) => {
-    const methodMap: { [key: string]: string } = {
-      bank: "Bank Transfer",
-      paypal: "PayPal",
-      mpesa: "M-Pesa",
-      airtel: "Airtel Money",
-      card: "Credit Card"
-    };
-    return details?.paymentMethod || methodMap[method] || method;
-  };
+  if (loading) {
+    return (
+      <Card className="w-full bg-background/40 backdrop-blur-lg border-white/10">
+        <CardHeader>
+          <CardTitle className="text-xl text-white">Transaction History</CardTitle>
+        </CardHeader>
+        <CardContent className="flex justify-center items-center h-40">
+          <Loader2 className="h-8 w-8 animate-spin text-white/70" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>{isDemoMode ? "Demo Transactions" : "Transaction History"}</CardTitle>
+    <Card className="w-full bg-background/40 backdrop-blur-lg border-white/10">
+      <CardHeader>
+        <CardTitle className="text-xl text-white">Transaction History</CardTitle>
       </CardHeader>
       <CardContent>
-        {displayTransactions.length > 0 ? (
-          <Table>
-            <TableHeader>
-              <TableRow className="border-white/10">
-                <TableHead>Time</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Method</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {displayTransactions.map((tx, index) => (
-                <TableRow key={index} className="border-white/10">
-                  <TableCell>{formatDate(tx.timestamp)}</TableCell>
-                  <TableCell className="text-white">
-                    {tx.type.charAt(0).toUpperCase() + tx.type.slice(1)}
-                  </TableCell>
-                  <TableCell>{formatMethod(tx.method, tx.details)}</TableCell>
-                  <TableCell>${tx.amount.toLocaleString()}</TableCell>
-                  <TableCell>
-                    <span className="px-2 py-1 rounded-full text-xs bg-green-500/20 text-green-400">
-                      {tx.status.charAt(0).toUpperCase() + tx.status.slice(1)}
-                    </span>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        ) : (
-          <div className="text-center py-8 text-white/60">
-            <p>No transaction history</p>
-            <p className="text-sm mt-2">Your recent transactions will appear here</p>
-          </div>
-        )}
+        <div className="space-y-4">
+          {transactions.length === 0 ? (
+            <div className="text-center text-white/70 py-8">
+              No transactions found
+            </div>
+          ) : (
+            transactions.map((transaction: any, index: number) => (
+              <div
+                key={transaction.txId || index}
+                className="flex justify-between items-center p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+              >
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-white">
+                    {transaction.type}
+                  </p>
+                  <p className="text-xs text-white/70">
+                    {formatDate(transaction.timestamp)}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-medium text-white">
+                    {formatAmount(transaction.amount)}
+                  </p>
+                  <p className={`text-xs ${getStatusColor(transaction.status)}`}>
+                    {transaction.status}
+                  </p>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </CardContent>
     </Card>
   );
