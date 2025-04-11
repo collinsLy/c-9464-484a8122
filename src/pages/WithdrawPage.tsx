@@ -35,13 +35,13 @@ const WithdrawPage = () => {
     paypalEmail: "",
     mobileNumber: "",
   });
-  
+
   // Fetch user's crypto balances when the component loads
   useEffect(() => {
     const fetchUserCryptoBalances = async () => {
       const uid = localStorage.getItem('userId');
       if (!uid) return;
-      
+
       try {
         const userData = await UserService.getUserData(uid);
         if (userData && userData.assets) {
@@ -49,19 +49,19 @@ const WithdrawPage = () => {
             acc[key] = userData.assets[key].amount || 0;
             return acc;
           }, {} as Record<string, number>);
-          
+
           console.log("Fetched crypto balances:", balances);
-          
+
           // Ensure we have default values for all supported cryptocurrencies
           const supportedCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB'];
           const completeBalances = { ...balances };
-          
+
           supportedCryptos.forEach(crypto => {
             if (completeBalances[crypto] === undefined) {
               completeBalances[crypto] = 0;
             }
           });
-          
+
           setUserCryptoBalances(completeBalances);
         } else {
           console.log("No assets found in user data");
@@ -78,9 +78,9 @@ const WithdrawPage = () => {
         console.error("Error fetching crypto balances:", error);
       }
     };
-    
+
     fetchUserCryptoBalances();
-    
+
     // Set up a listener for real-time updates to user data
     const uid = localStorage.getItem('userId');
     if (uid) {
@@ -90,26 +90,26 @@ const WithdrawPage = () => {
             acc[key] = userData.assets[key].amount || 0;
             return acc;
           }, {} as Record<string, number>);
-          
+
           // Always maintain all supported cryptocurrencies in the state
           const supportedCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB'];
           const completeBalances = { ...balances };
-          
+
           supportedCryptos.forEach(crypto => {
             if (completeBalances[crypto] === undefined) {
               completeBalances[crypto] = 0;
             }
           });
-          
+
           console.log("Updated crypto balances from subscription:", completeBalances);
           setUserCryptoBalances(completeBalances);
         }
       });
-      
+
       return () => unsubscribe();
     }
   }, []);
-  
+
   // Function to get and display user's current crypto balance
   const getUserCryptoBalance = () => {
     const balance = userCryptoBalances[selectedCrypto] || 0;
@@ -119,7 +119,31 @@ const WithdrawPage = () => {
   // Update the UI when cryptocurrency is selected or balances change
   useEffect(() => {
     console.log(`Selected crypto: ${selectedCrypto}, Available balance:`, userCryptoBalances[selectedCrypto] || 0);
-    
+
+    // Fetch latest balance from Firebase whenever crypto selection changes
+    const fetchLatestBalance = async () => {
+      const uid = localStorage.getItem('userId');
+      if (!uid) return;
+
+      try {
+        const userData = await UserService.getUserData(uid);
+        if (userData && userData.assets) {
+          const balance = userData.assets[selectedCrypto]?.amount || 0;
+          console.log(`Fresh balance check for ${selectedCrypto}:`, balance);
+
+          // Only update the specific crypto that was selected
+          setUserCryptoBalances(prev => ({
+            ...prev,
+            [selectedCrypto]: balance
+          }));
+        }
+      } catch (error) {
+        console.error(`Error fetching latest balance for ${selectedCrypto}:`, error);
+      }
+    };
+
+    fetchLatestBalance();
+
     // Reset amount if it exceeds the available balance when switching cryptos
     if (cryptoAmount && parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0)) {
       setCryptoAmount("");
@@ -128,23 +152,15 @@ const WithdrawPage = () => {
     // Set appropriate networks based on the selected crypto
     if (selectedCrypto === 'BTC' && !['NATIVE', 'BSC'].includes(network)) {
       setNetwork('NATIVE');
-      console.log(`Setting network to NATIVE for BTC`);
     } else if (selectedCrypto === 'ETH' && !['ERC20', 'ARBITRUM', 'OPTIMISM'].includes(network)) {
       setNetwork('ERC20');
-      console.log(`Setting network to ERC20 for ETH`);
     } else if (selectedCrypto === 'BNB' && network !== 'BSC') {
       setNetwork('BSC');
-      console.log(`Setting network to BSC for BNB`);
     } else if ((selectedCrypto === 'USDT' || selectedCrypto === 'USDC') && 
                !['ERC20', 'TRC20', 'BSC'].includes(network)) {
       setNetwork('ERC20');
-      console.log(`Setting network to ERC20 for ${selectedCrypto}`);
     }
-    
-    // Force refresh of balance display
-    const currentBalance = userCryptoBalances[selectedCrypto] || 0;
-    console.log(`Current ${selectedCrypto} balance: ${currentBalance}`);
-  }, [selectedCrypto, userCryptoBalances]);
+  }, [selectedCrypto]);
 
   const paymentMethods = [
     { id: "bank", name: "Bank Transfer", icon: <BankIcon className="w-8 h-8 text-white" /> },
@@ -361,11 +377,9 @@ const WithdrawPage = () => {
 
   // Handle crypto withdrawal
   const handleCryptoWithdraw = async () => {
+    console.log(`Starting withdrawal process for ${selectedCrypto}`);
     const cryptoAmountValue = parseFloat(cryptoAmount);
-    
-    console.log(`Processing withdrawal for ${selectedCrypto}, amount: ${cryptoAmountValue}`);
-    console.log(`Current balances in state:`, userCryptoBalances);
-    
+
     if (!cryptoAmountValue || cryptoAmountValue <= 0) {
       toast({
         title: "Invalid Amount",
@@ -374,7 +388,7 @@ const WithdrawPage = () => {
       });
       return;
     }
-    
+
     // Check minimum withdrawal amount
     const minAmount = getMinimumWithdrawalAmount(selectedCrypto);
     if (cryptoAmountValue < minAmount) {
@@ -404,22 +418,6 @@ const WithdrawPage = () => {
       return;
     }
 
-    // Get current balance from state first (for immediate validation)
-    const currentStateBalance = userCryptoBalances[selectedCrypto] || 0;
-    console.log(`Validating balance for ${selectedCrypto}: ${currentStateBalance} vs requested: ${cryptoAmountValue}`);
-    
-    if (cryptoAmountValue > currentStateBalance) {
-      toast({
-        title: "Insufficient Balance",
-        description: `You only have ${currentStateBalance.toFixed(8)} ${selectedCrypto} available for withdrawal`,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Estimate USD value based on crypto (in a real app this would fetch current exchange rate)
-    const estimatedUsdValue = cryptoAmountValue * getEstimatedRate(selectedCrypto);
-    
     const uid = localStorage.getItem('userId');
     if (!uid) {
       toast({
@@ -429,15 +427,16 @@ const WithdrawPage = () => {
       });
       return;
     }
-    
-    // Double-check with latest data from the database
+
+    // Double-check with latest data from the database first
     let userData;
     let userAssets;
     let cryptoBalance;
-    
+
     try {
+      // Get fresh user data from the database
       userData = await UserService.getUserData(uid);
-      
+
       if (!userData) {
         toast({
           title: "User Data Error",
@@ -446,21 +445,21 @@ const WithdrawPage = () => {
         });
         return;
       }
-      
+
       // Get user's crypto assets
       userAssets = userData.assets || {};
       cryptoBalance = userAssets[selectedCrypto]?.amount || 0;
-      
+
       console.log(`Database check - ${selectedCrypto} balance:`, cryptoBalance);
-      
-      // Ensure we're using the correct cryptocurrency for validation
+
+      // Update local state to match database
+      setUserCryptoBalances(prev => ({
+        ...prev,
+        [selectedCrypto]: cryptoBalance
+      }));
+
+      // Check if user has sufficient balance for the selected crypto
       if (cryptoBalance < cryptoAmountValue) {
-        // Update local state to match database and show error
-        setUserCryptoBalances(prev => ({
-          ...prev,
-          [selectedCrypto]: cryptoBalance
-        }));
-        
         toast({
           title: `Insufficient ${selectedCrypto} Balance`,
           description: `You only have ${cryptoBalance.toFixed(8)} ${selectedCrypto} available for withdrawal`,
@@ -469,7 +468,7 @@ const WithdrawPage = () => {
         return;
       }
     } catch (error) {
-      console.error(`Error checking ${selectedCrypto} balance:`, error);
+      console.error("Error checking crypto balance:", error);
       toast({
         title: "Balance Check Failed",
         description: "Failed to verify your crypto balance",
@@ -479,26 +478,19 @@ const WithdrawPage = () => {
     }
 
     try {
-      const currentBalance = await UserBalanceService.getUserBalance(uid);
-      if (currentBalance < estimatedUsdValue) {
-        toast({
-          title: "Insufficient Balance",
-          description: `Your balance ($${currentBalance.toFixed(2)}) is insufficient for this withdrawal`,
-          variant: "destructive",
-        });
-        return;
-      }
+      // Skip USD balance check - this was causing confusion
+      // Instead just check the crypto balance which we already confirmed above
 
-      // Update USD balance
-      const newBalance = currentBalance - estimatedUsdValue;
-      await UserBalanceService.updateUserBalance(uid, newBalance);
-      
+      // Estimate USD value based on crypto (in a real app this would fetch current exchange rate)
+      const estimatedUsdValue = cryptoAmountValue * getEstimatedRate(selectedCrypto);
+      console.log(`Withdrawing ${cryptoAmountValue} ${selectedCrypto} (≈ $${estimatedUsdValue})`);
+
       // Update crypto balance by decreasing the amount
       const updatedUserAssets = { ...userAssets };
       const newCryptoAmount = cryptoBalance - cryptoAmountValue;
-      
+
       if (newCryptoAmount <= 0) {
-        // If balance becomes zero or negative, remove the asset or set to zero
+        // If balance becomes zero or negative, set to zero
         if (updatedUserAssets[selectedCrypto]) {
           updatedUserAssets[selectedCrypto] = {
             ...updatedUserAssets[selectedCrypto],
@@ -512,17 +504,14 @@ const WithdrawPage = () => {
           amount: newCryptoAmount
         };
       }
-      
-      // Update the user's assets in Firebase
-      await UserService.updateUserData(uid, {
-        assets: updatedUserAssets
-      });
 
       // Create the transaction with Pending status
       const transaction = {
         type: 'Withdrawal',
         method: 'crypto',
+        crypto: selectedCrypto,  // Explicitly store the crypto type
         amount: estimatedUsdValue,
+        cryptoAmount: cryptoAmountValue,  // Store the actual crypto amount
         status: 'Pending',
         timestamp: new Date().toISOString(),
         txId: `TX${Date.now()}`,
@@ -532,33 +521,29 @@ const WithdrawPage = () => {
           amount: cryptoAmountValue,
           walletAddress: walletAddress,
           processingStartTime: new Date().toISOString(),
-          expectedCompletionTime: new Date(Date.now() + (25 * 60 * 1000)).toISOString() // 25 minutes from now (avg of 10-30 min + buffer)
+          expectedCompletionTime: new Date(Date.now() + (25 * 60 * 1000)).toISOString() // 25 minutes from now
         }
       };
 
+      // Update the user's assets in Firebase
       await UserService.updateUserData(uid, {
+        assets: updatedUserAssets,
         transactions: arrayUnion(transaction)
       });
-      
-      // Log the transaction for debugging
-      console.log(`Created withdrawal transaction for ${cryptoAmountValue} ${selectedCrypto}:`, transaction);
-      console.log(`Updated assets after withdrawal:`, updatedUserAssets);
-      
-      // Force immediate status updates for testing/demo purposes
-      // No delay based logic, immediately update statuses
-      console.log(`Processing transaction ${transaction.txId} immediately`);
-      
+
+      console.log(`Transaction ${transaction.txId} created, updated assets`);
+
       // Update balances in state to reflect immediately in UI
       setUserCryptoBalances(prevBalances => ({
         ...prevBalances,
         [selectedCrypto]: newCryptoAmount
       }));
-      
+
       // Immediately update to Processing
       setTimeout(async () => {
         try {
           console.log(`Updating ${transaction.txId} to Processing status`);
-          
+
           // Direct update to Processing without fetching first
           await UserService.updateUserData(uid, {
             transactions: arrayUnion({
@@ -566,21 +551,21 @@ const WithdrawPage = () => {
               status: 'Processing'
             })
           });
-          
+
           toast({
             title: "Withdrawal Update",
             description: `Your ${cryptoAmountValue} ${selectedCrypto} withdrawal is now processing.`,
           });
-          
+
           // Then update to Completed after just 5 seconds
           setTimeout(async () => {
             try {
               console.log(`Updating ${transaction.txId} to Completed status`);
-              
+
               // Get updated data first
               const userData = await UserService.getUserData(uid);
               if (!userData || !userData.transactions) return;
-              
+
               // Filter out duplicate transactions and keep only the most recent one
               const uniqueTxIds = new Set();
               const filteredTransactions = userData.transactions.filter((tx: any) => {
@@ -590,7 +575,7 @@ const WithdrawPage = () => {
                 uniqueTxIds.add(tx.txId);
                 return true;
               });
-              
+
               // Update the specific transaction
               const finalTransactions = filteredTransactions.map((tx: any) => {
                 if (tx.txId === transaction.txId) {
@@ -598,12 +583,12 @@ const WithdrawPage = () => {
                 }
                 return tx;
               });
-              
+
               // Replace all transactions
               await UserService.updateUserData(uid, { 
                 transactions: finalTransactions 
               });
-              
+
               toast({
                 title: "Withdrawal Completed",
                 description: `Your ${cryptoAmountValue} ${selectedCrypto} withdrawal has been completed.`,
@@ -612,7 +597,7 @@ const WithdrawPage = () => {
               console.error("Error updating transaction status to Completed:", err);
             }
           }, 5000); // Just 5 seconds later
-          
+
         } catch (err) {
           console.error("Error updating transaction status to Processing:", err);
         }
@@ -621,7 +606,7 @@ const WithdrawPage = () => {
       // Clear input fields after successful transaction
       setCryptoAmount("");
       setWalletAddress("");
-      
+
       setIsSuccessDialogOpen(true);
 
       toast({
@@ -650,11 +635,11 @@ const WithdrawPage = () => {
     };
     return rates[crypto] || 1;
   };
-  
+
   // Validate wallet address format based on cryptocurrency and network
   const isValidWalletAddress = (address: string, crypto: string, network: string): boolean => {
     if (!address.trim()) return false;
-    
+
     // Basic validation patterns
     const patterns = {
       BTC_NATIVE: /^(1|3|bc1)[a-zA-Z0-9]{25,42}$/,
@@ -668,14 +653,14 @@ const WithdrawPage = () => {
       ETH_ARBITRUM: /^0x[a-fA-F0-9]{40}$/,
       ETH_OPTIMISM: /^0x[a-fA-F0-9]{40}$/,
     };
-    
+
     const key = `${crypto}_${network}`;
-    
+
     // If specific pattern exists, use it
     if (patterns[key as keyof typeof patterns]) {
       return patterns[key as keyof typeof patterns].test(address);
     }
-    
+
     // Default pattern based on network
     if (network === 'BSC' || network === 'ERC20' || network === 'ARBITRUM' || network === 'OPTIMISM') {
       return /^0x[a-fA-F0-9]{40}$/.test(address);
@@ -684,11 +669,11 @@ const WithdrawPage = () => {
     } else if (network === 'NATIVE' && crypto === 'BTC') {
       return /^(1|3|bc1)[a-zA-Z0-9]{25,42}$/.test(address);
     }
-    
+
     // Basic length check for other networks
     return address.length >= 25 && address.length <= 128;
   };
-  
+
   return (
     <DashboardLayout>
       <div className="space-y-4">
@@ -717,7 +702,7 @@ const WithdrawPage = () => {
                   Crypto
                 </TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="fiat" className="space-y-6">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {paymentMethods.map((method) => (
@@ -785,7 +770,7 @@ const WithdrawPage = () => {
                   </div>
                 </div>
               </TabsContent>
-              
+
               <TabsContent value="crypto" className="space-y-6">
                 <div>
                   <div className="flex items-center justify-between mb-4">
@@ -810,29 +795,12 @@ const WithdrawPage = () => {
                         <Button 
                           key={crypto.symbol}
                           variant={selectedCrypto === crypto.symbol ? 'secondary' : 'outline'}
-                          onClick={() => {
+                          onClick={async () => {
+                            // First update the UI
                             setSelectedCrypto(crypto.symbol);
-                            console.log(`Selected ${crypto.symbol}, balance from state: ${balance}`);
-                            
-                            // Refresh the balance from Firebase again to ensure accuracy
-                            const uid = localStorage.getItem('userId');
-                            if (uid) {
-                              UserService.getUserData(uid).then(userData => {
-                                if (userData?.assets && userData.assets[crypto.symbol]) {
-                                  const freshBalance = userData.assets[crypto.symbol].amount || 0;
-                                  console.log(`Fresh ${crypto.symbol} balance from Firebase: ${freshBalance}`);
-                                  
-                                  // Update only this specific crypto's balance
-                                  setUserCryptoBalances(prev => ({
-                                    ...prev,
-                                    [crypto.symbol]: freshBalance
-                                  }));
-                                }
-                              }).catch(err => {
-                                console.error(`Failed to refresh ${crypto.symbol} balance:`, err);
-                              });
-                            }
-                            
+
+                            console.log(`Selected ${crypto.symbol}, state balance: ${balance}`);
+
                             // Reset network to appropriate default for this crypto
                             if (crypto.symbol === 'BTC') {
                               setNetwork('NATIVE');
@@ -842,6 +810,26 @@ const WithdrawPage = () => {
                               setNetwork('BSC');
                             } else {
                               setNetwork('ERC20'); // Default for USDT, USDC, etc.
+                            }
+
+                            // Immediately fetch the latest balance from Firebase
+                            const uid = localStorage.getItem('userId');
+                            if (uid) {
+                              try {
+                                const userData = await UserService.getUserData(uid);
+                                if (userData && userData.assets) {
+                                  const freshBalance = userData.assets[crypto.symbol]?.amount || 0;
+                                  console.log(`Firebase check for ${crypto.symbol}: ${freshBalance}`);
+
+                                  // Update UI with fresh balance
+                                  setUserCryptoBalances(prev => ({
+                                    ...prev,
+                                    [crypto.symbol]: freshBalance
+                                  }));
+                                }
+                              } catch (error) {
+                                console.error(`Error fetching ${crypto.symbol} balance:`, error);
+                              }
                             }
                           }}
                           className="flex items-center gap-2"
@@ -863,7 +851,7 @@ const WithdrawPage = () => {
                     })}
                   </div>
                 </div>
-                
+
                 <div>
                   <div className="flex items-center gap-2 mb-4">
                     <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-sm">2</span>
@@ -942,7 +930,7 @@ const WithdrawPage = () => {
                     )}
                   </div>
                 </div>
-                
+
                 <div>
                   <div className="flex items-center gap-2 mb-4">
                     <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-sm">3</span>
@@ -970,7 +958,7 @@ const WithdrawPage = () => {
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="grid gap-2">
                       <div className="flex justify-between items-center">
                         <Label>Amount</Label>
@@ -1018,7 +1006,7 @@ const WithdrawPage = () => {
                               <p className="text-red-400">Insufficient {selectedCrypto} balance</p>
                             )}
                           </div>
-                          
+
                           {/* Network fee estimate */}
                           <div className="flex justify-between text-xs text-white/60">
                             <span>Network Fee:</span>
@@ -1028,7 +1016,7 @@ const WithdrawPage = () => {
                                   network === 'NATIVE' && selectedCrypto === 'BTC' ? '~0.0001 BTC' :
                                   '~0.0001'}</span>
                           </div>
-                          
+
                           {/* Minimum withdrawal amount */}
                           <div className="flex justify-between text-xs text-white/60">
                             <span>Minimum withdrawal:</span>
@@ -1055,7 +1043,7 @@ const WithdrawPage = () => {
                     >
                       {isDemoMode ? "Demo Withdraw" : "Withdraw Crypto"}
                     </Button>
-                    
+
                     {/* Validation messages */}
                     {(
                       (!walletAddress || !isValidWalletAddress(walletAddress, selectedCrypto, network)) ||
