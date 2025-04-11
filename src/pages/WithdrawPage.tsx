@@ -307,9 +307,12 @@ const WithdrawPage = () => {
       });
       
       // Simulate blockchain confirmation process with status updates
-      // In a real app, this would be handled by a server-side process or webhook
+      // Use shorter timeframes for testing purposes
       if (!isDemoMode) {
-        // After 2-5 minutes, update to Processing
+        // After 10-30 seconds, update to Processing (for demo/testing)
+        const processingDelay = Math.floor(Math.random() * 20 * 1000) + 10 * 1000; // 10-30 seconds
+        console.log(`Transaction ${transaction.txId} will move to Processing in ${processingDelay/1000} seconds`);
+        
         setTimeout(async () => {
           try {
             const userData = await UserService.getUserData(uid);
@@ -325,7 +328,15 @@ const WithdrawPage = () => {
             
             await UserService.updateUserData(uid, { transactions: updatedTransactions });
             
-            // After additional 8-20 minutes, update to Completed
+            toast({
+              title: "Withdrawal Update",
+              description: `Your ${cryptoAmountValue} ${selectedCrypto} withdrawal is now processing.`,
+            });
+            
+            // After additional 20-40 seconds, update to Completed (for demo/testing)
+            const completionDelay = Math.floor(Math.random() * 20 * 1000) + 20 * 1000; // 20-40 seconds
+            console.log(`Transaction ${transaction.txId} will move to Completed in ${completionDelay/1000} additional seconds`);
+            
             setTimeout(async () => {
               try {
                 const userData = await UserService.getUserData(uid);
@@ -339,15 +350,20 @@ const WithdrawPage = () => {
                 });
                 
                 await UserService.updateUserData(uid, { transactions: finalTransactions });
+                
+                toast({
+                  title: "Withdrawal Completed",
+                  description: `Your ${cryptoAmountValue} ${selectedCrypto} withdrawal has been completed.`,
+                });
               } catch (err) {
                 console.error("Error updating transaction status to Completed:", err);
               }
-            }, Math.floor(Math.random() * 12 * 60 * 1000) + 8 * 60 * 1000); // 8-20 minutes
+            }, completionDelay);
             
           } catch (err) {
             console.error("Error updating transaction status to Processing:", err);
           }
-        }, Math.floor(Math.random() * 3 * 60 * 1000) + 2 * 60 * 1000); // 2-5 minutes
+        }, processingDelay);
       }
 
       setIsSuccessDialogOpen(true);

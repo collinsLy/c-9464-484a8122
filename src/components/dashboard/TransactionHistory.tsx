@@ -59,11 +59,62 @@ const TransactionHistory = () => {
         const uid = auth.currentUser?.uid;
         if (!uid) return;
 
+        // First, get the initial data
         const userData = await UserService.getUserData(uid);
         if (userData && userData.transactions) {
           setTransactions(userData.transactions);
           setFilteredTransactions(userData.transactions);
         }
+        
+        // Then set up real-time updates
+        const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
+          if (userData && userData.transactions) {
+            setTransactions(userData.transactions);
+            setFilteredTransactions(prevFiltered => {
+              // Apply current filters to the new data
+              let result = [...userData.transactions];
+              
+              // Search filter
+              if (searchQuery) {
+                const query = searchQuery.toLowerCase();
+                result = result.filter(
+                  (tx) => 
+                    tx.txId?.toLowerCase().includes(query) || 
+                    tx.asset?.toLowerCase().includes(query) ||
+                    tx.type?.toLowerCase().includes(query)
+                );
+              }
+          
+              // Type filter
+              if (typeFilter !== 'all') {
+                result = result.filter((tx) => tx.type?.toLowerCase() === typeFilter.toLowerCase());
+              }
+          
+              // Status filter
+              if (statusFilter !== 'all') {
+                result = result.filter((tx) => tx.status?.toLowerCase() === statusFilter.toLowerCase());
+              }
+          
+              // Date range filter
+              if (startDate) {
+                const start = new Date(startDate).getTime();
+                result = result.filter((tx) => new Date(tx.timestamp).getTime() >= start);
+              }
+          
+              if (endDate) {
+                const end = new Date(endDate).getTime();
+                result = result.filter((tx) => new Date(tx.timestamp).getTime() <= end);
+              }
+              
+              return result;
+            });
+          }
+        });
+        
+        // Clean up subscription on unmount
+        return () => {
+          if (unsubscribe) unsubscribe();
+        };
       } catch (error) {
         console.error('Error fetching transactions:', error);
       } finally {
@@ -72,7 +123,7 @@ const TransactionHistory = () => {
     };
 
     fetchTransactions();
-  }, []);
+  }, [searchQuery, typeFilter, statusFilter, startDate, endDate]);
 
   useEffect(() => {
     // Apply all filters
