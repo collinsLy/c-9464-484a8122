@@ -71,34 +71,38 @@ const Dashboard = () => {
       case "trading":
         return (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-              {/* Main Chart and Trading Panel */}
-              <div className="xl:col-span-3 space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Main Trading Area */}
+              <div className="lg:col-span-9 space-y-6">
                 <MarketChart 
                   selectedSymbol={selectedSymbol} 
                   selectedTimeframe={selectedTimeframe}
                   onSymbolChange={setSelectedSymbol}
                   onTimeframeChange={setSelectedTimeframe}
                 />
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="md:col-span-2">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2">
                     <TradingPanel symbol={selectedSymbol} />
                   </div>
-                  <div className="md:col-span-1">
+                  <div className="lg:col-span-1">
                     <BinanceOrderBook symbol={selectedSymbol} />
                   </div>
                 </div>
               </div>
 
               {/* Right Sidebar */}
-              <div className="xl:col-span-1 space-y-6">
-                <CryptoConverter />
-                <CryptoTicker />
+              <div className="lg:col-span-3 space-y-6">
+                <div className="bg-background/40 backdrop-blur-lg border border-white/10 rounded-lg p-4">
+                  <CryptoConverter />
+                </div>
+                <div className="bg-background/40 backdrop-blur-lg border border-white/10 rounded-lg p-4">
+                  <CryptoTicker />
+                </div>
               </div>
             </div>
 
             {/* Copy Trading Section */}
-            <div className="mt-6">
+            <div className="bg-background/40 backdrop-blur-lg border border-white/10 rounded-lg p-6">
               <CopyTrading />
             </div>
           </div>
