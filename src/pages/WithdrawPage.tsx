@@ -44,36 +44,33 @@ const WithdrawPage = () => {
 
       try {
         const userData = await UserService.getUserData(uid);
+        
+        // Create a default balance object for all supported cryptocurrencies
+        const supportedCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB'];
+        const defaultBalances = supportedCryptos.reduce((acc, crypto) => {
+          acc[crypto] = 0;
+          return acc;
+        }, {} as Record<string, number>);
+        
+        // If user has assets, merge them with defaults
         if (userData && userData.assets) {
-          const balances = Object.keys(userData.assets).reduce((acc, key) => {
-            acc[key] = userData.assets[key].amount || 0;
-            return acc;
-          }, {} as Record<string, number>);
-
-          console.log("Fetched crypto balances:", balances);
-
-          // Ensure we have default values for all supported cryptocurrencies
-          const supportedCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB'];
-          const completeBalances = { ...balances };
-
-          supportedCryptos.forEach(crypto => {
-            if (completeBalances[crypto] === undefined) {
-              completeBalances[crypto] = 0;
+          // Log raw user assets for debugging
+          console.log("Raw user assets:", userData.assets);
+          
+          // Process each asset and add to our balances object
+          Object.entries(userData.assets).forEach(([key, asset]: [string, any]) => {
+            if (asset && typeof asset.amount === 'number') {
+              defaultBalances[key] = asset.amount;
             }
           });
-
-          setUserCryptoBalances(completeBalances);
+          
+          console.log("Processed crypto balances:", defaultBalances);
         } else {
-          console.log("No assets found in user data");
-          // Set default empty balances for all supported cryptocurrencies
-          setUserCryptoBalances({
-            'BTC': 0,
-            'ETH': 0,
-            'USDT': 0, 
-            'USDC': 0,
-            'BNB': 0
-          });
+          console.log("No assets found in user data, using defaults");
         }
+        
+        // Set the balances in state
+        setUserCryptoBalances(defaultBalances);
       } catch (error) {
         console.error("Error fetching crypto balances:", error);
       }
@@ -128,10 +125,17 @@ const WithdrawPage = () => {
       try {
         const userData = await UserService.getUserData(uid);
         if (userData && userData.assets) {
-          const balance = userData.assets[selectedCrypto]?.amount || 0;
+          // Explicitly handle USDT balance correctly
+          let balance = 0;
+          
+          // Check if the asset exists in user data
+          if (userData.assets[selectedCrypto]) {
+            balance = userData.assets[selectedCrypto].amount || 0;
+          }
+          
           console.log(`Fresh balance check for ${selectedCrypto}:`, balance);
 
-          // Only update the specific crypto that was selected
+          // Update the specific crypto that was selected
           setUserCryptoBalances(prev => ({
             ...prev,
             [selectedCrypto]: balance
@@ -818,7 +822,14 @@ const WithdrawPage = () => {
                               try {
                                 const userData = await UserService.getUserData(uid);
                                 if (userData && userData.assets) {
-                                  const freshBalance = userData.assets[crypto.symbol]?.amount || 0;
+                                  // Get fresh balance with proper null/undefined handling
+                                  let freshBalance = 0;
+                                  
+                                  // Check if the asset exists in the user data
+                                  if (userData.assets[crypto.symbol]) {
+                                    freshBalance = userData.assets[crypto.symbol].amount || 0;
+                                  }
+                                  
                                   console.log(`Firebase check for ${crypto.symbol}: ${freshBalance}`);
 
                                   // Update UI with fresh balance
