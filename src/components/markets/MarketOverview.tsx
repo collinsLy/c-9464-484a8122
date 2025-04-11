@@ -12,7 +12,11 @@ const MarketOverview = () => {
       try {
         const symbols = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT', 'ADAUSDT', 'DOTUSDT', 'XRPUSDT', 'DOGEUSDT'];
         const response = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbols=' + JSON.stringify(symbols));
-        if (!response.ok) throw new Error('Failed to fetch market data');
+        if (!response.ok) {
+          setMarketData([]);
+          setLoading(false);
+          return;
+        }
 
         const data = await response.json();
         const formattedData = data.map(item => ({
@@ -25,7 +29,7 @@ const MarketOverview = () => {
         setMarketData(formattedData);
         setLoading(false);
       } catch (err) {
-        // Silently handle errors
+        setMarketData([]);
         setLoading(false);
       }
     };
