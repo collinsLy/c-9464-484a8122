@@ -1,125 +1,69 @@
 
-import { 
-  doc, 
-  getDoc, 
-  updateDoc, 
-  collection, 
-  getDocs, 
-  query, 
-  where, 
-  onSnapshot, 
-  setDoc, 
-  Timestamp,
-  orderBy,
-  limit
-} from 'firebase/firestore';
-import { db } from './firebase';
+import { doc, onSnapshot, updateDoc, getDoc } from 'firebase/firestore';
+import { db, auth } from './firebase';
 
-export const UserService = {
-  /**
-   * Get user data from Firestore
-   */
-  getUserData: async (userId: string) => {
-    try {
-      const userDocRef = doc(db, 'users', userId);
-      const userDoc = await getDoc(userDocRef);
-      
-      if (userDoc.exists()) {
-        return userDoc.data();
-      } else {
-        console.error('No user document found for ID:', userId);
-        return null;
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      throw error;
-    }
-  },
-  
-  /**
-   * Update user data in Firestore
-   */
-  updateUserData: async (userId: string, data: any) => {
-    try {
-      const userDocRef = doc(db, 'users', userId);
-      await updateDoc(userDocRef, data);
-      console.log('User data updated successfully');
-      return true;
-    } catch (error) {
-      console.error('Error updating user data:', error);
-      throw error;
-    }
-  },
-  
-  /**
-   * Get user transactions
-   */
-  getUserTransactions: async (userId: string) => {
-    try {
-      const transactionsRef = collection(db, 'transactions');
-      const q = query(
-        transactionsRef, 
-        where('userId', '==', userId),
-        orderBy('timestamp', 'desc'),
-        limit(50)
-      );
-      
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-    } catch (error) {
-      console.error('Error fetching user transactions:', error);
-      throw error;
-    }
-  },
-  
-  /**
-   * Subscribe to user data changes
-   */
-  subscribeToUserData: (userId: string, callback: (data: any) => void) => {
-    const userDocRef = doc(db, 'users', userId);
-    return onSnapshot(userDocRef, (doc) => {
+export class UserService {
+  static subscribeToUserData(uid: string, callback: (userData: any) => void) {
+    const userRef = doc(db, 'users', uid);
+
+    const unsubscribe = onSnapshot(userRef, (doc) => {
       if (doc.exists()) {
         callback(doc.data());
       } else {
-        console.error('No user document found for ID:', userId);
-        callback({});
+        console.error('User document does not exist');
       }
     });
-  },
-  
-  /**
-   * Update user balance
-   */
-  updateUserBalance: async (userId: string, newBalance: number) => {
+
+    return unsubscribe;
+  }
+
+  static async updateUserData(uid: string, data: any) {
+    const userRef = doc(db, 'users', uid);
+    return updateDoc(userRef, data);
+  }
+
+  static async getUserData(uid: string) {
     try {
-      const userDocRef = doc(db, 'users', userId);
-      await updateDoc(userDocRef, {
-        balance: newBalance,
-        lastUpdated: Timestamp.now()
-      });
-      
-      // Add a transaction record
-      const transactionRef = collection(db, 'transactions');
-      await setDoc(doc(transactionRef), {
-        userId,
-        type: 'balance_update',
-        amount: newBalance,
-        timestamp: Timestamp.now(),
-        status: 'completed'
-      });
-      
-      return true;
+      const userRef = doc(db, 'users', uid);
+      const userDoc = await getDoc(userRef);
+      if (userDoc.exists()) {
+        return userDoc.data();
+      }
+      return null;
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      return null;
+    }
+  }
+
+  static async getUserBalance(userId: string): Promise<number> {
+    try {
+      const userRef = doc(db, 'users', userId);
+      const userDoc = await getDoc(userRef);
+
+      if (userDoc.exists()) {
+        return userDoc.data().balance || 0;
+      }
+      return 0;
+    } catch (error) {
+      console.error('Error fetching user balance:', error);
+      return 0;
+    }
+  }
+
+  static async updateUserBalance(userId: string, newBalance: number): Promise<void> {
+    try {
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, { balance: newBalance });
     } catch (error) {
       console.error('Error updating user balance:', error);
       throw error;
     }
   }
-};
 
-// Export UserBalanceService as an alias for backward compatibility
-export const UserBalanceService = {
-  updateUserBalance: UserService.updateUserBalance
-};
+  static getCurrentUserId(): string | null {
+    return auth.currentUser?.uid || localStorage.getItem('userId');
+  }
+}
+
+export const userService = new UserService();

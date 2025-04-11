@@ -5,8 +5,7 @@ run = "npm run dev"
 channel = "stable-24_05"
 
 [deployment]
-run = ["sh", "-c", "npx serve -s dist"]
-build = ["sh", "-c", "npm run build"]
+run = ["sh", "-c", "npm run dev"]
 
 [[ports]]
 localPort = 3000
@@ -19,15 +18,3 @@ externalPort = 80
 [[ports]]
 localPort = 34843
 externalPort = 3001
-
-[workflows]
-runButton = "Run"
-
-[[workflows.workflow]]
-name = "Run"
-author = 41395715
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run dev"

@@ -1,12 +1,13 @@
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { UserService, UserBalanceService } from '@/lib/firebase-service'; 
+import { UserService } from '@/lib/firebase-service'; 
 
-import { ArrowDownRight, ArrowUpRight, RefreshCw, Wallet, CreditCard } from "lucide-react"; 
+import { ArrowDownRight as TrendingDown, ArrowUpRight as TrendingUp, RefreshCw, Wallet, CreditCard } from "lucide-react"; 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
+import { UserBalanceService } from "@/lib/firebase-service";
 
 
 interface AccountOverviewProps {
@@ -142,9 +143,9 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
           {!isDemoMode ? (
             <div className="flex items-center mt-1 text-sm">
               {profitLoss >= 0 ? (
-                <ArrowUpRight className="w-4 h-4 mr-1 text-green-400" />
+                <TrendingUp className="w-4 h-4 mr-1 text-green-400" />
               ) : (
-                <ArrowDownRight className="w-4 h-4 mr-1 text-red-400" />
+                <TrendingDown className="w-4 h-4 mr-1 text-red-400" />
               )}
               <span className={profitLoss >= 0 ? 'text-green-400' : 'text-red-400'}>
                 {profitLoss >= 0 ? '+' : '-'}{Math.abs(profitLossPercent).toFixed(2)}%
@@ -223,9 +224,9 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
           </div>
           <div className="flex items-center mt-1 text-sm">
             {profitLoss >= 0 ? (
-              <ArrowUpRight className="w-4 h-4 mr-1 text-green-400" />
+              <TrendingUp className="w-4 h-4 mr-1 text-green-400" />
             ) : (
-              <ArrowDownRight className="w-4 h-4 mr-1 text-red-400" />
+              <TrendingDown className="w-4 h-4 mr-1 text-red-400" />
             )}
             <span className={profitLoss >= 0 ? 'text-green-400' : 'text-red-400'}>
               {profitLoss >= 0 ? '+' : '-'}{Math.abs(profitLossPercent).toFixed(2)}%
