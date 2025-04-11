@@ -325,8 +325,7 @@ const WithdrawPage = () => {
             <div className="w-full bg-white/10 rounded-lg p-4 mt-4">
               <p className="text-center text-sm text-white/70">
                 Please check your {selectedPaymentMethod === 'bank' ? 'bank account' : 
-                  selectedPaymentMethod === 'paypal' ? 'PayPal account' : 'mobile money account'} 
-                for the received funds.
+                  selectedPaymentMethod === 'paypal' ? 'PayPal account' : 'mobile money account'} for the received funds.
               </p>
             </div>
             <div className="flex gap-4 mt-4">
