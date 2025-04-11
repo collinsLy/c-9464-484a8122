@@ -39,6 +39,56 @@ export const CopyTrading = () => {
       mdd: '19.96%',
       sharpeRatio: '2.64',
       pnl: '+23,426.94'
+    },
+    {
+      id: '3',
+      name: 'CryptoWhale',
+      rank: '920/1000',
+      roi: '+22.15%',
+      aum: '8,234,567.89',
+      mdd: '12.45%',
+      sharpeRatio: '3.12',
+      pnl: '+156,789.32'
+    },
+    {
+      id: '4',
+      name: 'TradeMaster',
+      rank: '795/1000',
+      roi: '+18.73%',
+      aum: '3,456,789.12',
+      mdd: '15.32%',
+      sharpeRatio: '2.87',
+      pnl: '+67,891.23'
+    },
+    {
+      id: '5',
+      name: 'AlphaTrader',
+      rank: '880/1000',
+      roi: '+16.92%',
+      aum: '4,567,890.23',
+      mdd: '10.78%',
+      sharpeRatio: '2.95',
+      pnl: '+78,912.34'
+    },
+    {
+      id: '6',
+      name: 'BitStrategy',
+      rank: '830/1000',
+      roi: '+19.45%',
+      aum: '2,345,678.90',
+      mdd: '14.23%',
+      sharpeRatio: '2.76',
+      pnl: '+45,678.90'
+    },
+    {
+      id: '7',
+      name: 'CryptoNinja',
+      rank: '905/1000',
+      roi: '+20.87%',
+      aum: '6,789,012.34',
+      mdd: '11.56%',
+      sharpeRatio: '3.05',
+      pnl: '+123,456.78'
     }
   ];
 
