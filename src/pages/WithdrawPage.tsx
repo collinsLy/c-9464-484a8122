@@ -45,12 +45,15 @@ const WithdrawPage = () => {
       try {
         const userData = await UserService.getUserData(uid);
         if (userData && userData.assets) {
-          setUserCryptoBalances(
-            Object.keys(userData.assets).reduce((acc, key) => {
-              acc[key] = userData.assets[key].amount || 0;
-              return acc;
-            }, {} as Record<string, number>)
-          );
+          const balances = Object.keys(userData.assets).reduce((acc, key) => {
+            acc[key] = userData.assets[key].amount || 0;
+            return acc;
+          }, {} as Record<string, number>);
+          
+          console.log("Fetched crypto balances:", balances);
+          setUserCryptoBalances(balances);
+        } else {
+          console.log("No assets found in user data");
         }
       } catch (error) {
         console.error("Error fetching crypto balances:", error);
@@ -58,13 +61,35 @@ const WithdrawPage = () => {
     };
     
     fetchUserCryptoBalances();
+    
+    // Set up a listener for real-time updates to user data
+    const uid = localStorage.getItem('userId');
+    if (uid) {
+      const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
+        if (userData && userData.assets) {
+          const balances = Object.keys(userData.assets).reduce((acc, key) => {
+            acc[key] = userData.assets[key].amount || 0;
+            return acc;
+          }, {} as Record<string, number>);
+          
+          setUserCryptoBalances(balances);
+        }
+      });
+      
+      return () => unsubscribe();
+    }
   }, []);
   
   // Function to get and display user's current crypto balance
   const getUserCryptoBalance = () => {
     const balance = userCryptoBalances[selectedCrypto] || 0;
-    return `Available: ${balance} ${selectedCrypto}`;
+    return `Available: ${balance.toFixed(4)} ${selectedCrypto}`;
   };
+
+  // Debug log balance when cryptocurrency is selected
+  useEffect(() => {
+    console.log(`Selected crypto: ${selectedCrypto}, Available balance:`, userCryptoBalances[selectedCrypto] || 0);
+  }, [selectedCrypto, userCryptoBalances]);
 
   const paymentMethods = [
     { id: "bank", name: "Bank Transfer", icon: <BankIcon className="w-8 h-8 text-white" /> },
