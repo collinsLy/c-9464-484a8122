@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import AccountOverview from "@/components/dashboard/AccountOverview";
 import MarketChart from "@/components/dashboard/MarketChart";
-import { CryptoConverter } from "@/components/trading/CryptoConverter";
+import { CryptoConverter } from '@/components/trading/CryptoConverter';
+import { CopyTrading } from '@/components/trading/CopyTrading';
 import AssetsList from "@/components/dashboard/AssetsList";
 import TransactionHistory from "@/components/dashboard/TransactionHistory";
 import TradingPanel from "@/components/dashboard/TradingPanel";
@@ -78,6 +79,7 @@ const Dashboard = () => {
             <div className="max-w-md mx-auto">
               <CryptoConverter />
             </div>
+            <CopyTrading />
           </div>
         );
 
