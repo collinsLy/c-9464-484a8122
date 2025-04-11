@@ -1,12 +1,10 @@
+
 // This file serves as a proxy for API calls to prevent CORS issues
 // and to keep API keys secure on the server side
 
 export const fetchBinanceData = async (endpoint: string) => {
   try {
-    // Use proxy URL to avoid CORS issues
-    const proxyUrl = 'https://api.allorigins.win/raw?url=';
-    const targetUrl = `https://api.binance.com/api/v3/${endpoint}`;
-    const response = await fetch(proxyUrl + encodeURIComponent(targetUrl));
+    const response = await fetch(`/api/v3/${endpoint}`);
 
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`);
