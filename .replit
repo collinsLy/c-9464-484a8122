@@ -5,7 +5,13 @@ run = "npm run dev"
 channel = "stable-24_05"
 
 [deployment]
-run = ["sh", "-c", "npm run dev"]
+build_command = "npm run build"
+run_command = ""
+output_dir = "dist"
+
+[[deployment.rewrites]]
+from = "/*"
+to = "/index.html"
 
 [[ports]]
 localPort = 5000
