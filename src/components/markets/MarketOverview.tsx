@@ -36,8 +36,20 @@ const MarketOverview = () => {
     return () => clearInterval(interval);
   }, []);
 
-  if (loading) return <div>Loading market data...</div>;
-  if (error) return <div>Error: {error}</div>; //This line remains as it is for other potential errors.
+  if (loading || error) {
+    return (
+      <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
+        <CardHeader>
+          <CardTitle>Market Overview</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center p-6">
+            <div className="text-white/70">Loading market data...</div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
