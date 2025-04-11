@@ -137,7 +137,10 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center">
-            <img src={bot.icon} className="mr-2 h-6 w-6" alt={`${bot.type} icon`} />
+            <img src={bot.icon} className="mr-2 h-6 w-6" alt={`${bot.type} icon`} onError={(e) => {
+              console.log(`Failed to load icon: ${bot.icon}`);
+              e.currentTarget.src = "/logos/inj-logo.svg"; // Fallback to a default logo
+            }} />
             {bot.type}
           </div>
           <TooltipProvider>

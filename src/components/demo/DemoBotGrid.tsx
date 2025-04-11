@@ -50,7 +50,15 @@ const DemoBotGrid = () => {
         <Card key={bot.id} className="bg-background/40 backdrop-blur-lg border-white/10 text-white overflow-hidden">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between mb-2">
-              <img src={bot.icon} alt={bot.type} className={`h-8 w-8 ${bot.iconColor}`} />
+              <img 
+                src={bot.icon} 
+                alt={bot.type} 
+                className={`h-8 w-8`} 
+                onError={(e) => {
+                  console.log(`Failed to load icon: ${bot.icon}`);
+                  e.currentTarget.src = "/logos/inj-logo.svg"; // Fallback to a default logo
+                }} 
+              />
               <div className="text-xl font-bold text-green-400">{bot.profit}</div>
             </div>
             <CardTitle className="text-xl">{bot.type}</CardTitle>
