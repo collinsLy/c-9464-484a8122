@@ -460,47 +460,70 @@ const TransactionHistory = () => {
                     </TableCell>
                     {/* Method/Network */}
                     <TableCell>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2 text-white">
                         {transaction.method ? (
                           <>
                             {transaction.method.toLowerCase().includes('bank') && (
-                              <img src="/assets/bank.svg" alt="Bank" className="w-5 h-5" />
+                              <BankIcon className="w-5 h-5 text-white" />
                             )}
-                            {transaction.method.toLowerCase().includes('card') && (
-                              <img src="/assets/card.svg" alt="Card" className="w-5 h-5" />
+                            {transaction.method.toLowerCase().includes('visa') && (
+                              <VisaIcon className="w-5 h-5" />
+                            )}
+                            {transaction.method.toLowerCase().includes('mastercard') && (
+                              <MastercardIcon className="w-5 h-5" />
                             )}
                             {transaction.method.toLowerCase().includes('paypal') && (
-                              <img src="/assets/paypal.svg" alt="PayPal" className="w-5 h-5" />
+                              <PayPalIcon className="w-5 h-5" />
+                            )}
+                            {transaction.method.toLowerCase().includes('mpesa') && (
+                              <MpesaIcon className="w-5 h-5" />
+                            )}
+                            {transaction.method.toLowerCase().includes('airtel') && (
+                              <AirtelMoneyIcon className="w-5 h-5" />
                             )}
                             <span>{transaction.method}</span>
                           </>
                         ) : transaction.network ? (
                           <>
-                            {transaction.network && transaction.network.substring(0, 3) === 'ETH' && (
+                            {transaction.network && transaction.network.includes('ERC20') && (
                               <img 
                                 src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/eth.svg" 
                                 alt="Ethereum" 
                                 className="w-5 h-5" 
                               />
                             )}
-                            {transaction.network && transaction.network.substring(0, 3) === 'BSC' && (
+                            {transaction.network && transaction.network.includes('TRC20') && (
+                              <img 
+                                src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/trx.svg" 
+                                alt="Tron" 
+                                className="w-5 h-5" 
+                              />
+                            )}
+                            {transaction.network && transaction.network.includes('BSC') && (
                               <img 
                                 src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/bnb.svg" 
                                 alt="BSC" 
                                 className="w-5 h-5" 
                               />
                             )}
-                            {transaction.network && transaction.network.substring(0, 3) === 'SOL' && (
+                            {transaction.network && (transaction.network.includes('SOLANA') || transaction.network.includes('SOL')) && (
                               <img 
                                 src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/sol.svg" 
                                 alt="Solana" 
                                 className="w-5 h-5" 
                               />
                             )}
+                            {transaction.network && transaction.network === 'NATIVE' && transaction.asset === 'BTC' && (
+                              <img 
+                                src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/btc.svg" 
+                                alt="BTC" 
+                                className="w-5 h-5" 
+                              />
+                            )}
                             <span>{transaction.network}</span>
                           </>
                         ) : (
-                          <span className="text-muted-foreground">-</span>
+                          <span className="text-white/70">-</span>
                         )}
                       </div>
                     </TableCell>
@@ -598,26 +621,26 @@ const TransactionHistory = () => {
                         {selectedTransaction.method.toLowerCase().includes('airtel') && (
                           <AirtelMoneyIcon className="w-5 h-5" />
                         )}
-                        {selectedTransaction.method}
+                        <span>{selectedTransaction.method}</span>
                       </>
                     ) : selectedTransaction.network ? (
                       <>
-                        {selectedTransaction.network && selectedTransaction.network.substring(0, 3) === 'ERC20' && (
+                        {selectedTransaction.network && selectedTransaction.network.includes('ERC20') && (
                           <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/eth.svg" alt="ETH" className="w-5 h-5" />
                         )}
-                        {selectedTransaction.network && selectedTransaction.network.substring(0, 3) === 'TRC20' && (
+                        {selectedTransaction.network && selectedTransaction.network.includes('TRC20') && (
                           <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/trx.svg" alt="TRX" className="w-5 h-5" />
                         )}
-                        {selectedTransaction.network && selectedTransaction.network.substring(0, 3) === 'BSC' && (
+                        {selectedTransaction.network && selectedTransaction.network.includes('BSC') && (
                           <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/bnb.svg" alt="BNB" className="w-5 h-5" />
                         )}
-                        {selectedTransaction.network && selectedTransaction.network.substring(0, 3) === 'SOLANA' && (
+                        {selectedTransaction.network && (selectedTransaction.network.includes('SOLANA') || selectedTransaction.network.includes('SOL')) && (
                           <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/sol.svg" alt="SOL" className="w-5 h-5" />
                         )}
                         {selectedTransaction.network && selectedTransaction.network === 'NATIVE' && selectedTransaction.asset === 'BTC' && (
                           <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/btc.svg" alt="BTC" className="w-5 h-5" />
                         )}
-                        {selectedTransaction.network}
+                        <span>{selectedTransaction.network}</span>
                       </>
                     ) : (
                       'N/A'
