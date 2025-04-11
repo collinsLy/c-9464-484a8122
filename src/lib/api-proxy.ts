@@ -18,6 +18,8 @@ export const fetchBinanceData = async (endpoint: string) => {
   }
 };
 
+export const FINNHUB_API_KEY = "cvqhhhpr01qp88clnd60cvqhhhpr01qp88clnd6g";
+
 export const fetchCoinGeckoData = async (endpoint: string) => {
   try {
     const response = await fetch(`https://api.coingecko.com/api/v3/${endpoint}`);
@@ -35,7 +37,7 @@ export const fetchCoinGeckoData = async (endpoint: string) => {
 
 export const fetchAlphaVantageData = async (params: string) => {
   try {
-    const apiKey = import.meta.env.VITE_ALPHA_VANTAGE_API_KEY;
+    const apiKey = "BUURNND6LTNPWVJE";
     const response = await fetch(`https://www.alphavantage.co/query?${params}&apikey=${apiKey}`);
 
     if (!response.ok) {
