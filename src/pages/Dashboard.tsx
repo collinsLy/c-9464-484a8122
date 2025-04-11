@@ -11,8 +11,6 @@ import TradingPanel from "@/components/dashboard/TradingPanel";
 import AutomatedTrading from "@/components/dashboard/AutomatedTrading";
 import BinanceOrderBook from "@/components/markets/BinanceOrderBook";
 import { Card, CardContent } from "@/components/ui/card";
-import CryptoTicker from "@/components/trading/CryptoTicker"; // Import CryptoTicker component
-
 
 const Dashboard = () => {
   const [selectedSymbol, setSelectedSymbol] = useState("BTCUSD");
@@ -71,43 +69,17 @@ const Dashboard = () => {
 
       case "trading":
         return (
-          <div className="space-y-4">
-            <div className="grid grid-cols-12 gap-4">
-              {/* Main Chart Area */}
-              <div className="col-span-12 lg:col-span-8">
-                <MarketChart 
-                  selectedSymbol={selectedSymbol} 
-                  selectedTimeframe={selectedTimeframe}
-                  onSymbolChange={setSelectedSymbol}
-                  onTimeframeChange={setSelectedTimeframe}
-                />
-              </div>
-
-              {/* Right Side - CryptoConverter & Ticker */}
-              <div className="col-span-12 lg:col-span-4 space-y-4">
-                <div className="bg-background/40 backdrop-blur-lg border border-white/10 rounded-lg p-4">
-                  <CryptoConverter />
-                </div>
-                <div className="bg-background/40 backdrop-blur-lg border border-white/10 rounded-lg p-4">
-                  <CryptoTicker />
-                </div>
-              </div>
+          <div className="space-y-6">
+            <MarketChart 
+              selectedSymbol={selectedSymbol} 
+              selectedTimeframe={selectedTimeframe}
+              onSymbolChange={setSelectedSymbol}
+              onTimeframeChange={setSelectedTimeframe}
+            />
+            <div className="max-w-md mx-auto">
+              <CryptoConverter />
             </div>
-
-            {/* Trading Panel and Order Book */}
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-12 lg:col-span-8">
-                <TradingPanel symbol={selectedSymbol} />
-              </div>
-              <div className="col-span-12 lg:col-span-4">
-                <BinanceOrderBook symbol={selectedSymbol} />
-              </div>
-            </div>
-
-            {/* Copy Trading Section */}
-            <div className="bg-background/40 backdrop-blur-lg border border-white/10 rounded-lg p-6 mt-4">
-              <CopyTrading />
-            </div>
+            <CopyTrading />
           </div>
         );
 
