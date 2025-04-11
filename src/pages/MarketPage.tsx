@@ -13,18 +13,54 @@ import { LivePriceTicker } from "@/components/markets/LivePriceTicker";
 
 import { TwelveDataTicker } from "@/components/markets/TwelveDataTicker";
 import { toast } from "sonner";
-import { StockTicker } from '@/components/markets/StockTicker';
+// Removed StockTicker import
 
-// StockData interface removed
+interface StockData {
+  symbol: string;
+  price: string;
+  change: string;
+  changePercent: string;
+}
 
 const MarketPage = () => {
   const { isDemoMode } = useDashboardContext();
   const [selectedCryptoSymbol, setSelectedCryptoSymbol] = useState("BTCUSDT");
+  const [selectedStockSymbol, setSelectedStockSymbol] = useState("IBM");
+  const [stockData, setStockData] = useState<StockData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchStockData = async () => {
+    try {
+      const response = await fetch(
+        `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${selectedStockSymbol}&apikey=${process.env.VITE_ALPHA_VANTAGE_API_KEY}`
+      );
+      const data = await response.json();
+
+      if (data["Global Quote"]) {
+        setStockData({
+          symbol: data["Global Quote"]["01. symbol"],
+          price: data["Global Quote"]["05. price"],
+          change: data["Global Quote"]["09. change"],
+          changePercent: data["Global Quote"]["10. change percent"],
+        });
+      }
+      setLoading(false);
+    } catch (error) {
+        // Silently handle errors
+        setLoading(false);
+      }
+  };
+
+  useEffect(() => {
+    fetchStockData();
+    const interval = setInterval(fetchStockData, 60000);
+    return () => clearInterval(interval);
+  }, [selectedStockSymbol]);
 
   return (
     <DashboardLayout>
       <div className="space-y-4">
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Crypto Section */}
           <div className="space-y-4">
             <div className="flex justify-between items-center">
@@ -53,7 +89,61 @@ const MarketPage = () => {
             </Card>
           </div>
 
-          {/* Stock section removed */}
+          {/* Stock Section (restored) */}
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-white">Stocks</h2>
+              <select 
+                value={selectedStockSymbol}
+                onChange={(e) => setSelectedStockSymbol(e.target.value)}
+                className="bg-background/40 text-white border border-white/10 rounded-md p-2"
+              >
+                <option value="IBM">IBM</option>
+                <option value="AAPL">AAPL</option>
+                <option value="GOOGL">GOOGL</option>
+                <option value="MSFT">MSFT</option>
+                <option value="AMZN">AMZN</option>
+              </select>
+            </div>
+
+            {stockData && (
+              <Card className="bg-background/40 backdrop-blur-lg border-white/10">
+                <CardHeader>
+                  <CardTitle>{stockData.symbol} Stock Data</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <p className="text-sm text-white">Price</p>
+                      <p className="text-2xl font-bold text-white">${parseFloat(stockData.price).toFixed(2)}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-white">Change</p>
+                      <p className={`text-2xl font-bold ${parseFloat(stockData.change) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        ${parseFloat(stockData.change).toFixed(2)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-white">Change %</p>
+                      <p className={`text-2xl font-bold ${parseFloat(stockData.changePercent) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        {stockData.changePercent}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            <Card className="bg-background/40 backdrop-blur-lg border-white/10">
+              <CardContent className="p-4">
+                <TradingViewChart 
+                  symbol={selectedStockSymbol} 
+                  exchange="NYSE" 
+                  containerId="stock_chart"
+                />
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         <CryptoTicker />
