@@ -511,7 +511,7 @@ const TransactionHistory = () => {
                                   return (
                                     <>
                                       <img 
-                                        src="/logos/1inch-logo.svg" 
+                                        src="https://www.cryptologos.cc/logos/1inch-1inch-logo.svg?v=040" 
                                         alt="1inch" 
                                         className="w-5 h-5" 
                                         onError={(e) => {
@@ -525,7 +525,7 @@ const TransactionHistory = () => {
                                   return (
                                     <>
                                       <img 
-                                        src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/uni.svg" 
+                                        src="https://www.cryptologos.cc/logos/pancakeswap-cake-logo.svg?v=040" 
                                         alt="Uniswap" 
                                         className="w-5 h-5" 
                                         onError={(e) => {
@@ -544,7 +544,7 @@ const TransactionHistory = () => {
                                 return (
                                   <>
                                     <img 
-                                      src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/cake.svg" 
+                                      src="https://www.cryptologos.cc/logos/pancakeswap-cake-logo.svg?v=040" 
                                       alt="PancakeSwap" 
                                       className="w-5 h-5" 
                                       onError={(e) => {
@@ -563,7 +563,7 @@ const TransactionHistory = () => {
                                 return (
                                   <>
                                     <img 
-                                      src="/logos/orca-logo.svg" 
+                                      src="https://www.cryptologos.cc/logos/jupiter-ag-jup-logo.svg?v=040" 
                                       alt="Jupiter" 
                                       className="w-5 h-5" 
                                       onError={(e) => {
@@ -581,7 +581,7 @@ const TransactionHistory = () => {
                                 return (
                                   <>
                                     <img 
-                                      src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/rune.svg" 
+                                      src="https://www.cryptologos.cc/logos/thorchain-rune-logo.svg?v=040" 
                                       alt="Thorchain" 
                                       className="w-5 h-5" 
                                       onError={(e) => {
@@ -599,7 +599,7 @@ const TransactionHistory = () => {
                                 return (
                                   <>
                                     <img 
-                                      src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/crv.svg" 
+                                      src="https://www.cryptologos.cc/logos/curve-dao-token-crv-logo.svg?v=040" 
                                       alt="Curve" 
                                       className="w-5 h-5" 
                                       onError={(e) => {
@@ -616,8 +616,8 @@ const TransactionHistory = () => {
                                 return (
                                   <>
                                     <img 
-                                      src="/logos/poly-logo.svg" 
-                                      alt="Polygon" 
+                                      src="https://www.cryptologos.cc/logos/pancakeswap-cake-logo.svg?v=040" 
+                                      alt="Uniswap" 
                                       className="w-5 h-5" 
                                       onError={(e) => {
                                         e.currentTarget.src = "https://assets.coingecko.com/coins/images/4713/small/polygon.png";
@@ -633,7 +633,7 @@ const TransactionHistory = () => {
                                 return (
                                   <>
                                     <img 
-                                      src="/logos/1inch-logo.svg" 
+                                      src="https://images.seeklogo.com/logo-png/52/1/dex-screener-logo-png_seeklogo-527276.png" 
                                       alt="DEX" 
                                       className="w-5 h-5" 
                                       onError={(e) => {
