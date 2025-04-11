@@ -1,55 +1,63 @@
 
-// This file serves as a proxy for API calls to prevent CORS issues
-// and to keep API keys secure on the server side
+/**
+ * API Proxy service to handle CORS issues when calling external APIs
+ */
 
-export const fetchBinanceData = async (endpoint: string) => {
+// Function to fetch Binance data through a proxy if needed
+export async function fetchBinanceData(endpoint: string) {
   try {
-    const response = await fetch(`/api/v3/${endpoint}`);
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data;
+    // Try direct API call first (will work in production with proper CORS headers)
+    const response = await fetch(`https://api.binance.com/api/v3/${endpoint}`);
+    return await response.json();
   } catch (error) {
-    console.error(`Error fetching Binance data (${endpoint}):`, error);
-    throw error;
+    console.error("Error fetching from Binance API directly:", error);
+    
+    // If direct call fails, try using a CORS proxy
+    // You could also set up a server-side proxy instead
+    try {
+      const corsProxyUrl = "https://corsproxy.io/?";
+      const targetUrl = `https://api.binance.com/api/v3/${endpoint}`;
+      const response = await fetch(corsProxyUrl + encodeURIComponent(targetUrl));
+      return await response.json();
+    } catch (proxyError) {
+      console.error("Error fetching from Binance API via proxy:", proxyError);
+      throw proxyError;
+    }
   }
-};
+}
 
-export const FINNHUB_API_KEY = "cvqhhhpr01qp88clnd60cvqhhhpr01qp88clnd6g";
-export const ALPHA_VANTAGE_API_KEY = "BUURNND6LTNPWVJE";
-export const TWELVE_DATA_API_KEY = "bd6542a7833b4e4ebb503631cc1cb780";
-export const CRYPTO_PANIC_API_KEY = "8bff507";
-
-export const fetchCoinGeckoData = async (endpoint: string) => {
+// Function to fetch CoinGecko data through a proxy if needed
+export async function fetchCoinGeckoData(endpoint: string) {
   try {
+    // Try direct API call first
     const response = await fetch(`https://api.coingecko.com/api/v3/${endpoint}`);
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
     return await response.json();
   } catch (error) {
-    console.error(`Error fetching CoinGecko data (${endpoint}):`, error);
-    throw error;
+    console.error("Error fetching from CoinGecko API directly:", error);
+    
+    // If direct call fails, try using a CORS proxy
+    try {
+      const corsProxyUrl = "https://corsproxy.io/?";
+      const targetUrl = `https://api.coingecko.com/api/v3/${endpoint}`;
+      const response = await fetch(corsProxyUrl + encodeURIComponent(targetUrl));
+      return await response.json();
+    } catch (proxyError) {
+      console.error("Error fetching from CoinGecko API via proxy:", proxyError);
+      throw proxyError;
+    }
   }
-};
+}
 
-export const fetchAlphaVantageData = async (params: string) => {
+// Helper function for Alpha Vantage API
+export async function fetchAlphaVantageData(params: string) {
   try {
-    const apiKey = "BUURNND6LTNPWVJE";
-    const response = await fetch(`https://www.alphavantage.co/query?${params}&apikey=${apiKey}`);
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
+    const apiKey = import.meta.env.VITE_ALPHA_VANTAGE_API_KEY || "demo";
+    const response = await fetch(
+      `https://www.alphavantage.co/query?${params}&apikey=${apiKey}`
+    );
     return await response.json();
   } catch (error) {
-    console.error(`Error fetching Alpha Vantage data:`, error);
+    console.error("Error fetching from Alpha Vantage API:", error);
     throw error;
   }
-};
+}

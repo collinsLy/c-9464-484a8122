@@ -143,9 +143,9 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
           {!isDemoMode ? (
             <div className="flex items-center mt-1 text-sm">
               {profitLoss >= 0 ? (
-                <TrendingUp className="w-4 h-4 mr-1 text-green-400" />
+                <ArrowUpRight className="w-4 h-4 mr-1 text-green-400" />
               ) : (
-                <TrendingDown className="w-4 h-4 mr-1 text-red-400" />
+                <ArrowDownRight className="w-4 h-4 mr-1 text-red-400" />
               )}
               <span className={profitLoss >= 0 ? 'text-green-400' : 'text-red-400'}>
                 {profitLoss >= 0 ? '+' : '-'}{Math.abs(profitLossPercent).toFixed(2)}%
@@ -224,9 +224,9 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
           </div>
           <div className="flex items-center mt-1 text-sm">
             {profitLoss >= 0 ? (
-              <TrendingUp className="w-4 h-4 mr-1 text-green-400" />
+              <ArrowUpRight className="w-4 h-4 mr-1 text-green-400" />
             ) : (
-              <TrendingDown className="w-4 h-4 mr-1 text-red-400" />
+              <ArrowDownRight className="w-4 h-4 mr-1 text-red-400" />
             )}
             <span className={profitLoss >= 0 ? 'text-green-400' : 'text-red-400'}>
               {profitLoss >= 0 ? '+' : '-'}{Math.abs(profitLossPercent).toFixed(2)}%

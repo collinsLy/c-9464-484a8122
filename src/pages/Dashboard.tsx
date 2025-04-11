@@ -10,6 +10,7 @@ import TransactionHistory from "@/components/dashboard/TransactionHistory";
 import TradingPanel from "@/components/dashboard/TradingPanel";
 import AutomatedTrading from "@/components/dashboard/AutomatedTrading";
 import BinanceOrderBook from "@/components/markets/BinanceOrderBook";
+import { LivePriceTicker } from "@/components/markets/LivePriceTicker";
 import { Card, CardContent } from "@/components/ui/card";
 
 const Dashboard = () => {
