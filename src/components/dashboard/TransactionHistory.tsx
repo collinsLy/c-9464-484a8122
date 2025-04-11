@@ -25,14 +25,18 @@ import {
 } from "@/components/ui/table";
 
 interface Transaction {
-  txId: string;
-  timestamp: string;
-  type: string;
-  asset: string;
-  amount: number;
-  status: string;
+  txId?: string;
+  timestamp?: string;
+  type?: string;
+  asset?: string;
+  amount?: number;
+  status?: string;
   method?: string;
   network?: string;
+  fromAsset?: string;
+  toAsset?: string;
+  fromAmount?: number;
+  toAmount?: number;
   metadata?: Record<string, any>;
   details?: {
     expectedCompletionTime?: string;
@@ -138,9 +142,9 @@ const TransactionHistory = () => {
       const query = searchQuery.toLowerCase();
       result = result.filter(
         (tx) => 
-          tx.txId.toLowerCase().includes(query) || 
-          tx.asset.toLowerCase().includes(query) ||
-          tx.type.toLowerCase().includes(query)
+          (tx.txId?.toLowerCase()?.includes(query)) || 
+          (tx.asset?.toLowerCase()?.includes(query)) ||
+          (tx.type?.toLowerCase()?.includes(query))
       );
     }
 
@@ -452,7 +456,7 @@ const TransactionHistory = () => {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-white font-mono text-xs">
-                      {transaction.txId.substring(0, 8)}...
+                      {transaction.txId ? `${transaction.txId.substring(0, 8)}...` : 'N/A'}
                     </TableCell>
                     {/* Method/Network */}
                     <TableCell>
