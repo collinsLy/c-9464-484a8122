@@ -108,6 +108,10 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
       const { auth, db } = await import('@/lib/firebase');
       const { doc, updateDoc } = await import('firebase/firestore');
 
+      if (!auth || !db) {
+        throw new Error('Firebase not initialized');
+      }
+
       const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
 
       // Store user ID and email in localStorage

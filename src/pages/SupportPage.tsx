@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
@@ -8,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
+import { collection, addDoc } from 'firebase/firestore';
 import {
   Accordion,
   AccordionContent,
@@ -52,7 +52,7 @@ const SupportPage = () => {
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!auth.currentUser) {
       toast({
         title: "Error",
@@ -63,8 +63,6 @@ const SupportPage = () => {
     }
 
     try {
-      const { collection, addDoc } = await import('firebase/firestore');
-      const { db } = await import('@/lib/firebase');
       
       await addDoc(collection(db, 'support_tickets'), {
         ...contactForm,
@@ -77,7 +75,7 @@ const SupportPage = () => {
         title: "Support ticket submitted",
         description: "We'll get back to you within 24 hours.",
       });
-      
+
       setContactForm({
         name: "",
         email: "",
@@ -111,7 +109,7 @@ const SupportPage = () => {
                   Contact Us
                 </TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="faq">
                 <Accordion type="single" collapsible className="w-full">
                   {FAQData.map((faq, index) => (
@@ -126,7 +124,7 @@ const SupportPage = () => {
                   ))}
                 </Accordion>
               </TabsContent>
-              
+
               <TabsContent value="contact">
                 <form onSubmit={handleContactSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
