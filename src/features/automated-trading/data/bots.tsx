@@ -11,7 +11,7 @@ export const botTiers = [
     pair: "SOL/USD", 
     marketType: "Rise & Fall", 
     profit: "100%",
-    icon: "https://assets.coingecko.com/coins/images/12220/small/injective-protocol-logo.png",
+    icon: "https://s2.coinmarketcap.com/static/img/coins/64x64/11834.png",
     iconColor: "text-blue-400"
   },
   { 
@@ -47,7 +47,7 @@ export const botTiers = [
     pair: "ETH/USD", 
     marketType: "Even/Odd", 
     profit: "200%",
-    icon: "https://assets.coingecko.com/coins/images/2784/small/inked_-_poly_logo_full_color_-_no_text.png",
+    icon: "https://s2.coinmarketcap.com/static/img/coins/64x64/1727.png",
     iconColor: "text-pink-400"
   },
 ];

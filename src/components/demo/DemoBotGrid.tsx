@@ -56,7 +56,7 @@ const DemoBotGrid = () => {
                 className={`h-8 w-8`} 
                 onError={(e) => {
                   console.log(`Failed to load icon: ${bot.icon}`);
-                  e.currentTarget.src = "https://assets.coingecko.com/coins/images/12220/small/injective-protocol-logo.png"; // Fallback to a default logo
+                  e.currentTarget.src = "https://s2.coinmarketcap.com/static/img/coins/64x64/1.png"; // Fallback to Bitcoin logo
                 }} 
               />
               <div className="text-xl font-bold text-green-400">{bot.profit}</div>
