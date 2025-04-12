@@ -11,7 +11,7 @@ export const botTiers = [
     pair: "SOL/USD", 
     marketType: "Rise & Fall", 
     profit: "100%",
-    icon: "/logos/inj-logo.svg",
+    icon: "https://cryptologos.cc/logos/injective-inj-logo.svg?v=040",
     iconColor: "text-blue-400"
   },
   { 
@@ -23,7 +23,7 @@ export const botTiers = [
     pair: "BTC/USD", 
     marketType: "Even/Odd", 
     profit: "80%",
-    icon: "/logos/orca-logo.svg",
+    icon: "https://cryptologos.cc/logos/orca-orca-logo.svg?v=040",
     iconColor: "text-purple-400"
   },
   { 
@@ -35,7 +35,7 @@ export const botTiers = [
     pair: "BNB/USD", 
     marketType: "Even/Odd", 
     profit: "100%",
-    icon: "/logos/1inch-logo.svg",
+    icon: "https://cryptologos.cc/logos/1inch-1inch-logo.svg?v=040",
     iconColor: "text-yellow-400"
   },
   { 
@@ -47,7 +47,7 @@ export const botTiers = [
     pair: "ETH/USD", 
     marketType: "Even/Odd", 
     profit: "200%",
-    icon: "/logos/poly-logo.svg",
+    icon: "https://cryptologos.cc/logos/polymath-network-poly-logo.svg?v=040",
     iconColor: "text-pink-400"
   },
 ];
