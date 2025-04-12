@@ -143,7 +143,7 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
               alt={`${bot.type} icon`} 
               onError={(e) => {
                 console.log(`Failed to load icon: ${bot.icon}`);
-                e.currentTarget.src = "https://cryptologos.cc/logos/injective-inj-logo.svg?v=040"; // Fallback to a default logo
+                e.currentTarget.src = "https://assets.coingecko.com/coins/images/12220/small/injective-protocol-logo.png"; // Fallback to a default logo
               }} 
             />
             {bot.type}
