@@ -106,33 +106,7 @@ const MarketPage = () => {
               </select>
             </div>
 
-            {stockData && (
-              <Card className="bg-background/40 backdrop-blur-lg border-white/10">
-                <CardHeader>
-                  <CardTitle>{stockData.symbol} Stock Data</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <p className="text-sm text-white">Price</p>
-                      <p className="text-2xl font-bold text-white">${parseFloat(stockData.price).toFixed(2)}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-white">Change</p>
-                      <p className={`text-2xl font-bold ${parseFloat(stockData.change) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                        ${parseFloat(stockData.change).toFixed(2)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-white">Change %</p>
-                      <p className={`text-2xl font-bold ${parseFloat(stockData.changePercent) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                        {stockData.changePercent}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            
 
             <Card className="bg-background/40 backdrop-blur-lg border-white/10">
               <CardContent className="p-4">
