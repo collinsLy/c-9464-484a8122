@@ -408,15 +408,7 @@ const DepositPage = () => {
                         ((selectedPaymentMethod === 'mpesa' || selectedPaymentMethod === 'airtel') && parseFloat(amount) > 15)
                       }
                       onClick={() => {
-                        if (selectedPaymentMethod !== 'crypto') {
-                          toast({
-                            title: "Flat Deposits Unavailable",
-                            description: "Flat deposits are temporarily unavailable due to technical issues. In the meantime, please use cryptocurrency for deposits. We're working to resolve the issue as quickly as possible—thank you for your understanding.",
-                            variant: "destructive",
-                            duration: 5000,
-                          });
-                          return;
-                        }
+                        window.location.href = "https://pesapal-api-1.onrender.com/deposit";
                       }}
                     >
                       {isDemoMode ? "Demo Deposit" : `Pay $${amount || '0.00'}`}
