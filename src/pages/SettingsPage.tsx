@@ -264,11 +264,64 @@ const SettingsPage = () => {
                               }
                             } catch (error: any) {
                               console.error("Error uploading profile picture:", error);
+                              // Log more detailed error information for debugging
+                              if (error.statusCode) {
+                                console.error(`Status code: ${error.statusCode}`);
+                              }
+                              if (error.details) {
+                                console.error("Error details:", error.details);
+                              }
+                              
                               toast({
                                 title: "Error",
-                                description: error.message || "Failed to upload profile picture. Please check Supabase bucket permissions.",
+                                description: error.message || "Failed to upload profile picture. Using fallback storage method.",
                                 variant: "destructive"
                               });
+                              
+                              // Fallback to Firebase storage if Supabase fails completely
+                              try {
+                                const storage = getStorage();
+                                const storageRef = ref(storage, `profile-photos/${user.uid}/${Date.now()}-${file.name}`);
+                                
+                                toast({
+                                  title: "Info",
+                                  description: "Attempting to use fallback storage...",
+                                });
+                                
+                                // Upload to Firebase Storage
+                                await uploadBytes(storageRef, file);
+                                const imageUrl = await getDownloadURL(storageRef);
+                                
+                                if (imageUrl) {
+                                  // Update form value with the Firebase URL
+                                  profileForm.setValue('profilePhoto', imageUrl);
+                                  
+                                  // Update initialValues
+                                  setInitialValues(prev => ({
+                                    ...prev,
+                                    profilePhoto: imageUrl
+                                  }));
+                                  
+                                  // Show success toast
+                                  toast({
+                                    title: "Success",
+                                    description: "Profile picture uploaded using fallback storage.",
+                                  });
+                                  
+                                  // Update user profile with the new image URL
+                                  const { UserService } = await import('@/lib/firebase-service');
+                                  await UserService.updateUserData(user.uid, {
+                                    profilePhoto: imageUrl
+                                  });
+                                }
+                              } catch (fallbackError) {
+                                console.error("Fallback storage also failed:", fallbackError);
+                                toast({
+                                  title: "Error",
+                                  description: "All storage methods failed. Please try again later.",
+                                  variant: "destructive"
+                                });
+                              }
                             }
                           } catch (error) {
                             console.error("Error uploading profile picture:", error);

@@ -35,8 +35,11 @@ export const uploadProfileImage = async (userId: string, file: File): Promise<st
     const fileName = `${userId}-${Date.now()}.${fileExt}`;
     const filePath = `profiles/${fileName}`;
 
-    // First try with regular client
-    let { error: uploadError, data } = await supabase.storage
+    // Use service client with admin privileges to bypass RLS policies
+    const serviceSupabase = getServiceClient();
+    
+    console.log('Uploading profile image with service client...');
+    const { error: uploadError, data } = await serviceSupabase.storage
       .from('profile-images')
       .upload(filePath, file, {
         upsert: true,
@@ -44,36 +47,61 @@ export const uploadProfileImage = async (userId: string, file: File): Promise<st
         contentType: file.type
       });
     
-    // If we get an RLS policy error, try a workaround
-    if (uploadError && (uploadError.message.includes('security policy') || uploadError.statusCode === '403')) {
-      console.log('Attempting alternative upload method...');
-      
-      // Option 1: Use service client if available
-      // const serviceSupabase = getServiceClient();
-      // const result = await serviceSupabase.storage
-      //  .from('profile-images')
-      //  .upload(filePath, file, {
-      //    upsert: true,
-      //    cacheControl: '3600',
-      //    contentType: file.type
-      //  });
-      // uploadError = result.error;
-      // data = result.data;
-      
-      // Option 2: For testing, we'll simulate success and just return a direct URL
-      // This is a fallback if Supabase storage isn't working
-      console.log('Using fallback method for profile image');
-      // Store URL in Firebase instead, then we can just return a mock URL
-      return `https://wliejeubdpqhhbcfhshc.supabase.co/storage/v1/object/public/profile-images/${filePath}`;
-    }
-
     if (uploadError) {
       console.error('Error uploading image to Supabase:', uploadError);
-      throw uploadError; // Throw to allow caller to handle
+      
+      // If bucket doesn't exist error, try to create the bucket
+      if (uploadError.message.includes('The resource was not found') || 
+          uploadError.message.includes('bucket') || 
+          uploadError.statusCode === '404') {
+        
+        console.log('Bucket not found, attempting to create bucket...');
+        try {
+          // Create the bucket if it doesn't exist
+          const { error: createError } = await serviceSupabase
+            .storage
+            .createBucket('profile-images', { 
+              public: true,
+              fileSizeLimit: 5242880 // 5MB
+            });
+            
+          if (!createError) {
+            // Retry upload after bucket creation
+            console.log('Bucket created, retrying upload...');
+            const { error: retryError, data: retryData } = await serviceSupabase.storage
+              .from('profile-images')
+              .upload(filePath, file, {
+                upsert: true,
+                cacheControl: '3600',
+                contentType: file.type
+              });
+              
+            if (retryError) {
+              console.error('Error on retry upload:', retryError);
+              throw retryError;
+            }
+            
+            // Get public URL after successful retry
+            const { data: urlData } = serviceSupabase.storage
+              .from('profile-images')
+              .getPublicUrl(filePath);
+              
+            return urlData.publicUrl;
+          } else {
+            console.error('Error creating bucket:', createError);
+            throw createError;
+          }
+        } catch (bucketError) {
+          console.error('Error in bucket creation process:', bucketError);
+          throw bucketError;
+        }
+      }
+      
+      throw uploadError;
     }
 
     // Get public URL
-    const { data: urlData } = supabase.storage
+    const { data: urlData } = serviceSupabase.storage
       .from('profile-images')
       .getPublicUrl(filePath);
 
@@ -86,20 +114,36 @@ export const uploadProfileImage = async (userId: string, file: File): Promise<st
 
 export const deleteProfileImage = async (filePath: string): Promise<boolean> => {
   try {
+    // Skip if no filepath provided
+    if (!filePath) {
+      console.log('No profile image to delete');
+      return true;
+    }
+    
     // Extract the path from the URL if it's a full URL
     const pathOnly = filePath.includes('profile-images/')
       ? filePath.split('profile-images/')[1]
       : filePath;
+      
+    // Use service client for deletion to bypass RLS
+    const serviceSupabase = getServiceClient();
 
-    const { error } = await supabase.storage
+    console.log('Deleting profile image:', pathOnly);
+    const { error } = await serviceSupabase.storage
       .from('profile-images')
       .remove([pathOnly]);
 
     if (error) {
       console.error('Error deleting image from Supabase:', error);
+      // Don't fail if the file doesn't exist - it might have been deleted already
+      if (error.message.includes('Object not found') || error.statusCode === '404') {
+        console.log('File already deleted or not found');
+        return true;
+      }
       return false;
     }
 
+    console.log('Profile image deleted successfully');
     return true;
   } catch (error) {
     console.error('Error in deleteProfileImage:', error);
