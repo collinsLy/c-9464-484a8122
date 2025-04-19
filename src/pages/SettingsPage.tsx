@@ -165,7 +165,7 @@ const SettingsPage = () => {
                       accept="image/*"
                       className="hidden"
                       id="avatar-upload"
-                      onChange={(e) => {
+                      onChange={async (e) => {
                         const file = e.target.files?.[0];
                         if (file) {
                           if (file.size > 5 * 1024 * 1024) {
@@ -176,7 +176,66 @@ const SettingsPage = () => {
                             });
                             return;
                           }
-                          const reader = new FileReader();
+                          
+                          try {
+                            const user = auth.currentUser;
+                            if (!user) {
+                              toast({
+                                title: "Error",
+                                description: "You must be logged in to upload a profile picture",
+                                variant: "destructive"
+                              });
+                              return;
+                            }
+                            
+                            // Show loading toast
+                            toast({
+                              title: "Uploading",
+                              description: "Your profile picture is being uploaded...",
+                            });
+                            
+                            // Upload to Supabase
+                            const { uploadProfileImage } = await import('@/lib/supabase');
+                            const imageUrl = await uploadProfileImage(user.uid, file);
+                            
+                            if (imageUrl) {
+                              // Update user profile with the new image URL
+                              await UserService.updateUserData(user.uid, {
+                                profilePhoto: imageUrl
+                              });
+                              
+                              // Update form value
+                              profileForm.setValue('avatarUrl', imageUrl);
+                              
+                              // Preview image
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                const avatarImage = document.querySelector('.avatar-image') as HTMLImageElement;
+                                if (avatarImage) {
+                                  avatarImage.src = reader.result as string;
+                                }
+                              };
+                              reader.readAsDataURL(file);
+                              
+                              toast({
+                                title: "Success",
+                                description: "Profile picture updated successfully",
+                              });
+                            } else {
+                              toast({
+                                title: "Error",
+                                description: "Failed to upload profile picture",
+                                variant: "destructive"
+                              });
+                            }
+                          } catch (error) {
+                            console.error("Error uploading profile picture:", error);
+                            toast({
+                              title: "Error",
+                              description: "An error occurred while uploading your profile picture",
+                              variant: "destructive"
+                            });
+                          }
                           reader.onloadend = () => {
                             profileForm.setValue('avatarUrl', reader.result as string);
                             // Update avatar display immediately
