@@ -4,6 +4,9 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = 'https://wliejeubdpqhhbcfhshc.supabase.co';
 // Use import.meta.env instead of process.env for Vite
 
+// Define Supabase key first so it can be used later
+const supabaseKey = import.meta.env.VITE_SUPABASE_KEY || '';
+
 // Optional: Create a service client with admin privileges for storage operations
 // This bypasses RLS policies for file operations
 let serviceClient: any = null;
@@ -20,8 +23,6 @@ const getServiceClient = () => {
   }
   return serviceClient;
 };
-
-const supabaseKey = import.meta.env.VITE_SUPABASE_KEY || '';
 
 // Create Supabase client
 export const supabase = createClient(supabaseUrl, supabaseKey, {
