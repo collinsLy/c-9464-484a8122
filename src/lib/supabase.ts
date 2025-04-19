@@ -2,8 +2,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Supabase configuration
-const supabaseUrl = 'YOUR_SUPABASE_URL'; // Replace with your Supabase URL
-const supabaseKey = 'YOUR_SUPABASE_ANON_KEY'; // Replace with your Supabase anon key
+const supabaseUrl = 'https://wliejeubdpqhhbcfhshc.supabase.co';
+const supabaseKey = process.env.SUPABASE_KEY || ''; // Use environment variable for the API key
 
 // Create Supabase client
 export const supabase = createClient(supabaseUrl, supabaseKey);
