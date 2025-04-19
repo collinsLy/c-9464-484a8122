@@ -253,6 +253,15 @@ const SettingsPage = () => {
                                   profilePhoto: imageUrl
                                 }));
                                 
+                                // Force update the avatar image with the new URL
+                                const avatarImage = document.querySelector('.avatar-image') as HTMLImageElement;
+                                if (avatarImage) {
+                                  avatarImage.src = imageUrl;
+                                  
+                                  // Add a timestamp to force image reload and prevent caching
+                                  avatarImage.src = `${imageUrl}?t=${Date.now()}`;
+                                }
+                                
                                 // Show success toast with more details
                                 toast({
                                   title: "Success",
@@ -301,6 +310,13 @@ const SettingsPage = () => {
                                     ...prev,
                                     profilePhoto: imageUrl
                                   }));
+                                  
+                                  // Force update the avatar image with the new URL
+                                  const avatarImage = document.querySelector('.avatar-image') as HTMLImageElement;
+                                  if (avatarImage) {
+                                    // Add a timestamp parameter to force image reload
+                                    avatarImage.src = `${imageUrl}?t=${Date.now()}`;
+                                  }
                                   
                                   // Show success toast
                                   toast({
