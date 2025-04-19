@@ -428,6 +428,7 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
                       />
                     </FormControl>
                     <FormMessage />
+                    <p className="text-xs text-white/50">Please include country code (e.g., +1, +44, +254)</p>
                   </FormItem>
                 )}
               />
