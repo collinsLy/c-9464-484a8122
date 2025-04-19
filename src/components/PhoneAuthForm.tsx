@@ -31,8 +31,13 @@ import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/
 const phoneFormSchema = z.object({
   phoneNumber: z
     .string()
-    .min(10, "Phone number must be at least 10 digits")
+    .min(8, "Phone number must be at least 8 digits")
     .regex(/^\+?[0-9\s\-\(\)]+$/, "Please enter a valid phone number")
+    .refine((val) => {
+      // Remove formatting characters to check the actual digit count
+      const digitsOnly = val.replace(/[^\d]/g, '');
+      return digitsOnly.length >= 8 && digitsOnly.length <= 15;
+    }, "Phone number must be between 8 and 15 digits")
 });
 
 const verificationFormSchema = z.object({
@@ -54,11 +59,27 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
 
   // Initialize reCAPTCHA once when component loads
   const setupRecaptcha = () => {
-    if (!(window as any).recaptchaVerifier) {
+    try {
+      // Clear any existing recaptcha to prevent duplicates
+      if ((window as any).recaptchaVerifier) {
+        (window as any).recaptchaVerifier.clear();
+        delete (window as any).recaptchaVerifier;
+      }
+      
+      // Get the recaptcha container element
+      const recaptchaContainer = document.getElementById('recaptcha-container');
+      if (!recaptchaContainer) {
+        throw new Error('Recaptcha container not found');
+      }
+      
+      // Clear the container
+      recaptchaContainer.innerHTML = '';
+      
+      // Create a new recaptcha verifier
       const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         'size': 'normal',
         'callback': () => {
-          // reCAPTCHA solved, allow signInWithPhoneNumber.
+          // reCAPTCHA solved, allow signInWithPhoneNumber
           phoneForm.handleSubmit(onSubmitPhone)();
         },
         'expired-callback': () => {
@@ -70,11 +91,18 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
           });
         }
       });
-
+      
       (window as any).recaptchaVerifier = recaptchaVerifier;
+      return recaptchaVerifier;
+    } catch (error) {
+      console.error("Error setting up reCAPTCHA:", error);
+      toast({
+        title: "reCAPTCHA Error",
+        description: "Failed to initialize verification. Please try again.",
+        variant: "destructive"
+      });
+      return null;
     }
-
-    return (window as any).recaptchaVerifier;
   };
 
   const phoneForm = useForm<z.infer<typeof phoneFormSchema>>({
@@ -95,19 +123,32 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
     setIsSubmittingPhone(true);
 
     try {
-      const formattedPhone = values.phoneNumber.startsWith('+') 
-        ? values.phoneNumber 
-        : `+${values.phoneNumber}`;
-
+      // Format phone number to E.164 format (required by Firebase)
+      let formattedPhone = values.phoneNumber.trim();
+      // Make sure it starts with +
+      if (!formattedPhone.startsWith('+')) {
+        formattedPhone = `+${formattedPhone}`;
+      }
+      
+      // Remove any spaces, dashes, or parentheses
+      formattedPhone = formattedPhone.replace(/[\s\-\(\)]/g, '');
+      
+      console.log("Sending verification to:", formattedPhone);
+      
+      // Set up recaptcha verifier
       const recaptchaVerifier = setupRecaptcha();
-      recaptchaVerifier.render();
-
+      if (!recaptchaVerifier) {
+        throw new Error("Failed to initialize reCAPTCHA");
+      }
+      
+      // Send the verification code
       const confirmationResult = await signInWithPhoneNumber(
         auth, 
         formattedPhone, 
         recaptchaVerifier
       );
 
+      // If successful, store the verification ID and show the verification form
       setVerificationId(confirmationResult.verificationId);
       setShowVerificationForm(true);
 
@@ -117,12 +158,25 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
       });
     } catch (error: any) {
       console.error("Error sending verification code:", error);
-
-      toast({
-        title: "Error",
-        description: error.message || "Failed to send verification code",
-        variant: "destructive"
-      });
+      
+      // Show specific error messages based on the error code
+      if (error.code === 'auth/invalid-phone-number') {
+        phoneForm.setError("phoneNumber", { 
+          message: "Invalid phone number format. Please use international format (e.g., +1234567890)" 
+        });
+      } else if (error.code === 'auth/too-many-requests') {
+        toast({
+          title: "Too many attempts",
+          description: "Please try again later",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to send verification code",
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsSubmittingPhone(false);
     }
@@ -132,28 +186,49 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
     setIsSubmittingVerification(true);
 
     try {
+      if (!verificationId) {
+        throw new Error("Verification session expired. Please try again.");
+      }
+      
+      // Create credential from verification ID and code
       const credential = PhoneAuthProvider.credential(
         verificationId, 
         values.verificationCode
       );
 
+      // Sign in with credential
       const userCredential = await auth.signInWithCredential(credential);
+      const user = userCredential.user;
+      
+      console.log("Successfully authenticated phone number:", user.phoneNumber);
 
       // Store user ID in localStorage
-      localStorage.setItem('userId', userCredential.user.uid);
+      localStorage.setItem('userId', user.uid);
+      
+      // Import UserService to access getUserData and createUser methods
+      const { UserService } = await import('@/lib/firebase-service');
 
       // Check if user exists in database
-      const userData = await UserService.getUserData(userCredential.user.uid);
+      const userData = await UserService.getUserData(user.uid);
 
       // If user doesn't exist, create a new profile
       if (!userData) {
-        await UserService.createUser(userCredential.user.uid, {
-          fullName: userCredential.user.displayName || "Phone User",
-          email: userCredential.user.email || "",
-          phone: userCredential.user.phoneNumber || "",
+        console.log("Creating new user profile for phone authentication");
+        await UserService.createUser(user.uid, {
+          fullName: user.displayName || "Phone User",
+          email: user.email || "",
+          phone: user.phoneNumber || "",
           balance: 0,
-          profilePhoto: userCredential.user.photoURL || ""
+          profilePhoto: user.photoURL || ""
         });
+      } else {
+        console.log("User already exists in database");
+        // Update phone number if it changed
+        if (userData.phone !== user.phoneNumber) {
+          await UserService.updateUserData(user.uid, {
+            phone: user.phoneNumber
+          });
+        }
       }
 
       toast({
@@ -166,15 +241,27 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
     } catch (error: any) {
       console.error("Error verifying code:", error);
 
-      verificationForm.setError("verificationCode", { 
-        message: "Invalid verification code" 
-      });
-
-      toast({
-        title: "Verification failed",
-        description: error.message || "Invalid verification code",
-        variant: "destructive"
-      });
+      if (error.code === 'auth/invalid-verification-code') {
+        verificationForm.setError("verificationCode", { 
+          message: "Invalid verification code" 
+        });
+      } else if (error.code === 'auth/code-expired') {
+        verificationForm.setError("verificationCode", { 
+          message: "Verification code expired" 
+        });
+        toast({
+          title: "Code expired",
+          description: "Please request a new verification code",
+          variant: "destructive"
+        });
+        setShowVerificationForm(false);
+      } else {
+        toast({
+          title: "Verification failed",
+          description: error.message || "Invalid verification code",
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsSubmittingVerification(false);
     }

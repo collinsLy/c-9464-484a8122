@@ -57,7 +57,7 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
       await setDoc(doc(db, 'users', userCredential.user.uid), {
         fullName: values.fullName,
         email: values.email,
-        phone: values.phone || "", //saving phone number
+        phone: values.phone ? (values.phone.startsWith('+') ? values.phone : `+${values.phone}`) : "", // Format phone number with country code
         balance: 0,
         profilePhoto: '',
         createdAt: new Date().toISOString(),
