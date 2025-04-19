@@ -427,14 +427,19 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
                   <FormItem>
                     <FormLabel>Verification Code</FormLabel>
                     <FormControl>
-                      <InputOTP maxLength={6} {...field}>
+                      <InputOTP 
+                        maxLength={6} 
+                        value={field.value || ""} 
+                        onChange={field.onChange}
+                        containerClassName="justify-center gap-4"
+                      >
                         <InputOTPGroup>
-                          <InputOTPSlot index={0} />
-                          <InputOTPSlot index={1} />
-                          <InputOTPSlot index={2} />
-                          <InputOTPSlot index={3} />
-                          <InputOTPSlot index={4} />
-                          <InputOTPSlot index={5} />
+                          <InputOTPSlot index={0} className="h-14 w-12 border-border rounded" />
+                          <InputOTPSlot index={1} className="h-14 w-12 border-border rounded" />
+                          <InputOTPSlot index={2} className="h-14 w-12 border-border rounded" />
+                          <InputOTPSlot index={3} className="h-14 w-12 border-border rounded" />
+                          <InputOTPSlot index={4} className="h-14 w-12 border-border rounded" />
+                          <InputOTPSlot index={5} className="h-14 w-12 border-border rounded" />
                         </InputOTPGroup>
                       </InputOTP>
                     </FormControl>
