@@ -37,6 +37,8 @@ const SettingsPage = () => {
   
   // Add state to track image updates and force re-renders
   const [imageUpdateTimestamp, setImageUpdateTimestamp] = useState(Date.now());
+  // Add state to track the full image URL with timestamp
+  const [profileImageUrl, setProfileImageUrl] = useState("");
 
   const profileForm = useForm({
     defaultValues: initialValues
@@ -60,10 +62,10 @@ const SettingsPage = () => {
             setInitialValues(profileData);
             profileForm.reset(profileData);
             
-            // Update avatar image if it exists
-            const avatarImage = document.querySelector('.avatar-image') as HTMLImageElement;
-            if (avatarImage && userData.profilePhoto) {
-              avatarImage.src = userData.profilePhoto;
+            // Generate cached URL with timestamp for the image
+            if (userData.profilePhoto) {
+              const cacheBustedUrl = `${userData.profilePhoto}?t=${Date.now()}`;
+              setProfileImageUrl(cacheBustedUrl);
             }
           }
         }
@@ -169,8 +171,18 @@ const SettingsPage = () => {
                     <Avatar className="h-24 w-24">
                       <AvatarImage 
                         className="avatar-image" 
-                        src={`${profileForm.getValues().profilePhoto || "https://github.com/shadcn.png"}${profileForm.getValues().profilePhoto ? `?t=${imageUpdateTimestamp}` : ''}`}
+                        src={profileImageUrl || "https://github.com/shadcn.png"}
                         key={`profile-${imageUpdateTimestamp}`} // Key tied to the timestamp state
+                        onError={(e) => {
+                          console.log("Image failed to load, retrying...");
+                          // If image fails to load, try again with new timestamp
+                          if (profileForm.getValues().profilePhoto) {
+                            setTimeout(() => {
+                              setImageUpdateTimestamp(Date.now());
+                              setProfileImageUrl(`${profileForm.getValues().profilePhoto}?t=${Date.now()}`);
+                            }, 500);
+                          }
+                        }}
                       />
                       <AvatarFallback>JD</AvatarFallback>
                     </Avatar>
@@ -261,11 +273,19 @@ const SettingsPage = () => {
                                 }));
                                 
                                 // Update timestamp to force avatar component to re-render with new image
-                                setImageUpdateTimestamp(Date.now());
+                                const newTimestamp = Date.now();
+                                setImageUpdateTimestamp(newTimestamp);
                                 
-                                // Update profile form value with cache-busting URL
-                                const cacheBustUrl = `${imageUrl}?t=${Date.now()}`;
-                                profileForm.setValue('profilePhoto', cacheBustUrl);
+                                // Set the base URL in the form data
+                                profileForm.setValue('profilePhoto', imageUrl);
+                                
+                                // Update the display URL with cache busting
+                                const cacheBustUrl = `${imageUrl}?t=${newTimestamp}`;
+                                setProfileImageUrl(cacheBustUrl);
+                                
+                                // Force reload the image
+                                const img = new Image();
+                                img.src = cacheBustUrl;
                                 
                                 // Show success toast with more details
                                 toast({
@@ -317,11 +337,19 @@ const SettingsPage = () => {
                                   }));
                                   
                                   // Update timestamp to force avatar component to re-render
-                                  setImageUpdateTimestamp(Date.now());
+                                  const newTimestamp = Date.now();
+                                  setImageUpdateTimestamp(newTimestamp);
                                   
-                                  // Update profile form with cache-busting URL
-                                  const cacheBustUrl = `${imageUrl}?t=${Date.now()}`;
-                                  profileForm.setValue('profilePhoto', cacheBustUrl);
+                                  // Set the base URL in the form data
+                                  profileForm.setValue('profilePhoto', imageUrl);
+                                  
+                                  // Update the display URL with cache busting
+                                  const cacheBustUrl = `${imageUrl}?t=${newTimestamp}`;
+                                  setProfileImageUrl(cacheBustUrl);
+                                  
+                                  // Force reload the image
+                                  const img = new Image();
+                                  img.src = cacheBustUrl;
                                   
                                   // Show success toast
                                   toast({
