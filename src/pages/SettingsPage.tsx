@@ -3,6 +3,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { updateEmail } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
+import { UserService } from "@/lib/user-service";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -200,8 +201,9 @@ const SettingsPage = () => {
                             
                             if (imageUrl) {
                               // Update user profile with the new image URL
-                              await UserService.updateUserData(user.uid, {
-                                profilePhoto: imageUrl
+                              await updateDoc(doc(db, 'users', user.uid), {
+                                profilePhoto: imageUrl,
+                                updatedAt: new Date().toISOString()
                               });
                               
                               // Update form value
@@ -236,19 +238,7 @@ const SettingsPage = () => {
                               variant: "destructive"
                             });
                           }
-                          reader.onloadend = () => {
-                            profileForm.setValue('avatarUrl', reader.result as string);
-                            // Update avatar display immediately
-                            const avatarImg = document.querySelector('.avatar-image') as HTMLImageElement;
-                            if (avatarImg) {
-                              avatarImg.src = reader.result as string;
-                            }
-                          };
-                          reader.readAsDataURL(file);
-                          toast({
-                            title: "Success",
-                            description: "Profile picture updated successfully",
-                          });
+                          // This code is handled in the success case above
                         }
                       }}
                     />
