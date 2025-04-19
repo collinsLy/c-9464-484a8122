@@ -179,21 +179,6 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
       
       console.log("Sending verification to:", formattedPhone);
       
-      // For testing purposes - bypass reCAPTCHA and directly show verification form
-      // IMPORTANT: This is for development only and should NOT be used in production
-      
-      // Create a mock verification ID (in production this would come from Firebase)
-      const mockVerificationId = "test-verification-id-" + Date.now();
-      setVerificationId(mockVerificationId);
-      setShowVerificationForm(true);
-      
-      toast({
-        title: "Test Mode: Verification code",
-        description: "Use code '123456' for testing",
-      });
-      
-      // Uncomment the below code to use actual Firebase verification with reCAPTCHA
-      /*
       // Get reCAPTCHA verifier
       let recaptchaVerifier;
       
@@ -224,7 +209,6 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
         title: "Verification code sent",
         description: "Please check your phone for the verification code",
       });
-      */
     } catch (error: any) {
       console.error("Error sending verification code:", error);
       
@@ -267,47 +251,6 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
         throw new Error("Verification session expired. Please try again.");
       }
       
-      // Testing mode - bypass actual Firebase verification
-      // Check if verification ID is our test mock ID and code is our test code
-      if (verificationId.startsWith('test-verification-id-') && values.verificationCode === '123456') {
-        // Create a mock user for testing
-        const mockUser = {
-          uid: 'test-user-' + Date.now(),
-          phoneNumber: phoneForm.getValues().phoneNumber,
-          displayName: 'Test User',
-          email: '',
-          photoURL: ''
-        };
-        
-        console.log("Successfully authenticated with test mode:", mockUser.phoneNumber);
-        
-        // Store user ID in localStorage
-        localStorage.setItem('userId', mockUser.uid);
-        
-        // Import UserService
-        const { UserService } = await import('@/lib/firebase-service');
-        
-        // Create a new profile for the test user
-        await UserService.createUser(mockUser.uid, {
-          fullName: 'Test User',
-          email: '',
-          phone: mockUser.phoneNumber,
-          balance: 1000, // Give test user some balance
-          profilePhoto: ''
-        });
-        
-        toast({
-          title: "Test mode login successful",
-          description: "Logged in with test account",
-        });
-        
-        onSuccess();
-        window.location.href = "/dashboard";
-        return;
-      }
-      
-      // Normal production flow - uncomment to use actual Firebase verification
-      /*
       // Create credential from verification ID and code
       const credential = PhoneAuthProvider.credential(
         verificationId, 
@@ -319,7 +262,6 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
       const user = userCredential.user;
       
       console.log("Successfully authenticated phone number:", user.phoneNumber);
-      */
 
       // Store user ID in localStorage
       localStorage.setItem('userId', user.uid);
@@ -428,23 +370,43 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
                       />
                     </FormControl>
                     <FormMessage />
-                    <p className="text-xs text-white/50">Please include country code (e.g., +1, +44, +254)</p>
                   </FormItem>
                 )}
               />
 
-              {/* reCAPTCHA container removed for test mode */}
-              {/* <div id="recaptcha-container" className="flex justify-center my-4 min-h-[78px] border border-gray-200 rounded-md p-2"></div> */}
+              <div id="recaptcha-container" className="flex justify-center my-4 min-h-[78px] border border-gray-200 rounded-md p-2"></div>
 
               <Button 
                 type="button" 
                 className="w-full" 
                 disabled={isSubmittingPhone}
                 onClick={() => {
-                  // Validate form and directly submit without reCAPTCHA
+                  // Validate form first
                   phoneForm.trigger().then(isValid => {
                     if (isValid) {
-                      phoneForm.handleSubmit(onSubmitPhone)();
+                      // Make sure recaptcha is initialized
+                      if (!(window as any).recaptchaVerifier) {
+                        setupRecaptcha();
+                      }
+                      
+                      // Try to execute the reCAPTCHA verification
+                      try {
+                        const widgetId = (window as any).recaptchaWidgetId;
+                        if (widgetId) {
+                          // This manually triggers the reCAPTCHA widget to be shown
+                          grecaptcha.execute(widgetId);
+                        } else {
+                          console.log("No widget ID found, executing normal flow");
+                          phoneForm.handleSubmit(onSubmitPhone)();
+                        }
+                      } catch (e) {
+                        console.error("Error executing reCAPTCHA:", e);
+                        toast({
+                          title: "Verification Error",
+                          description: "Please try again or refresh the page",
+                          variant: "destructive"
+                        });
+                      }
                     }
                   });
                 }}
@@ -465,19 +427,14 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
                   <FormItem>
                     <FormLabel>Verification Code</FormLabel>
                     <FormControl>
-                      <InputOTP 
-                        maxLength={6} 
-                        value={field.value || ""} 
-                        onChange={field.onChange}
-                        containerClassName="justify-center gap-4"
-                      >
+                      <InputOTP maxLength={6} {...field}>
                         <InputOTPGroup>
-                          <InputOTPSlot index={0} className="h-14 w-12 border-border rounded" />
-                          <InputOTPSlot index={1} className="h-14 w-12 border-border rounded" />
-                          <InputOTPSlot index={2} className="h-14 w-12 border-border rounded" />
-                          <InputOTPSlot index={3} className="h-14 w-12 border-border rounded" />
-                          <InputOTPSlot index={4} className="h-14 w-12 border-border rounded" />
-                          <InputOTPSlot index={5} className="h-14 w-12 border-border rounded" />
+                          <InputOTPSlot index={0} />
+                          <InputOTPSlot index={1} />
+                          <InputOTPSlot index={2} />
+                          <InputOTPSlot index={3} />
+                          <InputOTPSlot index={4} />
+                          <InputOTPSlot index={5} />
                         </InputOTPGroup>
                       </InputOTP>
                     </FormControl>
