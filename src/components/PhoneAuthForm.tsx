@@ -62,7 +62,11 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
     try {
       // Clear any existing recaptcha to prevent duplicates
       if ((window as any).recaptchaVerifier) {
-        (window as any).recaptchaVerifier.clear();
+        try {
+          (window as any).recaptchaVerifier.clear();
+        } catch (e) {
+          console.log("Error clearing previous reCAPTCHA:", e);
+        }
         delete (window as any).recaptchaVerifier;
       }
       
@@ -75,12 +79,18 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
       // Clear the container
       recaptchaContainer.innerHTML = '';
       
-      // Create a new recaptcha verifier
+      // Create a new recaptcha verifier with invisible size for better compatibility
       const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         'size': 'normal',
-        'callback': () => {
-          // reCAPTCHA solved, allow signInWithPhoneNumber
-          phoneForm.handleSubmit(onSubmitPhone)();
+        'callback': (response: any) => {
+          console.log("reCAPTCHA resolved:", response);
+          // reCAPTCHA solved, proceed with phone verification
+          if (phoneForm.getValues().phoneNumber) {
+            // Only submit if there's a phone number
+            setTimeout(() => {
+              phoneForm.handleSubmit(onSubmitPhone)();
+            }, 500);
+          }
         },
         'expired-callback': () => {
           // Response expired. Ask user to solve reCAPTCHA again.
@@ -89,10 +99,25 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
             description: "Please solve the reCAPTCHA again",
             variant: "destructive"
           });
+        },
+        'error-callback': (error: any) => {
+          console.error("reCAPTCHA error:", error);
+          toast({
+            title: "reCAPTCHA Error",
+            description: "There was a problem with the verification. Please try again.",
+            variant: "destructive"
+          });
         }
       });
       
+      // Store the verifier globally
       (window as any).recaptchaVerifier = recaptchaVerifier;
+      
+      // Render the reCAPTCHA explicitly
+      recaptchaVerifier.render().then((widgetId) => {
+        (window as any).recaptchaWidgetId = widgetId;
+      });
+      
       return recaptchaVerifier;
     } catch (error) {
       console.error("Error setting up reCAPTCHA:", error);
@@ -135,8 +160,17 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
       
       console.log("Sending verification to:", formattedPhone);
       
-      // Set up recaptcha verifier
-      const recaptchaVerifier = setupRecaptcha();
+      // Get reCAPTCHA verifier
+      let recaptchaVerifier;
+      
+      // Check if we have an existing reCAPTCHA verifier
+      if ((window as any).recaptchaVerifier) {
+        recaptchaVerifier = (window as any).recaptchaVerifier;
+      } else {
+        // Set up a new one if needed
+        recaptchaVerifier = setupRecaptcha();
+      }
+      
       if (!recaptchaVerifier) {
         throw new Error("Failed to initialize reCAPTCHA");
       }
@@ -170,6 +204,14 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
           description: "Please try again later",
           variant: "destructive"
         });
+      } else if (error.code === 'auth/captcha-check-failed') {
+        toast({
+          title: "reCAPTCHA verification failed",
+          description: "Please solve the reCAPTCHA again",
+          variant: "destructive"
+        });
+        // Re-initialize the reCAPTCHA
+        setupRecaptcha();
       } else {
         toast({
           title: "Error",
@@ -267,12 +309,47 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
     }
   };
 
+  // Initialize reCAPTCHA on component mount
+  import { useEffect } from "react";
+  
+  // Add the useEffect hook at the component level
+  useEffect(() => {
+    // Set up reCAPTCHA when component mounts
+    const timer = setTimeout(() => {
+      setupRecaptcha();
+    }, 1000);
+    
+    // Clean up reCAPTCHA when component unmounts
+    return () => {
+      clearTimeout(timer);
+      if ((window as any).recaptchaVerifier) {
+        try {
+          (window as any).recaptchaVerifier.clear();
+        } catch (e) {
+          console.log("Error clearing reCAPTCHA:", e);
+        }
+      }
+    };
+  }, []); // Empty dependency array means this runs once when component mounts
+  
   return (
     <div className="space-y-6">
       {!showVerificationForm ? (
         <>
           <Form {...phoneForm}>
-            <form onSubmit={phoneForm.handleSubmit(onSubmitPhone)} className="space-y-6">
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              // Validate form first
+              const isValid = phoneForm.trigger();
+              if (isValid) {
+                // If form is valid, verify reCAPTCHA is set up
+                if (!(window as any).recaptchaVerifier) {
+                  setupRecaptcha();
+                }
+                // Then continue with submission in callback
+                phoneForm.handleSubmit(onSubmitPhone)();
+              }
+            }} className="space-y-6">
               <FormField
                 control={phoneForm.control}
                 name="phoneNumber"
@@ -290,9 +367,19 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
                 )}
               />
 
-              <div id="recaptcha-container" className="my-4"></div>
+              <div id="recaptcha-container" className="flex justify-center my-4"></div>
 
-              <Button type="submit" className="w-full" disabled={isSubmittingPhone}>
+              <Button 
+                type="submit" 
+                className="w-full" 
+                disabled={isSubmittingPhone}
+                onClick={() => {
+                  // Make sure recaptcha is initialized when button is clicked
+                  if (!(window as any).recaptchaVerifier) {
+                    setupRecaptcha();
+                  }
+                }}
+              >
                 {isSubmittingPhone ? "Sending Code..." : "Send Verification Code"}
               </Button>
             </form>
