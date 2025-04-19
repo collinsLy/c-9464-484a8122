@@ -101,7 +101,7 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
 
       <aside className={cn(
         "flex flex-col bg-background/95 backdrop-blur-xl border-r border-white/10 transition-all duration-300 h-screen z-40",
-        collapsed ? "w-24 md:w-40" : "w-[320px] md:w-80",
+        collapsed ? "w-28 md:w-48" : "w-[320px] md:w-80", 
         isMobile ? "fixed left-0 top-0" : "relative",
         isMobile && !mobileOpen ? "-translate-x-full" : "translate-x-0",
         "shadow-xl shadow-black/10"
@@ -142,7 +142,7 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
               <Link to={item.path} className="flex items-center w-full">
                 <div className="flex items-center w-full">
                   <item.icon className={cn("h-5 w-5 flex-shrink-0", collapsed ? "mr-2" : "mr-3")} />
-                  <span className={cn("font-medium whitespace-nowrap", collapsed ? "text-xs" : "text-sm")}>
+                  <span className={cn("font-medium whitespace-nowrap overflow-hidden text-ellipsis", collapsed ? "text-xs" : "text-sm")}>
                     {item.label}
                   </span>
                 </div>
