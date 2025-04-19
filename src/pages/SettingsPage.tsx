@@ -3,8 +3,6 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { updateEmail } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { UserService } from "@/lib/user-service";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -99,7 +97,7 @@ const SettingsPage = () => {
         email: data.email,
         phone: data.phone
       });
-      
+
       // Reset form with new values
       profileForm.reset({
         name: data.name,
@@ -177,7 +175,7 @@ const SettingsPage = () => {
                             });
                             return;
                           }
-                          
+
                           try {
                             const user = auth.currentUser;
                             if (!user) {
@@ -188,37 +186,41 @@ const SettingsPage = () => {
                               });
                               return;
                             }
-                            
+
                             // Show loading toast
                             toast({
                               title: "Uploading",
                               description: "Your profile picture is being uploaded...",
                             });
-                            
+
+                            // Create a FileReader for image preview
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              // Update avatar display immediately for preview
+                              const avatarImage = document.querySelector('.avatar-image') as HTMLImageElement;
+                              if (avatarImage) {
+                                avatarImage.src = reader.result as string;
+                              }
+                              profileForm.setValue('avatarUrl', reader.result as string);
+                            };
+                            reader.readAsDataURL(file);
+
                             // Upload to Supabase
                             const { uploadProfileImage } = await import('@/lib/supabase');
                             const imageUrl = await uploadProfileImage(user.uid, file);
-                            
+
                             if (imageUrl) {
+                              // Import UserService properly
+                              const { UserService } = await import('@/lib/firebase-service');
+
                               // Update user profile with the new image URL
-                              await updateDoc(doc(db, 'users', user.uid), {
-                                profilePhoto: imageUrl,
-                                updatedAt: new Date().toISOString()
+                              await UserService.updateUserData(user.uid, {
+                                profilePhoto: imageUrl
                               });
-                              
-                              // Update form value
+
+                              // Update form value with the permanent URL
                               profileForm.setValue('avatarUrl', imageUrl);
-                              
-                              // Preview image
-                              const reader = new FileReader();
-                              reader.onloadend = () => {
-                                const avatarImage = document.querySelector('.avatar-image') as HTMLImageElement;
-                                if (avatarImage) {
-                                  avatarImage.src = reader.result as string;
-                                }
-                              };
-                              reader.readAsDataURL(file);
-                              
+
                               toast({
                                 title: "Success",
                                 description: "Profile picture updated successfully",
@@ -238,7 +240,6 @@ const SettingsPage = () => {
                               variant: "destructive"
                             });
                           }
-                          // This code is handled in the success case above
                         }
                       }}
                     />

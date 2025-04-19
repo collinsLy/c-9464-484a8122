@@ -3,7 +3,8 @@ import { createClient } from '@supabase/supabase-js';
 
 // Supabase configuration
 const supabaseUrl = 'https://wliejeubdpqhhbcfhshc.supabase.co';
-const supabaseKey = process.env.SUPABASE_KEY || ''; // Use environment variable for the API key
+// Use import.meta.env instead of process.env for Vite
+const supabaseKey = import.meta.env.VITE_SUPABASE_KEY || '';
 
 // Create Supabase client
 export const supabase = createClient(supabaseUrl, supabaseKey);
