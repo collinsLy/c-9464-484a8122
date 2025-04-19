@@ -269,8 +269,8 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
 
     <Dialog open={isPasswordUpdateRequired} onOpenChange={setIsPasswordUpdateRequired}>
       <DialogContent>
+        <DialogTitle>Password Update Required</DialogTitle>
         <DialogHeader>
-          <DialogTitle>Password Update Required</DialogTitle>
           <DialogDescription>
             Your password does not meet the new security requirements. Please update your password to include:
             - At least 8 characters

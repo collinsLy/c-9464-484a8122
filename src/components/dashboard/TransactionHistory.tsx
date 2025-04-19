@@ -519,7 +519,7 @@ const TransactionHistory = () => {
                               const fromAsset = transaction.fromAsset?.toUpperCase() || '';
                               const toAsset = transaction.toAsset?.toUpperCase() || '';
                               const network = transaction.network?.toUpperCase() || '';
-                              
+
                               // ETH → USDC on Ethereum
                               if ((fromAsset === 'ETH' && toAsset === 'USDC') || 
                                   (fromAsset.includes('ETH') && network.includes('ERC20'))) {
@@ -554,7 +554,7 @@ const TransactionHistory = () => {
                                   );
                                 }
                               }
-                              
+
                               // USDT → BUSD on BSC
                               else if ((fromAsset === 'USDT' && toAsset === 'BUSD') || 
                                        network.includes('BSC') || fromAsset === 'BNB' || toAsset === 'BNB') {
@@ -572,7 +572,7 @@ const TransactionHistory = () => {
                                   </>
                                 );
                               }
-                              
+
                               // SOL → USDC on Solana
                               else if ((fromAsset === 'SOL' && toAsset === 'USDC') || 
                                        network.includes('SOLANA') || network.includes('SOL') || 
@@ -591,7 +591,7 @@ const TransactionHistory = () => {
                                   </>
                                 );
                               }
-                              
+
                               // Cross-chain (BTC → ETH)
                               else if ((fromAsset === 'BTC' && toAsset === 'ETH') || 
                                        (fromAsset !== toAsset && network === 'NATIVE')) {
@@ -609,7 +609,7 @@ const TransactionHistory = () => {
                                   </>
                                 );
                               }
-                              
+
                               // Stablecoin swaps
                               else if ((fromAsset.includes('USD') && toAsset.includes('USD')) ||
                                        (fromAsset === 'DAI' || toAsset === 'DAI')) {
@@ -627,7 +627,7 @@ const TransactionHistory = () => {
                                   </>
                                 );
                               }
-                              
+
                               // Fast/cheap L2 swaps
                               else if (network.includes('ARBITRUM') || network.includes('POLYGON') || network.includes('L2')) {
                                 return (
@@ -644,7 +644,7 @@ const TransactionHistory = () => {
                                   </>
                                 );
                               }
-                              
+
                               // Default case - generic DEX
                               else {
                                 return (
