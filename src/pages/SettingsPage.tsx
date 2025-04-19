@@ -210,7 +210,23 @@ const SettingsPage = () => {
                             // Upload to Supabase
                             try {
                               const { uploadProfileImage } = await import('@/lib/supabase');
-                              const imageUrl = await uploadProfileImage(user.uid, file);
+                              let imageUrl = await uploadProfileImage(user.uid, file);
+                              
+                              // Fallback: If Supabase upload fails but we need to continue
+                              if (!imageUrl) {
+                                // Use Firebase storage as fallback if Supabase fails
+                                const storage = getStorage();
+                                const storageRef = ref(storage, `profile-photos/${user.uid}/${Date.now()}-${file.name}`);
+                                
+                                // Upload to Firebase Storage
+                                await uploadBytes(storageRef, file);
+                                imageUrl = await getDownloadURL(storageRef);
+                                
+                                toast({
+                                  title: "Notice",
+                                  description: "Using alternative storage for your profile picture",
+                                });
+                              }
 
                               if (imageUrl) {
                                 // Import UserService properly
