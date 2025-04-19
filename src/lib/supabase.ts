@@ -2,10 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 
 // Supabase configuration
 const supabaseUrl = 'https://wliejeubdpqhhbcfhshc.supabase.co';
-// Use import.meta.env instead of process.env for Vite
-
-// Define Supabase key first so it can be used later
-const supabaseKey = import.meta.env.VITE_SUPABASE_KEY || '';
+// Keys are defined directly in the file instead of using environment variables
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndsaWVqZXViZHBxaGhiY2Zoc2hjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE3MDU0MDUsImV4cCI6MjA1NzI4MTQwNX0.gGE-ut6bkNDe_RsCRTEhLwd16uVAKiCt8BKb75o3VSM';
 
 // Optional: Create a service client with admin privileges for storage operations
 // This bypasses RLS policies for file operations
@@ -14,9 +12,8 @@ let serviceClient: any = null;
 // Call this function only when needed to perform privileged operations
 const getServiceClient = () => {
   if (!serviceClient) {
-    // If you have a service role key, you would use it here
-    // For safety, this should be a limited access key only for storage
-    const serviceRoleKey = import.meta.env.VITE_SUPABASE_SERVICE_KEY || supabaseKey;
+    // Service role key is defined directly in the file
+    const serviceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndsaWVqZXViZHBxaGhiY2Zoc2hjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MTcwNTQwNSwiZXhwIjoyMDU3MjgxNDA1fQ.V8016GE3i9xea1mcrLDmAS79obb4qMPOsf2fXA_y5AA';
     serviceClient = createClient(supabaseUrl, serviceRoleKey, {
       auth: { persistSession: false }
     });
