@@ -31,7 +31,8 @@ const SettingsPage = () => {
   const [initialValues, setInitialValues] = useState({
     name: "",
     email: "",
-    phone: ""
+    phone: "",
+    profilePhoto: ""
   });
 
   const profileForm = useForm({
@@ -46,16 +47,21 @@ const SettingsPage = () => {
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            setInitialValues({
+            const profileData = {
               name: userData.fullName || "",
               email: user.email || "",
-              phone: userData.phone || ""
-            });
-            profileForm.reset({
-              name: userData.fullName || "",
-              email: user.email || "",
-              phone: userData.phone || ""
-            });
+              phone: userData.phone || "",
+              profilePhoto: userData.profilePhoto || ""
+            };
+            
+            setInitialValues(profileData);
+            profileForm.reset(profileData);
+            
+            // Update avatar image if it exists
+            const avatarImage = document.querySelector('.avatar-image') as HTMLImageElement;
+            if (avatarImage && userData.profilePhoto) {
+              avatarImage.src = userData.profilePhoto;
+            }
           }
         }
       } catch (error) {
@@ -158,7 +164,7 @@ const SettingsPage = () => {
                 <div className="flex flex-col md:flex-row md:items-center gap-6">
                   <div className="flex flex-col items-center gap-2">
                     <Avatar className="h-24 w-24">
-                      <AvatarImage className="avatar-image" src={profileForm.getValues().avatarUrl || "https://github.com/shadcn.png"} />
+                      <AvatarImage className="avatar-image" src={profileForm.getValues().profilePhoto || "https://github.com/shadcn.png"} />
                       <AvatarFallback>JD</AvatarFallback>
                     </Avatar>
                     <Input
@@ -203,7 +209,8 @@ const SettingsPage = () => {
                               if (avatarImage) {
                                 avatarImage.src = reader.result as string;
                               }
-                              profileForm.setValue('avatarUrl', reader.result as string);
+                              // Temporarily set profilePhoto for preview
+                              profileForm.setValue('profilePhoto', reader.result as string);
                             };
                             reader.readAsDataURL(file);
 
@@ -238,12 +245,22 @@ const SettingsPage = () => {
                                 });
 
                                 // Update form value with the permanent URL
-                                profileForm.setValue('avatarUrl', imageUrl);
+                                profileForm.setValue('profilePhoto', imageUrl);
                                 
+                                // Also update initialValues to ensure it persists
+                                setInitialValues(prev => ({
+                                  ...prev,
+                                  profilePhoto: imageUrl
+                                }));
+                                
+                                // Show success toast with more details
                                 toast({
                                   title: "Success",
-                                  description: "Profile picture updated successfully",
+                                  description: "Profile picture updated successfully. It will remain after page refresh.",
                                 });
+                                
+                                // Log the update for debugging
+                                console.log('Profile photo updated successfully:', imageUrl);
                               }
                             } catch (error: any) {
                               console.error("Error uploading profile picture:", error);

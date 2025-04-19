@@ -57,13 +57,21 @@ export class UserService {
             // Continue with update even if delete fails
           }
         }
+        
+        console.log('Updating profile photo to:', data.profilePhoto);
       }
       
       const docRef = doc(db, 'users', userId);
+      
+      // Add logging to debug the update
+      console.log('Updating user document:', userId, 'with data:', data);
+      
       await updateDoc(docRef, {
         ...data,
         updatedAt: new Date().toISOString()
       });
+      
+      console.log('User data updated successfully');
     } catch (error) {
       console.error('Error updating user data:', error);
       throw error;
