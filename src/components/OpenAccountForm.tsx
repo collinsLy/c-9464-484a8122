@@ -22,7 +22,8 @@ const formSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string()
+  confirmPassword: z.string(),
+  phone: z.string().optional(), // Added phone field to schema
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -31,18 +32,6 @@ const formSchema = z.object({
 interface OpenAccountFormProps {
   onSuccess: () => void;
 }
-
-const UserBalanceService = {
-  async createUserBalance(userId: string) {
-    try {
-      const userRef = doc(db, "users", userId);
-      await setDoc(userRef, { balance: 0 });
-    } catch (error) {
-      console.error("Error creating user balance:", error);
-    }
-  },
-
-};
 
 
 const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
@@ -55,6 +44,7 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
       email: "",
       password: "",
       confirmPassword: "",
+      phone: "", // Added default value for phone
     },
   });
 
@@ -62,22 +52,23 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
     setIsSubmitting(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
-      
       // Create initial user data
+
       await setDoc(doc(db, 'users', userCredential.user.uid), {
         fullName: values.fullName,
         email: values.email,
+        phone: values.phone || "", //saving phone number
         balance: 0,
-        phone: '',
         profilePhoto: '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       });
-      
+
+
       // Store email and name in localStorage for other components
       localStorage.setItem('email', values.email);
       localStorage.setItem('name', values.fullName);
-      
+
       await sendEmailVerification(userCredential.user);
       onSuccess();
       toast({
@@ -86,6 +77,7 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
       });
     } catch (error: any) {
       console.error("Error creating account:", error);
+      //Error Handling remains the same
       switch (error.code) {
         case 'auth/email-already-in-use':
           form.setError("email", { 
@@ -150,6 +142,20 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input type="email" placeholder="you@example.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Phone Number (Optional)</FormLabel>
+              <FormControl>
+                <Input placeholder="+1 (555) 123-4567" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

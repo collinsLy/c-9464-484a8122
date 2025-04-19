@@ -23,6 +23,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import PhoneAuthForm from "./PhoneAuthForm";
+import { Phone, Mail } from "lucide-react";
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -49,6 +57,7 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
   const [isResetting, setIsResetting] = useState(false);
   const [isPasswordUpdateRequired, setIsPasswordUpdateRequired] = useState(false);
   const [newPassword, setNewPassword] = useState("");
+  const [authMethod, setAuthMethod] = useState<"email" | "phone">("email");
   const { toast } = useToast();
 
   const resetForm = useForm<z.infer<typeof resetFormSchema>>({
@@ -167,79 +176,96 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
 
   return (
     <>
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="you@example.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <Tabs defaultValue="email" className="w-full mb-6">
+      <TabsList className="grid w-full grid-cols-2">
+        <TabsTrigger value="email" onClick={() => setAuthMethod("email")} className="flex items-center gap-2">
+          <Mail className="w-4 h-4" /> Email
+        </TabsTrigger>
+        <TabsTrigger value="phone" onClick={() => setAuthMethod("phone")} className="flex items-center gap-2">
+          <Phone className="w-4 h-4" /> Phone
+        </TabsTrigger>
+      </TabsList>
 
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <TabsContent value="email" className="mt-4">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" placeholder="you@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <div className="flex items-center justify-between">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="link" className="text-xs text-accent hover:underline px-0">
-                Forgot password?
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Reset Password</DialogTitle>
-                <DialogDescription>
-                  Enter your email address and we'll send you a link to reset your password.
-                </DialogDescription>
-              </DialogHeader>
-              <Form {...resetForm}>
-                <form onSubmit={resetForm.handleSubmit(onResetPassword)} className="space-y-4">
-                  <FormField
-                    control={resetForm.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input type="email" placeholder="you@example.com" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit" className="w-full" disabled={isResetting}>
-                    {isResetting ? "Sending..." : "Send Reset Link"}
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="••••••••" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex items-center justify-between">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="link" className="text-xs text-accent hover:underline px-0">
+                    Forgot password?
                   </Button>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
-        </div>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Reset Password</DialogTitle>
+                    <DialogDescription>
+                      Enter your email address and we'll send you a link to reset your password.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Form {...resetForm}>
+                    <form onSubmit={resetForm.handleSubmit(onResetPassword)} className="space-y-4">
+                      <FormField
+                        control={resetForm.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                              <Input type="email" placeholder="you@example.com" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <Button type="submit" className="w-full" disabled={isResetting}>
+                        {isResetting ? "Sending..." : "Send Reset Link"}
+                      </Button>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+            </div>
 
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Signing In..." : "Sign In"}
-        </Button>
-      </form>
-    </Form>
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? "Signing In..." : "Sign In"}
+            </Button>
+          </form>
+        </Form>
+      </TabsContent>
+
+      <TabsContent value="phone" className="mt-4">
+        <PhoneAuthForm onSuccess={onSuccess} />
+      </TabsContent>
+    </Tabs>
 
     <Dialog open={isPasswordUpdateRequired} onOpenChange={setIsPasswordUpdateRequired}>
       <DialogContent>
