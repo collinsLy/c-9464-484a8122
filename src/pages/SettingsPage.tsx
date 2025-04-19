@@ -1,9 +1,11 @@
+
 import { useState, useEffect } from "react";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { updateEmail } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { default as DashboardLayout, useDashboardContext } from "@/components/dashboard/DashboardLayout";
+import DashboardLayout from "@/components/dashboard/DashboardLayout"; 
+import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -232,14 +234,6 @@ const SettingsPage = () => {
                               toast({
                                 title: "Error",
                                 description: error.message || "Failed to upload profile picture. Please check Supabase bucket permissions.",
-                                variant: "destructive"
-                              });
-                            }
-
-                              } else {
-                              toast({
-                                title: "Error",
-                                description: "Failed to upload profile picture",
                                 variant: "destructive"
                               });
                             }

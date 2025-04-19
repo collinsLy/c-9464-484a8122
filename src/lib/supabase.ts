@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 
 // Supabase configuration
@@ -15,7 +14,7 @@ export const uploadProfileImage = async (userId: string, file: File): Promise<st
     const fileExt = file.name.split('.').pop();
     const fileName = `${userId}-${Date.now()}.${fileExt}`;
     const filePath = `profiles/${fileName}`;
-    
+
     // Check if the bucket exists, if not will return error anyway
     const { error: uploadError, data } = await supabase.storage
       .from('profile-images')
@@ -23,17 +22,17 @@ export const uploadProfileImage = async (userId: string, file: File): Promise<st
         upsert: true, // Overwrite if exists
         cacheControl: '3600'
       });
-    
+
     if (uploadError) {
       console.error('Error uploading image to Supabase:', uploadError);
       throw uploadError; // Throw to allow caller to handle
     }
-    
+
     // Get public URL
     const { data: urlData } = supabase.storage
       .from('profile-images')
       .getPublicUrl(filePath);
-    
+
     return urlData.publicUrl;
   } catch (error) {
     console.error('Error in uploadProfileImage:', error);
@@ -47,16 +46,16 @@ export const deleteProfileImage = async (filePath: string): Promise<boolean> => 
     const pathOnly = filePath.includes('profile-images/')
       ? filePath.split('profile-images/')[1]
       : filePath;
-    
+
     const { error } = await supabase.storage
       .from('profile-images')
       .remove([pathOnly]);
-    
+
     if (error) {
       console.error('Error deleting image from Supabase:', error);
       return false;
     }
-    
+
     return true;
   } catch (error) {
     console.error('Error in deleteProfileImage:', error);
