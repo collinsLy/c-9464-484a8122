@@ -984,7 +984,7 @@ const WithdrawPage = () => {
                           <p className="text-sm text-red-400">Invalid address format for {network}</p>
                         )}
                       </div>
-                    </div>
+                    </div>v>
 
                     <div className="grid gap-2">
                       <div className="flex justify-between items-center">

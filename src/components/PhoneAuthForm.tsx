@@ -1,7 +1,16 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+
+// Add global declaration for grecaptcha
+declare global {
+  interface Window {
+    grecaptcha: any;
+  }
+}
+
+const grecaptcha = window.grecaptcha;
 import { 
   RecaptchaVerifier, 
   signInWithPhoneNumber, 
@@ -79,7 +88,7 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
       // Clear the container
       recaptchaContainer.innerHTML = '';
       
-      // Create a new recaptcha verifier with invisible size for better compatibility
+      // Create a new recaptcha verifier with explicit size for better visibility
       const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         'size': 'normal',
         'callback': (response: any) => {
@@ -113,10 +122,20 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
       // Store the verifier globally
       (window as any).recaptchaVerifier = recaptchaVerifier;
       
-      // Render the reCAPTCHA explicitly
-      recaptchaVerifier.render().then((widgetId) => {
-        (window as any).recaptchaWidgetId = widgetId;
-      });
+      // Ensure we render the reCAPTCHA explicitly with proper error handling
+      recaptchaVerifier.render()
+        .then((widgetId) => {
+          console.log("reCAPTCHA rendered with widget ID:", widgetId);
+          (window as any).recaptchaWidgetId = widgetId;
+        })
+        .catch((error) => {
+          console.error("Error rendering reCAPTCHA:", error);
+          toast({
+            title: "reCAPTCHA Error",
+            description: "Could not render verification. Please refresh and try again.",
+            variant: "destructive"
+          });
+        });
       
       return recaptchaVerifier;
     } catch (error) {
@@ -309,11 +328,8 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
     }
   };
 
-  // Initialize reCAPTCHA on component mount
-  import { useEffect } from "react";
-  
   // Add the useEffect hook at the component level
-  useEffect(() => {
+  React.useEffect(() => {
     // Set up reCAPTCHA when component mounts
     const timer = setTimeout(() => {
       setupRecaptcha();
@@ -339,16 +355,7 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
           <Form {...phoneForm}>
             <form onSubmit={(e) => {
               e.preventDefault();
-              // Validate form first
-              const isValid = phoneForm.trigger();
-              if (isValid) {
-                // If form is valid, verify reCAPTCHA is set up
-                if (!(window as any).recaptchaVerifier) {
-                  setupRecaptcha();
-                }
-                // Then continue with submission in callback
-                phoneForm.handleSubmit(onSubmitPhone)();
-              }
+              // Prevent normal form submission, we'll handle it with the button
             }} className="space-y-6">
               <FormField
                 control={phoneForm.control}
@@ -367,17 +374,41 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
                 )}
               />
 
-              <div id="recaptcha-container" className="flex justify-center my-4"></div>
+              <div id="recaptcha-container" className="flex justify-center my-4 min-h-[78px] border border-gray-200 rounded-md p-2"></div>
 
               <Button 
-                type="submit" 
+                type="button" 
                 className="w-full" 
                 disabled={isSubmittingPhone}
                 onClick={() => {
-                  // Make sure recaptcha is initialized when button is clicked
-                  if (!(window as any).recaptchaVerifier) {
-                    setupRecaptcha();
-                  }
+                  // Validate form first
+                  phoneForm.trigger().then(isValid => {
+                    if (isValid) {
+                      // Make sure recaptcha is initialized
+                      if (!(window as any).recaptchaVerifier) {
+                        setupRecaptcha();
+                      }
+                      
+                      // Try to execute the reCAPTCHA verification
+                      try {
+                        const widgetId = (window as any).recaptchaWidgetId;
+                        if (widgetId) {
+                          // This manually triggers the reCAPTCHA widget to be shown
+                          grecaptcha.execute(widgetId);
+                        } else {
+                          console.log("No widget ID found, executing normal flow");
+                          phoneForm.handleSubmit(onSubmitPhone)();
+                        }
+                      } catch (e) {
+                        console.error("Error executing reCAPTCHA:", e);
+                        toast({
+                          title: "Verification Error",
+                          description: "Please try again or refresh the page",
+                          variant: "destructive"
+                        });
+                      }
+                    }
+                  });
                 }}
               >
                 {isSubmittingPhone ? "Sending Code..." : "Send Verification Code"}
