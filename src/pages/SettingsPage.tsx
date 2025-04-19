@@ -34,6 +34,9 @@ const SettingsPage = () => {
     phone: "",
     profilePhoto: ""
   });
+  
+  // Add state to track image updates and force re-renders
+  const [imageUpdateTimestamp, setImageUpdateTimestamp] = useState(Date.now());
 
   const profileForm = useForm({
     defaultValues: initialValues
@@ -164,7 +167,11 @@ const SettingsPage = () => {
                 <div className="flex flex-col md:flex-row md:items-center gap-6">
                   <div className="flex flex-col items-center gap-2">
                     <Avatar className="h-24 w-24">
-                      <AvatarImage className="avatar-image" src={profileForm.getValues().profilePhoto || "https://github.com/shadcn.png"} />
+                      <AvatarImage 
+                        className="avatar-image" 
+                        src={`${profileForm.getValues().profilePhoto || "https://github.com/shadcn.png"}${profileForm.getValues().profilePhoto ? `?t=${imageUpdateTimestamp}` : ''}`}
+                        key={`profile-${imageUpdateTimestamp}`} // Key tied to the timestamp state
+                      />
                       <AvatarFallback>JD</AvatarFallback>
                     </Avatar>
                     <Input
@@ -253,14 +260,12 @@ const SettingsPage = () => {
                                   profilePhoto: imageUrl
                                 }));
                                 
-                                // Force update the avatar image with the new URL
-                                const avatarImage = document.querySelector('.avatar-image') as HTMLImageElement;
-                                if (avatarImage) {
-                                  avatarImage.src = imageUrl;
-                                  
-                                  // Add a timestamp to force image reload and prevent caching
-                                  avatarImage.src = `${imageUrl}?t=${Date.now()}`;
-                                }
+                                // Update timestamp to force avatar component to re-render with new image
+                                setImageUpdateTimestamp(Date.now());
+                                
+                                // Update profile form value with cache-busting URL
+                                const cacheBustUrl = `${imageUrl}?t=${Date.now()}`;
+                                profileForm.setValue('profilePhoto', cacheBustUrl);
                                 
                                 // Show success toast with more details
                                 toast({
@@ -311,12 +316,12 @@ const SettingsPage = () => {
                                     profilePhoto: imageUrl
                                   }));
                                   
-                                  // Force update the avatar image with the new URL
-                                  const avatarImage = document.querySelector('.avatar-image') as HTMLImageElement;
-                                  if (avatarImage) {
-                                    // Add a timestamp parameter to force image reload
-                                    avatarImage.src = `${imageUrl}?t=${Date.now()}`;
-                                  }
+                                  // Update timestamp to force avatar component to re-render
+                                  setImageUpdateTimestamp(Date.now());
+                                  
+                                  // Update profile form with cache-busting URL
+                                  const cacheBustUrl = `${imageUrl}?t=${Date.now()}`;
+                                  profileForm.setValue('profilePhoto', cacheBustUrl);
                                   
                                   // Show success toast
                                   toast({
