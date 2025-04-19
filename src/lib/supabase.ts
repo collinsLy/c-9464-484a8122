@@ -16,24 +16,28 @@ export const uploadProfileImage = async (userId: string, file: File): Promise<st
     const fileName = `${userId}-${Date.now()}.${fileExt}`;
     const filePath = `profiles/${fileName}`;
     
-    const { error: uploadError } = await supabase.storage
+    // Check if the bucket exists, if not will return error anyway
+    const { error: uploadError, data } = await supabase.storage
       .from('profile-images')
-      .upload(filePath, file);
+      .upload(filePath, file, {
+        upsert: true, // Overwrite if exists
+        cacheControl: '3600'
+      });
     
     if (uploadError) {
       console.error('Error uploading image to Supabase:', uploadError);
-      return null;
+      throw uploadError; // Throw to allow caller to handle
     }
     
     // Get public URL
-    const { data } = supabase.storage
+    const { data: urlData } = supabase.storage
       .from('profile-images')
       .getPublicUrl(filePath);
     
-    return data.publicUrl;
+    return urlData.publicUrl;
   } catch (error) {
     console.error('Error in uploadProfileImage:', error);
-    return null;
+    throw error; // Rethrow to allow caller to handle
   }
 };
 

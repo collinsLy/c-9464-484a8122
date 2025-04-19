@@ -206,20 +206,35 @@ const SettingsPage = () => {
                             reader.readAsDataURL(file);
 
                             // Upload to Supabase
-                            const { uploadProfileImage } = await import('@/lib/supabase');
-                            const imageUrl = await uploadProfileImage(user.uid, file);
+                            try {
+                              const { uploadProfileImage } = await import('@/lib/supabase');
+                              const imageUrl = await uploadProfileImage(user.uid, file);
 
-                            if (imageUrl) {
-                              // Import UserService properly
-                              const { UserService } = await import('@/lib/firebase-service');
+                              if (imageUrl) {
+                                // Import UserService properly
+                                const { UserService } = await import('@/lib/firebase-service');
 
-                              // Update user profile with the new image URL
-                              await UserService.updateUserData(user.uid, {
-                                profilePhoto: imageUrl
+                                // Update user profile with the new image URL
+                                await UserService.updateUserData(user.uid, {
+                                  profilePhoto: imageUrl
+                                });
+
+                                // Update form value with the permanent URL
+                                profileForm.setValue('avatarUrl', imageUrl);
+                                
+                                toast({
+                                  title: "Success",
+                                  description: "Profile picture updated successfully",
+                                });
+                              }
+                            } catch (error: any) {
+                              console.error("Error uploading profile picture:", error);
+                              toast({
+                                title: "Error",
+                                description: error.message || "Failed to upload profile picture. Please check Supabase bucket permissions.",
+                                variant: "destructive"
                               });
-
-                              // Update form value with the permanent URL
-                              profileForm.setValue('avatarUrl', imageUrl);
+                            }
 
                               toast({
                                 title: "Success",
