@@ -6,10 +6,11 @@ import * as z from "zod";
 // Add global declaration for grecaptcha
 declare global {
   interface Window {
-    recaptchaVerifier: any;
-    confirmationResult: any;
+    grecaptcha: any;
   }
 }
+
+const grecaptcha = window.grecaptcha;
 import { 
   RecaptchaVerifier, 
   signInWithPhoneNumber, 
@@ -25,7 +26,6 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { 
@@ -34,7 +34,8 @@ import {
   InputOTPSlot 
 } from "@/components/ui/input-otp";
 import { useToast } from "@/components/ui/use-toast";
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog"; // Added DialogTitle import
+
 
 const phoneFormSchema = z.object({
   phoneNumber: z
@@ -63,24 +64,9 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
   const [isSubmittingVerification, setIsSubmittingVerification] = useState(false);
   const [showVerificationForm, setShowVerificationForm] = useState(false);
   const [verificationId, setVerificationId] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
   const { toast } = useToast();
 
-  const phoneForm = useForm<z.infer<typeof phoneFormSchema>>({
-    resolver: zodResolver(phoneFormSchema),
-    defaultValues: {
-      phoneNumber: ""
-    }
-  });
-
-  const verificationForm = useForm<z.infer<typeof verificationFormSchema>>({
-    resolver: zodResolver(verificationFormSchema),
-    defaultValues: {
-      verificationCode: ""
-    }
-  });
-
-  // Set up reCAPTCHA
+  // Initialize reCAPTCHA once when component loads
   const setupRecaptcha = () => {
     try {
       // Clear any existing recaptcha to prevent duplicates
@@ -92,16 +78,16 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
         }
         delete (window as any).recaptchaVerifier;
       }
-
+      
       // Get the recaptcha container element
       const recaptchaContainer = document.getElementById('recaptcha-container');
       if (!recaptchaContainer) {
         throw new Error('Recaptcha container not found');
       }
-
+      
       // Clear the container
       recaptchaContainer.innerHTML = '';
-
+      
       // Create a new recaptcha verifier with normal size instead of invisible
       // This will show the reCAPTCHA widget directly in the form
       const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
@@ -136,10 +122,10 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
           });
         }
       });
-
+      
       // Store the verifier globally
       (window as any).recaptchaVerifier = recaptchaVerifier;
-
+      
       return recaptchaVerifier;
     } catch (error) {
       console.error("Error setting up reCAPTCHA:", error);
@@ -152,6 +138,20 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
     }
   };
 
+  const phoneForm = useForm<z.infer<typeof phoneFormSchema>>({
+    resolver: zodResolver(phoneFormSchema),
+    defaultValues: {
+      phoneNumber: ""
+    }
+  });
+
+  const verificationForm = useForm<z.infer<typeof verificationFormSchema>>({
+    resolver: zodResolver(verificationFormSchema),
+    defaultValues: {
+      verificationCode: ""
+    }
+  });
+
   const onSubmitPhone = async (values: z.infer<typeof phoneFormSchema>) => {
     setIsSubmittingPhone(true);
 
@@ -162,19 +162,19 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
       if (!formattedPhone.startsWith('+')) {
         formattedPhone = `+${formattedPhone}`;
       }
-
+      
       // Remove any spaces, dashes, or parentheses
       formattedPhone = formattedPhone.replace(/[\s\-\(\)]/g, '');
-
+      
       console.log("Sending verification to:", formattedPhone);
-
+      
       // Get the reCAPTCHA verifier
       const recaptchaVerifier = (window as any).recaptchaVerifier;
-
+      
       if (!recaptchaVerifier) {
         throw new Error("Please complete the reCAPTCHA verification first");
       }
-
+      
       // Send the verification code
       const confirmationResult = await signInWithPhoneNumber(
         auth, 
@@ -192,7 +192,7 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
       });
     } catch (error: any) {
       console.error("Error sending verification code:", error);
-
+      
       // Show specific error messages based on the error code
       if (error.code === 'auth/invalid-phone-number') {
         phoneForm.setError("phoneNumber", { 
@@ -239,7 +239,7 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
       if (!verificationId) {
         throw new Error("Verification session expired. Please try again.");
       }
-
+      
       // Create credential from verification ID and code
       const credential = PhoneAuthProvider.credential(
         verificationId, 
@@ -249,12 +249,12 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
       // Sign in with credential
       const userCredential = await auth.signInWithCredential(credential);
       const user = userCredential.user;
-
+      
       console.log("Successfully authenticated phone number:", user.phoneNumber);
 
       // Store user ID in localStorage
       localStorage.setItem('userId', user.uid);
-
+      
       // Import UserService to access getUserData and createUser methods
       const { UserService } = await import('@/lib/firebase-service');
 
@@ -318,12 +318,12 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
   };
 
   // Add the useEffect hook at the component level
-  useEffect(() => {
+  React.useEffect(() => {
     // Set up reCAPTCHA when component mounts
     const timer = setTimeout(() => {
       setupRecaptcha();
     }, 1000);
-
+    
     // Clean up reCAPTCHA when component unmounts
     return () => {
       clearTimeout(timer);
@@ -336,7 +336,7 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
       }
     };
   }, []); // Empty dependency array means this runs once when component mounts
-
+  
   return (
     <div className="space-y-6">
       {!showVerificationForm ? (
@@ -354,15 +354,11 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
                     <FormLabel>Phone Number</FormLabel>
                     <FormControl>
                       <Input 
-                        type="tel"
                         placeholder="+1 (555) 123-4567" 
                         {...field} 
                       />
                     </FormControl>
                     <FormMessage />
-                    <FormDescription>
-                      Include country code (e.g., +1 for US)
-                    </FormDescription>
                   </FormItem>
                 )}
               />
@@ -438,29 +434,18 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
                 )}
               />
 
-              <div className="flex items-center justify-between">
-                <Button 
-                  type="button" 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => {
-                    setShowVerificationForm(false);
-                    if (window.recaptchaVerifier) {
-                      window.recaptchaVerifier.clear();
-                    }
-                  }}
-                >
-                  Back
-                </Button>
+              <Button type="submit" className="w-full" disabled={isSubmittingVerification}>
+                {isSubmittingVerification ? "Verifying..." : "Verify Code"}
+              </Button>
 
-                <Button 
-                  type="submit" 
-                  className="ml-auto" 
-                  disabled={isSubmittingVerification}
-                >
-                  {isSubmittingVerification ? "Verifying..." : "Verify"}
-                </Button>
-              </div>
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="w-full mt-2"
+                onClick={() => setShowVerificationForm(false)}
+              >
+                Back
+              </Button>
             </form>
           </Form>
         </>
