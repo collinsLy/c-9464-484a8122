@@ -182,6 +182,7 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
       // Store user ID and email in localStorage
       localStorage.setItem('userId', user.uid);
       localStorage.setItem('email', user.email || '');
+      localStorage.setItem('name', user.displayName || '');
 
       // Check if user exists in Firestore
       const userDocRef = doc(db, 'users', user.uid);
@@ -198,10 +199,26 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         });
+        
+        // Set flag to show welcome message on dashboard
+        localStorage.setItem('showWelcome', 'true');
+        
+        toast({
+          title: "Account created",
+          description: "Your account has been created successfully.",
+        });
+      } else {
+        toast({
+          title: "Sign-in successful",
+          description: "Welcome back to your account.",
+        });
       }
 
-      onSuccess();
-      window.location.href = "/dashboard";
+      // Short delay to ensure toast is shown before redirect
+      setTimeout(() => {
+        onSuccess();
+        window.location.href = "/dashboard";
+      }, 500);
     } catch (error: any) {
       console.error("Google sign-in error:", error);
       toast({

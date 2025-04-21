@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import AccountOverview from "@/components/dashboard/AccountOverview";
 import MarketChart from "@/components/dashboard/MarketChart";
@@ -17,6 +18,21 @@ const Dashboard = () => {
   const [selectedTimeframe, setSelectedTimeframe] = useState("1D");
   const location = useLocation();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  // Check for welcome notification flag on component mount
+  useEffect(() => {
+    const showWelcome = localStorage.getItem('showWelcome');
+    if (showWelcome === 'true') {
+      // Show welcome notification
+      toast({
+        title: "Welcome to Vertev Trading!",
+        description: "Your account has been successfully created. Start trading now!",
+      });
+      // Remove the flag so notification doesn't show again on refresh
+      localStorage.removeItem('showWelcome');
+    }
+  }, []);
 
   // Determine which tab should be active based on URL
   const getActiveTab = () => {

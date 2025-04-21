@@ -47,6 +47,14 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
       const userDocRef = doc(db, 'users', user.uid);
       const userDoc = await getDoc(userDocRef);
       
+      // Store user info in localStorage regardless of new or existing user
+      localStorage.setItem('userId', user.uid);
+      localStorage.setItem('email', user.email || '');
+      localStorage.setItem('name', user.displayName || '');
+      
+      // Create a session flag to show the welcome notification on dashboard
+      let isNewAccount = false;
+      
       if (!userDoc.exists()) {
         // Create new user
         await setDoc(userDocRef, {
@@ -59,10 +67,9 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
           updatedAt: new Date().toISOString()
         });
         
-        // Store user info in localStorage
-        localStorage.setItem('userId', user.uid);
-        localStorage.setItem('email', user.email || '');
-        localStorage.setItem('name', user.displayName || '');
+        // Set flag for new account to show welcome message on dashboard
+        isNewAccount = true;
+        localStorage.setItem('showWelcome', 'true');
         
         toast({
           title: "Account created",
@@ -70,13 +77,16 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
         });
       } else {
         toast({
-          title: "Account exists",
-          description: "You already have an account. Signing you in.",
+          title: "Sign-in successful",
+          description: "Welcome back to your account.",
         });
       }
       
-      onSuccess();
-      window.location.href = "/dashboard";
+      // This ensures the redirect happens after toast is shown
+      setTimeout(() => {
+        onSuccess();
+        window.location.href = "/dashboard";
+      }, 500);
     } catch (error: any) {
       console.error("Google sign-up error:", error);
       toast({
