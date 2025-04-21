@@ -178,23 +178,21 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
   };
 
   return (
-    <div className="form-container">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="input-row">
-            <FormField
-              control={form.control}
-              name="fullName"
-              render={({ field }) => (
-                <FormControl>
-                  <Input className="input-field" placeholder="Email/Phone number" {...field} />
-                </FormControl>
-              )}
-            />
-            <Button type="submit" className="submit-button">
-              Sign Up
-            </Button>
-          </div>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="fullName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Full Name</FormLabel>
+              <FormControl>
+                <Input placeholder="John Doe" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}
