@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { signInWithEmailAndPassword, updatePassword, sendPasswordResetEmail, signInWithPopup } from 'firebase/auth';
 import { doc, updateDoc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, db, googleProvider } from '@/lib/firebase';
+import { auth, db, googleProvider, appleProvider } from '@/lib/firebase';
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -159,6 +159,64 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
     }
   };
 
+  const handleAppleSignIn = async () => {
+    try {
+      const result = await signInWithPopup(auth, appleProvider);
+      const user = result.user;
+      
+      // Get Apple credential
+      const credential = OAuthProvider.credentialFromResult(result);
+      
+      // Store user ID and email in localStorage
+      localStorage.setItem('userId', user.uid);
+      localStorage.setItem('email', user.email || '');
+      localStorage.setItem('name', user.displayName || '');
+
+      // Check if user exists in Firestore
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists()) {
+        // Create new user document if it doesn't exist
+        await setDoc(userDocRef, {
+          fullName: user.displayName || '',
+          email: user.email || '',
+          phone: user.phoneNumber || '',
+          balance: 0,
+          profilePhoto: user.photoURL || '',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        });
+
+        // Set flag to show welcome message on dashboard
+        localStorage.setItem('showWelcome', 'true');
+
+        toast({
+          title: "Account created",
+          description: "Your account has been created successfully.",
+        });
+      } else {
+        toast({
+          title: "Sign-in successful",
+          description: "Welcome back to your account.",
+        });
+      }
+
+      // Short delay to ensure toast is shown before redirect
+      setTimeout(() => {
+        onSuccess();
+        window.location.href = "/dashboard";
+      }, 500);
+    } catch (error: any) {
+      console.error("Apple sign-in error:", error);
+      toast({
+        title: "Sign-in Error",
+        description: error.message || "An error occurred during Apple sign-in",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <div className="form-container">
       <h2 className="auth-title">Log in</h2>
@@ -213,7 +271,7 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
             <Button 
               type="button" 
               className="social-button apple-button"
-              onClick={() => {}}
+              onClick={handleAppleSignIn}
             >
               <svg viewBox="0 0 24 24" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701z" fill="#ffffff"/>
