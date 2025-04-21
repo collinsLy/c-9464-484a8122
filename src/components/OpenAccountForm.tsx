@@ -20,6 +20,7 @@ import { auth, db, googleProvider } from "@/lib/firebase";
 const formSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
+  phone: z.string().min(10, "Phone number must be at least 10 characters"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
@@ -36,6 +37,7 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
     defaultValues: {
       fullName: "",
       email: "",
+      phone: "",
       password: "",
     },
   });
@@ -48,7 +50,7 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
       await setDoc(doc(db, 'users', userCredential.user.uid), {
         fullName: values.fullName,
         email: values.email,
-        phone: "",
+        phone: values.phone,
         balance: 0,
         profilePhoto: '',
         createdAt: new Date().toISOString(),
@@ -145,7 +147,6 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
   return (
     <div className="form-container">
       <h2 className="auth-title">Create account</h2>
-      <p className="auth-subtitle">Let's get started with your 30 days free trial</p>
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -179,6 +180,23 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
             {form.formState.errors.email && (
               <p className="text-sm text-red-500 mt-1">
                 {form.formState.errors.email.message}
+              </p>
+            )}
+          </div>
+          
+          <div className="form-field">
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormControl>
+                  <Input className="auth-input" placeholder="Phone" {...field} />
+                </FormControl>
+              )}
+            />
+            {form.formState.errors.phone && (
+              <p className="text-sm text-red-500 mt-1">
+                {form.formState.errors.phone.message}
               </p>
             )}
           </div>
