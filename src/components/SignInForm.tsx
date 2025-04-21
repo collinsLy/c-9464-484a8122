@@ -23,6 +23,8 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
+import PhoneAuthForm from "./PhoneAuthForm";
+import { OAuthProvider } from "firebase/auth";
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
