@@ -25,6 +25,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { 
@@ -33,8 +34,7 @@ import {
   InputOTPSlot 
 } from "@/components/ui/input-otp";
 import { useToast } from "@/components/ui/use-toast";
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog"; // Added DialogTitle import
-
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const phoneFormSchema = z.object({
   phoneNumber: z
@@ -65,72 +65,22 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
   const [verificationId, setVerificationId] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const { toast } = useToast();
-  
-  useEffect(() => {
-    // Clean up any existing reCAPTCHA widgets
-    return () => {
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear();
-      }
-    };
-  }, []);
-  
-  const setupRecaptcha = (phoneNumber: string) => {
-    if (!auth) return null;
-    
-    // Clear any existing recaptcha verifier
-    if (window.recaptchaVerifier) {
-      window.recaptchaVerifier.clear();
-    }
-    
-    // Create a new invisible recaptcha verifier
-    const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-      'size': 'normal',
-      'callback': (response: any) => {
-        // reCAPTCHA solved, allow signInWithPhoneNumber.
-        sendVerificationCode(phoneNumber, verifier);
-      },
-      'expired-callback': () => {
-        // Response expired. Ask user to solve reCAPTCHA again.
-        toast({
-          title: "reCAPTCHA expired",
-          description: "Please try again",
-          variant: "destructive"
-        });
-        setIsSubmittingPhone(false);
-      }
-    });
-    
-    window.recaptchaVerifier = verifier;
-    return verifier;
-  };
-  
-  const sendVerificationCode = async (phoneNumber: string, recaptchaVerifier: any) => {
-    try {
-      const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+${phoneNumber}`;
-      const confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, recaptchaVerifier);
-      
-      window.confirmationResult = confirmationResult;
-      setVerificationId(confirmationResult.verificationId);
-      setShowVerificationForm(true);
-      
-      toast({
-        title: "Verification code sent",
-        description: "Please check your phone for the code"
-      });
-    } catch (error: any) {
-      console.error("Error sending verification code:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to send verification code",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmittingPhone(false);
-    }
-  };
 
-  // Initialize reCAPTCHA once when component loads
+  const phoneForm = useForm<z.infer<typeof phoneFormSchema>>({
+    resolver: zodResolver(phoneFormSchema),
+    defaultValues: {
+      phoneNumber: ""
+    }
+  });
+
+  const verificationForm = useForm<z.infer<typeof verificationFormSchema>>({
+    resolver: zodResolver(verificationFormSchema),
+    defaultValues: {
+      verificationCode: ""
+    }
+  });
+
+  // Set up reCAPTCHA
   const setupRecaptcha = () => {
     try {
       // Clear any existing recaptcha to prevent duplicates
@@ -142,16 +92,16 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
         }
         delete (window as any).recaptchaVerifier;
       }
-      
+
       // Get the recaptcha container element
       const recaptchaContainer = document.getElementById('recaptcha-container');
       if (!recaptchaContainer) {
         throw new Error('Recaptcha container not found');
       }
-      
+
       // Clear the container
       recaptchaContainer.innerHTML = '';
-      
+
       // Create a new recaptcha verifier with normal size instead of invisible
       // This will show the reCAPTCHA widget directly in the form
       const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
@@ -186,10 +136,10 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
           });
         }
       });
-      
+
       // Store the verifier globally
       (window as any).recaptchaVerifier = recaptchaVerifier;
-      
+
       return recaptchaVerifier;
     } catch (error) {
       console.error("Error setting up reCAPTCHA:", error);
@@ -202,20 +152,6 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
     }
   };
 
-  const phoneForm = useForm<z.infer<typeof phoneFormSchema>>({
-    resolver: zodResolver(phoneFormSchema),
-    defaultValues: {
-      phoneNumber: ""
-    }
-  });
-
-  const verificationForm = useForm<z.infer<typeof verificationFormSchema>>({
-    resolver: zodResolver(verificationFormSchema),
-    defaultValues: {
-      verificationCode: ""
-    }
-  });
-
   const onSubmitPhone = async (values: z.infer<typeof phoneFormSchema>) => {
     setIsSubmittingPhone(true);
 
@@ -226,19 +162,19 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
       if (!formattedPhone.startsWith('+')) {
         formattedPhone = `+${formattedPhone}`;
       }
-      
+
       // Remove any spaces, dashes, or parentheses
       formattedPhone = formattedPhone.replace(/[\s\-\(\)]/g, '');
-      
+
       console.log("Sending verification to:", formattedPhone);
-      
+
       // Get the reCAPTCHA verifier
       const recaptchaVerifier = (window as any).recaptchaVerifier;
-      
+
       if (!recaptchaVerifier) {
         throw new Error("Please complete the reCAPTCHA verification first");
       }
-      
+
       // Send the verification code
       const confirmationResult = await signInWithPhoneNumber(
         auth, 
@@ -256,7 +192,7 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
       });
     } catch (error: any) {
       console.error("Error sending verification code:", error);
-      
+
       // Show specific error messages based on the error code
       if (error.code === 'auth/invalid-phone-number') {
         phoneForm.setError("phoneNumber", { 
@@ -303,7 +239,7 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
       if (!verificationId) {
         throw new Error("Verification session expired. Please try again.");
       }
-      
+
       // Create credential from verification ID and code
       const credential = PhoneAuthProvider.credential(
         verificationId, 
@@ -313,12 +249,12 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
       // Sign in with credential
       const userCredential = await auth.signInWithCredential(credential);
       const user = userCredential.user;
-      
+
       console.log("Successfully authenticated phone number:", user.phoneNumber);
 
       // Store user ID in localStorage
       localStorage.setItem('userId', user.uid);
-      
+
       // Import UserService to access getUserData and createUser methods
       const { UserService } = await import('@/lib/firebase-service');
 
@@ -382,12 +318,12 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
   };
 
   // Add the useEffect hook at the component level
-  React.useEffect(() => {
+  useEffect(() => {
     // Set up reCAPTCHA when component mounts
     const timer = setTimeout(() => {
       setupRecaptcha();
     }, 1000);
-    
+
     // Clean up reCAPTCHA when component unmounts
     return () => {
       clearTimeout(timer);
@@ -400,7 +336,7 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
       }
     };
   }, []); // Empty dependency array means this runs once when component mounts
-  
+
   return (
     <div className="space-y-6">
       {!showVerificationForm ? (
@@ -418,11 +354,15 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
                     <FormLabel>Phone Number</FormLabel>
                     <FormControl>
                       <Input 
+                        type="tel"
                         placeholder="+1 (555) 123-4567" 
                         {...field} 
                       />
                     </FormControl>
                     <FormMessage />
+                    <FormDescription>
+                      Include country code (e.g., +1 for US)
+                    </FormDescription>
                   </FormItem>
                 )}
               />
@@ -498,18 +438,29 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
                 )}
               />
 
-              <Button type="submit" className="w-full" disabled={isSubmittingVerification}>
-                {isSubmittingVerification ? "Verifying..." : "Verify Code"}
-              </Button>
+              <div className="flex items-center justify-between">
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => {
+                    setShowVerificationForm(false);
+                    if (window.recaptchaVerifier) {
+                      window.recaptchaVerifier.clear();
+                    }
+                  }}
+                >
+                  Back
+                </Button>
 
-              <Button 
-                type="button" 
-                variant="outline" 
-                className="w-full mt-2"
-                onClick={() => setShowVerificationForm(false)}
-              >
-                Back
-              </Button>
+                <Button 
+                  type="submit" 
+                  className="ml-auto" 
+                  disabled={isSubmittingVerification}
+                >
+                  {isSubmittingVerification ? "Verifying..." : "Verify"}
+                </Button>
+              </div>
             </form>
           </Form>
         </>
@@ -519,186 +470,3 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
 };
 
 export default PhoneAuthForm;
-  const phoneForm = useForm<z.infer<typeof phoneFormSchema>>({
-    resolver: zodResolver(phoneFormSchema),
-    defaultValues: {
-      phoneNumber: "",
-    },
-  });
-
-  const verificationFormSchema = z.object({
-    verificationCode: z
-      .string()
-      .length(6, "Verification code must be 6 digits")
-  });
-
-  const verificationForm = useForm<z.infer<typeof verificationFormSchema>>({
-    resolver: zodResolver(verificationFormSchema),
-    defaultValues: {
-      verificationCode: "",
-    },
-  });
-
-  const onSubmitPhone = async (values: z.infer<typeof phoneFormSchema>) => {
-    setIsSubmittingPhone(true);
-    setPhoneNumber(values.phoneNumber);
-    
-    try {
-      setupRecaptcha(values.phoneNumber);
-      // The actual verification code will be sent when reCAPTCHA is solved
-    } catch (error: any) {
-      console.error("Error setting up phone auth:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to set up phone authentication",
-        variant: "destructive"
-      });
-      setIsSubmittingPhone(false);
-    }
-  };
-
-  const onSubmitVerification = async (values: z.infer<typeof verificationFormSchema>) => {
-    setIsSubmittingVerification(true);
-
-    try {
-      if (!window.confirmationResult) {
-        throw new Error("Verification session expired. Please try again.");
-      }
-      
-      const result = await window.confirmationResult.confirm(values.verificationCode);
-      const user = result.user;
-      
-      console.log("Successfully authenticated phone number:", user.phoneNumber);
-
-      // Store user ID in localStorage
-      localStorage.setItem('userId', user.uid);
-      
-      // Check if user exists in database
-      const userData = await UserService.getUserData(user.uid);
-      
-      if (!userData) {
-        // Create a new user if it doesn't exist
-        await UserService.createUser(user.uid, {
-          fullName: "",
-          email: "",
-          phone: user.phoneNumber || "",
-          balance: 0,
-          profilePhoto: ""
-        });
-        
-        toast({
-          title: "Account created",
-          description: "Welcome to Vertex Trading"
-        });
-      } else {
-        toast({
-          title: "Sign in successful",
-          description: "Welcome back to Vertex Trading"
-        });
-      }
-      
-      onSuccess();
-      window.location.href = "/dashboard";
-    } catch (error: any) {
-      console.error("Error verifying code:", error);
-      verificationForm.setError("verificationCode", { 
-        message: "Invalid verification code" 
-      });
-      toast({
-        title: "Verification failed",
-        description: error.message || "Failed to verify code",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmittingVerification(false);
-    }
-  };
-
-  return (
-    <>
-      {!showVerificationForm ? (
-        <Form {...phoneForm}>
-          <form onSubmit={phoneForm.handleSubmit(onSubmitPhone)} className="space-y-6">
-            <FormField
-              control={phoneForm.control}
-              name="phoneNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone Number</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="tel" 
-                      placeholder="+1234567890" 
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                  <FormDescription>
-                    Include country code (e.g., +1 for US)
-                  </FormDescription>
-                </FormItem>
-              )}
-            />
-            
-            {/* reCAPTCHA container */}
-            <div id="recaptcha-container" className="flex justify-center my-4"></div>
-            
-            <Button type="submit" className="w-full" disabled={isSubmittingPhone}>
-              {isSubmittingPhone ? "Sending Code..." : "Send Verification Code"}
-            </Button>
-          </form>
-        </Form>
-      ) : (
-        <Form {...verificationForm}>
-          <form onSubmit={verificationForm.handleSubmit(onSubmitVerification)} className="space-y-6">
-            <FormField
-              control={verificationForm.control}
-              name="verificationCode"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Verification Code</FormLabel>
-                  <FormControl>
-                    <InputOTP maxLength={6} {...field}>
-                      <InputOTPGroup>
-                        <InputOTPSlot index={0} />
-                        <InputOTPSlot index={1} />
-                        <InputOTPSlot index={2} />
-                        <InputOTPSlot index={3} />
-                        <InputOTPSlot index={4} />
-                        <InputOTPSlot index={5} />
-                      </InputOTPGroup>
-                    </InputOTP>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <div className="flex items-center justify-between">
-              <Button 
-                type="button" 
-                variant="ghost" 
-                size="sm"
-                onClick={() => {
-                  setShowVerificationForm(false);
-                  if (window.recaptchaVerifier) {
-                    window.recaptchaVerifier.clear();
-                  }
-                }}
-              >
-                Back
-              </Button>
-              
-              <Button 
-                type="submit" 
-                className="ml-auto" 
-                disabled={isSubmittingVerification}
-              >
-                {isSubmittingVerification ? "Verifying..." : "Verify"}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      )}
-    </>
-  );
