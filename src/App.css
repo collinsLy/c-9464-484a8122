@@ -1,3 +1,4 @@
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -46,61 +47,106 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 480px;
+  max-width: 380px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
 }
 
-.input-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-}
-
-.input-field {
-  flex: 1;
-  background-color: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 4px;
-  color: white;
-  height: 48px;
-  padding: 0 16px;
-}
-
-.submit-button {
-  height: 48px;
-  background-color: #F2FF44;
-  color: #000;
-  border: none;
-  border-radius: 4px;
+.auth-title {
+  font-size: 1.5rem;
   font-weight: 600;
-  padding: 0 24px;
-  white-space: nowrap;
+  margin-bottom: 0.5rem;
+  text-align: center;
 }
 
-.submit-button:hover {
-  background-color: #E2EF34;
+.auth-subtitle {
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin-bottom: 1.5rem;
+  text-align: center;
 }
 
-.social-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
+.form-field {
+  margin-bottom: 1rem;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 100px;
+  border: 1px solid #e2e8f0;
+  background-color: #fff;
+  color: #000;
+  font-size: 1rem;
+}
+
+.auth-input::placeholder {
+  color: #a0aec0;
+}
+
+.auth-button {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 100px;
+  border: none;
+  background-color: #008080;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.auth-button:hover {
+  background-color: #006666;
+}
+
+.social-login-section {
+  margin-top: 1rem;
 }
 
 .social-button {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border-radius: 50%;
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: transparent;
-  border: 1px solid #333;
+  gap: 0.5rem;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+  cursor: pointer;
 }
 
-.social-button:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+.apple-button {
+  background-color: #000;
+  color: white;
+  border: none;
+}
+
+.google-button {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #e2e8f0;
+}
+
+.auth-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.auth-link {
+  color: #008080;
+  font-weight: 500;
+  margin-left: 0.25rem;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
 }
