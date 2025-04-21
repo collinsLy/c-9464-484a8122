@@ -16,6 +16,14 @@ import { useToast } from "@/components/ui/use-toast";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword, sendEmailVerification, signInWithPopup } from "firebase/auth";
 import { auth, db, googleProvider } from "@/lib/firebase";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from "@/components/ui/dialog";
+import PhoneAuthForm from "./PhoneAuthForm";
 
 const formSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters"),
@@ -254,6 +262,27 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
               </svg>
               Sign up with Google
             </Button>
+            
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button 
+                  type="button" 
+                  className="social-button phone-button mt-2 w-full"
+                  style={{ backgroundColor: "#10B981" }}
+                >
+                  <svg viewBox="0 0 24 24" width="16" height="16" xmlns="http://www.w3.org/2000/svg" fill="white" className="mr-2">
+                    <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 5.52 4.48 10 10 10 5.52 0 10-4.48 10-10zM8 12l4-4h3l-4 4 4 4h-3l-4-4z" />
+                  </svg>
+                  Sign up with Phone
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Phone Authentication</DialogTitle>
+                </DialogHeader>
+                <PhoneAuthForm onSuccess={onSuccess} />
+              </DialogContent>
+            </Dialog>
           </div>
         </form>
       </Form>
