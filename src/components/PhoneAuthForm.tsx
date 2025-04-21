@@ -88,9 +88,9 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
       // Clear the container
       recaptchaContainer.innerHTML = '';
       
-      // Create a new recaptcha verifier with explicit size for better visibility
-      const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'normal',
+      // Create a new recaptcha verifier with invisible size to use our own button
+      const recaptchaVerifier = new RecaptchaVerifier(auth, 'send-code-button', {
+        'size': 'invisible',
         'callback': (response: any) => {
           console.log("reCAPTCHA resolved:", response);
           // reCAPTCHA solved, proceed with phone verification
@@ -121,21 +121,6 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
       
       // Store the verifier globally
       (window as any).recaptchaVerifier = recaptchaVerifier;
-      
-      // Ensure we render the reCAPTCHA explicitly with proper error handling
-      recaptchaVerifier.render()
-        .then((widgetId) => {
-          console.log("reCAPTCHA rendered with widget ID:", widgetId);
-          (window as any).recaptchaWidgetId = widgetId;
-        })
-        .catch((error) => {
-          console.error("Error rendering reCAPTCHA:", error);
-          toast({
-            title: "reCAPTCHA Error",
-            description: "Could not render verification. Please refresh and try again.",
-            variant: "destructive"
-          });
-        });
       
       return recaptchaVerifier;
     } catch (error) {
@@ -179,16 +164,8 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
       
       console.log("Sending verification to:", formattedPhone);
       
-      // Get reCAPTCHA verifier
-      let recaptchaVerifier;
-      
-      // Check if we have an existing reCAPTCHA verifier
-      if ((window as any).recaptchaVerifier) {
-        recaptchaVerifier = (window as any).recaptchaVerifier;
-      } else {
-        // Set up a new one if needed
-        recaptchaVerifier = setupRecaptcha();
-      }
+      // Get or create the reCAPTCHA verifier
+      const recaptchaVerifier = (window as any).recaptchaVerifier || setupRecaptcha();
       
       if (!recaptchaVerifier) {
         throw new Error("Failed to initialize reCAPTCHA");
@@ -226,10 +203,18 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
       } else if (error.code === 'auth/captcha-check-failed') {
         toast({
           title: "reCAPTCHA verification failed",
-          description: "Please solve the reCAPTCHA again",
+          description: "Please try again",
           variant: "destructive"
         });
         // Re-initialize the reCAPTCHA
+        if ((window as any).recaptchaVerifier) {
+          try {
+            (window as any).recaptchaVerifier.clear();
+          } catch (e) {
+            console.log("Error clearing reCAPTCHA:", e);
+          }
+          delete (window as any).recaptchaVerifier;
+        }
         setupRecaptcha();
       } else {
         toast({
@@ -374,9 +359,10 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
                 )}
               />
 
-              <div id="recaptcha-container" className="flex justify-center my-4 min-h-[78px] border border-gray-200 rounded-md p-2"></div>
+              <div id="recaptcha-container" className="hidden"></div>
 
               <Button 
+                id="send-code-button"
                 type="button" 
                 className="w-full" 
                 disabled={isSubmittingPhone}
@@ -384,20 +370,15 @@ const PhoneAuthForm = ({ onSuccess }: PhoneAuthFormProps) => {
                   // Validate form first
                   phoneForm.trigger().then(isValid => {
                     if (isValid) {
-                      // Make sure recaptcha is initialized
-                      if (!(window as any).recaptchaVerifier) {
-                        setupRecaptcha();
-                      }
-                      
-                      // Try to execute the reCAPTCHA verification
                       try {
-                        const widgetId = (window as any).recaptchaWidgetId;
-                        if (widgetId) {
-                          // This manually triggers the reCAPTCHA widget to be shown
-                          grecaptcha.execute(widgetId);
-                        } else {
-                          console.log("No widget ID found, executing normal flow");
+                        // Make sure recaptcha is initialized
+                        const verifier = (window as any).recaptchaVerifier || setupRecaptcha();
+                        
+                        if (verifier) {
+                          // The invisible reCAPTCHA will be triggered automatically
                           phoneForm.handleSubmit(onSubmitPhone)();
+                        } else {
+                          throw new Error("Failed to initialize reCAPTCHA verifier");
                         }
                       } catch (e) {
                         console.error("Error executing reCAPTCHA:", e);
