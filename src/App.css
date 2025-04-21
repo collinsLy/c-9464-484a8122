@@ -39,4 +39,56 @@
 
 .read-the-docs {
   color: #888;
+
+/* Add common styles */
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #1c1c1c; /* Dark background */
+}
+
+.input-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.input-field {
+  padding: 10px;
+  margin-right: 10px;
+  border: 1px solid #333; /* Darker border for input */
+  background-color: #2c2c2c;
+  color: white;
+  border-radius: 5px;
+  width: 250px;
+}
+
+.submit-button {
+  padding: 10px 20px;
+  background-color: #F2FF44; /* Yellow background */
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.submit-button:hover {
+  background-color: #E2EF34; /* Darker yellow */
+}
+
+.social-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.social-button img {
+  width: 24px;
+  height: 24px;
+}
+
 }

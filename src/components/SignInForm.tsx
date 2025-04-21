@@ -231,9 +231,13 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
 
   return (
     <>
-    <Tabs defaultValue="email" className="w-full mb-6">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="email" onClick={() => setAuthMethod("email")} className="flex items-center gap-2">
+    <div className="form-container">
+      <div className="input-row">
+        <Input className="input-field" type="email" placeholder="Email/Phone number" />
+        <Button type="button" className="submit-button" disabled={isSubmitting}>
+          {isSubmitting ? "Signing In..." : "Sign In"}
+        </Button>
+      </div>
           <Mail className="w-4 h-4" /> Email
         </TabsTrigger>
         <TabsTrigger value="phone" onClick={() => setAuthMethod("phone")} className="flex items-center gap-2">
