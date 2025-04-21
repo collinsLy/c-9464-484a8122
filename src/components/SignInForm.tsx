@@ -302,7 +302,6 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
                 <Button 
                   type="button" 
                   className="social-button phone-button mt-2 w-full"
-                  style={{ backgroundColor: "#10B981" }}
                 >
                   <svg viewBox="0 0 24 24" width="16" height="16" xmlns="http://www.w3.org/2000/svg" fill="white" className="mr-2">
                     <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 5.52 4.48 10 10 10 5.52 0 10-4.48 10-10zM8 12l4-4h3l-4 4 4 4h-3l-4-4z" />
