@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { signInWithEmailAndPassword, updatePassword, sendPasswordResetEmail } from 'firebase/auth';
-import { doc, updateDoc } from 'firebase/firestore';
-import { auth, db } from '@/lib/firebase';
+import { signInWithEmailAndPassword, updatePassword, sendPasswordResetEmail, signInWithPopup } from 'firebase/auth';
+import { doc, updateDoc, getDoc, setDoc } from 'firebase/firestore';
+import { auth, db, googleProvider } from '@/lib/firebase';
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -114,7 +114,7 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
   return hasMinLength && hasUpperCase && hasLowerCase && hasNumber && hasSpecial;
 };
 
-const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     try {
       if (!auth || !db) {
@@ -174,6 +174,44 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      // Store user ID and email in localStorage
+      localStorage.setItem('userId', user.uid);
+      localStorage.setItem('email', user.email || '');
+
+      // Check if user exists in Firestore
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists()) {
+        // Create new user document if it doesn't exist
+        await setDoc(userDocRef, {
+          fullName: user.displayName || '',
+          email: user.email || '',
+          phone: user.phoneNumber || '',
+          balance: 0,
+          profilePhoto: user.photoURL || '',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        });
+      }
+
+      onSuccess();
+      window.location.href = "/dashboard";
+    } catch (error: any) {
+      console.error("Google sign-in error:", error);
+      toast({
+        title: "Sign-in Error",
+        description: error.message || "An error occurred during Google sign-in",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <>
     <Tabs defaultValue="email" className="w-full mb-6">
@@ -183,6 +221,9 @@ const onSubmit = async (values: z.infer<typeof formSchema>) => {
         </TabsTrigger>
         <TabsTrigger value="phone" onClick={() => setAuthMethod("phone")} className="flex items-center gap-2">
           <Phone className="w-4 h-4" /> Phone
+        </TabsTrigger>
+        <TabsTrigger value="google" onClick={handleGoogleSignIn} className="flex items-center gap-2">
+          {/* Add Google icon here */} Google
         </TabsTrigger>
       </TabsList>
 
