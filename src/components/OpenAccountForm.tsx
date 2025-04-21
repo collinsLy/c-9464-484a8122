@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -54,7 +53,7 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
     setIsSubmitting(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
-      
+
       await setDoc(doc(db, 'users', userCredential.user.uid), {
         fullName: values.fullName,
         email: values.email,
@@ -79,7 +78,7 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
       window.location.href = "/dashboard";
     } catch (error: any) {
       console.error("Error creating account:", error);
-      
+
       switch (error.code) {
         case 'auth/email-already-in-use':
           form.setError("email", { 
@@ -156,7 +155,7 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
     try {
       const result = await signInWithPopup(auth, appleProvider);
       const user = result.user;
-      
+
       // Get Apple credential
       const credential = OAuthProvider.credentialFromResult(result);
 
@@ -211,7 +210,7 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
   return (
     <div className="form-container">
       <h2 className="auth-title">Create account</h2>
-      
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="form-field">
@@ -247,7 +246,7 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
               </p>
             )}
           </div>
-          
+
           <div className="form-field">
             <FormField
               control={form.control}
@@ -285,12 +284,12 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
           <Button type="submit" className="auth-button" disabled={isSubmitting}>
             {isSubmitting ? "Creating..." : "Create account"}
           </Button>
-          
+
           <div className="auth-footer">
             Already have an account?
             <a className="auth-link" href="#">Log in</a>
           </div>
-          
+
           <div className="social-login-section">
             <Button 
               type="button" 
@@ -302,7 +301,7 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
               </svg>
               Sign up with Apple
             </Button>
-            
+
             <Button 
               type="button" 
               className="social-button google-button"
@@ -318,7 +317,7 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
               </svg>
               Sign up with Google
             </Button>
-            
+
             <Dialog>
               <DialogTrigger asChild>
                 <Button 

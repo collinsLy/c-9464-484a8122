@@ -165,10 +165,10 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
     try {
       const result = await signInWithPopup(auth, appleProvider);
       const user = result.user;
-      
+
       // Get Apple credential
       const credential = OAuthProvider.credentialFromResult(result);
-      
+
       // Store user ID and email in localStorage
       localStorage.setItem('userId', user.uid);
       localStorage.setItem('email', user.email || '');
@@ -296,7 +296,7 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
               </svg>
               Sign in with Google
             </Button>
-            
+
             <Dialog>
               <DialogTrigger asChild>
                 <Button 

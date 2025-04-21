@@ -21,6 +21,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           success: "group toast bg-[#0F1115] border-green-500/50 text-white",
         },
       }}
+      toastFilter={(toast) => toast.type !== 'error'}
       {...props}
     />
   )

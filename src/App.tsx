@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DashboardProvider } from "@/components/dashboard/DashboardLayout";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import MarketPage from "./pages/MarketPage";
@@ -18,32 +19,46 @@ import SupportPage from "./pages/SupportPage";
 
 import WithdrawPage from "./pages/WithdrawPage";
 
-const queryClient = new QueryClient();
+// Configure query client to not show error toasts
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      useErrorBoundary: true,
+      refetchOnWindowFocus: false,
+    },
+    mutations: {
+      useErrorBoundary: true,
+    },
+  },
+});
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <DashboardProvider>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/market" element={<MarketPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/assets" element={<AssetsPage />} />
-            <Route path="/demo" element={<DemoPage />} />
-            <Route path="/bots" element={<BotsPage />} />
-            <Route path="/deposit" element={<DepositPage />} />
-            <Route path="/strategies" element={<StrategiesPage />} />
-            <Route path="/support" element={<SupportPage />} />
-            <Route path="/withdraw" element={<WithdrawPage />} />
-          </Routes>
-        </DashboardProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <DashboardProvider>
+            <Routes>
+              <Route path="/" element={<ErrorBoundary><Index /></ErrorBoundary>} />
+              <Route path="/dashboard" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
+              <Route path="/market" element={<ErrorBoundary><MarketPage /></ErrorBoundary>} />
+              <Route path="/settings" element={<ErrorBoundary><SettingsPage /></ErrorBoundary>} />
+              <Route path="/assets" element={<ErrorBoundary><AssetsPage /></ErrorBoundary>} />
+              <Route path="/demo" element={<ErrorBoundary><DemoPage /></ErrorBoundary>} />
+              <Route path="/bots" element={<ErrorBoundary><BotsPage /></ErrorBoundary>} />
+              <Route path="/deposit" element={<ErrorBoundary><DepositPage /></ErrorBoundary>} />
+              <Route path="/strategies" element={<ErrorBoundary><StrategiesPage /></ErrorBoundary>} />
+              <Route path="/support" element={<ErrorBoundary><SupportPage /></ErrorBoundary>} />
+              <Route path="/withdraw" element={<ErrorBoundary><WithdrawPage /></ErrorBoundary>} />
+            </Routes>
+          </DashboardProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
