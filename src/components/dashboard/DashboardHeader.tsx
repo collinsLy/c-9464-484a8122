@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useNavigate } from "react-router-dom";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/components/ui/use-toast";
 
 
 const DashboardHeader = () => {
@@ -18,6 +19,7 @@ const DashboardHeader = () => {
   const { isDemoMode } = useDashboardContext();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const { toast } = useToast();
 
   const handleSignOut = async () => {
     try {
@@ -53,6 +55,36 @@ const DashboardHeader = () => {
                 <p className="text-xs text-white/70 line-clamp-2">Now accepting crypto, mobile money, cards & bank transfers</p>
                 <p className="text-xs text-white/50">Just now</p>
               </div>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="text-white/70 hover:text-white hover:bg-white/10 px-2">
+              <span className="text-xs font-mono">UID</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem className="cursor-pointer flex flex-col items-start p-3">
+              <p className="font-medium text-sm mb-1">Your UID</p>
+              <code className="text-xs font-mono bg-white/10 p-1 rounded w-full overflow-hidden text-ellipsis">
+                {auth.currentUser?.uid || 'Loading...'}
+              </code>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="mt-2 text-xs w-full"
+                onClick={() => {
+                  navigator.clipboard.writeText(auth.currentUser?.uid || "");
+                  toast({
+                    title: "Copied!",
+                    description: "Your UID has been copied to clipboard",
+                  });
+                }}
+              >
+                Copy UID
+              </Button>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

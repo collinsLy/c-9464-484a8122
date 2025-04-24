@@ -14,6 +14,21 @@ import { Label } from '@/components/ui/label';
 import { BankIcon, PayPalIcon, MpesaIcon, AirtelMoneyIcon } from '@/assets/payment-icons';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {auth} from "@/lib/firebase"; // Assuming firebase auth is imported here
+
+// Placeholder for DashboardHeader component (needs to be implemented in your actual project)
+const DashboardHeader = ({uid}: {uid: string}) => (
+  <header className="bg-gray-800 p-4 text-white">
+    <div className="flex justify-between items-center">
+      <h1>Dashboard</h1>
+      <div>
+        <p>UID: {uid}</p> {/*Added UID display*/}
+        {/*Existing profile, notification etc icons here*/}
+      </div>
+    </div>
+  </header>
+);
+
 
 const WithdrawPage = () => {
   const { isDemoMode } = useDashboardContext();
@@ -35,6 +50,12 @@ const WithdrawPage = () => {
     paypalEmail: "",
     mobileNumber: "",
   });
+  const [userUid, setUserUid] = useState("");
+
+  // Get current user UID when component loads
+  useEffect(() => {
+    setUserUid(auth.currentUser?.uid || "");
+  }, []);
 
   // Fetch user's crypto balances when the component loads
   useEffect(() => {
@@ -44,19 +65,19 @@ const WithdrawPage = () => {
 
       try {
         const userData = await UserService.getUserData(uid);
-        
+
         // Create a default balance object for all supported cryptocurrencies
         const supportedCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB'];
         const defaultBalances = supportedCryptos.reduce((acc, crypto) => {
           acc[crypto] = 0;
           return acc;
         }, {} as Record<string, number>);
-        
+
         // If user has assets, merge them with defaults
         if (userData && userData.assets) {
           // Log raw user assets for debugging
           console.log("Raw user assets:", userData.assets);
-          
+
           // Process each asset and add to our balances object
           Object.entries(userData.assets).forEach(([key, asset]: [string, any]) => {
             if (asset && (typeof asset.amount === 'number' || typeof asset.amount === 'string')) {
@@ -64,19 +85,19 @@ const WithdrawPage = () => {
               defaultBalances[key] = Number(asset.amount);
             }
           });
-          
+
           // Ensure USDT is correctly processed
           if (userData.assets.USDT) {
             const usdtAmount = userData.assets.USDT.amount;
             defaultBalances['USDT'] = Number(usdtAmount) || 0;
             console.log("USDT amount specifically:", usdtAmount, "Converted:", defaultBalances['USDT']);
           }
-          
+
           console.log("Processed crypto balances:", defaultBalances);
         } else {
           console.log("No assets found in user data, using defaults");
         }
-        
+
         // Set the balances in state
         setUserCryptoBalances(defaultBalances);
       } catch (error) {
@@ -135,12 +156,12 @@ const WithdrawPage = () => {
         if (userData && userData.assets) {
           // Explicitly handle USDT balance correctly
           let balance = 0;
-          
+
           // Check if the asset exists in user data
           if (userData.assets[selectedCrypto]) {
             balance = userData.assets[selectedCrypto].amount || 0;
           }
-          
+
           console.log(`Fresh balance check for ${selectedCrypto}:`, balance);
 
           // Update the specific crypto that was selected
@@ -688,6 +709,7 @@ const WithdrawPage = () => {
 
   return (
     <DashboardLayout>
+      <DashboardHeader uid={userUid} /> {/* Added DashboardHeader */}
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <div>
@@ -832,10 +854,10 @@ const WithdrawPage = () => {
                                 if (userData && userData.assets) {
                                   // Log all assets for debugging
                                   console.log("All user assets:", userData.assets);
-                                  
+
                                   // Get fresh balance with proper null/undefined handling
                                   let freshBalance = 0;
-                                  
+
                                   // Special handling for USDT to ensure it works correctly
                                   if (crypto.symbol === 'USDT' && userData.assets.USDT) {
                                     freshBalance = userData.assets.USDT.amount || 0;
@@ -845,7 +867,7 @@ const WithdrawPage = () => {
                                   else if (userData.assets[crypto.symbol]) {
                                     freshBalance = userData.assets[crypto.symbol].amount || 0;
                                   }
-                                  
+
                                   console.log(`Firebase check for ${crypto.symbol}: ${freshBalance}`);
 
                                   // Update UI with fresh balance - force it to be a number
@@ -984,8 +1006,7 @@ const WithdrawPage = () => {
                           <p className="text-sm text-red-400">Invalid address format for {network}</p>
                         )}
                       </div>
-                    </div>v>
-
+                    </div>
                     <div className="grid gap-2">
                       <div className="flex justify-between items-center">
                         <Label>Amount</Label>
@@ -1108,6 +1129,10 @@ const WithdrawPage = () => {
             </Tabs>
           </CardContent>
         </Card>
+        <div className="grid gap-2"> {/*Added UID display*/}
+          <Label>Your UID</Label>
+          <Input type="text" value={userUid} readOnly className="bg-background/40 border-white/10 text-white"/>
+        </div>
       </div>
 
       <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>

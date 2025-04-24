@@ -101,15 +101,12 @@ const DepositPage = () => {
           </CardHeader>
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white mb-6 grid grid-cols-3 w-full">
+              <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white mb-6 grid grid-cols-2 w-full">
                 <TabsTrigger value="crypto" className="text-white data-[state=active]:bg-accent">
                   Crypto
                 </TabsTrigger>
                 <TabsTrigger value="fiat" className="text-white data-[state=active]:bg-accent">
                   Fiat
-                </TabsTrigger>
-                <TabsTrigger value="uid" className="text-white data-[state=active]:bg-accent">
-                  User Transfer
                 </TabsTrigger>
               </TabsList>
 
@@ -445,9 +442,7 @@ const DepositPage = () => {
                 </div>
               </TabsContent>
 
-              <TabsContent value="uid" className="space-y-4">
-                <UidTransfer currentBalance={userBalance} onTransferComplete={fetchUserBalance} />
-              </TabsContent>
+              {/* UID transfer removed from deposit page */}
             </Tabs>
           </CardContent>
         </Card>
