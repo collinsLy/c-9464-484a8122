@@ -716,12 +716,15 @@ const WithdrawPage = () => {
           </CardHeader>
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white mb-6 grid grid-cols-2 w-full">
+              <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white mb-6 grid grid-cols-3 w-full">
                 <TabsTrigger value="fiat" className="text-white data-[state=active]:bg-accent">
                   Fiat
                 </TabsTrigger>
                 <TabsTrigger value="crypto" className="text-white data-[state=active]:bg-accent">
                   Crypto
+                </TabsTrigger>
+                <TabsTrigger value="binance" className="text-white data-[state=active]:bg-accent">
+                  Binance User
                 </TabsTrigger>
               </TabsList>
 
@@ -1108,6 +1111,128 @@ const WithdrawPage = () => {
                           <li>Network fee: Varies based on blockchain congestion</li>
                           <li>Processing time: 10-30 minutes after confirmations</li>
                           <li>Always double-check the wallet address and network</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="binance" className="space-y-6">
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-sm">1</span>
+                    <h3 className="text-lg font-medium text-white">Transfer Method</h3>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <Tabs defaultValue="email" className="w-full">
+                      <TabsList className="bg-background/80 border-white/10 text-white grid grid-cols-3 w-full max-w-md">
+                        <TabsTrigger value="email" className="text-white data-[state=active]:bg-accent">
+                          Email
+                        </TabsTrigger>
+                        <TabsTrigger value="phone" className="text-white data-[state=active]:bg-accent">
+                          Phone
+                        </TabsTrigger>
+                        <TabsTrigger value="binance_id" className="text-white data-[state=active]:bg-accent">
+                          Binance ID
+                        </TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="email" className="pt-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="recipient_email">Recipient's email</Label>
+                          <Input
+                            id="recipient_email"
+                            type="email"
+                            placeholder="Enter recipient's email"
+                            className="bg-background/40 border-white/10 text-white"
+                          />
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="phone" className="pt-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="recipient_phone">Recipient's phone</Label>
+                          <Input
+                            id="recipient_phone"
+                            type="tel"
+                            placeholder="Enter recipient's phone number"
+                            className="bg-background/40 border-white/10 text-white"
+                          />
+                        </div>
+                      </TabsContent>
+                      
+                      <TabsContent value="binance_id" className="pt-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="recipient_binance_id">Recipient's Binance ID</Label>
+                          <Input
+                            id="recipient_binance_id"
+                            placeholder="Enter recipient's Binance ID"
+                            className="bg-background/40 border-white/10 text-white"
+                          />
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-sm">2</span>
+                    <h3 className="text-lg font-medium text-white">Withdraw amount</h3>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="grid gap-2">
+                      <div className="flex justify-between items-center">
+                        <Label>Amount</Label>
+                        <span 
+                          className="text-sm text-white/70 cursor-pointer hover:text-white/90 bg-white/5 px-2 py-1 rounded-md transition-colors" 
+                          onClick={() => {
+                            // Handle max amount click
+                          }}
+                        >
+                          Max: {(userCryptoBalances[selectedCrypto] || 0).toFixed(8)} {selectedCrypto}
+                        </span>
+                      </div>
+                      <div className="relative">
+                        <Input
+                          type="number"
+                          className="bg-background/40 border-white/10 text-white pr-16"
+                          placeholder="0.00"
+                        />
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                          <span className="text-white/70">{selectedCrypto}</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between text-sm text-white/70">
+                        <span>Available Balance:</span>
+                        <span>{(userCryptoBalances[selectedCrypto] || 0).toFixed(8)} {selectedCrypto}</span>
+                      </div>
+                    </div>
+
+                    <Button 
+                      className="w-full bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34] h-12 text-lg mt-4"
+                      onClick={() => {
+                        toast({
+                          title: isDemoMode ? "Demo Mode" : "Coming Soon",
+                          description: isDemoMode ? "Binance transfers are not available in demo mode" : "Binance user transfers will be available soon",
+                          variant: "default",
+                        });
+                      }}
+                    >
+                      {isDemoMode ? "Demo Transfer" : "Transfer to Binance User"}
+                    </Button>
+
+                    <div className="text-sm text-white/70 p-4 bg-white/5 rounded-lg space-y-4">
+                      <div>
+                        <p className="font-medium text-white mb-2">Important Notes</p>
+                        <ul className="list-disc pl-4 space-y-1">
+                          <li>Transfers to Binance users are instant and fee-free</li>
+                          <li>Recipient must have a valid Binance account</li>
+                          <li>Double-check recipient details before confirming</li>
+                          <li>Maximum transfer: 100 BTC per day</li>
                         </ul>
                       </div>
                     </div>
