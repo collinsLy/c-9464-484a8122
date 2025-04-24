@@ -1,11 +1,11 @@
 import React from 'react';
-import { LogOut, Bell, User, Settings } from "lucide-react";
+import { LogOut, Bell, User, Settings, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useDashboardContext } from "./DashboardLayout";
 import { signOut } from "firebase/auth";
 import { auth } from '../../lib/firebase';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useNavigate } from "react-router-dom";
@@ -20,6 +20,12 @@ const DashboardHeader = () => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { toast } = useToast();
+  const [userUid, setUserUid] = useState("");
+  
+  useEffect(() => {
+    // Get current user UID when component loads
+    setUserUid(auth.currentUser?.uid || "");
+  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -28,6 +34,14 @@ const DashboardHeader = () => {
     } catch (error) {
       console.error("Error signing out:", error);
     }
+  };
+
+  const copyUidToClipboard = () => {
+    navigator.clipboard.writeText(userUid || "");
+    toast({
+      title: "Copied!",
+      description: "Your UID has been copied to clipboard",
+    });
   };
 
   return (
@@ -41,6 +55,20 @@ const DashboardHeader = () => {
       </div>
 
       <div className="flex items-center space-x-2">
+        {/* UID Display */}
+        <div className="hidden sm:flex items-center bg-white/5 rounded-md px-2 py-1 mr-2">
+          <span className="text-xs font-mono text-white/70 mr-1">UID:</span>
+          <code className="text-xs font-mono text-white/90 truncate max-w-[80px]">{userUid}</code>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-6 w-6 ml-1 text-white/70 hover:text-white"
+            onClick={copyUidToClipboard}
+          >
+            <Copy className="h-3 w-3" />
+          </Button>
+        </div>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10" >
@@ -59,8 +87,9 @@ const DashboardHeader = () => {
           </DropdownMenuContent>
         </DropdownMenu>
 
+        {/* Mobile UID Menu */}
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild className="sm:hidden">
             <Button variant="ghost" className="text-white/70 hover:text-white hover:bg-white/10 px-2">
               <span className="text-xs font-mono">UID</span>
             </Button>
@@ -69,19 +98,13 @@ const DashboardHeader = () => {
             <DropdownMenuItem className="cursor-pointer flex flex-col items-start p-3">
               <p className="font-medium text-sm mb-1">Your UID</p>
               <code className="text-xs font-mono bg-white/10 p-1 rounded w-full overflow-hidden text-ellipsis">
-                {auth.currentUser?.uid || 'Loading...'}
+                {userUid || 'Loading...'}
               </code>
               <Button 
                 variant="ghost" 
                 size="sm" 
                 className="mt-2 text-xs w-full"
-                onClick={() => {
-                  navigator.clipboard.writeText(auth.currentUser?.uid || "");
-                  toast({
-                    title: "Copied!",
-                    description: "Your UID has been copied to clipboard",
-                  });
-                }}
+                onClick={copyUidToClipboard}
               >
                 Copy UID
               </Button>

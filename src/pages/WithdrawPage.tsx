@@ -16,18 +16,7 @@ import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {auth} from "@/lib/firebase"; // Assuming firebase auth is imported here
 
-// Placeholder for DashboardHeader component (needs to be implemented in your actual project)
-const DashboardHeader = ({uid}: {uid: string}) => (
-  <header className="bg-gray-800 p-4 text-white">
-    <div className="flex justify-between items-center">
-      <h1>Dashboard</h1>
-      <div>
-        <p>UID: {uid}</p> {/*Added UID display*/}
-        {/*Existing profile, notification etc icons here*/}
-      </div>
-    </div>
-  </header>
-);
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
 
 
 const WithdrawPage = () => {
@@ -709,7 +698,6 @@ const WithdrawPage = () => {
 
   return (
     <DashboardLayout>
-      <DashboardHeader uid={userUid} /> {/* Added DashboardHeader */}
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <div>
@@ -1129,10 +1117,38 @@ const WithdrawPage = () => {
             </Tabs>
           </CardContent>
         </Card>
-        <div className="grid gap-2"> {/*Added UID display*/}
-          <Label>Your UID</Label>
-          <Input type="text" value={userUid} readOnly className="bg-background/40 border-white/10 text-white"/>
-        </div>
+        
+        {/* UID Display Section */}
+        <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg font-medium flex items-center">
+              <span>Your UID</span>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="ml-2 text-xs"
+                onClick={() => {
+                  navigator.clipboard.writeText(userUid);
+                  toast({
+                    title: "Copied!",
+                    description: "Your UID has been copied to clipboard",
+                  });
+                }}
+              >
+                <Copy className="h-4 w-4 mr-1" />
+                Copy
+              </Button>
+            </CardTitle>
+            <CardDescription>
+              Share this UID with others who want to send you funds
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <code className="block w-full p-3 bg-background/60 border border-white/10 rounded-md font-mono text-sm">
+              {userUid || "Loading..."}
+            </code>
+          </CardContent>
+        </Card>
       </div>
 
       <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>

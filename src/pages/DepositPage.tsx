@@ -442,7 +442,7 @@ const DepositPage = () => {
                 </div>
               </TabsContent>
 
-              {/* UID transfer removed from deposit page */}
+              {/* No UID transfer on this page */}
             </Tabs>
           </CardContent>
         </Card>
