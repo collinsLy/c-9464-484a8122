@@ -40,11 +40,268 @@ const WithdrawPage = () => {
     mobileNumber: "",
   });
   const [userUid, setUserUid] = useState("");
+  
+  // Vertex transfer states
+  const [recipientUid, setRecipientUid] = useState("");
+  const [isValidatingUid, setIsValidatingUid] = useState(false);
+  const [recipientData, setRecipientData] = useState<any>(null);
+  const [uidValidationError, setUidValidationError] = useState("");
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [isProcessingTransfer, setIsProcessingTransfer] = useState(false);
+  const [isTransferSuccessDialogOpen, setIsTransferSuccessDialogOpen] = useState(false);
 
   // Get current user UID when component loads
   useEffect(() => {
     setUserUid(auth.currentUser?.uid || "");
   }, []);
+  
+  // Validate recipient UID
+  const validateRecipientUid = async () => {
+    if (!recipientUid || recipientUid.trim() === "") {
+      setUidValidationError("Please enter a recipient UID");
+      setRecipientData(null);
+      return;
+    }
+    
+    // Check if trying to send to self
+    if (recipientUid === userUid) {
+      setUidValidationError("You cannot send funds to yourself");
+      setRecipientData(null);
+      return;
+    }
+    
+    setIsValidatingUid(true);
+    setUidValidationError("");
+    
+    try {
+      // Check if recipient exists
+      const userData = await UserService.getUserData(recipientUid);
+      
+      if (!userData) {
+        setUidValidationError("No user found with this UID");
+        setRecipientData(null);
+      } else {
+        setRecipientData(userData);
+        setUidValidationError("");
+      }
+    } catch (error) {
+      console.error("Error validating UID:", error);
+      setUidValidationError("Error validating UID");
+      setRecipientData(null);
+    } finally {
+      setIsValidatingUid(false);
+    }
+  };
+  
+  // Handle the vertex transfer process
+  const handleVertexTransfer = () => {
+    if (isDemoMode) {
+      toast({
+        title: "Demo Mode",
+        description: "Vertex transfers are not available in demo mode",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Validate input
+    if (!recipientUid || !recipientData) {
+      toast({
+        title: "Invalid Recipient",
+        description: "Please verify the recipient's Vertex ID first",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const cryptoAmountValue = parseFloat(cryptoAmount);
+    if (!cryptoAmountValue || cryptoAmountValue <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid amount",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const availableBalance = userCryptoBalances[selectedCrypto] || 0;
+    if (cryptoAmountValue > availableBalance) {
+      toast({
+        title: "Insufficient Balance",
+        description: `You only have ${availableBalance.toFixed(8)} ${selectedCrypto} available`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Show confirmation dialog
+    setIsConfirmDialogOpen(true);
+  };
+  
+  // Confirm the vertex transfer
+  const confirmVertexTransfer = async () => {
+    setIsProcessingTransfer(true);
+    const cryptoAmountValue = parseFloat(cryptoAmount);
+    const uid = userUid || auth.currentUser?.uid || localStorage.getItem('userId');
+    
+    if (!uid || !recipientUid) {
+      toast({
+        title: "Transfer Error",
+        description: "Missing user identifiers",
+        variant: "destructive",
+      });
+      setIsProcessingTransfer(false);
+      setIsConfirmDialogOpen(false);
+      return;
+    }
+    
+    try {
+      // Get fresh data before proceeding
+      const senderData = await UserService.getUserData(uid);
+      const recipientDataFresh = await UserService.getUserData(recipientUid);
+      
+      if (!senderData || !recipientDataFresh) {
+        throw new Error("Could not retrieve user data");
+      }
+      
+      // Update the recipient data with the fresh data
+      setRecipientData(recipientDataFresh);
+      
+      // Get sender's assets
+      const senderAssets = senderData.assets || {};
+      const senderBalance = senderAssets[selectedCrypto]?.amount || 0;
+      
+      // Verify sender has enough balance
+      if (senderBalance < cryptoAmountValue) {
+        toast({
+          title: "Insufficient Balance",
+          description: `You only have ${senderBalance.toFixed(8)} ${selectedCrypto} available`,
+          variant: "destructive",
+        });
+        setIsProcessingTransfer(false);
+        setIsConfirmDialogOpen(false);
+        return;
+      }
+      
+      // Get recipient's assets
+      const recipientAssets = recipientDataFresh.assets || {};
+      const recipientBalance = recipientAssets[selectedCrypto]?.amount || 0;
+      
+      // Calculate new balances
+      const newSenderBalance = senderBalance - cryptoAmountValue;
+      const newRecipientBalance = recipientBalance + cryptoAmountValue;
+      
+      // Update sender's assets
+      const updatedSenderAssets = { ...senderAssets };
+      updatedSenderAssets[selectedCrypto] = {
+        ...updatedSenderAssets[selectedCrypto],
+        amount: newSenderBalance
+      };
+      
+      // Update recipient's assets
+      const updatedRecipientAssets = { ...recipientAssets };
+      // Create the asset object if it doesn't exist
+      if (!updatedRecipientAssets[selectedCrypto]) {
+        updatedRecipientAssets[selectedCrypto] = { 
+          amount: newRecipientBalance,
+          name: selectedCrypto
+        };
+      } else {
+        updatedRecipientAssets[selectedCrypto] = {
+          ...updatedRecipientAssets[selectedCrypto],
+          amount: newRecipientBalance
+        };
+      }
+      
+      // Create transaction record with a unique ID
+      const txId = `TX${Date.now()}`;
+      const timestamp = new Date().toISOString();
+      const estimatedUsdValue = cryptoAmountValue * getEstimatedRate(selectedCrypto);
+      
+      // Transaction for sender (outgoing)
+      const senderTransaction = {
+        type: 'Transfer',
+        method: 'crypto',
+        crypto: selectedCrypto,
+        amount: estimatedUsdValue,
+        cryptoAmount: cryptoAmountValue,
+        status: 'Completed',
+        timestamp: timestamp,
+        txId: txId,
+        direction: 'out',
+        details: {
+          crypto: selectedCrypto,
+          amount: cryptoAmountValue,
+          recipientId: recipientUid,
+          recipientName: recipientDataFresh.fullName || recipientDataFresh.email || "Vertex User",
+          transferType: 'internal',
+          processingStartTime: timestamp,
+          completionTime: timestamp
+        }
+      };
+      
+      // Transaction for recipient (incoming)
+      const recipientTransaction = {
+        type: 'Received',
+        method: 'crypto',
+        crypto: selectedCrypto,
+        amount: estimatedUsdValue,
+        cryptoAmount: cryptoAmountValue,
+        status: 'Completed',
+        timestamp: timestamp,
+        txId: txId,
+        direction: 'in',
+        details: {
+          crypto: selectedCrypto,
+          amount: cryptoAmountValue,
+          senderId: uid,
+          senderName: senderData.fullName || senderData.email || "Vertex User",
+          transferType: 'internal',
+          processingStartTime: timestamp,
+          completionTime: timestamp
+        }
+      };
+      
+      // Update sender data
+      await UserService.updateUserData(uid, {
+        assets: updatedSenderAssets,
+        transactions: arrayUnion(senderTransaction)
+      });
+      
+      // Update recipient data
+      await UserService.updateUserData(recipientUid, {
+        assets: updatedRecipientAssets,
+        transactions: arrayUnion(recipientTransaction)
+      });
+      
+      // Update local state
+      setUserCryptoBalances(prev => ({
+        ...prev,
+        [selectedCrypto]: newSenderBalance
+      }));
+      
+      // Show success message and close confirmation dialog
+      setIsConfirmDialogOpen(false);
+      setIsTransferSuccessDialogOpen(true);
+      
+      toast({
+        title: "Transfer Successful",
+        description: `You have successfully sent ${cryptoAmountValue} ${selectedCrypto} to ${recipientDataFresh.fullName || "the recipient"}`,
+      });
+      
+      // Reset form
+      setCryptoAmount("");
+    } catch (error) {
+      console.error("Transfer error:", error);
+      toast({
+        title: "Transfer Failed",
+        description: "An error occurred during the transfer. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessingTransfer(false);
+    }
+  };
 
   // Fetch user's crypto balances when the component loads
   useEffect(() => {
@@ -1126,7 +1383,7 @@ const WithdrawPage = () => {
                   </div>
                   
                   <div className="space-y-4">
-                    <Tabs defaultValue="email" className="w-full">
+                    <Tabs defaultValue="vertex_id" className="w-full">
                       <TabsList className="bg-background/80 border-white/10 text-white grid grid-cols-3 w-full max-w-md">
                         <TabsTrigger value="email" className="text-white data-[state=active]:bg-accent">
                           Email
@@ -1148,6 +1405,9 @@ const WithdrawPage = () => {
                             placeholder="Enter recipient's email"
                             className="bg-background/40 border-white/10 text-white"
                           />
+                          <p className="text-xs text-white/60">
+                            Email lookup is currently in beta. We recommend using Vertex ID for transfers.
+                          </p>
                         </div>
                       </TabsContent>
                       
@@ -1160,6 +1420,9 @@ const WithdrawPage = () => {
                             placeholder="Enter recipient's phone number"
                             className="bg-background/40 border-white/10 text-white"
                           />
+                          <p className="text-xs text-white/60">
+                            Phone lookup is currently in beta. We recommend using Vertex ID for transfers.
+                          </p>
                         </div>
                       </TabsContent>
                       
@@ -1168,9 +1431,47 @@ const WithdrawPage = () => {
                           <Label htmlFor="recipient_vertex_id">Recipient's Vertex ID</Label>
                           <Input
                             id="recipient_vertex_id"
+                            value={recipientUid}
+                            onChange={(e) => setRecipientUid(e.target.value)}
                             placeholder="Enter recipient's Vertex ID"
                             className="bg-background/40 border-white/10 text-white"
                           />
+                          {recipientUid && (
+                            <div className="flex items-center mt-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={validateRecipientUid}
+                                disabled={isValidatingUid}
+                                className="text-xs"
+                              >
+                                {isValidatingUid ? 
+                                  <div className="flex items-center">
+                                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Validating...
+                                  </div> : 
+                                  "Verify ID"
+                                }
+                              </Button>
+                              
+                              {recipientData && (
+                                <div className="ml-3 flex items-center gap-2 text-sm">
+                                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                                  <span className="text-green-400">Valid recipient: {recipientData.fullName || recipientData.email || "Vertex User"}</span>
+                                </div>
+                              )}
+                              
+                              {uidValidationError && (
+                                <div className="ml-3 flex items-center gap-2 text-sm">
+                                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                                  <span className="text-red-400">{uidValidationError}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </TabsContent>
                     </Tabs>
@@ -1180,7 +1481,7 @@ const WithdrawPage = () => {
                 <div>
                   <div className="flex items-center gap-2 mb-4">
                     <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-sm">2</span>
-                    <h3 className="text-lg font-medium text-white">Withdraw amount</h3>
+                    <h3 className="text-lg font-medium text-white">Transfer amount</h3>
                   </div>
                   
                   <div className="space-y-4">
@@ -1266,28 +1567,42 @@ const WithdrawPage = () => {
 
                     <Button 
                       className="w-full bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34] h-12 text-lg mt-4"
-                      onClick={() => {
-                        toast({
-                          title: isDemoMode ? "Demo Mode" : "Coming Soon",
-                          description: isDemoMode ? "Vertex transfers are not available in demo mode" : "Vertex user transfers will be available soon",
-                          variant: "default",
-                        });
-                      }}
+                      onClick={handleVertexTransfer}
                       disabled={
+                        isDemoMode ||
+                        isProcessingTransfer ||
+                        !recipientUid ||
+                        !recipientData ||
                         !cryptoAmount || 
                         parseFloat(cryptoAmount) <= 0 || 
                         parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0)
                       }
                     >
-                      {isDemoMode ? "Demo Transfer" : "Transfer to Vertex User"}
+                      {isDemoMode ? "Demo Transfer" : 
+                        isProcessingTransfer ? 
+                        <div className="flex items-center justify-center">
+                          <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Processing...
+                        </div> : 
+                        "Transfer to Vertex User"
+                      }
                     </Button>
                     
                     {/* Validation messages */}
                     {(
+                      (!recipientUid) ||
+                      (!recipientData && recipientUid && !isValidatingUid) ||
                       (!cryptoAmount || parseFloat(cryptoAmount) <= 0) ||
                       (cryptoAmount && parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0))
-                    ) && cryptoAmount && (
+                    ) && (
                       <div className="mt-2 p-2 bg-red-500/10 rounded-md">
+                        {!recipientUid && 
+                          <p className="text-xs text-red-400 mb-1">⚠️ Please enter recipient's Vertex ID</p>}
+                        {(!recipientData && recipientUid && !isValidatingUid) && 
+                          <p className="text-xs text-red-400 mb-1">⚠️ Please verify the recipient ID</p>}
                         {(!cryptoAmount || parseFloat(cryptoAmount) <= 0) && 
                           <p className="text-xs text-red-400 mb-1">⚠️ Please enter a valid amount</p>}
                         {parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0) && 
@@ -1308,6 +1623,107 @@ const WithdrawPage = () => {
                     </div>
                   </div>
                 </div>
+                
+                {/* Confirmation Dialog */}
+                <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+                  <DialogContent className="bg-background/95 backdrop-blur-lg border-white/10 text-white">
+                    <div className="flex flex-col items-center justify-center p-6 space-y-4">
+                      <h2 className="text-2xl font-bold">Confirm Transfer</h2>
+                      
+                      <div className="w-full bg-white/5 rounded-lg p-4 space-y-3">
+                        <div className="flex justify-between">
+                          <span className="text-white/70">Recipient:</span>
+                          <span className="font-medium truncate max-w-[220px]">
+                            {recipientData?.fullName || recipientData?.email || "Vertex User"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-white/70">Recipient ID:</span>
+                          <span className="font-mono text-sm truncate max-w-[180px]">{recipientUid}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-white/70">Amount:</span>
+                          <span className="font-medium">{cryptoAmount} {selectedCrypto}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-white/70">USD Value:</span>
+                          <span className="text-green-400">≈ ${(parseFloat(cryptoAmount || '0') * getEstimatedRate(selectedCrypto)).toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-white/70">Fee:</span>
+                          <span className="text-green-400">$0.00 (No fee)</span>
+                        </div>
+                      </div>
+                      
+                      <div className="w-full flex justify-between gap-3 mt-4">
+                        <Button 
+                          variant="outline" 
+                          className="flex-1"
+                          onClick={() => setIsConfirmDialogOpen(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button 
+                          className="flex-1 bg-[#F2FF44] text-black hover:bg-[#E2EF34]"
+                          onClick={confirmVertexTransfer}
+                          disabled={isProcessingTransfer}
+                        >
+                          {isProcessingTransfer ? (
+                            <div className="flex items-center justify-center">
+                              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Processing...
+                            </div>
+                          ) : "Confirm Transfer"}
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+                
+                {/* Success Dialog */}
+                <Dialog open={isTransferSuccessDialogOpen} onOpenChange={setIsTransferSuccessDialogOpen}>
+                  <DialogContent className="bg-background/95 backdrop-blur-lg border-white/10 text-white">
+                    <div className="flex flex-col items-center justify-center p-6 space-y-4">
+                      <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center">
+                        <Check className="w-8 h-8 text-black" />
+                      </div>
+                      <h2 className="text-2xl font-bold">Transfer Successful</h2>
+                      <p className="text-3xl font-bold">{cryptoAmount} {selectedCrypto}</p>
+                      
+                      <div className="w-full bg-white/10 rounded-lg p-4 space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-white/70">Recipient:</span>
+                          <span className="font-medium truncate max-w-[220px]">
+                            {recipientData?.fullName || recipientData?.email || "Vertex User"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-white/70">Transaction ID:</span>
+                          <span className="font-mono">{`TX${Date.now().toString().slice(-8)}`}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-white/70">Status:</span>
+                          <span className="text-green-400">Completed</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-4 mt-4">
+                        <Button variant="outline" onClick={() => setIsTransferSuccessDialogOpen(false)}>
+                          Close
+                        </Button>
+                        <Button 
+                          className="bg-[#F2FF44] text-black hover:bg-[#E2EF34]"
+                          onClick={() => window.location.href = '/dashboard?tab=history'}
+                        >
+                          View History
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </TabsContent>
             </Tabs>
           </CardContent>
