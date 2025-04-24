@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
@@ -34,7 +33,7 @@ const SettingsPage = () => {
     phone: "",
     profilePhoto: ""
   });
-  
+
   // Add state to track image updates and force re-renders
   const [imageUpdateTimestamp, setImageUpdateTimestamp] = useState(Date.now());
   // Add state to track the full image URL with timestamp
@@ -58,10 +57,10 @@ const SettingsPage = () => {
               phone: userData.phone || "",
               profilePhoto: userData.profilePhoto || ""
             };
-            
+
             setInitialValues(profileData);
             profileForm.reset(profileData);
-            
+
             // Generate cached URL with timestamp for the image
             if (userData.profilePhoto) {
               const cacheBustedUrl = `${userData.profilePhoto}?t=${Date.now()}`;
@@ -174,15 +173,23 @@ const SettingsPage = () => {
                         src={profileImageUrl || "https://github.com/shadcn.png"}
                         key={`profile-${imageUpdateTimestamp}`} // Key tied to the timestamp state
                         onError={(e) => {
-                          console.log("Image failed to load, retrying...");
-                          // If image fails to load, try again with new timestamp
+                          console.log("Image failed to load, retrying with direct Supabase URL...");
+                          // If image fails to load, try to get a fresh URL directly from Supabase
                           if (profileForm.getValues().profilePhoto) {
-                            setTimeout(() => {
-                              const newTimestamp = Date.now();
-                              setImageUpdateTimestamp(newTimestamp);
-                              // Ensure we have proper cache busting by appending timestamp
-                              const baseUrl = profileForm.getValues().profilePhoto.split('?')[0]; // Remove any existing query params
-                              setProfileImageUrl(`${baseUrl}?t=${newTimestamp}`);
+                            setTimeout(async () => {
+                              try {
+                                // Import the getProfileImageUrl function
+                                const { getProfileImageUrl } = await import('@/lib/supabase');
+                                // Get a fresh URL with cache busting
+                                const freshUrl = getProfileImageUrl(profileForm.getValues().profilePhoto);
+                                console.log("Generated fresh Supabase URL:", freshUrl);
+                                // Update the state with the fresh URL
+                                setProfileImageUrl(freshUrl);
+                                // Force re-render with a new timestamp
+                                setImageUpdateTimestamp(Date.now());
+                              } catch (err) {
+                                console.error("Error refreshing profile image URL:", err);
+                              }
                             }, 500);
                           }
                         }}
@@ -242,17 +249,17 @@ const SettingsPage = () => {
                             try {
                               const { uploadProfileImage } = await import('@/lib/supabase');
                               let imageUrl = await uploadProfileImage(user.uid, file);
-                              
+
                               // Fallback: If Supabase upload fails but we need to continue
                               if (!imageUrl) {
                                 // Use Firebase storage as fallback if Supabase fails
                                 const storage = getStorage();
                                 const storageRef = ref(storage, `profile-photos/${user.uid}/${Date.now()}-${file.name}`);
-                                
+
                                 // Upload to Firebase Storage
                                 await uploadBytes(storageRef, file);
                                 imageUrl = await getDownloadURL(storageRef);
-                                
+
                                 toast({
                                   title: "Notice",
                                   description: "Using alternative storage for your profile picture",
@@ -270,27 +277,27 @@ const SettingsPage = () => {
 
                                 // Update form value with the permanent URL
                                 profileForm.setValue('profilePhoto', imageUrl);
-                                
+
                                 // Also update initialValues to ensure it persists
                                 setInitialValues(prev => ({
                                   ...prev,
                                   profilePhoto: imageUrl
                                 }));
-                                
+
                                 // Update timestamp to force avatar component to re-render with new image
                                 const newTimestamp = Date.now();
                                 setImageUpdateTimestamp(newTimestamp);
-                                
+
                                 // Set the base URL in the form data
                                 profileForm.setValue('profilePhoto', imageUrl);
-                                
+
                                 // Clean the URL of any existing query parameters
                                 const baseUrl = imageUrl.split('?')[0];
-                                
+
                                 // Update the display URL with cache busting
                                 const cacheBustUrl = `${baseUrl}?t=${newTimestamp}`;
                                 setProfileImageUrl(cacheBustUrl);
-                                
+
                                 // Force reload the image by preloading
                                 const img = new Image();
                                 img.onload = () => {
@@ -299,13 +306,13 @@ const SettingsPage = () => {
                                   setImageUpdateTimestamp(Date.now());
                                 };
                                 img.src = cacheBustUrl;
-                                
+
                                 // Show success toast with more details
                                 toast({
                                   title: "Success",
                                   description: "Profile picture updated successfully. It will remain after page refresh.",
                                 });
-                                
+
                                 // Log the update for debugging
                                 console.log('Profile photo updated successfully:', imageUrl);
                               }
@@ -318,58 +325,58 @@ const SettingsPage = () => {
                               if (error.details) {
                                 console.error("Error details:", error.details);
                               }
-                              
+
                               toast({
                                 title: "Error",
                                 description: error.message || "Failed to upload profile picture. Using fallback storage method.",
                                 variant: "destructive"
                               });
-                              
+
                               // Fallback to Firebase storage if Supabase fails completely
                               try {
                                 const storage = getStorage();
                                 const storageRef = ref(storage, `profile-photos/${user.uid}/${Date.now()}-${file.name}`);
-                                
+
                                 toast({
                                   title: "Info",
                                   description: "Attempting to use fallback storage...",
                                 });
-                                
+
                                 // Upload to Firebase Storage
                                 await uploadBytes(storageRef, file);
                                 const imageUrl = await getDownloadURL(storageRef);
-                                
+
                                 if (imageUrl) {
                                   // Update form value with the Firebase URL
                                   profileForm.setValue('profilePhoto', imageUrl);
-                                  
+
                                   // Update initialValues
                                   setInitialValues(prev => ({
                                     ...prev,
                                     profilePhoto: imageUrl
                                   }));
-                                  
+
                                   // Update timestamp to force avatar component to re-render
                                   const newTimestamp = Date.now();
                                   setImageUpdateTimestamp(newTimestamp);
-                                  
+
                                   // Set the base URL in the form data
                                   profileForm.setValue('profilePhoto', imageUrl);
-                                  
+
                                   // Update the display URL with cache busting
                                   const cacheBustUrl = `${imageUrl}?t=${newTimestamp}`;
                                   setProfileImageUrl(cacheBustUrl);
-                                  
+
                                   // Force reload the image
                                   const img = new Image();
                                   img.src = cacheBustUrl;
-                                  
+
                                   // Show success toast
                                   toast({
                                     title: "Success",
                                     description: "Profile picture uploaded using fallback storage.",
                                   });
-                                  
+
                                   // Update user profile with the new image URL
                                   const { UserService } = await import('@/lib/firebase-service');
                                   await UserService.updateUserData(user.uid, {

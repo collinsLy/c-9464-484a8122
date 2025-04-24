@@ -28,6 +28,44 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
   }
 });
 
+// Helper function to get profile image URL with cache busting
+export const getProfileImageUrl = (profilePhotoPath: string): string => {
+  if (!profilePhotoPath) {
+    return '';
+  }
+
+  try {
+    // If it's already a full URL with query params, extract just the base URL
+    const baseUrl = profilePhotoPath.split('?')[0];
+    
+    // Get the path part from the URL if it contains profile-images
+    let pathOnly = baseUrl;
+    if (baseUrl.includes('profile-images/')) {
+      pathOnly = baseUrl.split('profile-images/')[1];
+    }
+    
+    // Use service client to get a fresh URL with transformations
+    const serviceSupabase = getServiceClient();
+    const { data } = serviceSupabase.storage
+      .from('profile-images')
+      .getPublicUrl(pathOnly, {
+        transform: {
+          width: 300,
+          height: 300,
+          resize: 'cover',
+          quality: 80
+        }
+      });
+    
+    // Add timestamp to prevent caching issues
+    return `${data.publicUrl}?t=${Date.now()}`;
+  } catch (error) {
+    console.error('Error generating profile image URL:', error);
+    // Return the original URL with a timestamp as fallback
+    return `${profilePhotoPath}?t=${Date.now()}`;
+  }
+};
+
 // File storage helper functions
 export const uploadProfileImage = async (userId: string, file: File): Promise<string | null> => {
   try {
@@ -110,19 +148,20 @@ export const uploadProfileImage = async (userId: string, file: File): Promise<st
       throw uploadError;
     }
 
-    // Get public URL with cache control
+    // Get public URL with cache control and transform parameters
     const { data: urlData } = serviceSupabase.storage
       .from('profile-images')
       .getPublicUrl(filePath, {
         download: false,
         transform: {
-          width: 300, // Resize for better performance
+          width: 300,
           height: 300,
-          resize: 'cover'
+          resize: 'cover',
+          quality: 80
         }
       });
 
-    // Add timestamp to bust cache 
+    // Add timestamp to bust cache
     const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
     console.log('Public URL generated with cache busting:', publicUrl);
     return publicUrl;
