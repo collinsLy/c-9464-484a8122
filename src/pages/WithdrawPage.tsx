@@ -1185,12 +1185,50 @@ const WithdrawPage = () => {
                   
                   <div className="space-y-4">
                     <div className="grid gap-2">
+                      <Label>Select Cryptocurrency</Label>
+                      <div className="flex gap-2 flex-wrap mb-2">
+                        {[
+                          { symbol: 'BTC', name: 'Bitcoin' },
+                          { symbol: 'ETH', name: 'Ethereum' },
+                          { symbol: 'USDT', name: 'Tether' },
+                          { symbol: 'USDC', name: 'USD Coin' },
+                          { symbol: 'BNB', name: 'Binance Coin' },
+                          { symbol: 'DOGE', name: 'Dogecoin' },
+                          { symbol: 'SOL', name: 'Solana' }
+                        ].map((crypto) => {
+                          const balance = userCryptoBalances[crypto.symbol] || 0;
+                          return (
+                            <Button 
+                              key={crypto.symbol}
+                              variant={selectedCrypto === crypto.symbol ? 'secondary' : 'outline'}
+                              onClick={() => setSelectedCrypto(crypto.symbol)}
+                              className="flex items-center gap-2"
+                              disabled={balance <= 0}
+                            >
+                              <img 
+                                src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${crypto.symbol.toLowerCase()}.svg`} 
+                                alt={crypto.symbol} 
+                                className="w-5 h-5" 
+                                onError={(e) => {
+                                  e.currentTarget.src = "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/generic.svg";
+                                }}
+                              />
+                              {crypto.symbol}
+                              <span className={`text-xs ml-1 ${balance > 0 ? 'text-green-500' : 'opacity-70'}`}>
+                                {`(${balance.toFixed(4)})`}
+                              </span>
+                            </Button>
+                          );
+                        })}
+                      </div>
+                      
                       <div className="flex justify-between items-center">
                         <Label>Amount</Label>
                         <span 
                           className="text-sm text-white/70 cursor-pointer hover:text-white/90 bg-white/5 px-2 py-1 rounded-md transition-colors" 
                           onClick={() => {
-                            // Handle max amount click
+                            const maxBalance = userCryptoBalances[selectedCrypto] || 0;
+                            setCryptoAmount(maxBalance.toString());
                           }}
                         >
                           Max: {(userCryptoBalances[selectedCrypto] || 0).toFixed(8)} {selectedCrypto}
@@ -1199,6 +1237,14 @@ const WithdrawPage = () => {
                       <div className="relative">
                         <Input
                           type="number"
+                          value={cryptoAmount}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            // Prevent negative values
+                            if (parseFloat(value) >= 0 || value === '') {
+                              setCryptoAmount(value);
+                            }
+                          }}
                           className="bg-background/40 border-white/10 text-white pr-16"
                           placeholder="0.00"
                         />
@@ -1210,6 +1256,12 @@ const WithdrawPage = () => {
                         <span>Available Balance:</span>
                         <span>{(userCryptoBalances[selectedCrypto] || 0).toFixed(8)} {selectedCrypto}</span>
                       </div>
+                      {cryptoAmount && (
+                        <div className="flex justify-between text-sm text-white/70">
+                          <span>Value:</span>
+                          <span>≈ ${(parseFloat(cryptoAmount || '0') * getEstimatedRate(selectedCrypto)).toFixed(2)} USD</span>
+                        </div>
+                      )}
                     </div>
 
                     <Button 
@@ -1221,9 +1273,27 @@ const WithdrawPage = () => {
                           variant: "default",
                         });
                       }}
+                      disabled={
+                        !cryptoAmount || 
+                        parseFloat(cryptoAmount) <= 0 || 
+                        parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0)
+                      }
                     >
                       {isDemoMode ? "Demo Transfer" : "Transfer to Vertex User"}
                     </Button>
+                    
+                    {/* Validation messages */}
+                    {(
+                      (!cryptoAmount || parseFloat(cryptoAmount) <= 0) ||
+                      (cryptoAmount && parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0))
+                    ) && cryptoAmount && (
+                      <div className="mt-2 p-2 bg-red-500/10 rounded-md">
+                        {(!cryptoAmount || parseFloat(cryptoAmount) <= 0) && 
+                          <p className="text-xs text-red-400 mb-1">⚠️ Please enter a valid amount</p>}
+                        {parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0) && 
+                          <p className="text-xs text-red-400 mb-1">⚠️ Insufficient balance</p>}
+                      </div>
+                    )}
 
                     <div className="text-sm text-white/70 p-4 bg-white/5 rounded-lg space-y-4">
                       <div>
