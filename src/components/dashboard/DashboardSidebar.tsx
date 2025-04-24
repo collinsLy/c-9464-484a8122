@@ -1,21 +1,9 @@
 import { useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import {
-  ChevronRight,
-  ChevronLeft,
-  Home,
-  LineChart,
-  BarChart3,
-  Wallet,
-  CreditCard,
-  TrendingUp,
-  History,
-  Settings,
-  PlayCircle,
-  Menu,
-  X,
-  Users,
+import { 
+  ChevronRight, ChevronLeft, Home, LineChart, BarChart3, 
+  Wallet, CreditCard, TrendingUp, History, Settings, PlayCircle, Menu, X
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -37,9 +25,8 @@ const defaultNavItems: NavItem[] = [
   { icon: BarChart3, label: "Bots & Strategies", id: "bots", path: "/bots" },
   { icon: PlayCircle, label: "Demo", id: "demo", path: "/demo" },
   { icon: History, label: "History", id: "history", path: "/history" },
-  { icon: Settings, label: "Support", id: "support", path: "/support" },
+  { icon: Settings, label: "Support", id: "support", path: "/support" },  
   { icon: Settings, label: "Settings", id: "settings", path: "/settings" },
-  { icon: Users, label: "Referral", id: "referral", path: "/referral" }, // Added referral item
 ];
 
 interface SidebarProps {
@@ -86,7 +73,6 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
     if (pathname === '/assets') return 'assets';
     if (pathname === '/settings') return 'settings';
     if (pathname === '/demo') return 'demo';
-    if (pathname === '/referral') return 'referral'; //Added referral check
 
     // Default to dashboard if no match is found
     return "dashboard";
@@ -103,8 +89,8 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
     <>
       {/* Mobile menu button - fixed at the top left corner */}
       {isMobile && (
-        <Button
-          variant="ghost"
+        <Button 
+          variant="ghost" 
           size="icon"
           onClick={toggleMobileSidebar}
           className="fixed top-4 left-4 z-50 rounded-full bg-background/80 backdrop-blur-sm border border-white/10 text-white/70 hover:text-white hover:bg-white/10 lg:hidden"
@@ -115,7 +101,7 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
 
       <aside className={cn(
         "flex flex-col bg-background/95 backdrop-blur-xl border-r border-white/10 transition-all duration-300 h-screen z-40",
-        collapsed ? "w-28 md:w-48" : "w-[320px] md:w-80",
+        collapsed ? "w-28 md:w-48" : "w-[320px] md:w-80", 
         isMobile ? "fixed left-0 top-0" : "relative",
         isMobile && !mobileOpen ? "-translate-x-full" : "translate-x-0",
         "shadow-xl shadow-black/10"
@@ -129,8 +115,8 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
               {collapsed ? "Vertex" : "Vertex Trading"}
             </div>
           </div>
-          <Button
-            variant="ghost"
+          <Button 
+            variant="ghost" 
             size="icon"
             onClick={() => setCollapsed(!collapsed)}
             className="text-white/70 hover:text-white hover:bg-white/10"
@@ -175,7 +161,7 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
 
       {/* Overlay when mobile sidebar is open */}
       {isMobile && mobileOpen && (
-        <div
+        <div 
           className="fixed inset-0 bg-black/50 z-30 lg:hidden"
           onClick={() => setMobileOpen(false)}
         />
@@ -185,15 +171,3 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
 };
 
 export default DashboardSidebar;
-
-// Add Referral Page Component (Placeholder)
-const ReferralPage = () => {
-  return (
-    <div>
-      <h1>Referral Page</h1>
-      <p>This is a placeholder for the referral page content.</p>
-    </div>
-  );
-};
-
-export {ReferralPage};
