@@ -33,7 +33,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         const symbolsQuery = symbols.map(s => `${s}USDT`);
         const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
         const data = await response.json();
-        
+
         const prices: Record<string, number> = {};
         data.forEach((item: any) => {
           const symbol = item.symbol.replace('USDT', '');
@@ -71,17 +71,27 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
       const totalPL = userData.totalProfitLoss || 0;
 
       // Calculate total portfolio value including all assets
-      let portfolioValue = parsedBalance; // Start with USDT balance
-      
-      // Add value of all other assets
-      if (userData.assets && Object.keys(assetPrices).length > 0) {
-        Object.entries(userData.assets).forEach(([symbol, data]: [string, any]) => {
-          const amount = data.amount || 0;
-          const price = assetPrices[symbol] || 0;
-          const valueInUsdt = amount * price;
-          portfolioValue += valueInUsdt;
-        });
-      }
+      const calculatePortfolioValue = (userData: any) => {
+        if (!userData) return 0;
+
+        let portfolioValue = userData.balance || 0; // Start with USDT balance
+
+        // Add value of all crypto assets
+        if (userData.assets) {
+          Object.entries(userData.assets).forEach(([symbol, data]: [string, any]) => {
+            if (symbol === 'USDT') return; // Skip USDT as it's already included in balance
+            const amount = data.amount || 0;
+            const price = assetPrices[symbol] || 0;
+            const valueInUsdt = amount * price;
+            portfolioValue += valueInUsdt;
+          });
+        }
+
+        return portfolioValue;
+      };
+
+      const portfolioValue = calculatePortfolioValue(userData);
+
 
       if (isNaN(parsedBalance)) {
         console.error('Invalid balance value received:', userData.balance);

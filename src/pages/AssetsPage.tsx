@@ -53,6 +53,7 @@ const AssetsPage = () => {
     // Add value of all other assets
     if (assets) {
       Object.entries(assets).forEach(([symbol, data]) => {
+        if (symbol === 'USDT') return; // Skip USDT as it's already included in balance
         const amount = data.amount || 0;
         const price = prices[symbol] || 0;
         const valueInUsdt = amount * price;
