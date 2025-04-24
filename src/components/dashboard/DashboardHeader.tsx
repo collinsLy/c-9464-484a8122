@@ -110,3 +110,93 @@ const DashboardHeader = () => {
 };
 
 export default DashboardHeader;
+
+
+//pages/referral.tsx
+import React from 'react';
+
+const ReferralPage = () => {
+  return (
+    <div>
+      <h1>Referral Page</h1>
+      {/* Add referral code input and display logic here */}
+    </div>
+  );
+};
+
+export default ReferralPage;
+
+
+//components/sidebar/Sidebar.tsx
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+const Sidebar = () => {
+  return (
+    <aside>
+      <ul>
+        {/* Existing sidebar items */}
+        <li><Link to="/referral">Referral</Link></li>
+      </ul>
+    </aside>
+  );
+};
+
+export default Sidebar;
+
+
+//App.tsx
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import DashboardLayout from './pages/DashboardLayout';
+import ReferralPage from './pages/referral';
+
+
+const App = () => {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<DashboardLayout />} />
+        <Route path="/referral" element={<ReferralPage />} />
+        {/* other routes */}
+      </Routes>
+    </Router>
+  );
+};
+
+export default App;
+
+
+// SignInForm.tsx
+import React, { useState } from 'react';
+import {useNavigate} from 'react-router-dom';
+
+const SignInForm = () => {
+    const navigate = useNavigate();
+    const [referralCode, setReferralCode] = useState('');
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const referralCodeFromUrl = urlParams.get('referral');
+
+    // ... existing sign-in logic ...
+
+    if(referralCodeFromUrl){
+        setReferralCode(referralCodeFromUrl);
+        //send referral code to backend
+    }
+
+    return (
+        // ... your existing JSX ...
+        <input type="text" placeholder='Referral Code' value={referralCode} onChange={(e) => setReferralCode(e.target.value)}/>
+    );
+};
+
+export default SignInForm;
+
+//User registration modification
+// ... in your user registration function ...
+const handleRegistration = async (userData) => {
+    // ... existing registration logic ...
+    const referralCode =  //get referral code from SignInForm state or URL
+    await registerUser({...userData, referralCode});
+}

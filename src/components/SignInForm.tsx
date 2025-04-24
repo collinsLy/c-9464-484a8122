@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { signInWithEmailAndPassword, updatePassword, sendPasswordResetEmail, signInWithPopup } from 'firebase/auth';
-import { doc, updateDoc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, setDoc, collection, query, where, getDocs, increment } from 'firebase/firestore';
 import { auth, db, googleProvider, appleProvider } from '@/lib/firebase';
 import { Button } from "@/components/ui/button";
 import {
@@ -40,14 +40,18 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
   const [isPasswordUpdateRequired, setIsPasswordUpdateRequired] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const { toast } = useToast();
+  const [referralCode, setReferralCode] = useState<string>("");
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
+  // Extract referral code from URL if present
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const ref = urlParams.get('ref');
+    if (ref) {
+      setReferralCode(ref);
+      // Assuming there's a signup tab to switch to.  This is an assumption based on incomplete info.
+      // setCurrentTab("sign-up"); 
+    }
+  }, []);
 
   const checkPasswordStrength = (password: string): boolean => {
     const hasMinLength = password.length >= 8;
@@ -129,7 +133,8 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
           balance: 0,
           profilePhoto: user.photoURL || '',
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
+          referredBy: referralCode || null // Added referral code here
         });
 
         // Set flag to show welcome message on dashboard
@@ -187,7 +192,8 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
           balance: 0,
           profilePhoto: user.photoURL || '',
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
+          referredBy: referralCode || null // Added referral code here
         });
 
         // Set flag to show welcome message on dashboard
