@@ -18,6 +18,7 @@ import StrategiesPage from "./pages/StrategiesPage";
 import SupportPage from "./pages/SupportPage";
 
 import WithdrawPage from "./pages/WithdrawPage";
+import ReferralsPage from "./pages/ReferralsPage";
 
 // Configure query client to not show error toasts
 const queryClient = new QueryClient({
@@ -53,6 +54,7 @@ const App = () => (
               <Route path="/strategies" element={<ErrorBoundary><StrategiesPage /></ErrorBoundary>} />
               <Route path="/support" element={<ErrorBoundary><SupportPage /></ErrorBoundary>} />
               <Route path="/withdraw" element={<ErrorBoundary><WithdrawPage /></ErrorBoundary>} />
+              <Route path="/referrals" element={<ErrorBoundary><ReferralsPage /></ErrorBoundary>} />
             </Routes>
           </DashboardProvider>
         </BrowserRouter>

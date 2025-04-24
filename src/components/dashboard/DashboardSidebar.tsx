@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { 
   ChevronRight, ChevronLeft, Home, LineChart, BarChart3, 
-  Wallet, CreditCard, TrendingUp, History, Settings, PlayCircle, Menu, X
+  Wallet, CreditCard, TrendingUp, History, Settings, PlayCircle, Menu, X,
+  Users
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -23,6 +24,7 @@ const defaultNavItems: NavItem[] = [
   { icon: CreditCard, label: "Deposit", id: "deposit", path: "/deposit" },
   { icon: CreditCard, label: "Withdraw", id: "withdraw", path: "/withdraw" },
   { icon: BarChart3, label: "Bots & Strategies", id: "bots", path: "/bots" },
+  { icon: Users, label: "Referrals", id: "referrals", path: "/referrals" },
   { icon: PlayCircle, label: "Demo", id: "demo", path: "/demo" },
   { icon: History, label: "History", id: "history", path: "/history" },
   { icon: Settings, label: "Support", id: "support", path: "/support" },  
