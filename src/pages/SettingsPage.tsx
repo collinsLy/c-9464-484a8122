@@ -178,13 +178,18 @@ const SettingsPage = () => {
                           // If image fails to load, try again with new timestamp
                           if (profileForm.getValues().profilePhoto) {
                             setTimeout(() => {
-                              setImageUpdateTimestamp(Date.now());
-                              setProfileImageUrl(`${profileForm.getValues().profilePhoto}?t=${Date.now()}`);
+                              const newTimestamp = Date.now();
+                              setImageUpdateTimestamp(newTimestamp);
+                              // Ensure we have proper cache busting by appending timestamp
+                              const baseUrl = profileForm.getValues().profilePhoto.split('?')[0]; // Remove any existing query params
+                              setProfileImageUrl(`${baseUrl}?t=${newTimestamp}`);
                             }, 500);
                           }
                         }}
                       />
-                      <AvatarFallback>JD</AvatarFallback>
+                      <AvatarFallback>
+                        {initialValues.name ? initialValues.name.slice(0, 2).toUpperCase() : "JD"}
+                      </AvatarFallback>
                     </Avatar>
                     <Input
                       type="file"
@@ -279,12 +284,20 @@ const SettingsPage = () => {
                                 // Set the base URL in the form data
                                 profileForm.setValue('profilePhoto', imageUrl);
                                 
+                                // Clean the URL of any existing query parameters
+                                const baseUrl = imageUrl.split('?')[0];
+                                
                                 // Update the display URL with cache busting
-                                const cacheBustUrl = `${imageUrl}?t=${newTimestamp}`;
+                                const cacheBustUrl = `${baseUrl}?t=${newTimestamp}`;
                                 setProfileImageUrl(cacheBustUrl);
                                 
-                                // Force reload the image
+                                // Force reload the image by preloading
                                 const img = new Image();
+                                img.onload = () => {
+                                  console.log('Profile image preloaded successfully');
+                                  // Force update the Avatar component by setting a new key
+                                  setImageUpdateTimestamp(Date.now());
+                                };
                                 img.src = cacheBustUrl;
                                 
                                 // Show success toast with more details

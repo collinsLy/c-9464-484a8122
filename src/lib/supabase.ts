@@ -37,7 +37,7 @@ export const uploadProfileImage = async (userId: string, file: File): Promise<st
 
     // Use service client with admin privileges to bypass RLS policies
     const serviceSupabase = getServiceClient();
-    
+
     console.log('Uploading profile image with service client...');
     const { error: uploadError, data } = await serviceSupabase.storage
       .from('profile-images')
@@ -46,15 +46,15 @@ export const uploadProfileImage = async (userId: string, file: File): Promise<st
         cacheControl: '3600',
         contentType: file.type
       });
-    
+
     if (uploadError) {
       console.error('Error uploading image to Supabase:', uploadError);
-      
+
       // If bucket doesn't exist error, try to create the bucket
       if (uploadError.message.includes('The resource was not found') || 
           uploadError.message.includes('bucket') || 
           uploadError.statusCode === '404') {
-        
+
         console.log('Bucket not found, attempting to create bucket...');
         try {
           // Create the bucket if it doesn't exist
@@ -64,7 +64,7 @@ export const uploadProfileImage = async (userId: string, file: File): Promise<st
               public: true,
               fileSizeLimit: 5242880 // 5MB
             });
-            
+
           if (!createError) {
             // Retry upload after bucket creation
             console.log('Bucket created, retrying upload...');
@@ -75,18 +75,28 @@ export const uploadProfileImage = async (userId: string, file: File): Promise<st
                 cacheControl: '3600',
                 contentType: file.type
               });
-              
+
             if (retryError) {
               console.error('Error on retry upload:', retryError);
               throw retryError;
             }
-            
-            // Get public URL after successful retry
+
+            // Get public URL with cache control
             const { data: urlData } = serviceSupabase.storage
               .from('profile-images')
-              .getPublicUrl(filePath);
-              
-            return urlData.publicUrl;
+              .getPublicUrl(filePath, {
+                download: false,
+                transform: {
+                  width: 300, // Resize for better performance
+                  height: 300,
+                  resize: 'cover'
+                }
+              });
+
+            // Add timestamp to bust cache 
+            const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+            console.log('Public URL generated with cache busting:', publicUrl);
+            return publicUrl;
           } else {
             console.error('Error creating bucket:', createError);
             throw createError;
@@ -96,16 +106,26 @@ export const uploadProfileImage = async (userId: string, file: File): Promise<st
           throw bucketError;
         }
       }
-      
+
       throw uploadError;
     }
 
-    // Get public URL
+    // Get public URL with cache control
     const { data: urlData } = serviceSupabase.storage
       .from('profile-images')
-      .getPublicUrl(filePath);
+      .getPublicUrl(filePath, {
+        download: false,
+        transform: {
+          width: 300, // Resize for better performance
+          height: 300,
+          resize: 'cover'
+        }
+      });
 
-    return urlData.publicUrl;
+    // Add timestamp to bust cache 
+    const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+    console.log('Public URL generated with cache busting:', publicUrl);
+    return publicUrl;
   } catch (error) {
     console.error('Error in uploadProfileImage:', error);
     throw error; // Rethrow to allow caller to handle
@@ -119,12 +139,12 @@ export const deleteProfileImage = async (filePath: string): Promise<boolean> => 
       console.log('No profile image to delete');
       return true;
     }
-    
+
     // Extract the path from the URL if it's a full URL
     const pathOnly = filePath.includes('profile-images/')
       ? filePath.split('profile-images/')[1]
       : filePath;
-      
+
     // Use service client for deletion to bypass RLS
     const serviceSupabase = getServiceClient();
 
