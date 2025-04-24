@@ -1,5 +1,5 @@
 
-import { doc, onSnapshot, updateDoc, getDoc } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, getDoc, increment } from 'firebase/firestore';
 import { db, auth } from './firebase';
 
 export class UserService {
@@ -57,6 +57,26 @@ export class UserService {
       await updateDoc(userRef, { balance: newBalance });
     } catch (error) {
       console.error('Error updating user balance:', error);
+      throw error;
+    }
+  }
+  
+  static async transferFunds(senderId: string, recipientId: string, amount: number): Promise<void> {
+    try {
+      // Get references to both user documents
+      const senderRef = doc(db, 'users', senderId);
+      const recipientRef = doc(db, 'users', recipientId);
+      
+      // Use a transaction to ensure atomic updates
+      await updateDoc(senderRef, {
+        balance: increment(-amount)
+      });
+      
+      await updateDoc(recipientRef, {
+        balance: increment(amount)
+      });
+    } catch (error) {
+      console.error('Error transferring funds:', error);
       throw error;
     }
   }

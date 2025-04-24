@@ -463,6 +463,35 @@ const SettingsPage = () => {
                           </Select>
                         </div>
                       </div>
+                      
+                      <div className="space-y-2 p-4 bg-white/5 border border-white/10 rounded-md">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="text-lg font-medium">User ID (UID)</h3>
+                            <p className="text-sm text-white/60">Use this ID to receive funds from other users</p>
+                          </div>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              const uid = auth.currentUser?.uid || '';
+                              navigator.clipboard.writeText(uid);
+                              toast({
+                                title: "Copied!",
+                                description: "Your UID has been copied to clipboard",
+                              });
+                            }}
+                          >
+                            Copy UID
+                          </Button>
+                        </div>
+                        <div className="flex items-center mt-2 p-2 bg-white/10 rounded border border-white/5 overflow-hidden">
+                          <code className="text-sm font-mono text-white/90 overflow-hidden text-ellipsis">
+                            {auth.currentUser?.uid || 'Loading...'}
+                          </code>
+                        </div>
+                      </div>
+                      
                       <Button 
                         type="submit" 
                         className="bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34]"

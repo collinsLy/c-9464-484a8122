@@ -10,6 +10,8 @@ import { Label } from '@/components/ui/label';
 import { VisaIcon, MastercardIcon, PayPalIcon, BankIcon, MpesaIcon, AirtelMoneyIcon } from '@/assets/payment-icons';
 import { cn } from '@/lib/utils';
 import { networkAddresses } from '@/lib/network-addresses';
+import UidTransfer from "@/components/dashboard/UidTransfer";
+
 
 const DepositPage = () => {
   const { isDemoMode } = useDashboardContext();
@@ -20,6 +22,8 @@ const DepositPage = () => {
   const [amount, setAmount] = useState("");
   const [network, setNetwork] = useState('NATIVE');
   const [showPaymentIframe, setShowPaymentIframe] = useState(false);
+  const [userBalance, setUserBalance] = useState(0);
+  const fetchUserBalance = () => { /* Implementation needed to fetch user balance */ };
 
   // Get the deposit address based on selected crypto and network
   const getDepositAddress = () => {
@@ -97,12 +101,15 @@ const DepositPage = () => {
           </CardHeader>
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white mb-6 grid grid-cols-2 w-full">
+              <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white mb-6 grid grid-cols-3 w-full">
+                <TabsTrigger value="crypto" className="text-white data-[state=active]:bg-accent">
+                  Crypto
+                </TabsTrigger>
                 <TabsTrigger value="fiat" className="text-white data-[state=active]:bg-accent">
                   Fiat
                 </TabsTrigger>
-                <TabsTrigger value="crypto" className="text-white data-[state=active]:bg-accent">
-                  Crypto
+                <TabsTrigger value="uid" className="text-white data-[state=active]:bg-accent">
+                  User Transfer
                 </TabsTrigger>
               </TabsList>
 
@@ -437,11 +444,14 @@ const DepositPage = () => {
                   </div>
                 </div>
               </TabsContent>
+
+              <TabsContent value="uid" className="space-y-4">
+                <UidTransfer currentBalance={userBalance} onTransferComplete={fetchUserBalance} />
+              </TabsContent>
             </Tabs>
           </CardContent>
         </Card>
 
-        {/* Payment iframe dialog */}
         {showPaymentIframe && (
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-background/95 border border-white/10 rounded-lg w-full max-w-4xl h-[80vh] flex flex-col">
