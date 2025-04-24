@@ -79,7 +79,7 @@ export class UserService {
       const recipientRef = doc(db, 'users', recipientUid);
 
       // Using a transaction to ensure atomicity
-      return db.runTransaction(async (transaction) => {
+      await db.runTransaction(async (transaction) => {
         // Get both user documents
         const senderDoc = await transaction.get(senderRef);
         const recipientDoc = await transaction.get(recipientRef);
