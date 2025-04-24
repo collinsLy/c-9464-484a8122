@@ -67,3 +67,70 @@ export class UserService {
 }
 
 export const userService = new UserService();
+
+
+
+  static async transferFunds(senderUid: string, recipientUid: string, amount: number): Promise<void> {
+    try {
+      // Input validation
+      if (senderUid === recipientUid) {
+        throw new Error('Cannot transfer funds to yourself');
+      }
+      if (amount <= 0) {
+        throw new Error('Transfer amount must be positive');
+      }
+
+      const senderRef = doc(db, 'users', senderUid);
+      const recipientRef = doc(db, 'users', recipientUid);
+
+      await db.runTransaction(async (transaction) => {
+        const senderDoc = await transaction.get(senderRef);
+        const recipientDoc = await transaction.get(recipientRef);
+
+        if (!senderDoc.exists() || !recipientDoc.exists()) {
+          throw new Error('Sender or recipient not found');
+        }
+
+        const senderBalance = senderDoc.data().balance || 0;
+        if (senderBalance < amount) {
+          throw new Error('Insufficient funds');
+        }
+
+        const recipientBalance = recipientDoc.data().balance || 0;
+        
+        // Update balances
+        transaction.update(senderRef, { 
+          balance: senderBalance - amount,
+          updatedAt: new Date().toISOString()
+        });
+        
+        transaction.update(recipientRef, { 
+          balance: recipientBalance + amount,
+          updatedAt: new Date().toISOString()
+        });
+
+        // Create transaction record
+        const transactionData = {
+          type: 'Transfer',
+          senderUid,
+          recipientUid, 
+          amount,
+          status: 'Completed',
+          timestamp: new Date().toISOString(),
+          txId: `TX${Date.now()}`
+        };
+
+        // Add to both users' transaction history
+        transaction.update(senderRef, {
+          transactions: arrayUnion(transactionData)
+        });
+        transaction.update(recipientRef, {
+          transactions: arrayUnion(transactionData)
+        });
+      });
+
+    } catch (error) {
+      console.error('Error transferring funds:', error);
+      throw error;
+    }
+  }
