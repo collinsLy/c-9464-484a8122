@@ -723,8 +723,8 @@ const WithdrawPage = () => {
                 <TabsTrigger value="crypto" className="text-white data-[state=active]:bg-accent">
                   Crypto
                 </TabsTrigger>
-                <TabsTrigger value="binance" className="text-white data-[state=active]:bg-accent">
-                  Binance User
+                <TabsTrigger value="vertex" className="text-white data-[state=active]:bg-accent">
+                  Vertex User
                 </TabsTrigger>
               </TabsList>
 
@@ -1118,7 +1118,7 @@ const WithdrawPage = () => {
                 </div>
               </TabsContent>
 
-              <TabsContent value="binance" className="space-y-6">
+              <TabsContent value="vertex" className="space-y-6">
                 <div>
                   <div className="flex items-center gap-2 mb-4">
                     <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-sm">1</span>
@@ -1134,8 +1134,8 @@ const WithdrawPage = () => {
                         <TabsTrigger value="phone" className="text-white data-[state=active]:bg-accent">
                           Phone
                         </TabsTrigger>
-                        <TabsTrigger value="binance_id" className="text-white data-[state=active]:bg-accent">
-                          Binance ID
+                        <TabsTrigger value="vertex_id" className="text-white data-[state=active]:bg-accent">
+                          Vertex ID
                         </TabsTrigger>
                       </TabsList>
                       
@@ -1163,12 +1163,12 @@ const WithdrawPage = () => {
                         </div>
                       </TabsContent>
                       
-                      <TabsContent value="binance_id" className="pt-4">
+                      <TabsContent value="vertex_id" className="pt-4">
                         <div className="space-y-2">
-                          <Label htmlFor="recipient_binance_id">Recipient's Binance ID</Label>
+                          <Label htmlFor="recipient_vertex_id">Recipient's Vertex ID</Label>
                           <Input
-                            id="recipient_binance_id"
-                            placeholder="Enter recipient's Binance ID"
+                            id="recipient_vertex_id"
+                            placeholder="Enter recipient's Vertex ID"
                             className="bg-background/40 border-white/10 text-white"
                           />
                         </div>
@@ -1217,20 +1217,20 @@ const WithdrawPage = () => {
                       onClick={() => {
                         toast({
                           title: isDemoMode ? "Demo Mode" : "Coming Soon",
-                          description: isDemoMode ? "Binance transfers are not available in demo mode" : "Binance user transfers will be available soon",
+                          description: isDemoMode ? "Vertex transfers are not available in demo mode" : "Vertex user transfers will be available soon",
                           variant: "default",
                         });
                       }}
                     >
-                      {isDemoMode ? "Demo Transfer" : "Transfer to Binance User"}
+                      {isDemoMode ? "Demo Transfer" : "Transfer to Vertex User"}
                     </Button>
 
                     <div className="text-sm text-white/70 p-4 bg-white/5 rounded-lg space-y-4">
                       <div>
                         <p className="font-medium text-white mb-2">Important Notes</p>
                         <ul className="list-disc pl-4 space-y-1">
-                          <li>Transfers to Binance users are instant and fee-free</li>
-                          <li>Recipient must have a valid Binance account</li>
+                          <li>Transfers to Vertex users are instant and fee-free</li>
+                          <li>Recipient must have a valid Vertex account</li>
                           <li>Double-check recipient details before confirming</li>
                           <li>Maximum transfer: 100 BTC per day</li>
                         </ul>
