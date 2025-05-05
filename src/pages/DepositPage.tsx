@@ -43,9 +43,17 @@ const DepositPage = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-white">Deposit Funds</h1>
+            <p className="text-sm text-white/70 mt-1">Deposit funds securely to your account</p>
+          </div>
+          {isDemoMode && <div className="text-sm text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-md">Demo Mode</div>}
+        </div>
+        
         <div>
           <h2 className="text-3xl font-bold text-white mb-6">How to Buy Crypto</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
             <div className="bg-background/40 backdrop-blur-lg border border-white/10 rounded-lg p-6">
               <div className="mb-4">
                 <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center mb-4">
@@ -82,14 +90,6 @@ const DepositPage = () => {
               <p className="text-white/70">After successful payment, the purchased crypto will be deposited into your Spot or Funding Wallet.</p>
             </div>
           </div>
-        </div>
-
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-white">Deposit Funds</h1>
-            <p className="text-sm text-white/70 mt-1">Deposit funds securely to your account</p>
-          </div>
-          {isDemoMode && <div className="text-sm text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-md">Demo Mode</div>}
         </div>
 
         <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
