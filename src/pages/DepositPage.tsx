@@ -11,6 +11,7 @@ import { VisaIcon, MastercardIcon, PayPalIcon, BankIcon, MpesaIcon, AirtelMoneyI
 import { cn } from '@/lib/utils';
 import { networkAddresses } from '@/lib/network-addresses';
 import UidTransfer from "@/components/dashboard/UidTransfer";
+import QRCodeScanner from '@/components/QRCodeScanner';
 
 
 const DepositPage = () => {
@@ -22,8 +23,43 @@ const DepositPage = () => {
   const [amount, setAmount] = useState("");
   const [network, setNetwork] = useState('NATIVE');
   const [showPaymentIframe, setShowPaymentIframe] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
   const [userBalance, setUserBalance] = useState(0);
   const fetchUserBalance = () => { /* Implementation needed to fetch user balance */ };
+  
+  // Handler for QR code scanning results
+  const handleScanResult = (result: string) => {
+    toast({
+      title: "QR Code Scanned",
+      description: "Successfully scanned QR code",
+    });
+    
+    // Process the scanned result
+    if (result.startsWith('bitcoin:')) {
+      // Extract Bitcoin address from URI
+      const addressMatch = result.match(/bitcoin:([a-zA-Z0-9]+)/);
+      if (addressMatch && addressMatch[1]) {
+        const address = addressMatch[1];
+        setSelectedCrypto('BTC');
+        setNetwork('NATIVE');
+        // In a real app, you'd update the deposit address state here
+        toast({
+          title: "Bitcoin Address Detected",
+          description: `Address: ${address.substring(0, 10)}...`,
+        });
+      }
+    } else if (result.includes('ethereum:')) {
+      setSelectedCrypto('ETH');
+      setNetwork('ERC20');
+    } else {
+      // Handle other formats or unknown QR codes
+      toast({
+        title: "Unknown QR Format",
+        description: "The scanned QR code format is not recognized",
+        variant: "destructive"
+      });
+    }
+  };
 
   // Get the deposit address based on selected crypto and network
   const getDepositAddress = () => {
@@ -269,22 +305,38 @@ const DepositPage = () => {
                           value={getDepositAddress()}
                           className="bg-background/40 border-white/10 text-white font-mono text-sm pr-24"
                         />
-                        <Button 
-                          variant="secondary"
-                          size="sm"
-                          className="absolute right-2 top-1/2 transform -translate-y-1/2"
-                          onClick={async () => {
-                            const address = getDepositAddress();
-                            await navigator.clipboard.writeText(address);
-                            toast({
-                              title: "Address Copied",
-                              description: "The deposit address has been copied to your clipboard",
-                              duration: 2000,
-                            });
-                          }}
-                        >
-                          Copy
-                        </Button>
+                        <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
+                          <Button 
+                            variant="outline"
+                            size="sm"
+                            className="border-white/10 hover:bg-white/10"
+                            onClick={() => setShowScanner(true)}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                              <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                              <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                              <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                              <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                              <rect width="7" height="7" x="7" y="7" rx="1"></rect>
+                            </svg>
+                            Scan
+                          </Button>
+                          <Button 
+                            variant="secondary"
+                            size="sm"
+                            onClick={async () => {
+                              const address = getDepositAddress();
+                              await navigator.clipboard.writeText(address);
+                              toast({
+                                title: "Address Copied",
+                                description: "The deposit address has been copied to your clipboard",
+                                duration: 2000,
+                              });
+                            }}
+                          >
+                            Copy
+                          </Button>
+                        </div>
                       </div>
                     </div>
                     <div className="text-sm text-white/70 mt-6 p-4 bg-white/5 rounded-lg">
@@ -304,7 +356,24 @@ const DepositPage = () => {
                 <div className="space-y-6">
                   <div className="grid gap-6">
                     <div className="grid gap-4">
-                      <Label className="text-white text-lg">Select Payment Method</Label>
+                      <div className="flex justify-between items-center">
+                        <Label className="text-white text-lg">Select Payment Method</Label>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="border-white/10 hover:bg-white/10"
+                          onClick={() => setShowScanner(true)}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                            <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                            <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                            <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                            <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                            <rect width="7" height="7" x="7" y="7" rx="1"></rect>
+                          </svg>
+                          Scan Payment QR
+                        </Button>
+                      </div>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {paymentMethods.map((method) => (
                           <button
@@ -459,6 +528,13 @@ const DepositPage = () => {
             </div>
           </div>
         )}
+        
+        {/* QR Code Scanner */}
+        <QRCodeScanner 
+          isOpen={showScanner}
+          onClose={() => setShowScanner(false)}
+          onScan={handleScanResult}
+        />
       </div>
     </DashboardLayout>
   );
