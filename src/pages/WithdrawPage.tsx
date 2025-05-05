@@ -1486,7 +1486,24 @@ const WithdrawPage = () => {
 
                       <TabsContent value="vertex_id" className="pt-4">
                         <div className="space-y-2">
-                          <Label htmlFor="recipient_vertex_id">Recipient's Vertex ID</Label>
+                          <div className="flex justify-between">
+                            <Label htmlFor="recipient_vertex_id">Recipient's Vertex ID</Label>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="border-white/10 hover:bg-white/10"
+                              onClick={() => setShowScanner(true)}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                                <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                                <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                                <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                                <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                                <rect width="7" height="7" x="7" y="7" rx="1"></rect>
+                              </svg>
+                              Scan QR
+                            </Button>
+                          </div>
                           <Input
                             id="recipient_vertex_id"
                             value={recipientUid}
