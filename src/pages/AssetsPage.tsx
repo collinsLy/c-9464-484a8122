@@ -143,6 +143,13 @@ const AssetsPage = () => {
       amount: "0.00000000"
     },
     {
+      name: "DOGE",
+      symbol: "DOGE",
+      fullName: "Dogecoin",
+      balance: 0,
+      amount: "0.00000000"
+    },
+    {
       name: "XRP",
       symbol: "XRP",
       fullName: "Ripple",
