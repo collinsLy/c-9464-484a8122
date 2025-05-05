@@ -56,26 +56,26 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
       <CardContent>
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm">Amount</label>
+            <label className="text-sm text-white">Amount</label>
             <Input
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Enter amount"
-              className="bg-background/40 border-white/10"
+              className="bg-background/40 border-white/10 text-white placeholder:text-white/60"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm">From</label>
+              <label className="text-sm text-white">From</label>
               <Select value={fromCurrency} onValueChange={setFromCurrency}>
-                <SelectTrigger className="bg-background/40 border-white/10">
+                <SelectTrigger className="bg-background/40 border-white/10 text-white">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-background/95 border-white/10">
                   {currencies.map((currency) => (
-                    <SelectItem key={currency.value} value={currency.value}>
+                    <SelectItem key={currency.value} value={currency.value} className="text-white">
                       {currency.label}
                     </SelectItem>
                   ))}
@@ -84,14 +84,14 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm">To</label>
+              <label className="text-sm text-white">To</label>
               <Select value={toCurrency} onValueChange={setToCurrency}>
-                <SelectTrigger className="bg-background/40 border-white/10">
+                <SelectTrigger className="bg-background/40 border-white/10 text-white">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-background/95 border-white/10">
                   {currencies.map((currency) => (
-                    <SelectItem key={currency.value} value={currency.value}>
+                    <SelectItem key={currency.value} value={currency.value} className="text-white">
                       {currency.label}
                     </SelectItem>
                   ))}
@@ -100,13 +100,13 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
             </div>
           </div>
 
-          <Button onClick={handleConvert} className="w-full">
+          <Button onClick={handleConvert} className="w-full text-black bg-[#F2FF44] hover:bg-[#E2EF34]">
             Convert
           </Button>
 
           {convertedAmount !== null && (
             <div className="mt-4 p-4 bg-white/5 rounded-lg">
-              <p className="text-center">
+              <p className="text-center text-white font-medium">
                 {amount} {fromCurrency} = {convertedAmount.toFixed(8)} {toCurrency}
               </p>
             </div>
