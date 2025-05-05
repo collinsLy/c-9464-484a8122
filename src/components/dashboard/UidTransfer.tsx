@@ -77,11 +77,22 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
     if (isNaN(amountValue)) return 0;
 
     // Make sure we have the price data
-    const price = assetPrices[selectedCrypto];
-
+    let price = assetPrices[selectedCrypto];
+    
+    // If price is not found in the regular map, try special cases
     if (price === undefined) {
-      console.warn(`Price not found for ${selectedCrypto}. Available prices:`, assetPrices);
-      return 0;
+      // Add special handling for cryptocurrencies not covered in the main fetch
+      if (selectedCrypto === 'DOGE') {
+        // Look for DOGE specifically in assetPrices
+        price = assetPrices['DOGE'];
+        console.log(`Using special case for DOGE, price: ${price}`);
+      }
+      
+      // If still undefined after special handling
+      if (price === undefined) {
+        console.warn(`Price not found for ${selectedCrypto}. Available prices:`, assetPrices);
+        return 0;
+      }
     }
 
     const convertedValue = amountValue * price;
