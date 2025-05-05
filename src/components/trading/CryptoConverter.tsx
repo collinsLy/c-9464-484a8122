@@ -15,10 +15,16 @@ export const CryptoConverter = () => {
     { symbol: 'USDT', name: 'Tether' },
     { symbol: 'BTC', name: 'Bitcoin' },
     { symbol: 'ETH', name: 'Ethereum' },
-    { symbol: 'BNB', name: 'BNB' },
+    { symbol: 'BNB', name: 'Binance Coin' },
+    { symbol: 'USDC', name: 'USD Coin' },
+    { symbol: 'DOGE', name: 'Dogecoin' },
     { symbol: 'SOL', name: 'Solana' },
+    { symbol: 'XRP', name: 'Ripple' },
+    { symbol: 'WLD', name: 'Worldcoin' },
     { symbol: 'ADA', name: 'Cardano' },
-    { symbol: 'DOGE', name: 'Dogecoin' }
+    { symbol: 'DOT', name: 'Polkadot' },
+    { symbol: 'LINK', name: 'Chainlink' },
+    { symbol: 'MATIC', name: 'Polygon' }
   ];
   
   const [fromCurrency, setFromCurrency] = useState({ symbol: 'USDT', balance: 0 });

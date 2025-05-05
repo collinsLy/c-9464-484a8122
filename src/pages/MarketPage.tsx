@@ -75,6 +75,13 @@ const MarketPage = () => {
                 <option value="BNBUSDT">BNB/USDT</option>
                 <option value="SOLUSDT">SOL/USDT</option>
                 <option value="ADAUSDT">ADA/USDT</option>
+                <option value="DOGEUSDT">DOGE/USDT</option>
+                <option value="XRPUSDT">XRP/USDT</option>
+                <option value="DOTUSDT">DOT/USDT</option>
+                <option value="LINKUSDT">LINK/USDT</option>
+                <option value="MATICUSDT">MATIC/USDT</option>
+                <option value="WLDUSDT">WLD/USDT</option>
+                <option value="USDCUSDT">USDC/USDT</option>
               </select>
             </div>
 
@@ -106,7 +113,7 @@ const MarketPage = () => {
               </select>
             </div>
 
-            
+
 
             <Card className="bg-background/40 backdrop-blur-lg border-white/10">
               <CardContent className="p-4">
