@@ -61,11 +61,8 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 220 14% 12%;
-    --radius: 0.5rem;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 212 35.7% 9.2%;
+    --foreground: 20 14.3% 4.1%;
+    --radius: 1.2rem;
   }
 }
 
@@ -75,13 +72,10 @@
     -webkit-tap-highlight-color: transparent;
   }
   body {
-    @apply bg-background text-foreground antialiased overflow-x-hidden touch-manipulation font-sans;
+    @apply bg-background text-foreground antialiased overflow-x-hidden touch-manipulation;
   }
   input, button {
-    @apply focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all duration-200;
-  }
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-medium tracking-tight;
+    @apply focus:outline-none;
   }
 }
 
@@ -125,21 +119,9 @@
 
 /* Component Classes */
 .glass-effect {
-  @apply bg-white/90 backdrop-blur-md border border-slate-200/70 shadow-sm;
+  @apply bg-white/5 backdrop-blur-lg border border-white/10;
 }
 
 .hover-lift {
-  @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-md;
-}
-
-.btn-modern {
-  @apply bg-primary text-white px-4 py-2 rounded-md font-medium transition-all duration-200 hover:shadow-md hover:bg-primary/90 active:scale-95;
-}
-
-.card-modern {
-  @apply bg-white border border-slate-200 shadow-sm rounded-md overflow-hidden transition-all duration-200 hover:shadow-md;
-}
-
-.input-modern {
-  @apply border-slate-200 rounded-md px-3 py-2 focus:ring-2 focus:ring-accent/20 focus:border-accent;
+  @apply transition-transform duration-300 hover:-translate-y-1;
 }
