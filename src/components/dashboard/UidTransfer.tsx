@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,7 +30,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
         const symbolsQuery = symbols.map(s => `${s}USDT`);
         const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
         const data = await response.json();
-        
+
         const prices: Record<string, number> = {};
         data.forEach((item: any) => {
           const symbol = item.symbol.replace('USDT', '');
@@ -55,7 +54,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
   useEffect(() => {
     const fetchUserAssets = async () => {
       if (!currentUserId) return;
-      
+
       try {
         const userData = await UserService.getUserData(currentUserId);
         if (userData && userData.assets) {
@@ -65,7 +64,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
         console.error('Error fetching user assets:', error);
       }
     };
-    
+
     fetchUserAssets();
   }, [currentUserId]);
 
@@ -73,15 +72,24 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
   const calculateUsdValue = (): number => {
     const amountValue = parseFloat(amount);
     if (isNaN(amountValue)) return 0;
-    
-    const price = assetPrices[selectedCrypto] || 0;
-    return amountValue * price;
+
+    // Make sure we have the price data
+    const price = assetPrices[selectedCrypto];
+
+    if (price === undefined) {
+      console.warn(`Price not found for ${selectedCrypto}. Available prices:`, assetPrices);
+      return 0;
+    }
+
+    const convertedValue = amountValue * price;
+    console.log(`Converting ${amountValue} ${selectedCrypto} at rate ${price} = $${convertedValue.toFixed(2)} USD`);
+    return convertedValue;
   };
 
   // Validate the transfer details
   const validateTransfer = (): boolean => {
     const transferAmount = parseFloat(amount);
-    
+
     if (!recipientUid.trim()) {
       toast({
         title: "Missing Recipient",
@@ -90,7 +98,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
       });
       return false;
     }
-    
+
     if (recipientUid === currentUserId) {
       toast({
         title: "Invalid Transfer",
@@ -99,7 +107,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
       });
       return false;
     }
-    
+
     if (isNaN(transferAmount) || transferAmount <= 0) {
       toast({
         title: "Invalid Amount",
@@ -108,7 +116,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
       });
       return false;
     }
-    
+
     if (transferAmount > currentBalance) {
       toast({
         title: "Insufficient Funds",
@@ -117,23 +125,23 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
       });
       return false;
     }
-    
+
     return true;
   };
 
   // Handle transfer of funds between users
   const handleTransfer = async () => {
     if (!validateTransfer()) return;
-    
+
     setIsLoading(true);
-    
+
     try {
       // Convert amount to number
       const transferAmount = parseFloat(amount);
-      
+
       // Check if recipient exists
       const recipientData = await UserService.getUserData(recipientUid);
-      
+
       if (!recipientData) {
         toast({
           title: "User Not Found",
@@ -143,39 +151,39 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
         setIsLoading(false);
         return;
       }
-      
+
       // Get references to both user documents
       const senderRef = doc(db, 'users', currentUserId!);
       const recipientRef = doc(db, 'users', recipientUid);
-      
+
       // Use a transaction to ensure atomic updates
       await runTransaction(db, async (transaction) => {
         // Get current data
         const senderDoc = await transaction.get(senderRef);
         const recipientDoc = await transaction.get(recipientRef);
-        
+
         if (!senderDoc.exists() || !recipientDoc.exists()) {
           throw new Error("User document not found");
         }
-        
+
         // Get current balances
         const senderBalance = senderDoc.data().balance || 0;
         const recipientBalance = recipientDoc.data().balance || 0;
-        
+
         // Verify sender has enough funds (double-check)
         if (senderBalance < transferAmount) {
           throw new Error("Insufficient funds");
         }
-        
+
         // Update balances
         transaction.update(senderRef, { 
           balance: senderBalance - transferAmount 
         });
-        
+
         transaction.update(recipientRef, { 
           balance: recipientBalance + transferAmount 
         });
-        
+
         // Add transaction record to both users
         const transactionRecord = {
           type: "transfer",
@@ -183,7 +191,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
           timestamp: new Date().toISOString(),
           status: "completed"
         };
-        
+
         // Add to sender's transactions
         const senderTransaction = {
           ...transactionRecord,
@@ -192,7 +200,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
           recipientName: recipientDoc.data().fullName || "User",
           description: `Sent to ${recipientDoc.data().fullName || "User"}`
         };
-        
+
         // Add to recipient's transactions
         const recipientTransaction = {
           ...transactionRecord,
@@ -201,30 +209,30 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
           senderName: senderDoc.data().fullName || "User",
           description: `Received from ${senderDoc.data().fullName || "User"}`
         };
-        
+
         // Update transactions arrays
         const senderTransactions = senderDoc.data().transactions || [];
         const recipientTransactions = recipientDoc.data().transactions || [];
-        
+
         transaction.update(senderRef, { 
           transactions: [senderTransaction, ...senderTransactions] 
         });
-        
+
         transaction.update(recipientRef, { 
           transactions: [recipientTransaction, ...recipientTransactions] 
         });
       });
-      
+
       // Show success message
       toast({
         title: "Transfer Successful",
         description: `Successfully sent ${transferAmount} to user`,
       });
-      
+
       // Reset form
       setRecipientUid("");
       setAmount("");
-      
+
       // Call the completion handler
       if (onTransferComplete) {
         onTransferComplete();
