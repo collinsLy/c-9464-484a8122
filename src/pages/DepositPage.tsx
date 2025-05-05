@@ -120,40 +120,70 @@ const DepositPage = () => {
                           className="bg-background/40 border-white/10 text-white"
                         />
                       </div>
-                      <div className="flex gap-2 flex-wrap">
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {[
-                          { symbol: 'BTC', name: 'Bitcoin' },
-                          { symbol: 'ETH', name: 'Ethereum' },
-                          { symbol: 'USDT', name: 'Tether' },
-                          { symbol: 'USDC', name: 'USD Coin' },
-                          { symbol: 'BNB', name: 'Binance Coin' },
-                          { symbol: 'DOGE', name: 'Dogecoin' },
-                          { symbol: 'SOL', name: 'Solana' },
-                          { symbol: 'XRP', name: 'Ripple' },
-                          { symbol: 'WLD', name: 'Worldcoin' },
-                          { symbol: 'ADA', name: 'Cardano' },
-                          { symbol: 'DOT', name: 'Polkadot' },
-                          { symbol: 'LINK', name: 'Chainlink' },
-                          { symbol: 'MATIC', name: 'Polygon' }
+                          { symbol: 'BTC', name: 'Bitcoin', chainColor: '#F7931A' },
+                          { symbol: 'ETH', name: 'Ethereum', chainColor: '#627EEA' },
+                          { symbol: 'USDT', name: 'Tether', chainColor: '#26A17B' },
+                          { symbol: 'USDC', name: 'USD Coin', chainColor: '#2775CA' },
+                          { symbol: 'BNB', name: 'Binance Coin', chainColor: '#F3BA2F' },
+                          { symbol: 'DOGE', name: 'Dogecoin', chainColor: '#C2A633' },
+                          { symbol: 'SOL', name: 'Solana', chainColor: '#00FFA3' },
+                          { symbol: 'XRP', name: 'Ripple', chainColor: '#23292F' },
+                          { symbol: 'WLD', name: 'Worldcoin', chainColor: '#4940E0' },
+                          { symbol: 'ADA', name: 'Cardano', chainColor: '#0033AD' },
+                          { symbol: 'DOT', name: 'Polkadot', chainColor: '#E6007A' },
+                          { symbol: 'LINK', name: 'Chainlink', chainColor: '#2A5ADA' },
+                          { symbol: 'MATIC', name: 'Polygon', chainColor: '#8247E5' }
                         ].map((crypto) => (
-                          <Button 
+                          <div
                             key={crypto.symbol}
-                            variant={selectedCrypto === crypto.symbol ? 'secondary' : 'outline'}
+                            className="relative group cursor-pointer"
                             onClick={() => setSelectedCrypto(crypto.symbol)}
-                            className="flex items-center gap-2"
                           >
-                            <img 
-                              src={crypto.symbol === 'WLD' 
-                                ? "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040" 
-                                : `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${crypto.symbol.toLowerCase()}.svg`} 
-                              alt={crypto.symbol} 
-                              className="w-5 h-5"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/generic.svg";
-                              }}
-                            />
-                            {crypto.symbol}
-                          </Button>
+                            <div
+                              className={cn(
+                                "rounded-xl p-3 backdrop-blur-md transition-all duration-300",
+                                "border bg-black/20",
+                                selectedCrypto === crypto.symbol 
+                                  ? "border-[#F2FF44]" 
+                                  : "border-white/10 hover:border-white/20",
+                                "flex flex-col items-center justify-center gap-2"
+                              )}
+                            >
+                              <div className="relative w-8 h-8">
+                                <img
+                                  src={crypto.symbol === 'WLD' 
+                                    ? "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040" 
+                                    : `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${crypto.symbol.toLowerCase()}.svg`}
+                                  alt={crypto.symbol}
+                                  className="w-full h-full"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/generic.svg";
+                                  }}
+                                />
+                                {selectedCrypto === crypto.symbol && (
+                                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#F2FF44] rounded-full">
+                                    <svg 
+                                      viewBox="0 0 24 24" 
+                                      className="w-full h-full text-black"
+                                    >
+                                      <path 
+                                        fill="currentColor" 
+                                        d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"
+                                      />
+                                    </svg>
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="text-center">
+                                <div className="font-semibold text-white">
+                                  {crypto.symbol}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         ))}
                       </div>
                     </div>
