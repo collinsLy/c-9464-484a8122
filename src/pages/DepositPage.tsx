@@ -5,6 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useDashboardContext } from '@/components/dashboard/DashboardLayout';
 import { useToast } from "@/components/ui/use-toast";
 import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { VisaIcon, MastercardIcon, PayPalIcon, BankIcon, MpesaIcon, AirtelMoneyIcon } from '@/assets/payment-icons';
@@ -24,6 +25,7 @@ const DepositPage = () => {
   const [network, setNetwork] = useState('NATIVE');
   const [showPaymentIframe, setShowPaymentIframe] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
+  const [showAllCoinsDialog, setShowAllCoinsDialog] = useState(false);
   const [userBalance, setUserBalance] = useState(0);
   const fetchUserBalance = () => { /* Implementation needed to fetch user balance */ };
   
@@ -177,13 +179,7 @@ const DepositPage = () => {
                         ))}
                       </div>
                       <Button 
-                        onClick={() => {
-                          // Show a dialog with all cryptocurrencies
-                          toast({
-                            title: "All Cryptocurrencies",
-                            description: "This would open a dialog with all cryptocurrencies",
-                          });
-                        }} 
+                        onClick={() => setShowAllCoinsDialog(true)} 
                         className="mt-4 w-full bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34] h-12 text-lg"
                       >
                         See All Cryptocurrencies
@@ -567,6 +563,51 @@ const DepositPage = () => {
           onClose={() => setShowScanner(false)}
           onScan={handleScanResult}
         />
+
+        {/* Show All Coins Dialog */}
+        <Dialog open={showAllCoinsDialog} onOpenChange={setShowAllCoinsDialog}>
+          <DialogContent className="bg-background/95 backdrop-blur-lg border-white/10 text-white p-6">
+            <h2 className="text-xl font-medium mb-4">All Cryptocurrencies</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {[
+                { symbol: 'BTC', name: 'Bitcoin' },
+                { symbol: 'ETH', name: 'Ethereum' },
+                { symbol: 'USDT', name: 'Tether' },
+                { symbol: 'USDC', name: 'USD Coin' },
+                { symbol: 'BNB', name: 'Binance Coin' },
+                { symbol: 'DOGE', name: 'Dogecoin' },
+                { symbol: 'SOL', name: 'Solana' },
+                { symbol: 'XRP', name: 'Ripple' },
+                { symbol: 'WLD', name: 'Worldcoin' },
+                { symbol: 'ADA', name: 'Cardano' },
+                { symbol: 'DOT', name: 'Polkadot' },
+                { symbol: 'LINK', name: 'Chainlink' },
+                { symbol: 'MATIC', name: 'Polygon' }
+              ].map((crypto) => (
+                <button
+                  key={crypto.symbol}
+                  onClick={() => {
+                    setSelectedCrypto(crypto.symbol);
+                    setShowAllCoinsDialog(false);
+                  }}
+                  className="flex flex-col items-center justify-center p-4 rounded-lg border border-white/10 hover:border-white/20 bg-background/40"
+                >
+                  <img
+                    src={crypto.symbol === 'WLD'
+                      ? "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040"
+                      : `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${crypto.symbol.toLowerCase()}.svg`}
+                    alt={crypto.symbol}
+                    className="w-7 h-7"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/generic.svg";
+                    }}
+                  />
+                  <span className="mt-2 text-white text-sm">{crypto.symbol}</span>
+                </button>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   );
