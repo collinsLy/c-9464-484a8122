@@ -56,7 +56,7 @@ const MarketOverview = () => {
   }
 
   return (
-    <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
+    <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-2"> {/* Updated grid layout */}
       <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
         <CardHeader>
           <CardTitle>Market Overview</CardTitle>
