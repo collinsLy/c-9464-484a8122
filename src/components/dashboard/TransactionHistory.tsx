@@ -458,7 +458,7 @@ const TransactionHistory = () => {
                               alt={transaction.fromAsset || 'USDT'} 
                               className="w-5 h-5"
                               onError={(e) => {
-                                e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                                e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
                               }}
                             />
                             <span className="mx-1">{transaction.fromAsset || 'USDT'}</span>
@@ -470,7 +470,7 @@ const TransactionHistory = () => {
                               alt={transaction.toAsset || 'BTC'} 
                               className="w-5 h-5"
                               onError={(e) => {
-                                e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                                e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
                               }}
                             />
                             <span className="mx-1">{transaction.toAsset || 'BTC'}</span>
@@ -483,7 +483,7 @@ const TransactionHistory = () => {
                             alt={transaction.details.crypto} 
                             className="w-5 h-5"
                             onError={(e) => {
-                              e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                              e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
                             }}
                           />
                           <span>{transaction.details.crypto}</span>
@@ -495,7 +495,7 @@ const TransactionHistory = () => {
                             alt={transaction.details.crypto} 
                             className="w-5 h-5"
                             onError={(e) => {
-                              e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                              e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
                             }}
                           />
                           <span>{transaction.details.crypto}</span>
@@ -544,7 +544,7 @@ const TransactionHistory = () => {
                                   } else if (detectedCrypto === 'BTC') {
                                     e.currentTarget.src = "https://assets.coingecko.com/coins/images/1/small/bitcoin.png";
                                   } else {
-                                    e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                                    e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
                                   }
                                 }}
                               />
@@ -559,7 +559,7 @@ const TransactionHistory = () => {
                             alt={transaction.asset || 'USDT'} 
                             className="w-5 h-5"
                             onError={(e) => {
-                              e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                              e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
                             }}
                           />
                           {transaction.asset || 'USDT'}
@@ -627,7 +627,7 @@ const TransactionHistory = () => {
                                         alt="1inch" 
                                         className="w-5 h-5" 
                                         onError={(e) => {
-                                          e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                                          e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
                                         }}
                                       />
                                       <span>1inch (Ethereum)</span>
@@ -679,7 +679,7 @@ const TransactionHistory = () => {
                                       alt="Jupiter" 
                                       className="w-5 h-5" 
                                       onError={(e) => {
-                                        e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                                        e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
                                       }}
                                     />
                                     <span>Jupiter (Solana)</span>
@@ -697,7 +697,7 @@ const TransactionHistory = () => {
                                       alt="Thorchain" 
                                       className="w-5 h-5" 
                                       onError={(e) => {
-                                        e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                                        e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
                                       }}
                                     />
                                     <span>Thorchain (Cross-chain)</span>
@@ -749,10 +749,10 @@ const TransactionHistory = () => {
                                       alt="DEX" 
                                       className="w-5 h-5" 
                                       onError={(e) => {
-                                        e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                                        e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
                                       }}
                                     />
-                                    <span>DEX</span>
+                                                                   <span>DEX</span>
                                   </>
                                 );
                               }
@@ -881,7 +881,7 @@ const TransactionHistory = () => {
                           alt={selectedTransaction.fromAsset || 'USDT'} 
                           className="w-5 h-5"
                           onError={(e) => {
-                            e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                            e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
                           }}
                         />
                         <span className="mx-1">{selectedTransaction.fromAsset || 'USDT'}</span>
@@ -893,7 +893,7 @@ const TransactionHistory = () => {
                           alt={selectedTransaction.toAsset || 'BTC'} 
                           className="w-5 h-5"
                           onError={(e) => {
-                            e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                            e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
                           }}
                         />
                         <span className="mx-1">{selectedTransaction.toAsset || 'BTC'}</span>
@@ -906,7 +906,7 @@ const TransactionHistory = () => {
                         alt={selectedTransaction.details.crypto} 
                         className="w-5 h-5"
                         onError={(e) => {
-                          e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                          e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
                         }}
                       />
                       {selectedTransaction.details.crypto} ({selectedTransaction.details.amount})
@@ -963,7 +963,7 @@ const TransactionHistory = () => {
                                 } else if (detectedCrypto === 'SOL') {
                                   e.currentTarget.src = "https://assets.coingecko.com/coins/images/4128/small/solana.png";
                                 } else {
-                                  e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                                  e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
                                 }
                               }}
                             />
@@ -978,7 +978,7 @@ const TransactionHistory = () => {
                           alt={selectedTransaction.metadata.crypto} 
                           className="w-5 h-5"
                           onError={(e) => {
-                            e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                            e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
                           }}
                         />
                         {selectedTransaction.metadata.crypto}
@@ -990,7 +990,7 @@ const TransactionHistory = () => {
                           alt={selectedTransaction.details.crypto} 
                           className="w-5 h-5"
                           onError={(e) => {
-                            e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                            e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
                           }}
                         />
                         {selectedTransaction.details.crypto}
@@ -1002,7 +1002,7 @@ const TransactionHistory = () => {
                           alt={selectedTransaction.asset || 'USDT'} 
                           className="w-5 h-5"
                           onError={(e) => {
-                            e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                            e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
                           }}
                         />
                         {selectedTransaction.asset || 'USDT'}

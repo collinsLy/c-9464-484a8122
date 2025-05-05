@@ -149,7 +149,7 @@ const DepositPage = () => {
                           >
                             <img 
                               src={crypto.symbol === 'WLD' 
-                                ? "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg" 
+                                ? "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040" 
                                 : `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${crypto.symbol.toLowerCase()}.svg`} 
                               alt={crypto.symbol} 
                               className="w-5 h-5"

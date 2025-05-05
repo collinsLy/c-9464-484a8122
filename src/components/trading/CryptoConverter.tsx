@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -26,7 +25,7 @@ export const CryptoConverter = () => {
     { symbol: 'LINK', name: 'Chainlink' },
     { symbol: 'MATIC', name: 'Polygon' }
   ];
-  
+
   const [fromCurrency, setFromCurrency] = useState({ symbol: 'USDT', balance: 0 });
   const [toCurrency, setToCurrency] = useState({ symbol: 'BTC', balance: 0 });
   const [amount, setAmount] = useState('');
@@ -42,7 +41,7 @@ export const CryptoConverter = () => {
 
   // Fee percentage (0.5%)
   const FEE_PERCENTAGE = 0.5;
-  
+
   // Fetch user balances and initial rate
   useEffect(() => {
     const fetchUserData = async () => {
@@ -74,19 +73,19 @@ export const CryptoConverter = () => {
   // Countdown timer for rate expiry
   useEffect(() => {
     if (!rateExpiryTime) return;
-    
+
     const interval = setInterval(() => {
       const now = new Date();
       const secondsRemaining = Math.max(0, Math.floor((rateExpiryTime.getTime() - now.getTime()) / 1000));
-      
+
       setCountdown(secondsRemaining);
-      
+
       if (secondsRemaining === 0) {
         clearInterval(interval);
         fetchConversionRate(); // Refresh rate when expired
       }
     }, 1000);
-    
+
     return () => clearInterval(interval);
   }, [rateExpiryTime]);
 
@@ -96,7 +95,7 @@ export const CryptoConverter = () => {
       const inputAmount = parseFloat(amount);
       const fee = (inputAmount * FEE_PERCENTAGE) / 100;
       setConversionFee(fee);
-      
+
       // Calculate output amount after fee
       if (fromCurrency.symbol === 'USDT') {
         const outputBeforeFee = inputAmount / currentRate;
@@ -123,17 +122,17 @@ export const CryptoConverter = () => {
   const fetchConversionRate = async () => {
     try {
       setLoading(true);
-      
+
       let rate;
       // Direct conversion with USDT
       if (fromCurrency.symbol === 'USDT' || toCurrency.symbol === 'USDT') {
         const symbol = fromCurrency.symbol === 'USDT' 
           ? `${toCurrency.symbol}USDT` 
           : `${fromCurrency.symbol}USDT`;
-        
+
         const data = await binanceService.getPrice(symbol);
         rate = parseFloat(data.price);
-        
+
         if (fromCurrency.symbol === 'USDT') {
           // Keep rate as is for USDT to Crypto
         } else {
@@ -146,22 +145,22 @@ export const CryptoConverter = () => {
         // Get rates for both currencies against USDT
         const fromData = await binanceService.getPrice(`${fromCurrency.symbol}USDT`);
         const toData = await binanceService.getPrice(`${toCurrency.symbol}USDT`);
-        
+
         const fromRate = parseFloat(fromData.price);
         const toRate = parseFloat(toData.price);
-        
+
         // Calculate cross rate
         rate = fromRate / toRate;
       }
-      
+
       setCurrentRate(rate);
-      
+
       // Set rate expiry time (60 seconds)
       const expiryTime = new Date();
       expiryTime.setSeconds(expiryTime.getSeconds() + 60);
       setRateExpiryTime(expiryTime);
       setCountdown(60);
-      
+
     } catch (error) {
       console.error('Error fetching conversion rate:', error);
       toast({
@@ -199,7 +198,7 @@ export const CryptoConverter = () => {
 
   const handleConfirmConversion = async () => {
     setProcessingConversion(true);
-    
+
     try {
       const uid = localStorage.getItem('userId');
       if (!uid) {
@@ -214,12 +213,12 @@ export const CryptoConverter = () => {
 
       const numAmount = parseFloat(amount);
       const outputAmountValue = parseFloat(outputAmount);
-      
+
       // Verify balance again
       const currentFromBalance = fromCurrency.symbol === 'USDT' 
         ? userData.balance 
         : (userData.assets?.[fromCurrency.symbol]?.amount || 0);
-      
+
       if (currentFromBalance < numAmount) {
         throw new Error(`Insufficient ${fromCurrency.symbol} balance`);
       }
@@ -272,16 +271,16 @@ export const CryptoConverter = () => {
 
       // Update everything in one call
       await UserService.updateUserData(uid, finalData);
-      
+
       // Reset form and show success
       setAmount('');
       setConfirmDialogOpen(false);
-      
+
       toast({
         title: "Conversion Successful",
         description: `Converted ${numAmount} ${fromCurrency.symbol} to ${outputAmountValue.toFixed(8)} ${toCurrency.symbol}`,
       });
-      
+
       // Refresh balances
       const updatedUserData = await UserService.getUserData(uid);
       if (updatedUserData) {
@@ -294,7 +293,7 @@ export const CryptoConverter = () => {
           balance: toCurrency.symbol === 'USDT' ? updatedUserData.balance : (updatedUserData.assets?.[toCurrency.symbol]?.amount || 0) 
         }));
       }
-      
+
     } catch (error) {
       console.error('Conversion error:', error);
       toast({
@@ -351,7 +350,12 @@ export const CryptoConverter = () => {
                         alt={fromCurrency.symbol}
                         className="w-5 h-5"
                         onError={(e) => {
-                          e.currentTarget.src = 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/generic.svg';
+                          const crypto = cryptocurrencies.find(c => c.symbol === fromCurrency.symbol);
+                          if (crypto && crypto.symbol === 'WLD') {
+                            e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
+                          } else {
+                            e.currentTarget.src = "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/generic.svg";
+                          }
                         }}
                       />
                       <select 
@@ -361,7 +365,7 @@ export const CryptoConverter = () => {
                           const newBalance = newSymbol === 'USDT' 
                             ? parseFloat(localStorage.getItem('userBalance') || '0') 
                             : (userAssets[newSymbol]?.amount || 0);
-                          
+
                           setFromCurrency({ symbol: newSymbol, balance: newBalance });
                           setAmount('');
                         }}
@@ -409,7 +413,12 @@ export const CryptoConverter = () => {
                         alt={toCurrency.symbol}
                         className="w-5 h-5"
                         onError={(e) => {
-                          e.currentTarget.src = 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/generic.svg';
+                          const crypto = cryptocurrencies.find(c => c.symbol === toCurrency.symbol);
+                          if (crypto && crypto.symbol === 'WLD') {
+                            e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
+                          } else {
+                            e.currentTarget.src = "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/generic.svg";
+                          }
                         }}
                       />
                       <select 
@@ -419,7 +428,7 @@ export const CryptoConverter = () => {
                           const newBalance = newSymbol === 'USDT' 
                             ? parseFloat(localStorage.getItem('userBalance') || '0') 
                             : (userAssets[newSymbol]?.amount || 0);
-                          
+
                           setToCurrency({ symbol: newSymbol, balance: newBalance });
                           setAmount('');
                         }}
@@ -469,7 +478,7 @@ export const CryptoConverter = () => {
                    !isValidAmount() ? 'Insufficient balance' : 
                    'Preview Conversion'}
               </Button>
-              
+
               {/* Refresh rate button */}
               <Button 
                 variant="outline" 
@@ -494,7 +503,7 @@ export const CryptoConverter = () => {
               Please review the details of your conversion
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <div className="flex justify-between">
@@ -514,12 +523,12 @@ export const CryptoConverter = () => {
                 <span>{conversionFee.toFixed(6)} {fromCurrency.symbol}</span>
               </div>
             </div>
-            
+
             <div className="bg-background/40 p-3 rounded-md text-sm text-white/80">
               <p>Rate locked for {countdown} seconds. This conversion cannot be reversed after confirmation.</p>
             </div>
           </div>
-          
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfirmDialogOpen(false)} disabled={processingConversion}>
               Cancel
