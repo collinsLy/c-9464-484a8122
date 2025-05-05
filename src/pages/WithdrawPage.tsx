@@ -1485,40 +1485,56 @@ const WithdrawPage = () => {
                       </TabsContent>
 
                       <TabsContent value="vertex_id" className="pt-4">
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <Label htmlFor="recipient_vertex_id">Recipient's Vertex ID</Label>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="border-white/10 hover:bg-white/10"
-                              onClick={() => setShowScanner(true)}
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-                                <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
-                                <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
-                                <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
-                                <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
-                                <rect width="7" height="7" x="7" y="7" rx="1"></rect>
-                              </svg>
-                              Scan QR
-                            </Button>
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                            <Label htmlFor="recipient_vertex_id" className="text-base font-medium">Recipient's Vertex ID</Label>
+                            <div className="flex gap-2">
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="hover:bg-white/5 transition-colors rounded-full h-8 w-8 p-0 flex items-center justify-center"
+                                onClick={() => setShowScanner(true)}
+                                title="Scan QR Code"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                                  <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                                  <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                                  <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                                  <rect width="7" height="7" x="7" y="7" rx="1"></rect>
+                                </svg>
+                              </Button>
+                            </div>
                           </div>
-                          <Input
-                            id="recipient_vertex_id"
-                            value={recipientUid}
+                          <div className="relative">
+                            <Input
+                              id="recipient_vertex_id"
+                              value={recipientUid}
+                              className="bg-gradient-to-r from-background/50 to-background/30 border-white/10 focus-visible:ring-white/20 pl-3 pr-10 h-11"
                             onChange={(e) => setRecipientUid(e.target.value)}
                             placeholder="Enter recipient's Vertex ID"
-                            className="bg-background/40 border-white/10 text-white"
                           />
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-white/60 hover:text-white hover:bg-white/5"
+                              onClick={() => setShowScanner(true)}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"></path>
+                                <path d="M20.7 10c.114.495.2 1.002.2 1.518a8.556 8.556 0 0 1-1.51 5.352 8.571 8.571 0 0 1-20.09-5.31 8.56 8.56 0 0 1 1.5-4.88"></path>
+                                <path d="M22 8.12c-.843-1.038-1.9-1.912-3.107-2.54"></path>
+                              </svg>
+                            </Button>
+                          </div>
                           {recipientUid && (
-                            <div className="flex items-center mt-2">
+                            <div className="flex items-center mt-3">
                               <Button 
-                                variant="outline" 
+                                variant="secondary" 
                                 size="sm" 
                                 onClick={validateRecipientUid}
                                 disabled={isValidatingUid}
-                                className="text-xs"
+                                className="text-xs bg-white/5 hover:bg-white/10 text-white transition-all"
                               >
                                 {isValidatingUid ? 
                                   <div className="flex items-center">
@@ -1534,19 +1550,31 @@ const WithdrawPage = () => {
 
                               {recipientData && (
                                 <div className="ml-3 flex items-center gap-2 text-sm">
-                                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                                  <span className="text-green-400">Valid recipient: {recipientData.fullName || recipientData.email || "Vertex User"}</span>
+                                  <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-400">
+                                      <path d="M20 6L9 17l-5-5"></path>
+                                    </svg>
+                                  </div>
+                                  <span className="text-green-400 font-medium">Valid recipient: {recipientData.fullName || recipientData.email || "Vertex User"}</span>
                                 </div>
                               )}
 
                               {uidValidationError && (
                                 <div className="ml-3 flex items-center gap-2 text-sm">
-                                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                                  <span className="text-red-400">{uidValidationError}</span>
+                                  <div className="w-6 h-6 rounded-full bg-red-500/20 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-400">
+                                      <path d="M18 6L6 18M6 6l12 12"></path>
+                                    </svg>
+                                  </div>
+                                  <span className="text-red-400 font-medium">{uidValidationError}</span>
                                 </div>
                               )}
                             </div>
                           )}
+                          
+                          <div className="mt-4 opacity-75 text-sm text-white/80 border-t border-white/5 pt-3">
+                            Scan a Vertex user's QR code to instantly load their ID
+                          </div>
                         </div>
                       </TabsContent>
                     </Tabs>
