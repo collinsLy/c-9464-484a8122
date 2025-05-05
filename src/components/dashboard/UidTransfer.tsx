@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +19,64 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
   const [amount, setAmount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const currentUserId = auth.currentUser?.uid || null;
+  const [selectedCrypto, setSelectedCrypto] = useState("USDT");
+  const [assetPrices, setAssetPrices] = useState<Record<string, number>>({});
+  const [userAssets, setUserAssets] = useState<Record<string, any>>({});
+
+  // Fetch current prices for all assets
+  useEffect(() => {
+    const fetchPrices = async () => {
+      try {
+        const symbols = ['BTC', 'ETH', 'BNB', 'SOL', 'ADA', 'DOGE', 'XRP', 'DOT', 'LINK', 'MATIC'];
+        const symbolsQuery = symbols.map(s => `${s}USDT`);
+        const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
+        const data = await response.json();
+        
+        const prices: Record<string, number> = {};
+        data.forEach((item: any) => {
+          const symbol = item.symbol.replace('USDT', '');
+          prices[symbol] = parseFloat(item.price);
+        });
+        // Add USDT itself with value of 1
+        prices['USDT'] = 1;
+        setAssetPrices(prices);
+      } catch (error) {
+        console.error('Error fetching asset prices:', error);
+      }
+    };
+
+    fetchPrices();
+    // Update prices every 30 seconds
+    const interval = setInterval(fetchPrices, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fetch user's assets
+  useEffect(() => {
+    const fetchUserAssets = async () => {
+      if (!currentUserId) return;
+      
+      try {
+        const userData = await UserService.getUserData(currentUserId);
+        if (userData && userData.assets) {
+          setUserAssets(userData.assets);
+        }
+      } catch (error) {
+        console.error('Error fetching user assets:', error);
+      }
+    };
+    
+    fetchUserAssets();
+  }, [currentUserId]);
+
+  // Calculate USD value based on current price
+  const calculateUsdValue = (): number => {
+    const amountValue = parseFloat(amount);
+    if (isNaN(amountValue)) return 0;
+    
+    const price = assetPrices[selectedCrypto] || 0;
+    return amountValue * price;
+  };
 
   // Validate the transfer details
   const validateTransfer = (): boolean => {
@@ -217,15 +275,59 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
         </div>
 
         <div className="space-y-2">
+          <Label>Select Cryptocurrency</Label>
+          <div className="flex gap-2 flex-wrap mb-2">
+            {[
+              { symbol: 'BTC', name: 'Bitcoin' },
+              { symbol: 'ETH', name: 'Ethereum' },
+              { symbol: 'USDT', name: 'Tether' },
+              { symbol: 'USDC', name: 'USD Coin' },
+              { symbol: 'BNB', name: 'Binance Coin' },
+              { symbol: 'DOGE', name: 'Dogecoin' },
+              { symbol: 'SOL', name: 'Solana' }
+            ].map((crypto) => (
+              <Button 
+                key={crypto.symbol}
+                variant={selectedCrypto === crypto.symbol ? 'secondary' : 'outline'}
+                onClick={() => setSelectedCrypto(crypto.symbol)}
+                className="flex items-center gap-2"
+                size="sm"
+              >
+                <img 
+                  src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${crypto.symbol.toLowerCase()}.svg`} 
+                  alt={crypto.symbol} 
+                  className="w-4 h-4"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                  }}
+                />
+                {crypto.symbol}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-2">
           <Label htmlFor="amount">Amount</Label>
-          <Input
-            id="amount"
-            type="number"
-            placeholder="Enter amount to transfer"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="bg-white/5 border-white/10"
-          />
+          <div className="relative">
+            <Input
+              id="amount"
+              type="number"
+              placeholder="Enter amount to transfer"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="bg-white/5 border-white/10 pr-16"
+            />
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+              <span className="text-white/70">{selectedCrypto}</span>
+            </div>
+          </div>
+          {amount && (
+            <div className="flex justify-between text-sm text-white/70">
+              <span>Value:</span>
+              <span>≈ ${calculateUsdValue().toFixed(2)} USD</span>
+            </div>
+          )}
         </div>
 
         <Button 
