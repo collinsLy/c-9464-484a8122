@@ -501,71 +501,57 @@ const TransactionHistory = () => {
                           <span>{transaction.details.crypto}</span>
                         </div>
                       ) : transaction.type === 'Received' && transaction.txId ? (
-                        <div className="flex items-center gap-2">
-                          {/* Match the transaction by txId to ensure we use the same crypto as the Transfer */}
-                          {(() => {
-                            // Parse currency from the transaction ID or metadata
-                            const txIdParts = transaction.txId.split('-');
-                            const cryptoFromTx = txIdParts.length > 1 ? txIdParts[1].toUpperCase() : null;
-                            
-                            // Check if we have details about the cryptocurrency in metadata
-                            const cryptoFromMetadata = transaction.metadata?.crypto || transaction.metadata?.asset;
-                            
-                            // Use the detected crypto or fallback to the asset field
-                            const detectedCrypto = cryptoFromMetadata || cryptoFromTx || transaction.asset;
-                            
-                            // For DOGE transactions, explicitly ensure DOGE is shown
-                            if (transaction.txId?.includes('DOGE') || 
-                                transaction.amount === 61 || transaction.amount === 50 || transaction.amount === 11 ||
-                                (transaction.type === 'Received' && transaction.asset === 'DOGE')) {
-                              return (
-                                <>
-                                  <img 
-                                    src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/doge.svg" 
-                                    alt="DOGE" 
-                                    className="w-5 h-5"
-                                    onError={(e) => {
-                                      e.currentTarget.src = "https://assets.coingecko.com/coins/images/5/small/dogecoin.png";
-                                    }}
-                                  />
-                                  <span>DOGE</span>
-                                </>
-                              );
+                        (() => {
+                          // Parse currency from the transaction ID or metadata
+                          const txIdParts = transaction.txId.split('-');
+                          const cryptoFromTx = txIdParts.length > 1 ? txIdParts[1].toUpperCase() : null;
+
+                          // Check if we have details about the cryptocurrency in metadata
+                          const cryptoFromMetadata = transaction.metadata?.crypto || transaction.metadata?.asset;
+
+                          // Get a detected crypto
+                          let detectedCrypto = cryptoFromMetadata || cryptoFromTx || transaction.asset;
+
+                          // Common cryptocurrencies to check in txId
+                          const commonCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'DOGE', 'SOL', 'XRP', 'ADA', 'DOT', 'LINK', 'MATIC'];
+
+                          // Check if any cryptocurrency identifier is in the txId
+                          for (const crypto of commonCryptos) {
+                            if (transaction.txId?.includes(crypto)) {
+                              detectedCrypto = crypto;
+                              break;
                             }
-                            
-                            // For BTC transactions
-                            if (transaction.txId.includes('BTC') || transaction.amount < 0.01) {
-                              return (
-                                <>
-                                  <img 
-                                    src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/btc.svg" 
-                                    alt="BTC" 
-                                    className="w-5 h-5"
-                                    onError={(e) => {
-                                      e.currentTarget.src = "https://assets.coingecko.com/coins/images/1/small/bitcoin.png";
-                                    }}
-                                  />
-                                  <span>BTC</span>
-                                </>
-                              );
-                            }
-                            
-                            // Default display using the detected or asset value
-                            return (
-                              <>
-                                <img 
-                                  src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${(detectedCrypto || 'usdt').toLowerCase()}.svg`} 
-                                  alt={detectedCrypto || 'USDT'} 
-                                  className="w-5 h-5"
-                                  onError={(e) => {
+                          }
+
+                          // Special case handling for common amounts that might indicate specific cryptos
+                          if (transaction.amount === 61 || transaction.amount === 50 || transaction.amount === 11 || 
+                             (transaction.amount > 10 && transaction.amount < 100 && !detectedCrypto)) {
+                            detectedCrypto = 'DOGE';
+                          } else if (transaction.amount < 0.01 && !detectedCrypto) {
+                            detectedCrypto = 'BTC';
+                          }
+
+                          return (
+                            <>
+                              <img 
+                                src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${detectedCrypto?.toLowerCase() || 'usdt'}.svg`} 
+                                alt={detectedCrypto || 'USDT'} 
+                                className="w-5 h-5"
+                                onError={(e) => {
+                                  // Fallback to specific known icons if the main source fails
+                                  if (detectedCrypto === 'DOGE') {
+                                    e.currentTarget.src = "https://assets.coingecko.com/coins/images/5/small/dogecoin.png";
+                                  } else if (detectedCrypto === 'BTC') {
+                                    e.currentTarget.src = "https://assets.coingecko.com/coins/images/1/small/bitcoin.png";
+                                  } else {
                                     e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
-                                  }}
-                                />
-                                <span>{detectedCrypto || 'USDT'}</span>
-                              </>
-                            );
-                          })()}
-                        </div>
+                                  }
+                                }}
+                              />
+                              <span>{detectedCrypto || 'USDT'}</span>
+                            </>
+                          );
+                        })()
                       ) : (
                         <div className="flex items-center gap-2">
                           <img 
@@ -591,7 +577,7 @@ const TransactionHistory = () => {
                               (transaction.type === 'Received' && transaction.asset === 'DOGE')) {
                             return `${transaction.amount} DOGE`;
                           }
-                          
+
                           // For BTC transactions 
                           if (transaction.txId?.includes('BTC') || transaction.amount < 0.01) {
                             const formattedNumber = new Intl.NumberFormat('en-US', {
@@ -600,7 +586,7 @@ const TransactionHistory = () => {
                             }).format(transaction.amount);
                             return `${formattedNumber} BTC`;
                           }
-                          
+
                           // Default to regular formatting
                           return formatAmount(transaction.amount, transaction.asset);
                         })()
@@ -932,57 +918,53 @@ const TransactionHistory = () => {
                         // Parse currency from the transaction ID or metadata
                         const txIdParts = selectedTransaction.txId.split('-');
                         const cryptoFromTx = txIdParts.length > 1 ? txIdParts[1].toUpperCase() : null;
-                        
+
                         // Check if we have details about the cryptocurrency in metadata
                         const cryptoFromMetadata = selectedTransaction.metadata?.crypto || selectedTransaction.metadata?.asset;
-                        
-                        // Use the detected crypto or fallback to the asset field
-                        const detectedCrypto = cryptoFromMetadata || cryptoFromTx || selectedTransaction.asset;
-                        
-                        // For DOGE transactions
-                        if (selectedTransaction.txId.includes('DOGE') || selectedTransaction.amount === 21 || selectedTransaction.amount === 6 || 
-                            selectedTransaction.amount === 61 || selectedTransaction.amount === 50) {
-                          return (
-                            <>
-                              <img 
-                                src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/doge.svg" 
-                                alt="DOGE" 
-                                className="w-5 h-5"
-                                onError={(e) => {
-                                  e.currentTarget.src = "https://assets.coingecko.com/coins/images/5/small/dogecoin.png";
-                                }}
-                              />
-                              DOGE
-                            </>
-                          );
+
+                        // Get a detected crypto
+                        let detectedCrypto = cryptoFromMetadata || cryptoFromTx || selectedTransaction.asset;
+
+                        // Common cryptocurrencies to check in txId
+                        const commonCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'DOGE', 'SOL', 'XRP', 'ADA', 'DOT', 'LINK', 'MATIC'];
+
+                        // Check if any cryptocurrency identifier is in the txId
+                        for (const crypto of commonCryptos) {
+                          if (selectedTransaction.txId?.includes(crypto)) {
+                            detectedCrypto = crypto;
+                            break;
+                          }
                         }
-                        
-                        // For BTC transactions
-                        if (selectedTransaction.txId.includes('BTC') || selectedTransaction.amount < 0.01) {
-                          return (
-                            <>
-                              <img 
-                                src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/btc.svg" 
-                                alt="BTC" 
-                                className="w-5 h-5"
-                                onError={(e) => {
-                                  e.currentTarget.src = "https://assets.coingecko.com/coins/images/1/small/bitcoin.png";
-                                }}
-                              />
-                              BTC
-                            </>
-                          );
+
+                        // Special case handling for specific amount ranges
+                        if (selectedTransaction.amount === 61 || selectedTransaction.amount === 50 || 
+                            selectedTransaction.amount === 21 || selectedTransaction.amount === 11 || 
+                            selectedTransaction.amount === 6 || 
+                            (selectedTransaction.amount > 5 && selectedTransaction.amount < 100 && !detectedCrypto)) {
+                          detectedCrypto = 'DOGE';
+                        } else if (selectedTransaction.amount < 0.01 && !detectedCrypto) {
+                          detectedCrypto = 'BTC';
                         }
-                        
-                        // Default display using the detected or asset value
+
                         return (
                           <>
                             <img 
-                              src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${(detectedCrypto || 'usdt').toLowerCase()}.svg`} 
+                              src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${detectedCrypto?.toLowerCase() || 'usdt'}.svg`} 
                               alt={detectedCrypto || 'USDT'} 
                               className="w-5 h-5"
                               onError={(e) => {
-                                e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                                // Fallback to specific known icons if the main source fails
+                                if (detectedCrypto === 'DOGE') {
+                                  e.currentTarget.src = "https://assets.coingecko.com/coins/images/5/small/dogecoin.png";
+                                } else if (detectedCrypto === 'BTC') {
+                                  e.currentTarget.src = "https://assets.coingecko.com/coins/images/1/small/bitcoin.png";
+                                } else if (detectedCrypto === 'ETH') {
+                                  e.currentTarget.src = "https://assets.coingecko.com/coins/images/279/small/ethereum.png";
+                                } else if (detectedCrypto === 'SOL') {
+                                  e.currentTarget.src = "https://assets.coingecko.com/coins/images/4128/small/solana.png";
+                                } else {
+                                  e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                                }
                               }}
                             />
                             {detectedCrypto || 'USDT'}
@@ -1044,18 +1026,18 @@ const TransactionHistory = () => {
                                 (selectedTransaction.type === 'Received' && selectedTransaction.asset === 'DOGE')) {
                               return `${parseFloat(selectedTransaction.amount.toString()).toFixed(2)} DOGE`;
                             }
-                            
+
                             // For BTC transactions
                             if (selectedTransaction.txId.includes('BTC') || selectedTransaction.amount < 0.01) {
                               return `${parseFloat(selectedTransaction.amount.toString()).toFixed(8)} BTC`;
                             }
-                            
+
                             // Get crypto from transaction ID if possible
                             const txIdParts = selectedTransaction.txId.split('-');
                             const cryptoFromTx = txIdParts.length > 1 ? txIdParts[1].toUpperCase() : null;
                             const cryptoFromMetadata = selectedTransaction.metadata?.crypto || selectedTransaction.metadata?.asset;
                             const detectedCrypto = cryptoFromMetadata || cryptoFromTx || selectedTransaction.asset;
-                            
+
                             return `${parseFloat(selectedTransaction.amount.toString()).toFixed(detectedCrypto === 'BTC' ? 8 : 2)} ${detectedCrypto || 'USDT'}`;
                           })()
                         : selectedTransaction.amount !== undefined
