@@ -840,32 +840,44 @@ const TransactionHistory = () => {
                     </p>
                   ) : (
                     <p className="text-white flex items-center gap-2">
-                      {selectedTransaction.details?.crypto ? (
-                        <>
-                          <img 
-                            src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${selectedTransaction.details.crypto.toLowerCase()}.svg`} 
-                            alt={selectedTransaction.details.crypto} 
-                            className="w-5 h-5"
-                            onError={(e) => {
-                              e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
-                            }}
-                          />
-                          {selectedTransaction.details.crypto}
-                        </>
-                      ) : (
-                        <>
-                          <img 
-                            src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${selectedTransaction.asset?.toLowerCase() || 'usdt'}.svg`} 
-                            alt={selectedTransaction.asset || 'USDT'} 
-                            className="w-5 h-5"
-                            onError={(e) => {
-                              e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
-                            }}
-                          />
-                          {selectedTransaction.asset || 'USDT'}
-                        </>
-                      )}
-                    </p>
+                    {selectedTransaction.type === 'Received' && selectedTransaction.metadata?.crypto ? (
+                      <>
+                        <img 
+                          src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${selectedTransaction.metadata.crypto.toLowerCase()}.svg`} 
+                          alt={selectedTransaction.metadata.crypto} 
+                          className="w-5 h-5"
+                          onError={(e) => {
+                            e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                          }}
+                        />
+                        {selectedTransaction.metadata.crypto}
+                      </>
+                    ) : selectedTransaction.details?.crypto ? (
+                      <>
+                        <img 
+                          src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${selectedTransaction.details.crypto.toLowerCase()}.svg`} 
+                          alt={selectedTransaction.details.crypto} 
+                          className="w-5 h-5"
+                          onError={(e) => {
+                            e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                          }}
+                        />
+                        {selectedTransaction.details.crypto}
+                      </>
+                    ) : (
+                      <>
+                        <img 
+                          src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${selectedTransaction.asset?.toLowerCase() || 'usdt'}.svg`} 
+                          alt={selectedTransaction.asset || 'USDT'} 
+                          className="w-5 h-5"
+                          onError={(e) => {
+                            e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                          }}
+                        />
+                        {selectedTransaction.asset || 'USDT'}
+                      </>
+                    )}
+                  </p>
                   )}
                 </div>
                 <div>
