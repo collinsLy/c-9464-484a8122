@@ -15,6 +15,7 @@ import { BankIcon, PayPalIcon, MpesaIcon, AirtelMoneyIcon } from '@/assets/payme
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {auth} from "@/lib/firebase"; // Assuming firebase auth is imported here
+import QRCodeScanner from '@/components/QRCodeScanner'; // Added import for QRCodeScanner
 
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 
@@ -1663,8 +1664,7 @@ const WithdrawPage = () => {
                     ) && (
                       <div className="mt-2 p-2 bg-red-500/10 rounded-md">
                         {!recipientUid && 
-                          <p className="text-xs text-red-400 mb-1">⚠️ Please enter recipient's Vertex ID</p>}
-                        {(!recipientData&& recipientUid && !isValidatingUid) && 
+                          <p className="text-xs text-red-400 mb-1">⚠️ Please enter recipient's Vertex ID</p>}                        {(!recipientData&& recipientUid && !isValidatingUid) && 
                           <p className="text-xs text-red-400 mb-1">⚠️ Please verify the recipient ID</p>}
                         {(!cryptoAmount || parseFloat(cryptoAmount) <= 0) && 
                           <p className="text-xs text-red-400 mb-1">⚠️ Please enter a valid amount</p>}
@@ -1860,6 +1860,15 @@ const WithdrawPage = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* QR Code Scanner */}
+      {showScanner && (
+        <QRCodeScanner 
+          isOpen={showScanner}
+          onClose={() => setShowScanner(false)}
+          onScan={handleScanResult}
+        />
+      )}
     </DashboardLayout>
   );
 };
