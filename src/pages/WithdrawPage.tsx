@@ -1,23 +1,23 @@
-
 import { useState, useEffect } from 'react';
+import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Check, Copy } from 'lucide-react';
 import { UserBalanceService } from '@/lib/firebase-service';
 import { UserService } from '@/lib/user-service';
 import { getFirestore, arrayUnion } from 'firebase/firestore';
+import { useDashboardContext } from '@/components/dashboard/DashboardLayout';
+import { useToast } from "@/components/ui/use-toast";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { BankIcon, PayPalIcon, MpesaIcon, AirtelMoneyIcon } from '@/assets/payment-icons';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { auth } from "@/lib/firebase"; 
-import { CryptoCurrencySelector } from "@/components/dashboard/CryptoCurrencySelector";
-import DashboardLayout from '@/components/dashboard/DashboardLayout';
-import { useDashboardContext } from '@/components/dashboard/DashboardLayout';
-import { useToast } from "@/components/ui/use-toast";
+import {auth} from "@/lib/firebase"; // Assuming firebase auth is imported here
+
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
+
 
 const WithdrawPage = () => {
   const { isDemoMode } = useDashboardContext();
@@ -40,7 +40,7 @@ const WithdrawPage = () => {
     mobileNumber: "",
   });
   const [userUid, setUserUid] = useState("");
-
+  
   // Vertex transfer states
   const [recipientUid, setRecipientUid] = useState("");
   const [isValidatingUid, setIsValidatingUid] = useState(false);
@@ -54,7 +54,7 @@ const WithdrawPage = () => {
   useEffect(() => {
     setUserUid(auth.currentUser?.uid || "");
   }, []);
-
+  
   // Validate recipient UID
   const validateRecipientUid = async () => {
     if (!recipientUid || recipientUid.trim() === "") {
@@ -62,21 +62,21 @@ const WithdrawPage = () => {
       setRecipientData(null);
       return;
     }
-
+    
     // Check if trying to send to self
     if (recipientUid === userUid) {
       setUidValidationError("You cannot send funds to yourself");
       setRecipientData(null);
       return;
     }
-
+    
     setIsValidatingUid(true);
     setUidValidationError("");
-
+    
     try {
       // Check if recipient exists
       const userData = await UserService.getUserData(recipientUid);
-
+      
       if (!userData) {
         setUidValidationError("No user found with this UID");
         setRecipientData(null);
@@ -92,7 +92,7 @@ const WithdrawPage = () => {
       setIsValidatingUid(false);
     }
   };
-
+  
   // Handle the vertex transfer process
   const handleVertexTransfer = () => {
     if (isDemoMode) {
@@ -103,7 +103,7 @@ const WithdrawPage = () => {
       });
       return;
     }
-
+    
     // Validate input
     if (!recipientUid || !recipientData) {
       toast({
@@ -113,7 +113,7 @@ const WithdrawPage = () => {
       });
       return;
     }
-
+    
     const cryptoAmountValue = parseFloat(cryptoAmount);
     if (!cryptoAmountValue || cryptoAmountValue <= 0) {
       toast({
@@ -123,7 +123,7 @@ const WithdrawPage = () => {
       });
       return;
     }
-
+    
     const availableBalance = userCryptoBalances[selectedCrypto] || 0;
     if (cryptoAmountValue > availableBalance) {
       toast({
@@ -133,17 +133,17 @@ const WithdrawPage = () => {
       });
       return;
     }
-
+    
     // Show confirmation dialog
     setIsConfirmDialogOpen(true);
   };
-
+  
   // Confirm the vertex transfer
   const confirmVertexTransfer = async () => {
     setIsProcessingTransfer(true);
     const cryptoAmountValue = parseFloat(cryptoAmount);
     const uid = userUid || auth.currentUser?.uid || localStorage.getItem('userId');
-
+    
     if (!uid || !recipientUid) {
       toast({
         title: "Transfer Error",
@@ -154,23 +154,23 @@ const WithdrawPage = () => {
       setIsConfirmDialogOpen(false);
       return;
     }
-
+    
     try {
       // Get fresh data before proceeding
       const senderData = await UserService.getUserData(uid);
       const recipientDataFresh = await UserService.getUserData(recipientUid);
-
+      
       if (!senderData || !recipientDataFresh) {
         throw new Error("Could not retrieve user data");
       }
-
+      
       // Update the recipient data with the fresh data
       setRecipientData(recipientDataFresh);
-
+      
       // Get sender's assets
       const senderAssets = senderData.assets || {};
       const senderBalance = senderAssets[selectedCrypto]?.amount || 0;
-
+      
       // Verify sender has enough balance
       if (senderBalance < cryptoAmountValue) {
         toast({
@@ -182,22 +182,22 @@ const WithdrawPage = () => {
         setIsConfirmDialogOpen(false);
         return;
       }
-
+      
       // Get recipient's assets
       const recipientAssets = recipientDataFresh.assets || {};
       const recipientBalance = recipientAssets[selectedCrypto]?.amount || 0;
-
+      
       // Calculate new balances
       const newSenderBalance = senderBalance - cryptoAmountValue;
       const newRecipientBalance = recipientBalance + cryptoAmountValue;
-
+      
       // Update sender's assets
       const updatedSenderAssets = { ...senderAssets };
       updatedSenderAssets[selectedCrypto] = {
         ...updatedSenderAssets[selectedCrypto],
         amount: newSenderBalance
       };
-
+      
       // Update recipient's assets
       const updatedRecipientAssets = { ...recipientAssets };
       // Create the asset object if it doesn't exist
@@ -212,12 +212,12 @@ const WithdrawPage = () => {
           amount: newRecipientBalance
         };
       }
-
+      
       // Create transaction record with a unique ID
       const txId = `TX${Date.now()}`;
       const timestamp = new Date().toISOString();
       const estimatedUsdValue = cryptoAmountValue * getEstimatedRate(selectedCrypto);
-
+      
       // Transaction for sender (outgoing)
       const senderTransaction = {
         type: 'Transfer',
@@ -239,7 +239,7 @@ const WithdrawPage = () => {
           completionTime: timestamp
         }
       };
-
+      
       // Transaction for recipient (incoming)
       const recipientTransaction = {
         type: 'Received',
@@ -261,34 +261,34 @@ const WithdrawPage = () => {
           completionTime: timestamp
         }
       };
-
+      
       // Update sender data
       await UserService.updateUserData(uid, {
         assets: updatedSenderAssets,
         transactions: arrayUnion(senderTransaction)
       });
-
+      
       // Update recipient data
       await UserService.updateUserData(recipientUid, {
         assets: updatedRecipientAssets,
         transactions: arrayUnion(recipientTransaction)
       });
-
+      
       // Update local state
       setUserCryptoBalances(prev => ({
         ...prev,
         [selectedCrypto]: newSenderBalance
       }));
-
+      
       // Show success message and close confirmation dialog
       setIsConfirmDialogOpen(false);
       setIsTransferSuccessDialogOpen(true);
-
+      
       toast({
         title: "Transfer Successful",
         description: `You have successfully sent ${cryptoAmountValue} ${selectedCrypto} to ${recipientDataFresh.fullName || "the recipient"}`,
       });
-
+      
       // Reset form
       setCryptoAmount("");
     } catch (error) {
@@ -920,7 +920,7 @@ const WithdrawPage = () => {
     if (!address.trim()) return false;
 
     // Basic validation patterns
-    const patterns: Record<string, RegExp> = {
+    const patterns = {
       BTC_NATIVE: /^(1|3|bc1)[a-zA-Z0-9]{25,42}$/,
       ETH_ERC20: /^0x[a-fA-F0-9]{40}$/,
       BNB_BSC: /^0x[a-fA-F0-9]{40}$/,
@@ -936,8 +936,8 @@ const WithdrawPage = () => {
     const key = `${crypto}_${network}`;
 
     // If specific pattern exists, use it
-    if (patterns[key]) {
-      return patterns[key].test(address);
+    if (patterns[key as keyof typeof patterns]) {
+      return patterns[key as keyof typeof patterns].test(address);
     }
 
     // Default pattern based on network
@@ -967,7 +967,7 @@ const WithdrawPage = () => {
         <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
           <CardHeader className="pb-3">
             <CardTitle>Select Withdrawal Method</CardTitle>
-            <CardDescription className="textwhite/70">
+            <CardDescription className="text-white/70">
               Choose your preferred withdrawal method
             </CardDescription>
           </CardHeader>
@@ -1065,12 +1065,95 @@ const WithdrawPage = () => {
                     </div>
                   </div>
                   <div className="flex gap-2 flex-wrap mb-6">
-                    <CryptoCurrencySelector
-                      selectedCrypto={selectedCrypto}
-                      setSelectedCrypto={setSelectedCrypto}
-                      userCryptoBalances={userCryptoBalances}
-                      setNetwork={setNetwork}
-                    />
+                    {[
+                      { symbol: 'BTC', name: 'Bitcoin' },
+                      { symbol: 'ETH', name: 'Ethereum' },
+                      { symbol: 'USDT', name: 'Tether' },
+                      { symbol: 'USDC', name: 'USD Coin' },
+                      { symbol: 'BNB', name: 'Binance Coin' },
+                      { symbol: 'DOGE', name: 'Dogecoin' },
+                      { symbol: 'SOL', name: 'Solana' },
+                      { symbol: 'XRP', name: 'Ripple' },
+                      { symbol: 'WLD', name: 'Worldcoin' },
+                      { symbol: 'ADA', name: 'Cardano' },
+                      { symbol: 'DOT', name: 'Polkadot' },
+                      { symbol: 'LINK', name: 'Chainlink' },
+                      { symbol: 'MATIC', name: 'Polygon' }
+                    ].map((crypto) => {
+                      const balance = userCryptoBalances[crypto.symbol] || 0;
+                      return (
+                        <Button 
+                          key={crypto.symbol}
+                          variant={selectedCrypto === crypto.symbol ? 'secondary' : 'outline'}
+                          onClick={async () => {
+                            // First update the UI
+                            setSelectedCrypto(crypto.symbol);
+
+                            console.log(`Selected ${crypto.symbol}, state balance: ${balance}`);
+
+                            // Reset network to appropriate default for this crypto
+                            if (crypto.symbol === 'BTC') {
+                              setNetwork('NATIVE');
+                            } else if (crypto.symbol === 'ETH') {
+                              setNetwork('ERC20');
+                            } else if (crypto.symbol === 'BNB') {
+                              setNetwork('BSC');
+                            } else {
+                              setNetwork('ERC20'); // Default for USDT, USDC, etc.
+                            }
+
+                            // Immediately fetch the latest balance from Firebase
+                            const uid = localStorage.getItem('userId');
+                            if (uid) {
+                              try {
+                                const userData = await UserService.getUserData(uid);
+                                if (userData && userData.assets) {
+                                  // Log all assets for debugging
+                                  console.log("All user assets:", userData.assets);
+
+                                  // Get fresh balance with proper null/undefined handling
+                                  let freshBalance = 0;
+
+                                  // Special handling for USDT to ensure it works correctly
+                                  if (crypto.symbol === 'USDT' && userData.assets.USDT) {
+                                    freshBalance = userData.assets.USDT.amount || 0;
+                                    console.log(`USDT balance specifically: ${freshBalance}`);
+                                  } 
+                                  // Standard handling for other assets
+                                  else if (userData.assets[crypto.symbol]) {
+                                    freshBalance = userData.assets[crypto.symbol].amount || 0;
+                                  }
+
+                                  console.log(`Firebase check for ${crypto.symbol}: ${freshBalance}`);
+
+                                  // Update UI with fresh balance - force it to be a number
+                                  setUserCryptoBalances(prev => ({
+                                    ...prev,
+                                    [crypto.symbol]: Number(freshBalance)
+                                  }));
+                                }
+                              } catch (error) {
+                                console.error(`Error fetching ${crypto.symbol} balance:`, error);
+                              }
+                            }
+                          }}
+                          className="flex items-center gap-2"
+                        >
+                          <img 
+                            src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${crypto.symbol.toLowerCase()}.svg`} 
+                            alt={crypto.symbol} 
+                            className="w-5 h-5" 
+                            onError={(e) => {
+                              e.currentTarget.src = "https://assets.coingecko.com/coins/images/1/small/bitcoin.png";
+                            }}
+                          />
+                          {crypto.symbol}
+                          <span className={`text-xs ml-1 ${balance > 0 ? 'text-green-500' : 'opacity-70'}`}>
+                            {`(${balance.toFixed(4)})`}
+                          </span>
+                        </Button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -1252,7 +1335,7 @@ const WithdrawPage = () => {
 
                     <Button 
                       className="w-full bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34] h-12 text-lg mt-4"
-                      onClick={handleCryptoWithdraw}
+                      onClick={handleWithdraw}
                       disabled={
                         !walletAddress || 
                         !isValidWalletAddress(walletAddress, selectedCrypto, network) ||
@@ -1306,7 +1389,7 @@ const WithdrawPage = () => {
                     <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-sm">1</span>
                     <h3 className="text-lg font-medium text-white">Transfer Method</h3>
                   </div>
-
+                  
                   <div className="space-y-4">
                     <Tabs defaultValue="vertex_id" className="w-full">
                       <TabsList className="bg-background/80 border-white/10 text-white grid grid-cols-3 w-full max-w-md">
@@ -1320,7 +1403,7 @@ const WithdrawPage = () => {
                           Vertex ID
                         </TabsTrigger>
                       </TabsList>
-
+                      
                       <TabsContent value="email" className="pt-4">
                         <div className="space-y-2">
                           <Label htmlFor="recipient_email">Recipient's email</Label>
@@ -1335,7 +1418,7 @@ const WithdrawPage = () => {
                           </p>
                         </div>
                       </TabsContent>
-
+                      
                       <TabsContent value="phone" className="pt-4">
                         <div className="space-y-2">
                           <Label htmlFor="recipient_phone">Recipient's phone</Label>
@@ -1350,7 +1433,7 @@ const WithdrawPage = () => {
                           </p>
                         </div>
                       </TabsContent>
-
+                      
                       <TabsContent value="vertex_id" className="pt-4">
                         <div className="space-y-2">
                           <Label htmlFor="recipient_vertex_id">Recipient's Vertex ID</Label>
@@ -1381,14 +1464,14 @@ const WithdrawPage = () => {
                                   "Verify ID"
                                 }
                               </Button>
-
+                              
                               {recipientData && (
                                 <div className="ml-3 flex items-center gap-2 text-sm">
                                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
                                   <span className="text-green-400">Valid recipient: {recipientData.fullName || recipientData.email || "Vertex User"}</span>
                                 </div>
                               )}
-
+                              
                               {uidValidationError && (
                                 <div className="ml-3 flex items-center gap-2 text-sm">
                                   <div className="w-2 h-2 rounded-full bg-red-500"></div>
@@ -1408,7 +1491,7 @@ const WithdrawPage = () => {
                     <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-sm">2</span>
                     <h3 className="text-lg font-medium text-white">Transfer amount</h3>
                   </div>
-
+                  
                   <div className="space-y-4">
                     <div className="grid gap-2">
                       <Label>Select Cryptocurrency</Label>
@@ -1442,8 +1525,7 @@ const WithdrawPage = () => {
                                 alt={crypto.symbol} 
                                 className="w-5 h-5" 
                                 onError={(e) => {
-                                  const target = e.currentTarget as HTMLImageElement;
-                                  target.src = "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/generic.svg";
+                                  e.currentTarget.src = "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/generic.svg";
                                 }}
                               />
                               {crypto.symbol}
@@ -1454,7 +1536,7 @@ const WithdrawPage = () => {
                           );
                         })}
                       </div>
-
+                      
                       <div className="flex justify-between items-center">
                         <Label>Amount</Label>
                         <span 
@@ -1522,7 +1604,7 @@ const WithdrawPage = () => {
                         "Transfer to Vertex User"
                       }
                     </Button>
-
+                    
                     {/* Validation messages */}
                     {(
                       (!recipientUid) ||
@@ -1555,13 +1637,13 @@ const WithdrawPage = () => {
                     </div>
                   </div>
                 </div>
-
+                
                 {/* Confirmation Dialog */}
                 <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
                   <DialogContent className="bg-background/95 backdrop-blur-lg border-white/10 text-white">
                     <div className="flex flex-col items-center justify-center p-6 space-y-4">
                       <h2 className="text-2xl font-bold">Confirm Transfer</h2>
-
+                      
                       <div className="w-full bg-white/5 rounded-lg p-4 space-y-3">
                         <div className="flex justify-between">
                           <span className="text-white/70">Recipient:</span>
@@ -1586,7 +1668,7 @@ const WithdrawPage = () => {
                           <span className="text-green-400">$0.00 (No fee)</span>
                         </div>
                       </div>
-
+                      
                       <div className="w-full flex justify-between gap-3 mt-4">
                         <Button 
                           variant="outline" 
@@ -1614,7 +1696,7 @@ const WithdrawPage = () => {
                     </div>
                   </DialogContent>
                 </Dialog>
-
+                
                 {/* Success Dialog */}
                 <Dialog open={isTransferSuccessDialogOpen} onOpenChange={setIsTransferSuccessDialogOpen}>
                   <DialogContent className="bg-background/95 backdrop-blur-lg border-white/10 text-white">
@@ -1624,7 +1706,7 @@ const WithdrawPage = () => {
                       </div>
                       <h2 className="text-2xl font-bold">Transfer Successful</h2>
                       <p className="text-3xl font-bold">{cryptoAmount} {selectedCrypto}</p>
-
+                      
                       <div className="w-full bg-white/10 rounded-lg p-4 space-y-2">
                         <div className="flex justify-between">
                           <span className="text-white/70">Recipient:</span>
@@ -1641,7 +1723,7 @@ const WithdrawPage = () => {
                           <span className="text-green-400">Completed</span>
                         </div>
                       </div>
-
+                      
                       <div className="flex gap-4 mt-4">
                         <Button variant="outline" onClick={() => setIsTransferSuccessDialogOpen(false)}>
                           Close
@@ -1660,7 +1742,7 @@ const WithdrawPage = () => {
             </Tabs>
           </CardContent>
         </Card>
-
+        
         {/* UID Display Section */}
         <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
           <CardHeader className="pb-2">
