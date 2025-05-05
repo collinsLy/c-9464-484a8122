@@ -42,6 +42,8 @@ const WithdrawPage = () => {
   });
   const [userUid, setUserUid] = useState("");
   const [showScanner, setShowScanner] = useState(false); // Added state for QR scanner
+  const [showAllCoinsDialog, setShowAllCoinsDialog] = useState(false); // State for cryptocurrency modal
+
 
   // Vertex transfer states
   const [recipientUid, setRecipientUid] = useState("");
@@ -1198,6 +1200,7 @@ const WithdrawPage = () => {
                       );
                     })}
                   </div>
+                  <Button onClick={() => setShowAllCoinsDialog(true)} className="mt-4 w-full bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34] h-12 text-lg">See All</Button>
                 </div>
 
                 <div>
@@ -1651,7 +1654,7 @@ const WithdrawPage = () => {
                       {cryptoAmount && (
                         <div className="flex justify-between text-sm text-white/70">
                           <span>Value:</span>
-                          <span>≈ ${(parseFloat(cryptoAmount || '0') * getEstimatedRate(selectedCrypto)).toFixed(2)} USD</span>
+                          <span>≈ ${(parseFloat(cryptoAmount || '0')* getEstimatedRate(selectedCrypto)).toFixed(2)} USD</span>
                         </div>
                       )}
                     </div>
@@ -1896,6 +1899,51 @@ const WithdrawPage = () => {
           onScan={handleScanResult}
         />
       )}
+
+      {/* Show All Coins Dialog */}
+      <Dialog open={showAllCoinsDialog} onOpenChange={setShowAllCoinsDialog}>
+        <DialogContent className="bg-background/95 backdrop-blur-lg border-white/10 text-white p-6">
+          <h2 className="text-xl font-medium mb-4">All Cryptocurrencies</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {[
+              { symbol: 'BTC', name: 'Bitcoin' },
+              { symbol: 'ETH', name: 'Ethereum' },
+              { symbol: 'USDT', name: 'Tether' },
+              { symbol: 'USDC', name: 'USD Coin' },
+              { symbol: 'BNB', name: 'Binance Coin' },
+              { symbol: 'DOGE', name: 'Dogecoin' },
+              { symbol: 'SOL', name: 'Solana' },
+              { symbol: 'XRP', name: 'Ripple' },
+              { symbol: 'WLD', name: 'Worldcoin' },
+              { symbol: 'ADA', name: 'Cardano' },
+              { symbol: 'DOT', name: 'Polkadot' },
+              { symbol: 'LINK', name: 'Chainlink' },
+              { symbol: 'MATIC', name: 'Polygon' }
+            ].map((crypto) => (
+              <button
+                key={crypto.symbol}
+                onClick={() => {
+                  setSelectedCrypto(crypto.symbol);
+                  setShowAllCoinsDialog(false);
+                }}
+                className="flex flex-col items-center justify-center p-4 rounded-lg border border-white/10 hover:border-white/20 bg-background/40"
+              >
+                <img
+                  src={crypto.symbol === 'WLD'
+                    ? "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040"
+                    : `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${crypto.symbol.toLowerCase()}.svg`}
+                  alt={crypto.symbol}
+                  className="w-7 h-7"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/generic.svg";
+                  }}
+                />
+                <span className="mt-2 text-white text-sm">{crypto.symbol}</span>
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };
