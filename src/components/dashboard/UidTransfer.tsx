@@ -36,8 +36,11 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
           const symbol = item.symbol.replace('USDT', '');
           prices[symbol] = parseFloat(item.price);
         });
-        // Add USDT itself with value of 1
+        // Add USDT and USDC with value of 1
         prices['USDT'] = 1;
+        prices['USDC'] = 1;
+
+        console.log("Fetched crypto prices:", prices);
         setAssetPrices(prices);
       } catch (error) {
         console.error('Error fetching asset prices:', error);
