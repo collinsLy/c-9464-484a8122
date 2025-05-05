@@ -7,6 +7,7 @@ import { toast } from "@/components/ui/use-toast";
 import { UserService } from "@/lib/user-service";
 import { doc, runTransaction } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
+import { CryptoCurrencySelector } from "./CryptoCurrencySelector";
 
 interface UidTransferProps {
   currentBalance: number;
@@ -78,7 +79,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
 
     // Make sure we have the price data
     let price = assetPrices[selectedCrypto];
-    
+
     // If price is not found in the regular map, try special cases
     if (price === undefined) {
       // Add special handling for cryptocurrencies not covered in the main fetch
@@ -87,7 +88,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
         price = assetPrices['DOGE'];
         console.log(`Using special case for DOGE, price: ${price}`);
       }
-      
+
       // If still undefined after special handling
       if (price === undefined) {
         console.warn(`Price not found for ${selectedCrypto}. Available prices:`, assetPrices);
@@ -298,41 +299,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
 
         <div className="space-y-2">
           <Label>Select Cryptocurrency</Label>
-          <div className="flex gap-2 flex-wrap mb-2">
-            {[
-              { symbol: 'BTC', name: 'Bitcoin' },
-              { symbol: 'ETH', name: 'Ethereum' },
-              { symbol: 'USDT', name: 'Tether' },
-              { symbol: 'USDC', name: 'USD Coin' },
-              { symbol: 'BNB', name: 'Binance Coin' },
-              { symbol: 'DOGE', name: 'Dogecoin' },
-              { symbol: 'SOL', name: 'Solana' },
-              { symbol: 'XRP', name: 'Ripple' },
-              { symbol: 'WLD', name: 'Worldcoin' },
-              { symbol: 'ADA', name: 'Cardano' },
-              { symbol: 'DOT', name: 'Polkadot' },
-              { symbol: 'LINK', name: 'Chainlink' },
-              { symbol: 'MATIC', name: 'Polygon' }
-            ].map((crypto) => (
-              <Button 
-                key={crypto.symbol}
-                variant={selectedCrypto === crypto.symbol ? 'secondary' : 'outline'}
-                onClick={() => setSelectedCrypto(crypto.symbol)}
-                className="flex items-center gap-2"
-                size="sm"
-              >
-                <img 
-                  src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${crypto.symbol.toLowerCase()}.svg`} 
-                  alt={crypto.symbol} 
-                  className="w-4 h-4"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
-                  }}
-                />
-                {crypto.symbol}
-              </Button>
-            ))}
-          </div>
+          <CryptoCurrencySelector selectedCrypto={selectedCrypto} setSelectedCrypto={setSelectedCrypto} />
         </div>
 
         <div className="space-y-2">
