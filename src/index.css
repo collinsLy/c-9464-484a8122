@@ -61,8 +61,8 @@
 /* Base Styles */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 220 14% 12%;
+    --background: 220 14% 12%;
+    --foreground: 0 0% 100%;
     --radius: 0.5rem;
     --border: 220 13% 91%;
     --input: 220 13% 91%;
