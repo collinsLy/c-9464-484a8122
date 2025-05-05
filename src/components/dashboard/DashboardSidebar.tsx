@@ -103,7 +103,7 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
 
       <aside className={cn(
         "flex flex-col bg-background/95 backdrop-blur-xl border-r border-white/10 transition-all duration-300 h-screen z-40",
-        collapsed ? "w-28 md:w-48" : "w-[320px] md:w-80", 
+        collapsed ? "w-64 md:w-48" : "w-[320px] md:w-80", 
         isMobile ? "fixed left-0 top-0" : "relative",
         isMobile && !mobileOpen ? "-translate-x-full" : "translate-x-0",
         "shadow-xl shadow-black/10"
