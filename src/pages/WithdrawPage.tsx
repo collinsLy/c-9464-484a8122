@@ -94,7 +94,38 @@ const WithdrawPage = () => {
     }
   };
 
-  // Handle the vertex transfer process
+  // Handler for QR code scanning results
+  const handleScanResult = (result: string) => {
+    toast({
+      title: "QR Code Scanned",
+      description: "Successfully scanned QR code",
+    });
+
+    // Process the scanned result
+    if (result.startsWith('vertex:')) {
+      // Extract Vertex ID from URI
+      const idMatch = result.match(/vertex:([a-zA-Z0-9]+)/);
+      if (idMatch && idMatch[1]) {
+        const vertexId = idMatch[1];
+        setRecipientUid(vertexId);
+        // Validate the ID immediately
+        setTimeout(() => validateRecipientUid(), 500);
+      }
+    } else if (result.match(/^[a-zA-Z0-9]{20,28}$/)) {
+      // If it's just a raw ID (not in URI format)
+      setRecipientUid(result);
+      // Validate the ID immediately
+      setTimeout(() => validateRecipientUid(), 500);
+    } else {
+      toast({
+        title: "Invalid QR Code",
+        description: "The scanned QR code doesn't contain a valid Vertex ID",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Handler for vertex transfer
   const handleVertexTransfer = () => {
     if (isDemoMode) {
       toast({
@@ -1633,7 +1664,7 @@ const WithdrawPage = () => {
                       <div className="mt-2 p-2 bg-red-500/10 rounded-md">
                         {!recipientUid && 
                           <p className="text-xs text-red-400 mb-1">⚠️ Please enter recipient's Vertex ID</p>}
-                        {(!recipientData && recipientUid && !isValidatingUid) && 
+                        {(!recipientData&& recipientUid && !isValidatingUid) && 
                           <p className="text-xs text-red-400 mb-1">⚠️ Please verify the recipient ID</p>}
                         {(!cryptoAmount || parseFloat(cryptoAmount) <= 0) && 
                           <p className="text-xs text-red-400 mb-1">⚠️ Please enter a valid amount</p>}
