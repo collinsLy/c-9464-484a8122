@@ -1099,21 +1099,11 @@ const WithdrawPage = () => {
                       {getUserCryptoBalance()}
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"> {/* Grid layout */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4"> {/* Display only important coins in first row */}
                     {[
                       { symbol: 'BTC', name: 'Bitcoin' },
                       { symbol: 'ETH', name: 'Ethereum' },
                       { symbol: 'USDT', name: 'Tether' },
-                      { symbol: 'USDC', name: 'USD Coin' },
-                      { symbol: 'BNB', name: 'Binance Coin' },
-                      { symbol: 'DOGE', name: 'Dogecoin' },
-                      { symbol: 'SOL', name: 'Solana' },
-                      { symbol: 'XRP', name: 'Ripple' },
-                      { symbol: 'WLD', name: 'Worldcoin' },
-                      { symbol: 'ADA', name: 'Cardano' },
-                      { symbol: 'DOT', name: 'Polkadot' },
-                      { symbol: 'LINK', name: 'Chainlink' },
-                      { symbol: 'MATIC', name: 'Polygon' }
                     ].map((crypto) => {
                       const balance = userCryptoBalances[crypto.symbol] || 0;
                       return (
@@ -1184,7 +1174,7 @@ const WithdrawPage = () => {
                                 ? "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040" 
                                 : `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${crypto.symbol.toLowerCase()}.svg`}
                               alt={crypto.symbol}
-                              className="w-7 h-7"
+                              className="w-10 h-10" // Slightly larger icons for main coins
                               onError={(e) => {
                                 (e.target as HTMLImageElement).src = "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/generic.svg";
                               }}
@@ -1200,7 +1190,12 @@ const WithdrawPage = () => {
                       );
                     })}
                   </div>
-                  <Button onClick={() => setShowAllCoinsDialog(true)} className="mt-4 w-full bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34] h-12 text-lg">See All</Button>
+                  <Button 
+                    onClick={() => setShowAllCoinsDialog(true)} 
+                    className="mt-4 w-full bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34] h-12 text-lg"
+                  >
+                    See All Cryptocurrencies
+                  </Button>
                 </div>
 
                 <div>
