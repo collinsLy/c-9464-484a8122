@@ -1,24 +1,23 @@
+
 import { useState, useEffect } from 'react';
-import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Check, Copy } from 'lucide-react';
 import { UserBalanceService } from '@/lib/firebase-service';
 import { UserService } from '@/lib/user-service';
 import { getFirestore, arrayUnion } from 'firebase/firestore';
-import { useDashboardContext } from '@/components/dashboard/DashboardLayout';
-import { useToast } from "@/components/ui/use-toast";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { BankIcon, PayPalIcon, MpesaIcon, AirtelMoneyIcon } from '@/assets/payment-icons';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { auth } from "@/lib/firebase"; // Assuming firebase auth is imported here
+import { auth } from "@/lib/firebase"; 
 import { CryptoCurrencySelector } from "@/components/dashboard/CryptoCurrencySelector";
-
+import DashboardLayout from '@/components/dashboard/DashboardLayout';
+import { useDashboardContext } from '@/components/dashboard/DashboardLayout';
+import { useToast } from "@/components/ui/use-toast";
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
-
 
 const WithdrawPage = () => {
   const { isDemoMode } = useDashboardContext();
@@ -921,7 +920,7 @@ const WithdrawPage = () => {
     if (!address.trim()) return false;
 
     // Basic validation patterns
-    const patterns = {
+    const patterns: Record<string, RegExp> = {
       BTC_NATIVE: /^(1|3|bc1)[a-zA-Z0-9]{25,42}$/,
       ETH_ERC20: /^0x[a-fA-F0-9]{40}$/,
       BNB_BSC: /^0x[a-fA-F0-9]{40}$/,
@@ -937,8 +936,8 @@ const WithdrawPage = () => {
     const key = `${crypto}_${network}`;
 
     // If specific pattern exists, use it
-    if (patterns[key as keyof typeof patterns]) {
-      return patterns[key as keyof typeof patterns].test(address);
+    if (patterns[key]) {
+      return patterns[key].test(address);
     }
 
     // Default pattern based on network
@@ -1443,7 +1442,8 @@ const WithdrawPage = () => {
                                 alt={crypto.symbol} 
                                 className="w-5 h-5" 
                                 onError={(e) => {
-                                  e.currentTarget.src = "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/generic.svg";
+                                  const target = e.currentTarget as HTMLImageElement;
+                                  target.src = "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/generic.svg";
                                 }}
                               />
                               {crypto.symbol}
@@ -1637,7 +1637,7 @@ const WithdrawPage = () => {
                           <span className="font-mono">{`TX${Date.now().toString().slice(-8)}`}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-white/70span>
+                          <span className="text-white/70">Status:</span>
                           <span className="text-green-400">Completed</span>
                         </div>
                       </div>
