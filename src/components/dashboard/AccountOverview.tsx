@@ -29,7 +29,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   useEffect(() => {
     const fetchPrices = async () => {
       try {
-        const symbols = ['BTC', 'ETH', 'BNB', 'SOL', 'ADA'];
+        const symbols = ['BTC', 'ETH', 'BNB', 'SOL', 'ADA', 'DOGE', 'XRP', 'DOT', 'LINK', 'MATIC'];
         const symbolsQuery = symbols.map(s => `${s}USDT`);
         const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
         const data = await response.json();
