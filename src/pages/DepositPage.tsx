@@ -179,7 +179,9 @@ const DepositPage = () => {
                         ))}
                       </div>
                       <Button 
-                        onClick={() => setShowAllCoinsDialog(true)} 
+                        onClick={() => {
+                          setShowAllCoinsDialog(true);
+                        }} 
                         className="mt-4 w-full bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34] h-12 text-lg"
                       >
                         See All Cryptocurrencies
