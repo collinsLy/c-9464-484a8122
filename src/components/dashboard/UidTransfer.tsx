@@ -298,21 +298,11 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
 
         <div className="space-y-2">
           <Label>Select Cryptocurrency</Label>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-2">
+          <div className="grid grid-cols-3 gap-3 mb-2"> {/* Display only important coins in first row */}
             {[
               { symbol: 'BTC', name: 'Bitcoin', chainColor: '#F7931A' },
               { symbol: 'ETH', name: 'Ethereum', chainColor: '#627EEA' },
               { symbol: 'USDT', name: 'Tether', chainColor: '#26A17B' },
-              { symbol: 'USDC', name: 'USD Coin', chainColor: '#2775CA' },
-              { symbol: 'BNB', name: 'Binance Coin', chainColor: '#F3BA2F' },
-              { symbol: 'DOGE', name: 'Dogecoin', chainColor: '#C2A633' },
-              { symbol: 'SOL', name: 'Solana', chainColor: '#00FFA3' },
-              { symbol: 'XRP', name: 'Ripple', chainColor: '#23292F' },
-              { symbol: 'WLD', name: 'Worldcoin', chainColor: '#4940E0' },
-              { symbol: 'ADA', name: 'Cardano', chainColor: '#0033AD' },
-              { symbol: 'DOT', name: 'Polkadot', chainColor: '#E6007A' },
-              { symbol: 'LINK', name: 'Chainlink', chainColor: '#2A5ADA' },
-              { symbol: 'MATIC', name: 'Polygon', chainColor: '#8247E5' }
             ].map((crypto) => {
               const balance = userBalances?.[crypto.symbol] || 0;
               const hasBalance = balance > 0;
@@ -377,6 +367,19 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
               );
             })}
           </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full text-xs mb-2"
+            onClick={() => {
+              toast({
+                title: "All Cryptocurrencies",
+                description: "This would open a dialog with all cryptocurrencies",
+              });
+            }}
+          >
+            See All Cryptocurrencies
+          </Button>
         </div>
 
         <div className="space-y-2">

@@ -120,21 +120,11 @@ const DepositPage = () => {
                           className="bg-background/40 border-white/10 text-white"
                         />
                       </div>
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4"> {/* Display only important coins in first row */}
                         {[
                           { symbol: 'BTC', name: 'Bitcoin', chainColor: '#F7931A' },
                           { symbol: 'ETH', name: 'Ethereum', chainColor: '#627EEA' },
                           { symbol: 'USDT', name: 'Tether', chainColor: '#26A17B' },
-                          { symbol: 'USDC', name: 'USD Coin', chainColor: '#2775CA' },
-                          { symbol: 'BNB', name: 'Binance Coin', chainColor: '#F3BA2F' },
-                          { symbol: 'DOGE', name: 'Dogecoin', chainColor: '#C2A633' },
-                          { symbol: 'SOL', name: 'Solana', chainColor: '#00FFA3' },
-                          { symbol: 'XRP', name: 'Ripple', chainColor: '#23292F' },
-                          { symbol: 'WLD', name: 'Worldcoin', chainColor: '#4940E0' },
-                          { symbol: 'ADA', name: 'Cardano', chainColor: '#0033AD' },
-                          { symbol: 'DOT', name: 'Polkadot', chainColor: '#E6007A' },
-                          { symbol: 'LINK', name: 'Chainlink', chainColor: '#2A5ADA' },
-                          { symbol: 'MATIC', name: 'Polygon', chainColor: '#8247E5' }
                         ].map((crypto) => (
                           <div
                             key={crypto.symbol}
@@ -186,6 +176,18 @@ const DepositPage = () => {
                           </div>
                         ))}
                       </div>
+                      <Button 
+                        onClick={() => {
+                          // Show a dialog with all cryptocurrencies
+                          toast({
+                            title: "All Cryptocurrencies",
+                            description: "This would open a dialog with all cryptocurrencies",
+                          });
+                        }} 
+                        className="mt-4 w-full bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34] h-12 text-lg"
+                      >
+                        See All Cryptocurrencies
+                      </Button>
                     </div>
 
                     <div>
