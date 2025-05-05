@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { BankIcon, PayPalIcon, MpesaIcon, AirtelMoneyIcon } from '@/assets/payment-icons';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {auth} from "@/lib/firebase"; // Assuming firebase auth is imported here
+import { auth } from "@/lib/firebase"; // Assuming firebase auth is imported here
 import { CryptoCurrencySelector } from "@/components/dashboard/CryptoCurrencySelector";
 
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
