@@ -211,7 +211,7 @@ const TransactionHistory = () => {
 
   const formatAmount = (amount: number | undefined, asset: string): string => {
     if (amount === undefined) {
-      return `$0.00`;
+      return `0.00`;
     }
 
     const formattedNumber = new Intl.NumberFormat('en-US', {
@@ -219,7 +219,13 @@ const TransactionHistory = () => {
       maximumFractionDigits: 8
     }).format(amount);
 
-    return `$${formattedNumber}`;
+    // For transfers and crypto transactions, show the amount with crypto symbol
+    // For fiat transactions, use the dollar sign
+    if (asset && ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'DOGE', 'SOL', 'XRP'].includes(asset.toUpperCase())) {
+      return `${formattedNumber} ${asset}`;
+    } else {
+      return `$${formattedNumber}`;
+    }
   };
 
   const formatDate = (timestamp: string): string => {
@@ -470,6 +476,18 @@ const TransactionHistory = () => {
                             <span className="mx-1">{transaction.toAsset || 'BTC'}</span>
                           </div>
                         </div>
+                      ) : transaction.type === 'Transfer' && transaction.details?.crypto ? (
+                        <div className="flex items-center gap-2">
+                          <img 
+                            src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${transaction.details.crypto.toLowerCase()}.svg`} 
+                            alt={transaction.details.crypto} 
+                            className="w-5 h-5"
+                            onError={(e) => {
+                              e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                            }}
+                          />
+                          <span>{transaction.details.crypto}</span>
+                        </div>
                       ) : transaction.type === 'Withdrawal' && transaction.details?.crypto ? (
                         <div className="flex items-center gap-2">
                           <img 
@@ -480,7 +498,7 @@ const TransactionHistory = () => {
                               e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
                             }}
                           />
-                          {transaction.details.crypto} ({transaction.details.amount})
+                          <span>{transaction.details.crypto}</span>
                         </div>
                       ) : (
                         <div className="flex items-center gap-2">
@@ -497,7 +515,11 @@ const TransactionHistory = () => {
                       )}
                     </TableCell>
                     <TableCell className="text-white text-right">
-                      {formatAmount(transaction.amount, transaction.asset)}
+                      {transaction.type === 'Transfer' && transaction.details?.crypto && transaction.details?.amount ? (
+                        <span>{transaction.details.amount} {transaction.details.crypto}</span>
+                      ) : (
+                        formatAmount(transaction.amount, transaction.asset)
+                      )}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className={`flex items-center ${getStatusColor(transaction.status)}`}>
@@ -818,15 +840,31 @@ const TransactionHistory = () => {
                     </p>
                   ) : (
                     <p className="text-white flex items-center gap-2">
-                      <img 
-                        src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${selectedTransaction.asset?.toLowerCase() || 'usdt'}.svg`} 
-                        alt={selectedTransaction.asset || 'USDT'} 
-                        className="w-5 h-5"
-                        onError={(e) => {
-                          e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
-                        }}
-                      />
-                      {selectedTransaction.asset || 'USDT'}
+                      {selectedTransaction.details?.crypto ? (
+                        <>
+                          <img 
+                            src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${selectedTransaction.details.crypto.toLowerCase()}.svg`} 
+                            alt={selectedTransaction.details.crypto} 
+                            className="w-5 h-5"
+                            onError={(e) => {
+                              e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                            }}
+                          />
+                          {selectedTransaction.details.crypto}
+                        </>
+                      ) : (
+                        <>
+                          <img 
+                            src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${selectedTransaction.asset?.toLowerCase() || 'usdt'}.svg`} 
+                            alt={selectedTransaction.asset || 'USDT'} 
+                            className="w-5 h-5"
+                            onError={(e) => {
+                              e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                            }}
+                          />
+                          {selectedTransaction.asset || 'USDT'}
+                        </>
+                      )}
                     </p>
                   )}
                 </div>
@@ -835,11 +873,13 @@ const TransactionHistory = () => {
                   <div className="flex justify-between mb-2 font-medium">
                     <span>Amount:</span>
                     <span>
-                      {selectedTransaction.amount !== undefined
-                        ? `${parseFloat(selectedTransaction.amount).toFixed(2)} ${selectedTransaction.asset || 'USDT'}`
+                      {selectedTransaction.type === 'Transfer' && selectedTransaction.details?.crypto && selectedTransaction.details?.amount
+                        ? `${parseFloat(selectedTransaction.details.amount.toString()).toFixed(8)} ${selectedTransaction.details.crypto}`
+                        : selectedTransaction.amount !== undefined
+                        ? `${parseFloat(selectedTransaction.amount.toString()).toFixed(2)} ${selectedTransaction.asset || 'USDT'}`
                         : selectedTransaction.fromAmount !== undefined
-                        ? `${parseFloat(selectedTransaction.fromAmount).toFixed(2)} ${selectedTransaction.fromAsset} → ${parseFloat(selectedTransaction.toAmount).toFixed(6)} ${selectedTransaction.toAsset}`
-                        : "$0.00"}
+                        ? `${parseFloat(selectedTransaction.fromAmount.toString()).toFixed(2)} ${selectedTransaction.fromAsset} → ${parseFloat(selectedTransaction.toAmount.toString()).toFixed(6)} ${selectedTransaction.toAsset}`
+                        : "0.00"}
                     </span>
                   </div>
                 </div>
