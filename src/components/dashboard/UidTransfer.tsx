@@ -326,7 +326,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
                   alt={crypto.symbol} 
                   className="w-4 h-4"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+                    (e.target as HTMLImageElement).src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
                   }}
                 />
                 {crypto.symbol}
