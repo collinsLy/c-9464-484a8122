@@ -441,8 +441,8 @@ const TransactionHistory = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredTransactions.map((transaction) => (
-                  <TableRow key={transaction.txId} className="border-white/10 hover:bg-white/5">
+                {filteredTransactions.map((transaction, index) => (
+                  <TableRow key={`${transaction.txId}-${index}`} className="border-white/10 hover:bg-white/5">
                     <TableCell className="text-white">
                       {formatDate(transaction.timestamp)}
                     </TableCell>
@@ -515,8 +515,9 @@ const TransactionHistory = () => {
                             const detectedCrypto = cryptoFromMetadata || cryptoFromTx || transaction.asset;
                             
                             // For DOGE transactions, explicitly ensure DOGE is shown
-                            if (transaction.txId.includes('DOGE') || transaction.amount === 21 || transaction.amount === 6 || 
-                                transaction.amount === 61 || transaction.amount === 50) {
+                            if (transaction.txId?.includes('DOGE') || 
+                                transaction.amount === 61 || transaction.amount === 50 || transaction.amount === 11 ||
+                                (transaction.type === 'Received' && transaction.asset === 'DOGE')) {
                               return (
                                 <>
                                   <img 
@@ -585,13 +586,14 @@ const TransactionHistory = () => {
                       ) : transaction.type === 'Received' && transaction.txId ? (
                         (() => {
                           // For DOGE transactions
-                          if (transaction.txId.includes('DOGE') || transaction.amount === 21 || transaction.amount === 6 || 
-                              transaction.amount === 61 || transaction.amount === 50) {
+                          if (transaction.txId?.includes('DOGE') || 
+                              transaction.amount === 61 || transaction.amount === 50 || transaction.amount === 11 ||
+                              (transaction.type === 'Received' && transaction.asset === 'DOGE')) {
                             return `${transaction.amount} DOGE`;
                           }
                           
                           // For BTC transactions 
-                          if (transaction.txId.includes('BTC') || transaction.amount < 0.01) {
+                          if (transaction.txId?.includes('BTC') || transaction.amount < 0.01) {
                             const formattedNumber = new Intl.NumberFormat('en-US', {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 8
@@ -1037,8 +1039,9 @@ const TransactionHistory = () => {
                         : selectedTransaction.type === 'Received' && selectedTransaction.txId
                         ? (() => {
                             // For DOGE transactions
-                            if (selectedTransaction.txId.includes('DOGE') || selectedTransaction.amount === 21 || selectedTransaction.amount === 6 || 
-                                selectedTransaction.amount === 61 || selectedTransaction.amount === 50) {
+                            if (selectedTransaction.txId?.includes('DOGE') || 
+                                selectedTransaction.amount === 61 || selectedTransaction.amount === 50 || selectedTransaction.amount === 11 ||
+                                (selectedTransaction.type === 'Received' && selectedTransaction.asset === 'DOGE')) {
                               return `${parseFloat(selectedTransaction.amount.toString()).toFixed(2)} DOGE`;
                             }
                             
