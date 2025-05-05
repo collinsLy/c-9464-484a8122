@@ -40,6 +40,7 @@ const WithdrawPage = () => {
     mobileNumber: "",
   });
   const [userUid, setUserUid] = useState("");
+  const [showScanner, setShowScanner] = useState(false); // Added state for QR scanner
 
   // Vertex transfer states
   const [recipientUid, setRecipientUid] = useState("");
@@ -1237,9 +1238,26 @@ const WithdrawPage = () => {
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-sm">3</span>
-                    <h3 className="text-lg font-medium text-white">Enter Wallet Address</h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-sm">3</span>
+                      <h3 className="text-lg font-medium text-white">Enter Wallet Address</h3>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="border-white/10 hover:bg-white/10"
+                      onClick={() => setShowScanner(true)}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
+                        <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                        <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                        <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                        <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                        <rect width="7" height="7" x="7" y="7" rx="1"></rect>
+                      </svg>
+                      Scan QR
+                    </Button>
                   </div>
                   <div className="space-y-4">
                     <div className="grid gap-2">
@@ -1655,7 +1673,7 @@ const WithdrawPage = () => {
                           <span className="text-white/70">Recipient ID:</span>
                           <span className="font-mono text-sm truncate max-w-[180px]">{recipientUid}</span>
                         </div>
-                        <div classNamediv className="flex justify-between">
+                        <div className="flex justify-between">
                           <span className="text-white/70">Amount:</span>
                           <span className="font-medium">{cryptoAmount} {selectedCrypto}</span>
                         </div>
