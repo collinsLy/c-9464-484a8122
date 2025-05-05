@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -23,33 +22,33 @@ export default {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        background: "#1A1B1E",
-        foreground: "#F8F9FA",
+        background: "#0F1115",
+        foreground: "#FFFFFF",
         primary: {
-          DEFAULT: "#2C3E50",
+          DEFAULT: "#141413",
           foreground: "#FFFFFF",
         },
         secondary: {
-          DEFAULT: "#F5F5F5",
-          foreground: "#2C3E50",
+          DEFAULT: "#E6E4DD",
+          foreground: "#141413",
         },
         accent: {
-          DEFAULT: "#3498DB",
+          DEFAULT: "#8989DE",
           foreground: "#FFFFFF",
         },
         muted: {
-          DEFAULT: "#95A5A6",
-          foreground: "#1A1B1E",
+          DEFAULT: "#828179",
+          foreground: "#FAFAF8",
         },
         card: {
           DEFAULT: "#FFFFFF",
-          foreground: "#2C3E50",
+          foreground: "#141413",
         },
       },
       borderRadius: {
-        lg: "0.5rem",
-        md: "0.375rem",
-        sm: "0.25rem",
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
         "accordion-down": {
@@ -62,13 +61,13 @@ export default {
         },
         float: {
           "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-8px)" },
+          "50%": { transform: "translateY(-10px)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        float: "float 5s ease-in-out infinite",
+        float: "float 6s ease-in-out infinite",
       },
     },
   },
