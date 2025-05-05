@@ -48,7 +48,8 @@ const AssetsPage = () => {
 
   // Calculate total portfolio value with current prices
   const calculatePortfolioValue = (assets: Record<string, any>, prices: Record<string, number>, usdtBalance: number) => {
-    let total = usdtBalance; // Start with USDT balance
+    // Always include USDT balance in the total
+    let total = usdtBalance;
     
     // Add value of all other assets
     if (assets) {
@@ -57,10 +58,12 @@ const AssetsPage = () => {
         const amount = data.amount || 0;
         const price = prices[symbol] || 0;
         const valueInUsdt = amount * price;
+        console.log(`Asset ${symbol}: Amount ${amount} × Price ${price} = ${valueInUsdt} USDT`);
         total += valueInUsdt;
       });
     }
     
+    console.log(`Total portfolio value: ${total} USDT`);
     setTotalPortfolioValue(total);
   };
 

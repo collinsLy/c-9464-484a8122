@@ -74,12 +74,15 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
       const calculatePortfolioValue = (userData: any) => {
         if (!userData) return 0;
 
-        let portfolioValue = userData.balance || 0; // Start with USDT balance
+        // Always include USDT balance in the total
+        let portfolioValue = parsedBalance || 0;
 
         // Add value of all crypto assets
         if (userData.assets) {
           Object.entries(userData.assets).forEach(([symbol, data]: [string, any]) => {
-            if (symbol === 'USDT') return; // Skip USDT as it's already included in balance
+            // Skip USDT as it's already included in the balance above
+            if (symbol === 'USDT') return;
+            
             const amount = data.amount || 0;
             const price = assetPrices[symbol] || 0;
             const valueInUsdt = amount * price;
@@ -91,7 +94,6 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
       };
 
       const portfolioValue = calculatePortfolioValue(userData);
-
 
       if (isNaN(parsedBalance)) {
         console.error('Invalid balance value received:', userData.balance);
@@ -201,6 +203,9 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
             <>
               <div className="text-sm text-white/70 mt-1">
                 USDT Balance: ${balance.toFixed(2)}
+              </div>
+              <div className="text-sm text-white/70 mt-1">
+                Other Assets: ~${(totalPortfolioValue - balance).toFixed(2)}
               </div>
               <div className="flex items-center mt-1 text-sm">
                 {profitLoss >= 0 ? (
