@@ -926,7 +926,7 @@ const TransactionHistory = () => {
                         let detectedCrypto = cryptoFromMetadata || cryptoFromTx || selectedTransaction.asset;
 
                         // Common cryptocurrencies to check in txId
-                        const commonCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'DOGE', 'SOL', 'XRP', 'ADA', 'DOT', 'LINK', 'MATIC'];
+                        const commonCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'DOGE', 'SOL', 'XRP', 'ADA', 'DOT', 'LINK', 'MATIC', 'WLD'];
 
                         // Check if any cryptocurrency identifier is in the txId
                         for (const crypto of commonCryptos) {

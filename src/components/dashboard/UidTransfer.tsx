@@ -306,7 +306,13 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
               { symbol: 'USDC', name: 'USD Coin' },
               { symbol: 'BNB', name: 'Binance Coin' },
               { symbol: 'DOGE', name: 'Dogecoin' },
-              { symbol: 'SOL', name: 'Solana' }
+              { symbol: 'SOL', name: 'Solana' },
+              { symbol: 'XRP', name: 'Ripple' },
+              { symbol: 'WLD', name: 'Worldcoin' },
+              { symbol: 'ADA', name: 'Cardano' },
+              { symbol: 'DOT', name: 'Polkadot' },
+              { symbol: 'LINK', name: 'Chainlink' },
+              { symbol: 'MATIC', name: 'Polygon' }
             ].map((crypto) => (
               <Button 
                 key={crypto.symbol}

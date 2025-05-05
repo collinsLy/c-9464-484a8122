@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,11 +21,11 @@ export function LivePriceTicker({ symbol }: { symbol?: string }) {
   const [prices, setPrices] = useState<PriceData[]>([]);
   const [priceHistory, setPriceHistory] = useState<PriceUpdateSymbol[]>([]);
   const [latestPrice, setLatestPrice] = useState<PriceUpdateSymbol | null>(null);
-  
+
   // For the single symbol ticker display
   useEffect(() => {
     if (!symbol) return;
-    
+
     const ws = symbol.includes('USDT') 
       ? new WebSocket(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@trade`)
       : new WebSocket(`wss://ws.finnhub.io?token=${import.meta.env.VITE_FINNHUB_API_KEY}`);
@@ -36,11 +35,11 @@ export function LivePriceTicker({ symbol }: { symbol?: string }) {
         ws.send(JSON.stringify({ type: 'subscribe', symbol: symbol }));
       };
     }
-    
+
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       let newPrice, previousPrice, percentageChange;
-      
+
       if (symbol.includes('USDT')) {
         newPrice = parseFloat(data.p);
         previousPrice = priceHistory[0]?.price || newPrice;
@@ -51,7 +50,7 @@ export function LivePriceTicker({ symbol }: { symbol?: string }) {
         previousPrice = priceHistory[0]?.price || newPrice;
         percentageChange = ((newPrice - previousPrice) / previousPrice) * 100;
       }
-      
+
       const update: PriceUpdateSymbol = {
         symbol: symbol,
         price: newPrice,
@@ -66,13 +65,13 @@ export function LivePriceTicker({ symbol }: { symbol?: string }) {
 
     return () => ws.close();
   }, [symbol]);
-  
+
   // For the multi-symbol ticker display
   useEffect(() => {
     if (symbol) return; // Don't run this effect if a specific symbol is provided
-    
-    const symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'DOGEUSDT'];
-    
+
+    const symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'DOGEUSDT', 'XRPUSDT', 'ADAUSDT', 'MATICUSDT', 'DOTUSDT', 'LINKUSDT', 'WLDUSDT'];
+
     const fetchPrices = async () => {
       try {
         const responses = await Promise.all(
@@ -81,19 +80,19 @@ export function LivePriceTicker({ symbol }: { symbol?: string }) {
               .then(res => res.json())
           )
         );
-        
+
         const formattedData = responses.map(data => ({
           symbol: data.symbol.replace('USDT', ''),
           price: parseFloat(data.lastPrice),
           priceChange: data.priceChangePercent
         }));
-        
+
         setPrices(formattedData);
       } catch (error) {
         console.error('Error fetching prices:', error);
       }
     };
-    
+
     fetchPrices();
     const interval = setInterval(fetchPrices, 10000);
     return () => clearInterval(interval);

@@ -19,7 +19,11 @@ const AssetsPage = () => {
   useEffect(() => {
     const fetchPrices = async () => {
       try {
-        const symbols = ['BTC', 'ETH', 'BNB', 'SOL', 'ADA', 'DOGE', 'XRP', 'DOT', 'LINK', 'MATIC'];
+        // Get symbols from our baseAssets array to ensure consistency
+        const symbols = baseAssets
+          .map(asset => asset.symbol)
+          .filter(symbol => symbol !== 'USDT'); // Filter out USDT as we handle it separately
+        
         const symbolsQuery = symbols.map(s => `${s}USDT`);
         const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
         const data = await response.json();
@@ -101,25 +105,18 @@ const AssetsPage = () => {
       amount: "0.00000000"
     },
     {
+      name: "ETH",
+      symbol: "ETH",
+      fullName: "Ethereum",
+      balance: 0,
+      amount: "0.00000000"
+    },
+    {
       name: "USDT",
       symbol: "USDT",
       fullName: "TetherUS",
       balance: balance,
       amount: balance.toFixed(8)
-    },
-    {
-      name: "BNB",
-      symbol: "BNB",
-      fullName: "Binance Coin",
-      balance: 0,
-      amount: "0.00000000"
-    },
-    {
-      name: "WLD",
-      symbol: "WLD",
-      fullName: "Worldcoin",
-      balance: 0,
-      amount: "0.00000000"
     },
     {
       name: "USDC",
@@ -129,16 +126,9 @@ const AssetsPage = () => {
       amount: "0.00000000"
     },
     {
-      name: "SOL",
-      symbol: "SOL",
-      fullName: "Solana",
-      balance: 0,
-      amount: "0.00000000"
-    },
-    {
-      name: "ETH",
-      symbol: "ETH",
-      fullName: "Ethereum",
+      name: "BNB",
+      symbol: "BNB",
+      fullName: "Binance Coin",
       balance: 0,
       amount: "0.00000000"
     },
@@ -150,9 +140,51 @@ const AssetsPage = () => {
       amount: "0.00000000"
     },
     {
+      name: "SOL",
+      symbol: "SOL",
+      fullName: "Solana",
+      balance: 0,
+      amount: "0.00000000"
+    },
+    {
       name: "XRP",
       symbol: "XRP",
       fullName: "Ripple",
+      balance: 0,
+      amount: "0.00000000"
+    },
+    {
+      name: "WLD",
+      symbol: "WLD",
+      fullName: "Worldcoin",
+      balance: 0,
+      amount: "0.00000000"
+    },
+    {
+      name: "ADA",
+      symbol: "ADA",
+      fullName: "Cardano",
+      balance: 0,
+      amount: "0.00000000"
+    },
+    {
+      name: "DOT",
+      symbol: "DOT",
+      fullName: "Polkadot",
+      balance: 0,
+      amount: "0.00000000"
+    },
+    {
+      name: "LINK",
+      symbol: "LINK",
+      fullName: "Chainlink",
+      balance: 0,
+      amount: "0.00000000"
+    },
+    {
+      name: "MATIC",
+      symbol: "MATIC",
+      fullName: "Polygon",
       balance: 0,
       amount: "0.00000000"
     }

@@ -126,54 +126,40 @@ const DepositPage = () => {
                         />
                       </div>
                       <div className="flex gap-2 flex-wrap">
-                        <Button 
-                          variant={selectedCrypto === 'BTC' ? 'secondary' : 'outline'}
-                          onClick={() => setSelectedCrypto('BTC')}
-                          className="flex items-center gap-2"
-                        >
-                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/btc.svg" alt="BTC" className="w-5 h-5" />
-                          BTC
-                        </Button>
-                        <Button 
-                          variant={selectedCrypto === 'USDT' ? 'secondary' : 'outline'}
-                          onClick={() => setSelectedCrypto('USDT')}
-                          className="flex items-center gap-2"
-                        >
-                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/usdt.svg" alt="USDT" className="w-5 h-5" />
-                          USDT
-                        </Button>
-                        <Button 
-                          variant={selectedCrypto === 'BNB' ? 'secondary' : 'outline'}
-                          onClick={() => setSelectedCrypto('BNB')}
-                          className="flex items-center gap-2"
-                        >
-                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/bnb.svg" alt="BNB" className="w-5 h-5" />
-                          BNB
-                        </Button>
-                        <Button 
-                          variant={selectedCrypto === 'WLD' ? 'secondary' : 'outline'}
-                          onClick={() => setSelectedCrypto('WLD')}
-                          className="flex items-center gap-2"
-                        >
-                          <img src="https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg" alt="WLD" className="w-5 h-5" />
-                          WLD
-                        </Button>
-                        <Button 
-                          variant={selectedCrypto === 'USDC' ? 'secondary' : 'outline'}
-                          onClick={() => setSelectedCrypto('USDC')}
-                          className="flex items-center gap-2"
-                        >
-                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/usdc.svg" alt="USDC" className="w-5 h-5" />
-                          USDC
-                        </Button>
-                        <Button 
-                          variant={selectedCrypto === 'SOL' ? 'secondary' : 'outline'}
-                          onClick={() => setSelectedCrypto('SOL')}
-                          className="flex items-center gap-2"
-                        >
-                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/sol.svg" alt="SOL" className="w-5 h-5" />
-                          SOL
-                        </Button>
+                        {[
+                          { symbol: 'BTC', name: 'Bitcoin' },
+                          { symbol: 'ETH', name: 'Ethereum' },
+                          { symbol: 'USDT', name: 'Tether' },
+                          { symbol: 'USDC', name: 'USD Coin' },
+                          { symbol: 'BNB', name: 'Binance Coin' },
+                          { symbol: 'DOGE', name: 'Dogecoin' },
+                          { symbol: 'SOL', name: 'Solana' },
+                          { symbol: 'XRP', name: 'Ripple' },
+                          { symbol: 'WLD', name: 'Worldcoin' },
+                          { symbol: 'ADA', name: 'Cardano' },
+                          { symbol: 'DOT', name: 'Polkadot' },
+                          { symbol: 'LINK', name: 'Chainlink' },
+                          { symbol: 'MATIC', name: 'Polygon' }
+                        ].map((crypto) => (
+                          <Button 
+                            key={crypto.symbol}
+                            variant={selectedCrypto === crypto.symbol ? 'secondary' : 'outline'}
+                            onClick={() => setSelectedCrypto(crypto.symbol)}
+                            className="flex items-center gap-2"
+                          >
+                            <img 
+                              src={crypto.symbol === 'WLD' 
+                                ? "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg" 
+                                : `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${crypto.symbol.toLowerCase()}.svg`} 
+                              alt={crypto.symbol} 
+                              className="w-5 h-5"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/generic.svg";
+                              }}
+                            />
+                            {crypto.symbol}
+                          </Button>
+                        ))}
                       </div>
                     </div>
 

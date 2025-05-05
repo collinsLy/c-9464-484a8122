@@ -364,7 +364,7 @@ const WithdrawPage = () => {
           }, {} as Record<string, number>);
 
           // Always maintain all supported cryptocurrencies in the state
-          const supportedCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB'];
+          const supportedCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'DOGE', 'SOL', 'XRP', 'WLD', 'ADA', 'DOT', 'LINK', 'MATIC'];
           const completeBalances = { ...balances };
 
           supportedCryptos.forEach(crypto => {
@@ -1070,7 +1070,15 @@ const WithdrawPage = () => {
                       { symbol: 'ETH', name: 'Ethereum' },
                       { symbol: 'USDT', name: 'Tether' },
                       { symbol: 'USDC', name: 'USD Coin' },
-                      { symbol: 'BNB', name: 'Binance Coin' }
+                      { symbol: 'BNB', name: 'Binance Coin' },
+                      { symbol: 'DOGE', name: 'Dogecoin' },
+                      { symbol: 'SOL', name: 'Solana' },
+                      { symbol: 'XRP', name: 'Ripple' },
+                      { symbol: 'WLD', name: 'Worldcoin' },
+                      { symbol: 'ADA', name: 'Cardano' },
+                      { symbol: 'DOT', name: 'Polkadot' },
+                      { symbol: 'LINK', name: 'Chainlink' },
+                      { symbol: 'MATIC', name: 'Polygon' }
                     ].map((crypto) => {
                       const balance = userCryptoBalances[crypto.symbol] || 0;
                       return (
@@ -1495,7 +1503,13 @@ const WithdrawPage = () => {
                           { symbol: 'USDC', name: 'USD Coin' },
                           { symbol: 'BNB', name: 'Binance Coin' },
                           { symbol: 'DOGE', name: 'Dogecoin' },
-                          { symbol: 'SOL', name: 'Solana' }
+                          { symbol: 'SOL', name: 'Solana' },
+                          { symbol: 'XRP', name: 'Ripple' },
+                          { symbol: 'WLD', name: 'Worldcoin' },
+                          { symbol: 'ADA', name: 'Cardano' },
+                          { symbol: 'DOT', name: 'Polkadot' },
+                          { symbol: 'LINK', name: 'Chainlink' },
+                          { symbol: 'MATIC', name: 'Polygon' }
                         ].map((crypto) => {
                           const balance = userCryptoBalances[crypto.symbol] || 0;
                           return (
