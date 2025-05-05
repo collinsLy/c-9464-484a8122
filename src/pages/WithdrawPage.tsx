@@ -986,7 +986,7 @@ const WithdrawPage = () => {
               </TabsList>
 
               <TabsContent value="fiat" className="space-y-6">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   {paymentMethods.map((method) => (
                     <button
                       key={method.id}
