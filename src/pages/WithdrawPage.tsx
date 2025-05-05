@@ -1097,7 +1097,7 @@ const WithdrawPage = () => {
                       {getUserCryptoBalance()}
                     </div>
                   </div>
-                  <div className="flex gap-2 flex-wrap mb-6">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"> {/* Grid layout */}
                     {[
                       { symbol: 'BTC', name: 'Bitcoin' },
                       { symbol: 'ETH', name: 'Ethereum' },
@@ -1115,9 +1115,8 @@ const WithdrawPage = () => {
                     ].map((crypto) => {
                       const balance = userCryptoBalances[crypto.symbol] || 0;
                       return (
-                        <Button 
+                        <button
                           key={crypto.symbol}
-                          variant={selectedCrypto === crypto.symbol ? 'secondary' : 'outline'}
                           onClick={async () => {
                             // First update the UI
                             setSelectedCrypto(crypto.symbol);
@@ -1170,21 +1169,32 @@ const WithdrawPage = () => {
                               }
                             }
                           }}
-                          className="flex items-center gap-2"
+                          className={cn(
+                            "flex flex-col items-center justify-center p-4 rounded-lg border transition-all hover:border-white/20",
+                            selectedCrypto === crypto.symbol
+                              ? "border-[#F2FF44] bg-white/10"
+                              : "border-white/10 bg-background/40"
+                          )}
                         >
-                          <img 
-                            src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${crypto.symbol.toLowerCase()}.svg`} 
-                            alt={crypto.symbol} 
-                            className="w-5 h-5" 
-                            onError={(e) => {
-                              e.currentTarget.src = "https://assets.coingecko.com/coins/images/1/small/bitcoin.png";
-                            }}
-                          />
-                          {crypto.symbol}
-                          <span className={`text-xs ml-1 ${balance > 0 ? 'text-green-500' : 'opacity-70'}`}>
-                            {`(${balance.toFixed(4)})`}
-                          </span>
-                        </Button>
+                          <div className="flex items-center justify-center mb-1">
+                            <img 
+                              src={crypto.symbol === 'WLD' 
+                                ? "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040" 
+                                : `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${crypto.symbol.toLowerCase()}.svg`}
+                              alt={crypto.symbol}
+                              className="w-7 h-7"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/generic.svg";
+                              }}
+                            />
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <span className="font-medium text-sm">{crypto.symbol}</span>
+                            <span className="text-xs text-white/60">
+                              ({(userCryptoBalances[crypto.symbol] || 0).toFixed(4)})
+                            </span>
+                          </div>
+                        </button>
                       );
                     })}
                   </div>
@@ -1647,7 +1657,7 @@ const WithdrawPage = () => {
                     </div>
 
                     <Button 
-                      className="w-full bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34] h-12 text-lg mt-4"
+                      className="w-full bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF334] h-12 text-lg mt-4"
                       onClick={handleVertexTransfer}
                       disabled={
                         isDemoMode ||
