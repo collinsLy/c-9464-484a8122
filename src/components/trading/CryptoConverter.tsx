@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { ArrowUpDown } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 interface CryptoConverterProps {
   onAmountChange?: (amount: number, fromCurrency: string, toCurrency: string) => void;
@@ -15,6 +15,8 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
   const [toCurrency, setToCurrency] = useState<string>('BTC');
   const [convertedAmount, setConvertedAmount] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState<number>(18);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { toast } = useToast();
 
   // Mock user balances - in a real app, these would come from your user state
   const userBalances = {
@@ -34,6 +36,8 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
   useEffect(() => {
     if (amount && !isNaN(Number(amount))) {
       handleConvert();
+    } else {
+      setConvertedAmount(null);
     }
   }, [amount, fromCurrency, toCurrency]);
 
@@ -59,13 +63,24 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
     if (!amount || isNaN(Number(amount))) return;
 
     const numAmount = Number(amount);
+    
+    // Input validation
+    if (numAmount <= 0) {
+      return;
+    }
+    
     let result;
 
     if (fromCurrency === toCurrency) {
       result = numAmount;
     } else {
+      // Apply the conversion rate
       result = numAmount * rates[fromCurrency][toCurrency];
     }
+
+    // Apply a mock fee (0.1%)
+    const fee = result * 0.001;
+    result = result - fee;
 
     setConvertedAmount(result);
     if (onAmountChange) {
@@ -76,49 +91,80 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
   const handleSwapCurrencies = () => {
     setFromCurrency(toCurrency);
     setToCurrency(fromCurrency);
-    setAmount('');
+    // Keep the amount but reset the converted result
     setConvertedAmount(null);
   };
 
   const refreshRate = () => {
     // In a real app, this would fetch fresh rates
-    handleConvert();
-    setTimeLeft(18);
+    setIsLoading(true);
+    setTimeout(() => {
+      handleConvert();
+      setTimeLeft(18);
+      setIsLoading(false);
+      toast({
+        title: "Rates Updated",
+        description: "Exchange rates have been refreshed",
+      });
+    }, 800);
+  };
+
+  const executeConversion = () => {
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid amount to convert",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    // Simulate processing time
+    setTimeout(() => {
+      setIsLoading(false);
+      toast({
+        title: "Conversion Successful",
+        description: `Successfully converted ${amount} ${fromCurrency} to ${convertedAmount?.toFixed(8)} ${toCurrency}`,
+      });
+    }, 1500);
   };
 
   const getCurrencyIcon = (currency: string) => {
     switch (currency) {
       case 'BTC':
         return (
-          <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center text-xs">
-            B
+          <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center text-xs text-white font-bold">
+            ₿
           </div>
         );
       case 'USDT':
         return (
-          <div className="w-6 h-6 rounded-full bg-teal-500 flex items-center justify-center text-xs">
+          <div className="w-6 h-6 rounded-full bg-teal-500 flex items-center justify-center text-xs text-white font-bold">
             T
           </div>
         );
       case 'ETH':
         return (
-          <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs">
-            E
+          <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs text-white font-bold">
+            Ξ
           </div>
         );
       default:
         return (
-          <div className="w-6 h-6 rounded-full bg-gray-500 flex items-center justify-center text-xs">
+          <div className="w-6 h-6 rounded-full bg-gray-500 flex items-center justify-center text-xs text-white font-bold">
             ?
           </div>
         );
     }
   };
 
+  const estimatedNetworkFee = 0.0002; // Mock network fee in BTC
+
   return (
-    <Card className="bg-black text-white border border-gray-800 rounded-lg">
+    <Card className="bg-black border-gray-800 rounded-lg shadow-md">
       <CardHeader className="pb-2">
-        <CardTitle className="text-xl font-semibold">Convert {fromCurrency} to {toCurrency}</CardTitle>
+        <CardTitle className="text-xl font-semibold text-white">Convert {fromCurrency} to {toCurrency}</CardTitle>
         <p className="text-xs text-gray-400 mt-1">Instant Conversion | Real-Time Rates | Rate locked for {timeLeft}s</p>
       </CardHeader>
       <CardContent>
@@ -135,6 +181,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.01 - 4,700,000"
                 className="bg-black border-gray-700 text-white rounded-full h-12 pr-28"
+                disabled={isLoading}
               />
               <div className="absolute right-0 top-0 h-full flex items-center pr-4">
                 <div className="flex items-center gap-2 bg-transparent text-white px-3 py-2 rounded-full">
@@ -150,6 +197,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
               variant="ghost" 
               className="rounded-full h-10 w-10 p-0 bg-transparent hover:bg-gray-800"
               onClick={handleSwapCurrencies}
+              disabled={isLoading}
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white">
                 <path d="M7 10L12 5L17 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -180,20 +228,43 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
             </div>
           </div>
 
+          {/* Fee information */}
+          {convertedAmount !== null && (
+            <div className="bg-gray-900 rounded-lg p-3 text-xs space-y-1">
+              <div className="flex justify-between text-gray-400">
+                <span>Rate:</span>
+                <span>1 {fromCurrency} = {rates[fromCurrency][toCurrency].toFixed(8)} {toCurrency}</span>
+              </div>
+              <div className="flex justify-between text-gray-400">
+                <span>Network Fee:</span>
+                <span>≈ {estimatedNetworkFee.toFixed(8)} {toCurrency}</span>
+              </div>
+              <div className="flex justify-between text-gray-400">
+                <span>Slippage Tolerance:</span>
+                <span>0.5%</span>
+              </div>
+              <div className="flex justify-between text-white font-medium">
+                <span>You'll receive:</span>
+                <span>{(convertedAmount - estimatedNetworkFee).toFixed(8)} {toCurrency}</span>
+              </div>
+            </div>
+          )}
+
           <Button 
-            onClick={handleConvert} 
+            onClick={executeConversion} 
             className="w-full bg-[#9ba419] hover:bg-[#8a9315] text-black font-medium rounded-full py-6 h-12"
-            disabled={!amount || isNaN(Number(amount))}
+            disabled={!amount || isNaN(Number(amount)) || Number(amount) <= 0 || isLoading}
           >
-            {!amount ? "Enter an amount" : "Convert"}
+            {isLoading ? "Converting..." : !amount ? "Enter an amount" : "Convert Now"}
           </Button>
 
           <Button 
             onClick={refreshRate} 
             variant="outline" 
             className="w-full border border-gray-700 text-white hover:bg-gray-800 rounded-full h-12"
+            disabled={isLoading}
           >
-            Refresh Rate
+            {isLoading ? "Refreshing..." : "Refresh Rate"}
           </Button>
         </div>
       </CardContent>
