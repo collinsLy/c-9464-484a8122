@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
@@ -12,10 +12,6 @@ import TradingPanel from "@/components/dashboard/TradingPanel";
 import AutomatedTrading from "@/components/dashboard/AutomatedTrading";
 import BinanceOrderBook from "@/components/markets/BinanceOrderBook";
 import { Card, CardContent } from "@/components/ui/card";
-import { showFundsReceivedNotification } from "@/lib/notification-service"; // Placeholder import
-import { db, doc, onSnapshot } from "firebase/firestore"; // Placeholder imports - Adjust as needed
-import { auth } from "@/lib/firebase"; // Placeholder import - Adjust as needed
-
 
 const Dashboard = () => {
   const [selectedSymbol, setSelectedSymbol] = useState("BTCUSD");
@@ -23,9 +19,7 @@ const Dashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  // Track processed transaction IDs to prevent duplicate notifications
-  const processedTransactions = useRef<Set<string>>(new Set());
-
+  
   // Check for welcome notification flag on component mount
   useEffect(() => {
     const showWelcome = localStorage.getItem('showWelcome');
@@ -61,59 +55,10 @@ const Dashboard = () => {
     } else if (activeTab === "dashboard" && currentTab) {
       navigate('/dashboard', { replace: true });
     }
-
+    
     // Debug
     console.log("Current active tab:", activeTab);
   }, [activeTab, location.search, navigate]);
-
-  // Load assets on mount or when user changes
-  useEffect(() => {
-    const fetchUserAssets = async () => {
-      //Implementation for fetching assets
-    };
-    if (auth.currentUser?.uid) {
-      fetchUserAssets();
-
-      // Set up real-time listener for incoming transactions
-      const userId = auth.currentUser.uid;
-      const userRef = doc(db, "users", userId);
-
-      const unsubscribe = onSnapshot(userRef, (docSnapshot) => {
-        if (docSnapshot.exists()) {
-          const userData = docSnapshot.data();
-          const transactions = userData.transactions || [];
-
-          // Check for new incoming transactions
-          transactions.forEach((transaction: any) => {
-            // Create a unique ID for this transaction to avoid duplicates
-            const transactionId = `${transaction.timestamp}-${transaction.amount}-${transaction.direction}`;
-
-            // Only process new incoming transactions
-            if (
-              transaction.direction === "in" && 
-              !processedTransactions.current.has(transactionId) && 
-              // Only show for transactions that are less than 1 minute old
-              (Date.now() - new Date(transaction.timestamp).getTime() < 60000)
-            ) {
-              // Mark as processed
-              processedTransactions.current.add(transactionId);
-
-              // Show notification for new incoming transaction
-              showFundsReceivedNotification(
-                transaction.amount,
-                transaction.asset || "USDT", // Use the asset field, default to USDT if not available
-                transaction.senderName || "another user"
-              );
-            }
-          });
-        }
-      });
-
-      // Clean up listener
-      return () => unsubscribe();
-    }
-  }, [auth.currentUser]);
-
 
   // Render different content based on the active tab
   const renderContent = () => {

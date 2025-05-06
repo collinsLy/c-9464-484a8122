@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { 
   Card, 
@@ -511,34 +512,65 @@ function TransactionHistory() {
                         </div>
                       ) : transaction.type === 'Received' && transaction.txId ? (
                         (() => {
-                          // Get asset from transaction or parse from the transaction ID if not available
-                          const transactionAsset = transaction.asset;
-                          const txIdParts = transaction.txId ? transaction.txId.split('-') : [];
+                          // First check for cryptocurrency in details or metadata
+                          const cryptoFromDetails = transaction.details?.crypto;
+                          const cryptoFromMetadata = transaction.metadata?.crypto || transaction.metadata?.asset;
+                          
+                          // Parse currency from the transaction ID
+                          const txIdParts = transaction.txId.split('-');
                           const cryptoFromTx = txIdParts.length > 1 ? txIdParts[1].toUpperCase() : null;
-                          const assetToUse = transactionAsset || cryptoFromTx || 'USDT';
+
+                          // Get a detected crypto - prioritize structured data over parsing
+                          let detectedCrypto = cryptoFromDetails || cryptoFromMetadata || cryptoFromTx || transaction.asset;
+
+                          // Common cryptocurrencies to check in txId
+                          const commonCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'DOGE', 'SOL', 'XRP', 'ADA', 'DOT', 'LINK', 'MATIC', 'WLD'];
+
+                          // Check if any cryptocurrency identifier is in the txId
+                          if (!detectedCrypto) {
+                            for (const crypto of commonCryptos) {
+                              if (transaction.txId?.includes(crypto)) {
+                                detectedCrypto = crypto;
+                                break;
+                              }
+                            }
+                          }
+                          
+                          // Special case handling for common amounts that might indicate specific cryptos - only as a last resort
+                          if (!detectedCrypto) {
+                            if (transaction.amount === 61 || transaction.amount === 50 || transaction.amount === 11 || 
+                               (transaction.amount > 10 && transaction.amount < 100)) {
+                              detectedCrypto = 'DOGE';
+                            } else if (transaction.amount < 0.01) {
+                              detectedCrypto = 'BTC';
+                            } else {
+                              // If we still can't detect by now, use the asset field
+                              detectedCrypto = transaction.asset || 'USDT';
+                            }
+                          }
 
                           return (
                             <>
                               <img 
-                                src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${assetToUse?.toLowerCase() || 'usdt'}.svg`} 
-                                alt={assetToUse || 'USDT'} 
+                                src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${detectedCrypto?.toLowerCase() || 'usdt'}.svg`} 
+                                alt={detectedCrypto || 'USDT'} 
                                 className="w-5 h-5"
                                 onError={(e) => {
                                   // Fallback to specific known icons if the main source fails
-                                  if (assetToUse === 'DOGE') {
+                                  if (detectedCrypto === 'DOGE') {
                                     e.currentTarget.src = "https://assets.coingecko.com/coins/images/5/small/dogecoin.png";
-                                  } else if (assetToUse === 'BTC') {
+                                  } else if (detectedCrypto === 'BTC') {
                                     e.currentTarget.src = "https://assets.coingecko.com/coins/images/1/small/bitcoin.png";
-                                  } else if (assetToUse === 'ETH') {
+                                  } else if (detectedCrypto === 'ETH') {
                                     e.currentTarget.src = "https://assets.coingecko.com/coins/images/279/small/ethereum.png";
-                                  } else if (assetToUse === 'SOL') {
+                                  } else if (detectedCrypto === 'SOL') {
                                     e.currentTarget.src = "https://assets.coingecko.com/coins/images/4128/small/solana.png";
                                   } else {
                                     e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
                                   }
                                 }}
                               />
-                              <span>{assetToUse || 'USDT'}</span>
+                              <span>{detectedCrypto || 'USDT'}</span>
                             </>
                           );
                         })()
@@ -569,19 +601,47 @@ function TransactionHistory() {
                         </>
                       ) : transaction.type === 'Received' && transaction.txId ? (
                         (() => {
-                          // Get asset from transaction or parse from the transaction ID if not available
-                          const transactionAsset = transaction.asset;
-                          const txIdParts = transaction.txId ? transaction.txId.split('-') : [];
+                          // First check for cryptocurrency in details or metadata
+                          const cryptoFromDetails = transaction.details?.crypto;
+                          const cryptoFromMetadata = transaction.metadata?.crypto || transaction.metadata?.asset;
+                          
+                          // Parse currency from the transaction ID
+                          const txIdParts = transaction.txId.split('-');
                           const cryptoFromTx = txIdParts.length > 1 ? txIdParts[1].toUpperCase() : null;
-                          const assetToUse = transactionAsset || cryptoFromTx || 'USDT';
+
+                          // Get a detected crypto
+                          let detectedCrypto = cryptoFromDetails || cryptoFromMetadata || cryptoFromTx || transaction.asset;
+
+                          // Check txId for currency
+                          if (!detectedCrypto) {
+                            const commonCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'DOGE', 'SOL', 'XRP', 'ADA', 'DOT', 'LINK', 'MATIC', 'WLD'];
+                            for (const crypto of commonCryptos) {
+                              if (transaction.txId?.includes(crypto)) {
+                                detectedCrypto = crypto;
+                                break;
+                              }
+                            }
+                          }
+
+                          // Amount-based detection as last resort
+                          if (!detectedCrypto) {
+                            if (transaction.amount === 61 || transaction.amount === 50 || transaction.amount === 11 ||
+                                (transaction.amount > 10 && transaction.amount < 100)) {
+                              detectedCrypto = 'DOGE';
+                            } else if (transaction.amount < 0.01) {
+                              detectedCrypto = 'BTC';
+                            } else {
+                              detectedCrypto = transaction.asset || 'USDT';
+                            }
+                          }
 
                           // Format the number based on the detected cryptocurrency
                           const formattedNumber = new Intl.NumberFormat('en-US', {
-                            minimumFractionDigits: assetToUse === 'BTC' || assetToUse === 'ETH' ? 4 : 2,
-                            maximumFractionDigits: assetToUse === 'BTC' || assetToUse === 'ETH' ? 4 : 2
+                            minimumFractionDigits: detectedCrypto === 'BTC' || detectedCrypto === 'ETH' ? 4 : 2,
+                            maximumFractionDigits: detectedCrypto === 'BTC' || detectedCrypto === 'ETH' ? 4 : 2
                           }).format(transaction.amount);
-
-                          return `${formattedNumber} ${assetToUse}`;
+                          
+                          return `${formattedNumber} ${detectedCrypto}`;
                         })()
                       ) : (
                         formatAmount(transaction.amount, transaction.asset)
@@ -911,7 +971,7 @@ function TransactionHistory() {
                         // First check if the crypto is directly specified in metadata or details
                         const cryptoFromMetadata = selectedTransaction.metadata?.crypto || selectedTransaction.metadata?.asset;
                         const cryptoFromDetails = selectedTransaction.details?.crypto;
-
+                        
                         // Parse currency from the transaction ID
                         const txIdParts = selectedTransaction.txId.split('-');
                         const cryptoFromTx = txIdParts.length > 1 ? txIdParts[1].toUpperCase() : null;

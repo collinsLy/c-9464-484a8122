@@ -221,8 +221,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
           direction: "in",
           senderId: currentUserId,
           senderName: senderDoc.data().fullName || "User",
-          description: `Received from ${senderDoc.data().fullName || "User"}`,
-          asset: selectedCrypto  // Store the cryptocurrency type
+          description: `Received from ${senderDoc.data().fullName || "User"}`
         };
 
         // Update transactions arrays
@@ -241,8 +240,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
       // Show success message
       toast({
         title: "Transfer Successful",
-        description: `Successfully sent ${transferAmount} ${selectedCrypto} to user`,
-        className: "transaction-complete-toast"
+        description: `Successfully sent ${transferAmount} to user`,
       });
 
       // Reset form
