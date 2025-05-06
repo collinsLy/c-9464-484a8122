@@ -39,6 +39,9 @@
 }
 
 @keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
 
 /* Chart Touch Handling */
 .chart-container {
@@ -54,8 +57,27 @@
   }
 }
 
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+/* Custom Toast Notifications */
+.funds-received-toast {
+  border-left: 4px solid #34D399 !important;
+  background: linear-gradient(90deg, rgba(52, 211, 153, 0.1) 0%, rgba(0, 0, 0, 0.9) 100%) !important;
+  animation: slideInRight 0.4s ease-out !important;
+}
+
+.transaction-complete-toast {
+  border-left: 4px solid #F2FF44 !important;
+  background: linear-gradient(90deg, rgba(242, 255, 68, 0.1) 0%, rgba(0, 0, 0, 0.9) 100%) !important;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 /* Animation Classes */
