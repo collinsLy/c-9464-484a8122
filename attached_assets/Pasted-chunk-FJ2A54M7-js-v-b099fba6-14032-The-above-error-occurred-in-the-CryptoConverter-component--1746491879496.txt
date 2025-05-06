@@ -1,0 +1,33 @@
+chunk-FJ2A54M7.js?v=b099fba6:14032 The above error occurred in the <CryptoConverter> component:
+
+    at CryptoConverter (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/src/components/trading/CryptoConverter.tsx:20:35)
+    at div
+    at div
+    at div
+    at div
+    at main
+    at div
+    at div
+    at DashboardProvider (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/src/components/dashboard/DashboardLayout.tsx:16:37)
+    at DashboardLayout (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/src/components/dashboard/DashboardLayout.tsx:45:43)
+    at Dashboard (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/src/pages/Dashboard.tsx:25:49)
+    at ErrorBoundary (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/src/components/ErrorBoundary.tsx:36:9)
+    at RenderedRoute (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=b099fba6:4069:5)
+    at Routes (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=b099fba6:4508:5)
+    at DashboardProvider (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/src/components/dashboard/DashboardLayout.tsx:16:37)
+    at Router (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=b099fba6:4451:15)
+    at BrowserRouter (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=b099fba6:5196:5)
+    at Provider (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/node_modules/.vite/deps/chunk-VK7ZPAS3.js?v=b099fba6:38:15)
+    at TooltipProvider (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=b099fba6:63:5)
+    at QueryClientProvider (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/node_modules/.vite/deps/@tanstack_react-query.js?v=b099fba6:2794:3)
+    at ErrorBoundary (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/src/components/ErrorBoundary.tsx:36:9)
+    at App
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+ErrorBoundary.tsx:25 Error caught by ErrorBoundary: TypeError: Cannot read properties of undefined (reading 'toFixed')
+    at CryptoConverter (CryptoConverter.tsx:554:75)
+ 
+{componentStack: '\n    at CryptoConverter (https://48a19f04-128f-477…src/components/ErrorBoundary.tsx:36:9)\n    at App'}
+
+﻿
+
