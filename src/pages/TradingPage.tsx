@@ -36,7 +36,12 @@ const TradingPage = () => {
 
         <Card className="bg-background/40 backdrop-blur-lg border-white/10">
           <CardContent className="p-4">
-            <TradingViewChart symbol={selectedSymbol} />
+            <div className="chart-wrapper relative">
+              <TradingViewChart symbol={selectedSymbol} />
+              <div className="mobile-scroll-overlay absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-background/80 to-transparent pointer-events-none flex items-center justify-center md:hidden">
+                <span className="text-xs text-white/70">Swipe to scroll page</span>
+              </div>
+            </div>
           </CardContent>
         </Card>
 

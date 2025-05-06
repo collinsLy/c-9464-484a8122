@@ -56,7 +56,34 @@ export default function TradingViewChart({ symbol, exchange, containerId }: Trad
       id={chartId}
       ref={container} 
       style={{ height: '600px', width: '100%' }}
-      className="rounded-lg overflow-hidden"
+      className="rounded-lg overflow-hidden chart-container"
+      onTouchStart={(e) => {
+        // Store the initial touch position
+        const touchY = e.touches[0].clientY;
+        const element = e.currentTarget;
+        
+        // Check if the user is at the top or bottom edge of the chart
+        const isAtTop = element.scrollTop === 0;
+        const isAtBottom = element.scrollTop + element.clientHeight >= element.scrollHeight;
+        
+        // Add data attributes to track scroll boundaries
+        element.dataset.atTop = String(isAtTop);
+        element.dataset.atBottom = String(isAtBottom);
+        element.dataset.touchStartY = String(touchY);
+      }}
+      onTouchMove={(e) => {
+        const element = e.currentTarget;
+        const touchY = e.touches[0].clientY;
+        const startY = Number(element.dataset.touchStartY || 0);
+        const isAtTop = element.dataset.atTop === 'true';
+        const isAtBottom = element.dataset.atBottom === 'true';
+        
+        // If scrolling up at the top edge or down at the bottom edge,
+        // allow the page to scroll instead of the chart
+        if ((isAtTop && touchY > startY) || (isAtBottom && touchY < startY)) {
+          e.stopPropagation();
+        }
+      }}
     />
   );
 }

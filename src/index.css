@@ -39,6 +39,21 @@
 }
 
 @keyframes pulse {
+
+/* Chart Touch Handling */
+.chart-container {
+  touch-action: pan-y;
+  position: relative;
+  z-index: 10;
+}
+
+@media (max-width: 768px) {
+  .chart-container {
+    height: 400px !important; /* Smaller height on mobile for better usability */
+    width: 100% !important;
+  }
+}
+
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
