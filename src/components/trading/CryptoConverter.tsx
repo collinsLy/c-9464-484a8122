@@ -31,7 +31,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   // Supported cryptocurrencies
-  const supportedCryptos = ['BTC', 'ETH', 'USDT', 'SOL', 'DOGE'];
+  const supportedCryptos = ['BTC', 'ETH', 'USDT', 'SOL', 'DOGE', 'XRP', 'ADA', 'BNB', 'MATIC', 'DOT', 'LINK', 'WLD'];
 
   // Fetch user balances
   useEffect(() => {
@@ -52,11 +52,18 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
             balances[crypto] = 0;
           });
           
-          // Update with actual balances if they exist
-          if (userData.cryptoBalances) {
-            Object.keys(userData.cryptoBalances).forEach(crypto => {
-              if (supportedCryptos.includes(crypto)) {
-                balances[crypto] = userData.cryptoBalances[crypto] || 0;
+          // Set USDT balance if it exists
+          if (typeof userData.balance === 'number') {
+            balances['USDT'] = userData.balance;
+          } else if (typeof userData.balance === 'string') {
+            balances['USDT'] = parseFloat(userData.balance) || 0;
+          }
+          
+          // Update with actual asset balances if they exist
+          if (userData.assets) {
+            Object.entries(userData.assets).forEach(([symbol, data]: [string, any]) => {
+              if (supportedCryptos.includes(symbol)) {
+                balances[symbol] = data.amount || 0;
               }
             });
           }
@@ -71,13 +78,35 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
 
     fetchUserData();
     
-    // Refresh balances when the page is focused
-    const handleFocus = () => fetchUserData();
-    window.addEventListener('focus', handleFocus);
-    
-    return () => {
-      window.removeEventListener('focus', handleFocus);
-    };
+    // Set up a real-time listener for user data changes
+    const userId = auth.currentUser?.uid || localStorage.getItem('userId');
+    if (userId) {
+      const unsubscribe = UserService.subscribeToUserData(userId, (userData) => {
+        if (userData) {
+          const balances: Record<string, number> = { ...userBalances };
+          
+          // Update USDT balance
+          if (typeof userData.balance === 'number') {
+            balances['USDT'] = userData.balance;
+          } else if (typeof userData.balance === 'string') {
+            balances['USDT'] = parseFloat(userData.balance) || 0;
+          }
+          
+          // Update asset balances
+          if (userData.assets) {
+            Object.entries(userData.assets).forEach(([symbol, data]: [string, any]) => {
+              if (supportedCryptos.includes(symbol)) {
+                balances[symbol] = data.amount || 0;
+              }
+            });
+          }
+          
+          setUserBalances(balances);
+        }
+      });
+      
+      return () => unsubscribe();
+    }
   }, []);
 
   // Mock conversion rates - in a real app, these would come from an API
@@ -233,36 +262,61 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
       
       console.log("User data fetched:", userData);
       
-      // Ensure cryptoBalances exists in user data
-      if (!userData.cryptoBalances) {
-        userData.cryptoBalances = {};
+      // Initialize assets object if it doesn't exist
+      if (!userData.assets) {
+        userData.assets = {};
       }
       
-      // Prepare updated crypto balances - make a deep copy to avoid reference issues
-      const updatedCryptoBalances = JSON.parse(JSON.stringify(userData.cryptoBalances || {}));
+      // Create a deep copy of the assets
+      const updatedAssets = JSON.parse(JSON.stringify(userData.assets || {}));
       
-      console.log("Before update - balances:", updatedCryptoBalances);
+      console.log("Before update - assets:", updatedAssets);
       
-      // Ensure currencies have initial values if they don't exist
-      if (updatedCryptoBalances[fromCurrency] === undefined) {
-        updatedCryptoBalances[fromCurrency] = 0;
+      // Handle special case for USDT which is stored in balance field
+      if (fromCurrency === 'USDT') {
+        // Deduct from main balance
+        const currentBalance = typeof userData.balance === 'number' 
+          ? userData.balance 
+          : parseFloat(userData.balance || '0');
+        
+        const newBalance = Math.max(0, currentBalance - fromAmount);
+        
+        // Update USDT balance
+        userData.balance = newBalance;
+      } else {
+        // Ensure the fromCurrency exists in assets
+        if (!updatedAssets[fromCurrency]) {
+          updatedAssets[fromCurrency] = { amount: 0 };
+        }
+        
+        // Deduct from fromCurrency
+        updatedAssets[fromCurrency].amount = Math.max(0, 
+          (updatedAssets[fromCurrency].amount || 0) - fromAmount);
       }
       
-      if (updatedCryptoBalances[toCurrency] === undefined) {
-        updatedCryptoBalances[toCurrency] = 0;
+      // Handle adding to the target currency
+      if (toCurrency === 'USDT') {
+        // Add to main balance
+        const currentBalance = typeof userData.balance === 'number' 
+          ? userData.balance 
+          : parseFloat(userData.balance || '0');
+        
+        const newBalance = currentBalance + toAmount;
+        
+        // Update USDT balance
+        userData.balance = newBalance;
+      } else {
+        // Ensure the toCurrency exists in assets
+        if (!updatedAssets[toCurrency]) {
+          updatedAssets[toCurrency] = { amount: 0 };
+        }
+        
+        // Add to toCurrency
+        updatedAssets[toCurrency].amount = 
+          (updatedAssets[toCurrency].amount || 0) + toAmount;
       }
       
-      // Convert string values to numbers if they exist as strings
-      updatedCryptoBalances[fromCurrency] = Number(updatedCryptoBalances[fromCurrency]);
-      updatedCryptoBalances[toCurrency] = Number(updatedCryptoBalances[toCurrency]);
-      
-      // Deduct the 'from' currency
-      updatedCryptoBalances[fromCurrency] = updatedCryptoBalances[fromCurrency] - fromAmount;
-      
-      // Add the 'to' currency
-      updatedCryptoBalances[toCurrency] = updatedCryptoBalances[toCurrency] + toAmount;
-      
-      console.log("After update - balances:", updatedCryptoBalances);
+      console.log("After update - assets:", updatedAssets);
       
       // Create transaction record
       const timestamp = new Date().toISOString();
@@ -292,19 +346,38 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
       
       // Prepare update data
       const updateData = {
-        cryptoBalances: updatedCryptoBalances,
+        assets: updatedAssets,
         transactions: [newTransaction, ...transactions]
       };
       
+      // Add balance update if USDT was involved
+      if (fromCurrency === 'USDT' || toCurrency === 'USDT') {
+        updateData.balance = userData.balance;
+      }
+      
       console.log("Updating user data with:", updateData);
       
-      // Update user data with new transaction and balances
+      // Update user data with new transaction and assets
       await UserService.updateUserData(currentUserId, updateData);
       
       console.log("User data updated successfully");
       
-      // Update local state
-      setUserBalances(updatedCryptoBalances);
+      // Update local state balances
+      const updatedBalances = { ...userBalances };
+      
+      if (fromCurrency === 'USDT') {
+        updatedBalances[fromCurrency] = userData.balance;
+      } else {
+        updatedBalances[fromCurrency] = updatedAssets[fromCurrency]?.amount || 0;
+      }
+      
+      if (toCurrency === 'USDT') {
+        updatedBalances[toCurrency] = userData.balance;
+      } else {
+        updatedBalances[toCurrency] = updatedAssets[toCurrency]?.amount || 0;
+      }
+      
+      setUserBalances(updatedBalances);
       
       toast({
         title: "Conversion Successful",
@@ -371,7 +444,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
   const estimatedNetworkFee = 0.0002; // Mock network fee in BTC
 
   return (
-    <Card className="bg-background border-gray-800 rounded-lg shadow-md">
+    <Card className="bg-[#0F1115] border-gray-800 rounded-lg shadow-md">
       <CardHeader className="pb-2">
         <CardTitle className="text-xl font-semibold text-white">Convert {fromCurrency} to {toCurrency}</CardTitle>
         <p className="text-xs text-gray-400 mt-1">Instant Conversion | Real-Time Rates | Rate locked for {timeLeft}s</p>
