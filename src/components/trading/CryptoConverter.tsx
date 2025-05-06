@@ -449,44 +449,29 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
   };
 
   const getCurrencyIcon = (currency: string) => {
-    switch (currency) {
-      case 'BTC':
-        return (
-          <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center text-xs text-white font-bold">
-            ₿
-          </div>
-        );
-      case 'USDT':
-        return (
-          <div className="w-6 h-6 rounded-full bg-teal-500 flex items-center justify-center text-xs text-white font-bold">
-            T
-          </div>
-        );
-      case 'ETH':
-        return (
-          <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs text-white font-bold">
-            Ξ
-          </div>
-        );
-      case 'SOL':
-        return (
-          <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center text-xs text-white font-bold">
-            S
-          </div>
-        );
-      case 'DOGE':
-        return (
-          <div className="w-6 h-6 rounded-full bg-yellow-500 flex items-center justify-center text-xs text-white font-bold">
-            D
-          </div>
-        );
-      default:
-        return (
-          <div className="w-6 h-6 rounded-full bg-gray-500 flex items-center justify-center text-xs text-white font-bold">
-            ?
-          </div>
-        );
-    }
+    return (
+      <img
+        src={currency === 'WLD'
+          ? "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040"
+          : `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${currency.toLowerCase()}.svg`}
+        alt={currency}
+        className="w-6 h-6 rounded-full"
+        onError={(e) => {
+          // Fallback to specific known icons if the main source fails
+          if (currency === 'DOGE') {
+            e.currentTarget.src = "https://assets.coingecko.com/coins/images/5/small/dogecoin.png";
+          } else if (currency === 'BTC') {
+            e.currentTarget.src = "https://assets.coingecko.com/coins/images/1/small/bitcoin.png";
+          } else if (currency === 'ETH') {
+            e.currentTarget.src = "https://assets.coingecko.com/coins/images/279/small/ethereum.png";
+          } else if (currency === 'SOL') {
+            e.currentTarget.src = "https://assets.coingecko.com/coins/images/4128/small/solana.png";
+          } else {
+            e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
+          }
+        }}
+      />
+    );
   };
 
   const estimatedNetworkFee = 0.0002; // Mock network fee in BTC
