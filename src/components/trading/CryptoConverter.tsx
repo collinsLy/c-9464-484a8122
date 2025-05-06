@@ -111,19 +111,61 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
 
   // Mock conversion rates - in a real app, these would come from an API
   // Define exchange rates between pairs
-  const [rates, setRates] = useState({
-    BTC: { USD: 65000, ETH: 20, USDT: 65000, SOL: 650, DOGE: 325000 },
-    ETH: { USD: 3200, BTC: 0.05, USDT: 3200, SOL: 32, DOGE: 16000 },
-    USDT: { USD: 1, BTC: 0.000015, ETH: 0.0003, SOL: 0.01, DOGE: 5 },
-    SOL: { USD: 100, BTC: 0.0015, ETH: 0.03, USDT: 100, DOGE: 500 },
-    DOGE: { USD: 0.2, BTC: 0.000003, ETH: 0.00006, USDT: 0.2, SOL: 0.002 },
-    USD: { BTC: 0.000015, ETH: 0.0003, USDT: 1, SOL: 0.01, DOGE: 5 },
+  const [rates, setRates] = useState(() => {
+    // Create a complete matrix of all currency pairs
+    const initialRates: Record<string, Record<string, number>> = {};
+    const supportedSymbols = ['BTC', 'ETH', 'USDT', 'SOL', 'DOGE', 'USD', 'XRP', 'ADA', 'BNB', 'MATIC', 'DOT', 'LINK', 'WLD'];
+    
+    // Set base rates
+    const baseRates = {
+      BTC: { USD: 65000, ETH: 20, USDT: 65000, SOL: 650, DOGE: 325000 },
+      ETH: { USD: 3200, BTC: 0.05, USDT: 3200, SOL: 32, DOGE: 16000 },
+      USDT: { USD: 1, BTC: 0.000015, ETH: 0.0003, SOL: 0.01, DOGE: 5 },
+      SOL: { USD: 100, BTC: 0.0015, ETH: 0.03, USDT: 100, DOGE: 500 },
+      DOGE: { USD: 0.2, BTC: 0.000003, ETH: 0.00006, USDT: 0.2, SOL: 0.002 },
+      USD: { BTC: 0.000015, ETH: 0.0003, USDT: 1, SOL: 0.01, DOGE: 5 },
+      XRP: { USD: 0.5, USDT: 0.5, BTC: 0.0000077 },
+      ADA: { USD: 0.35, USDT: 0.35, BTC: 0.0000054 },
+      BNB: { USD: 580, USDT: 580, BTC: 0.0089 },
+      MATIC: { USD: 0.6, USDT: 0.6, BTC: 0.0000092 },
+      DOT: { USD: 5.8, USDT: 5.8, BTC: 0.000089 },
+      LINK: { USD: 15, USDT: 15, BTC: 0.00023 },
+      WLD: { USD: 3.2, USDT: 3.2, BTC: 0.000049 },
+    };
+    
+    // Initialize complete rate matrix with defaults
+    supportedSymbols.forEach(fromSymbol => {
+      initialRates[fromSymbol] = {};
+      supportedSymbols.forEach(toSymbol => {
+        if (fromSymbol === toSymbol) {
+          initialRates[fromSymbol][toSymbol] = 1; // Same currency conversion is 1:1
+        } else if (baseRates[fromSymbol]?.[toSymbol]) {
+          initialRates[fromSymbol][toSymbol] = baseRates[fromSymbol][toSymbol];
+        } else if (baseRates[toSymbol]?.[fromSymbol]) {
+          // Use inverse if direct rate not available
+          initialRates[fromSymbol][toSymbol] = 1 / baseRates[toSymbol][fromSymbol];
+        } else if (baseRates[fromSymbol]?.USDT && baseRates[toSymbol]?.USDT) {
+          // Calculate via USDT if both have USDT rate
+          initialRates[fromSymbol][toSymbol] = baseRates[fromSymbol].USDT / baseRates[toSymbol].USDT;
+        } else {
+          // Fallback to a reasonable default
+          initialRates[fromSymbol][toSymbol] = 1;
+        }
+      });
+    });
+    
+    return initialRates;
   });
 
   // Update conversion when amount or currencies change
   useEffect(() => {
     if (amount && !isNaN(Number(amount))) {
-      handleConvert();
+      try {
+        handleConvert();
+      } catch (error) {
+        console.error("Conversion error:", error);
+        setConvertedAmount(null);
+      }
     } else {
       setConvertedAmount(null);
     }
@@ -162,8 +204,15 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
     if (fromCurrency === toCurrency) {
       result = numAmount;
     } else {
-      // Apply the conversion rate
-      result = numAmount * rates[fromCurrency][toCurrency];
+      // Check if the rate exists before using it
+      if (!rates[fromCurrency] || !rates[fromCurrency][toCurrency]) {
+        console.error(`Missing conversion rate from ${fromCurrency} to ${toCurrency}`);
+        // Default to a 1:1 conversion if rate is missing
+        result = numAmount;
+      } else {
+        // Apply the conversion rate
+        result = numAmount * rates[fromCurrency][toCurrency];
+      }
     }
 
     // Apply a mock fee (0.1%)
@@ -454,7 +503,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <label className="text-sm text-white">From</label>
-              <span className="text-xs text-white">Available Balance: {userBalances[fromCurrency]?.toFixed(8) || "0.00000000"} {fromCurrency}</span>
+              <span className="text-xs text-white">Available Balance: {(userBalances[fromCurrency] || 0).toFixed(8)} {fromCurrency}</span>
             </div>
             <div className="flex relative">
               <Input
@@ -509,7 +558,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <label className="text-sm text-white">To</label>
-              <span className="text-xs text-white">Available Balance: {userBalances[toCurrency]?.toFixed(8) || "0.00000000"} {toCurrency}</span>
+              <span className="text-xs text-white">Available Balance: {(userBalances[toCurrency] || 0).toFixed(8)} {toCurrency}</span>
             </div>
             <div className="flex relative">
               <Input
