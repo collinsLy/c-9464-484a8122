@@ -102,4 +102,23 @@ export class NotificationService {
       audio.volume = normalizedVolume;
     });
   }
+  
+  // Test all sound effects (for development)
+  static testSounds(): void {
+    console.log('Testing notification sounds...');
+    const soundTypes: (keyof typeof SOUND_EFFECTS)[] = ['transfer', 'deposit', 'success', 'warning', 'error'];
+    
+    let index = 0;
+    const playNext = () => {
+      if (index < soundTypes.length) {
+        const soundType = soundTypes[index];
+        console.log(`Playing ${soundType} sound...`);
+        this.playSound(soundType);
+        index++;
+        setTimeout(playNext, 1500); // Play each sound with 1.5 second delay
+      }
+    };
+    
+    playNext();
+  }
 }

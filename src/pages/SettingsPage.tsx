@@ -463,7 +463,7 @@ const SettingsPage = () => {
                           </Select>
                         </div>
                       </div>
-                      
+
                       <div className="space-y-2 p-4 bg-white/5 border border-white/10 rounded-md">
                         <div className="flex items-center justify-between">
                           <div>
@@ -491,7 +491,7 @@ const SettingsPage = () => {
                           </code>
                         </div>
                       </div>
-                      
+
                       <Button 
                         type="submit" 
                         className="bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34]"
