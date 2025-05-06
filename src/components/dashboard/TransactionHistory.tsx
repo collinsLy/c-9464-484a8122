@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { 
   Card, 
@@ -144,7 +145,7 @@ function TransactionHistory() {
     };
 
     fetchTransactions();
-  }, [searchQuery, typeFilter, statusFilter, startDate, endDate]);
+  }, []);
 
   useEffect(() => {
     // Apply all filters
@@ -163,12 +164,12 @@ function TransactionHistory() {
 
     // Type filter
     if (typeFilter !== 'all') {
-      result = result.filter((tx) => tx.type.toLowerCase() === typeFilter.toLowerCase());
+      result = result.filter((tx) => tx.type?.toLowerCase() === typeFilter.toLowerCase());
     }
 
     // Status filter
     if (statusFilter !== 'all') {
-      result = result.filter((tx) => tx.status.toLowerCase() === statusFilter.toLowerCase());
+      result = result.filter((tx) => tx.status?.toLowerCase() === statusFilter.toLowerCase());
     }
 
     // Date range filter
@@ -757,7 +758,8 @@ function TransactionHistory() {
                                 );
                               }
 
-                              // Default case - generic DEX                              else {
+                              // Default case - generic DEX                              
+                              else {
                                 return (
                                   <>
                                     <img 
@@ -768,7 +770,7 @@ function TransactionHistory() {
                                         e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
                                       }}
                                     />
-                                                                   <span>DEX</span>
+                                    <span>DEX</span>
                                   </>
                                 );
                               }
@@ -1170,6 +1172,6 @@ function TransactionHistory() {
       </Dialog>
     </Card>
   );
-};
+}
 
 export default TransactionHistory;
