@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -46,19 +45,19 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
         if (userData) {
           // Extract crypto balances from user data
           const balances: Record<string, number> = {};
-          
+
           // Set default balances to 0
           supportedCryptos.forEach(crypto => {
             balances[crypto] = 0;
           });
-          
+
           // Set USDT balance if it exists
           if (typeof userData.balance === 'number') {
             balances['USDT'] = userData.balance;
           } else if (typeof userData.balance === 'string') {
             balances['USDT'] = parseFloat(userData.balance) || 0;
           }
-          
+
           // Update with actual asset balances if they exist
           if (userData.assets) {
             Object.entries(userData.assets).forEach(([symbol, data]: [string, any]) => {
@@ -67,7 +66,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
               }
             });
           }
-          
+
           console.log("Fetched user balances:", balances);
           setUserBalances(balances);
         }
@@ -77,21 +76,21 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
     };
 
     fetchUserData();
-    
+
     // Set up a real-time listener for user data changes
     const userId = auth.currentUser?.uid || localStorage.getItem('userId');
     if (userId) {
       const unsubscribe = UserService.subscribeToUserData(userId, (userData) => {
         if (userData) {
           const balances: Record<string, number> = { ...userBalances };
-          
+
           // Update USDT balance
           if (typeof userData.balance === 'number') {
             balances['USDT'] = userData.balance;
           } else if (typeof userData.balance === 'string') {
             balances['USDT'] = parseFloat(userData.balance) || 0;
           }
-          
+
           // Update asset balances
           if (userData.assets) {
             Object.entries(userData.assets).forEach(([symbol, data]: [string, any]) => {
@@ -100,11 +99,11 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
               }
             });
           }
-          
+
           setUserBalances(balances);
         }
       });
-      
+
       return () => unsubscribe();
     }
   }, []);
@@ -115,7 +114,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
     // Create a complete matrix of all currency pairs
     const initialRates: Record<string, Record<string, number>> = {};
     const supportedSymbols = ['BTC', 'ETH', 'USDT', 'SOL', 'DOGE', 'USD', 'XRP', 'ADA', 'BNB', 'MATIC', 'DOT', 'LINK', 'WLD'];
-    
+
     // Set base rates
     const baseRates = {
       BTC: { USD: 65000, ETH: 20, USDT: 65000, SOL: 650, DOGE: 325000 },
@@ -132,7 +131,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
       LINK: { USD: 15, USDT: 15, BTC: 0.00023 },
       WLD: { USD: 3.2, USDT: 3.2, BTC: 0.000049 },
     };
-    
+
     // Initialize complete rate matrix with defaults
     supportedSymbols.forEach(fromSymbol => {
       initialRates[fromSymbol] = {};
@@ -153,7 +152,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
         }
       });
     });
-    
+
     return initialRates;
   });
 
@@ -184,7 +183,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
           return prev - 1;
         });
       }, 1000);
-      
+
       return () => clearInterval(timer);
     }
   }, [convertedAmount]);
@@ -193,12 +192,12 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
     if (!amount || isNaN(Number(amount))) return;
 
     const numAmount = Number(amount);
-    
+
     // Input validation
     if (numAmount <= 0) {
       return;
     }
-    
+
     let result;
 
     if (fromCurrency === toCurrency) {
@@ -235,12 +234,12 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
   const refreshRate = () => {
     // In a real app, this would fetch fresh rates from an API
     setIsLoading(true);
-    
+
     // Simulate a network request with a small delay
     setTimeout(() => {
       // Add some random fluctuation to rates (±2%) to simulate market movement
       const updatedRates = { ...rates };
-      
+
       supportedCryptos.forEach(fromCrypto => {
         supportedCryptos.forEach(toCrypto => {
           if (fromCrypto !== toCrypto && rates[fromCrypto] && rates[fromCrypto][toCrypto]) {
@@ -250,12 +249,12 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
           }
         });
       });
-      
+
       setRates(updatedRates);
       handleConvert();
       setTimeLeft(18);
       setIsLoading(false);
-      
+
       toast({
         title: "Rates Updated",
         description: "Exchange rates have been refreshed",
@@ -293,43 +292,43 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
     }
 
     setIsLoading(true);
-    
+
     try {
       console.log("Starting conversion process...");
       console.log("Current user balances:", userBalances);
-      
+
       // Calculate final amounts
       const resultAmount = convertedAmount || (numAmount * rates[fromCurrency][toCurrency] * 0.999); // Apply 0.1% fee
       const fromAmount = numAmount;
       const toAmount = resultAmount;
-      
+
       console.log(`Converting ${fromAmount} ${fromCurrency} to ${toAmount} ${toCurrency}`);
-      
+
       // Get current user data
       const userData = await UserService.getUserData(currentUserId);
       if (!userData) throw new Error("User data not found");
-      
+
       console.log("User data fetched:", userData);
-      
+
       // Initialize assets object if it doesn't exist
       if (!userData.assets) {
         userData.assets = {};
       }
-      
+
       // Create a deep copy of the assets
       const updatedAssets = JSON.parse(JSON.stringify(userData.assets || {}));
-      
+
       console.log("Before update - assets:", updatedAssets);
-      
+
       // Handle special case for USDT which is stored in balance field
       if (fromCurrency === 'USDT') {
         // Deduct from main balance
         const currentBalance = typeof userData.balance === 'number' 
           ? userData.balance 
           : parseFloat(userData.balance || '0');
-        
+
         const newBalance = Math.max(0, currentBalance - fromAmount);
-        
+
         // Update USDT balance
         userData.balance = newBalance;
       } else {
@@ -337,21 +336,21 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
         if (!updatedAssets[fromCurrency]) {
           updatedAssets[fromCurrency] = { amount: 0 };
         }
-        
+
         // Deduct from fromCurrency
         updatedAssets[fromCurrency].amount = Math.max(0, 
           (updatedAssets[fromCurrency].amount || 0) - fromAmount);
       }
-      
+
       // Handle adding to the target currency
       if (toCurrency === 'USDT') {
         // Add to main balance
         const currentBalance = typeof userData.balance === 'number' 
           ? userData.balance 
           : parseFloat(userData.balance || '0');
-        
+
         const newBalance = currentBalance + toAmount;
-        
+
         // Update USDT balance
         userData.balance = newBalance;
       } else {
@@ -359,18 +358,18 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
         if (!updatedAssets[toCurrency]) {
           updatedAssets[toCurrency] = { amount: 0 };
         }
-        
+
         // Add to toCurrency
         updatedAssets[toCurrency].amount = 
           (updatedAssets[toCurrency].amount || 0) + toAmount;
       }
-      
+
       console.log("After update - assets:", updatedAssets);
-      
+
       // Create transaction record
       const timestamp = new Date().toISOString();
       const txId = `conv-${fromCurrency}-${toCurrency}-${uuidv4().substring(0, 8)}`;
-      
+
       const newTransaction = {
         txId,
         timestamp,
@@ -387,56 +386,56 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
           processingTime: '< 1 minute'
         }
       };
-      
+
       console.log("Created new transaction:", newTransaction);
-      
+
       // Ensure transactions array exists
       const transactions = Array.isArray(userData.transactions) ? userData.transactions : [];
-      
+
       // Prepare update data
       const updateData = {
         assets: updatedAssets,
         transactions: [newTransaction, ...transactions]
       };
-      
+
       // Add balance update if USDT was involved
       if (fromCurrency === 'USDT' || toCurrency === 'USDT') {
         updateData.balance = userData.balance;
       }
-      
+
       console.log("Updating user data with:", updateData);
-      
+
       // Update user data with new transaction and assets
       await UserService.updateUserData(currentUserId, updateData);
-      
+
       console.log("User data updated successfully");
-      
+
       // Update local state balances
       const updatedBalances = { ...userBalances };
-      
+
       if (fromCurrency === 'USDT') {
         updatedBalances[fromCurrency] = userData.balance;
       } else {
         updatedBalances[fromCurrency] = updatedAssets[fromCurrency]?.amount || 0;
       }
-      
+
       if (toCurrency === 'USDT') {
         updatedBalances[toCurrency] = userData.balance;
       } else {
         updatedBalances[toCurrency] = updatedAssets[toCurrency]?.amount || 0;
       }
-      
+
       setUserBalances(updatedBalances);
-      
+
       toast({
         title: "Conversion Successful",
-        description: `Successfully converted ${fromAmount.toFixed(8)} ${fromCurrency} to ${toAmount.toFixed(8)} ${toCurrency}`,
+        description: `Successfully converted ${fromAmount.toFixed(4)} ${fromCurrency} to ${toAmount.toFixed(4)} ${toCurrency}`,
       });
-      
+
       // Reset form
       setAmount('');
       setConvertedAmount(null);
-      
+
     } catch (error) {
       console.error('Error executing conversion:', error);
       toast({
@@ -503,7 +502,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <label className="text-sm text-white">From</label>
-              <span className="text-xs text-white">Available Balance: {(userBalances[fromCurrency] || 0).toFixed(8)} {fromCurrency}</span>
+              <span className="text-xs text-white">Available Balance: {(userBalances[fromCurrency] || 0).toFixed(4)} {fromCurrency}</span>
             </div>
             <div className="flex relative">
               <Input
@@ -558,12 +557,12 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
           <div className="space-y-2">
             <div className="flex justify-between items-center">
               <label className="text-sm text-white">To</label>
-              <span className="text-xs text-white">Available Balance: {(userBalances[toCurrency] || 0).toFixed(8)} {toCurrency}</span>
+              <span className="text-xs text-white">Available Balance: {(userBalances[toCurrency] || 0).toFixed(4)} {toCurrency}</span>
             </div>
             <div className="flex relative">
               <Input
                 type="text"
-                value={convertedAmount !== null ? convertedAmount.toFixed(8) : '0'}
+                value={convertedAmount !== null ? convertedAmount.toFixed(4) : '0'}
                 readOnly
                 placeholder="0"
                 className="bg-background border-gray-700 text-white rounded-full h-12 pr-28"
@@ -600,11 +599,11 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
             <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3 text-xs space-y-1">
               <div className="flex justify-between text-white">
                 <span>Rate:</span>
-                <span>1 {fromCurrency} = {rates[fromCurrency][toCurrency].toFixed(8)} {toCurrency}</span>
+                <span>1 {fromCurrency} = {rates[fromCurrency][toCurrency].toFixed(4)} {toCurrency}</span>
               </div>
               <div className="flex justify-between text-white">
                 <span>Network Fee:</span>
-                <span>≈ {estimatedNetworkFee.toFixed(8)} {toCurrency}</span>
+                <span>≈ {estimatedNetworkFee.toFixed(4)} {toCurrency}</span>
               </div>
               <div className="flex justify-between text-white">
                 <span>Slippage Tolerance:</span>
@@ -612,7 +611,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
               </div>
               <div className="flex justify-between text-white font-medium">
                 <span>You'll receive:</span>
-                <span>{(convertedAmount - estimatedNetworkFee).toFixed(8)} {toCurrency}</span>
+                <span>{(convertedAmount - estimatedNetworkFee).toFixed(4)} {toCurrency}</span>
               </div>
             </div>
           )}

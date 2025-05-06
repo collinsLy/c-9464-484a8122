@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  CardTitle, 
+  CardDescription, 
+  CardFooter 
+} from "@/components/ui/card";
 import { auth } from '@/lib/firebase';
 import { UserService } from '@/lib/user-service';
 import { Loader2, Download, Search, Filter, Calendar, Eye, X, Check, AlertCircle } from 'lucide-react';
@@ -49,7 +56,7 @@ interface Transaction {
   };
 }
 
-const TransactionHistory = () => {
+function TransactionHistory() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -212,11 +219,12 @@ const TransactionHistory = () => {
 
   const formatAmount = (amount: number | undefined, asset: string): string => {
     if (amount === undefined) {
-      return `0.00`;
+      return `0.0000`;
     }
 
+    // Use exactly 4 decimal places for all amounts
     const formattedNumber = new Intl.NumberFormat('en-US', {
-      minimumFractionDigits: 2,
+      minimumFractionDigits: 4,
       maximumFractionDigits: 4
     }).format(amount);
 
@@ -590,7 +598,7 @@ const TransactionHistory = () => {
                           // For BTC transactions 
                           if (transaction.txId?.includes('BTC') || transaction.amount < 0.01) {
                             const formattedNumber = new Intl.NumberFormat('en-US', {
-                              minimumFractionDigits: 2,
+                              minimumFractionDigits: 4,
                               maximumFractionDigits: 4
                             }).format(transaction.amount);
                             return `${formattedNumber} BTC`;
