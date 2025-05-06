@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
@@ -12,10 +12,16 @@ import TradingPanel from "@/components/dashboard/TradingPanel";
 import AutomatedTrading from "@/components/dashboard/AutomatedTrading";
 import BinanceOrderBook from "@/components/markets/BinanceOrderBook";
 import { Card, CardContent } from "@/components/ui/card";
+import { auth, db } from "@/lib/firebase";
+import { collection, query, where, onSnapshot, orderBy, limit, Timestamp, doc, updateDoc } from "firebase/firestore";
+import { NotificationService } from "@/lib/notification-service";
 
 const Dashboard = () => {
   const [selectedSymbol, setSelectedSymbol] = useState("BTCUSD");
   const [selectedTimeframe, setSelectedTimeframe] = useState("1D");
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
+  const notificationListenerRef = useRef<(() => void) | null>(null);
+  const permissionRequested = useRef(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -32,6 +38,73 @@ const Dashboard = () => {
       // Remove the flag so notification doesn't show again on refresh
       localStorage.removeItem('showWelcome');
     }
+    
+    // Request notification permissions
+    if (!permissionRequested.current) {
+      NotificationService.requestPermission();
+      permissionRequested.current = true;
+    }
+  }, []);
+  
+  // Subscribe to notifications
+  useEffect(() => {
+    const userId = auth.currentUser?.uid;
+    if (!userId) return;
+    
+    // Clean up previous listener if it exists
+    if (notificationListenerRef.current) {
+      notificationListenerRef.current();
+      notificationListenerRef.current = null;
+    }
+    
+    // Listen for new notifications
+    const notificationsQuery = query(
+      collection(db, 'notifications'),
+      where('userId', '==', userId),
+      where('isRead', '==', false),
+      orderBy('timestamp', 'desc'),
+      limit(10)
+    );
+    
+    // Set up real-time listener
+    notificationListenerRef.current = onSnapshot(notificationsQuery, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === 'added') {
+          const notification = change.doc.data();
+          
+          // Show notification for new incoming transfers
+          if (notification.type === 'transfer') {
+            NotificationService.notifyFundReceived(
+              notification.amount,
+              notification.asset || 'USDT',
+              notification.senderName || 'Another user',
+              {
+                showToast: true,
+                playSound: true,
+                soundType: 'transfer'
+              }
+            );
+            
+            // Mark the notification as read
+            updateDoc(doc(db, 'notifications', change.doc.id), { isRead: true })
+              .catch(error => console.error("Error marking notification as read:", error));
+          }
+        }
+      });
+      
+      // Update unread notifications flag
+      setHasUnreadNotifications(snapshot.size > 0);
+    }, (error) => {
+      console.error("Error listening for notifications:", error);
+    });
+    
+    // Clean up on unmount
+    return () => {
+      if (notificationListenerRef.current) {
+        notificationListenerRef.current();
+        notificationListenerRef.current = null;
+      }
+    };
   }, []);
 
   // Determine which tab should be active based on URL

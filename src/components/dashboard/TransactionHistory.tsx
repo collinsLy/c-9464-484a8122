@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { 
   Card, 
@@ -55,6 +54,8 @@ interface Transaction {
     walletAddress?: string;
     processingStartTime?: string;
   };
+  direction?: 'in' | 'out'; // Added direction property
+  isRead?: boolean; // Added isRead property
 }
 
 function TransactionHistory() {
@@ -79,24 +80,22 @@ function TransactionHistory() {
 
         console.log('Fetching transactions for user:', uid);
 
-        // First, get the initial data
         const userData = await UserService.getUserData(uid);
         if (userData && userData.transactions) {
           console.log('Initial transactions loaded:', userData.transactions.length);
           setTransactions(userData.transactions);
           setFilteredTransactions(userData.transactions);
+          // Attempt to mark notifications as read -  incomplete without database interaction
+          //if (userData.hasUnreadNotifications) { /* ... missing database update logic ... */}
         }
 
-        // Then set up real-time updates with increased responsiveness
         const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
           if (userData && userData.transactions) {
             console.log('Real-time transaction update received:', userData.transactions.length);
             setTransactions(userData.transactions);
             setFilteredTransactions(prevFiltered => {
-              // Apply current filters to the new data
               let result = [...userData.transactions];
 
-              // Search filter
               if (searchQuery) {
                 const query = searchQuery.toLowerCase();
                 result = result.filter(
@@ -107,17 +106,14 @@ function TransactionHistory() {
                 );
               }
 
-              // Type filter
               if (typeFilter !== 'all') {
                 result = result.filter((tx) => tx.type?.toLowerCase() === typeFilter.toLowerCase());
               }
 
-              // Status filter
               if (statusFilter !== 'all') {
                 result = result.filter((tx) => tx.status?.toLowerCase() === statusFilter.toLowerCase());
               }
 
-              // Date range filter
               if (startDate) {
                 const start = new Date(startDate).getTime();
                 result = result.filter((tx) => new Date(tx.timestamp).getTime() >= start);
@@ -133,7 +129,6 @@ function TransactionHistory() {
           }
         });
 
-        // Clean up subscription on unmount
         return () => {
           if (unsubscribe) unsubscribe();
         };
@@ -148,10 +143,8 @@ function TransactionHistory() {
   }, []);
 
   useEffect(() => {
-    // Apply all filters
     let result = [...transactions];
 
-    // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(
@@ -162,17 +155,14 @@ function TransactionHistory() {
       );
     }
 
-    // Type filter
     if (typeFilter !== 'all') {
       result = result.filter((tx) => tx.type?.toLowerCase() === typeFilter.toLowerCase());
     }
 
-    // Status filter
     if (statusFilter !== 'all') {
       result = result.filter((tx) => tx.status?.toLowerCase() === statusFilter.toLowerCase());
     }
 
-    // Date range filter
     if (startDate) {
       const start = new Date(startDate).getTime();
       result = result.filter((tx) => new Date(tx.timestamp).getTime() >= start);
@@ -223,14 +213,11 @@ function TransactionHistory() {
       return `0.0000`;
     }
 
-    // Use exactly 4 decimal places for all amounts
     const formattedNumber = new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 4,
       maximumFractionDigits: 4
     }).format(amount);
 
-    // For transfers and crypto transactions, show the amount with crypto symbol
-    // For fiat transactions, use the dollar sign
     if (asset && ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'DOGE', 'SOL', 'XRP'].includes(asset.toUpperCase())) {
       return `${formattedNumber} ${asset}`;
     } else {
@@ -283,8 +270,6 @@ function TransactionHistory() {
       link.click();
       document.body.removeChild(link);
     } else {
-      // For PDF, we would typically use a library like jsPDF
-      // This is a placeholder for future implementation
       alert('PDF export will be implemented soon');
     }
   };
@@ -320,7 +305,6 @@ function TransactionHistory() {
       <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <CardTitle className="text-xl text-white">Transaction History</CardTitle>
         <div className="flex flex-wrap items-center gap-2">
-          {/* Search bar */}
           <div className="relative w-full md:w-auto">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -331,7 +315,6 @@ function TransactionHistory() {
             />
           </div>
 
-          {/* Filters dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="border-white/10 text-white">
@@ -405,7 +388,6 @@ function TransactionHistory() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Export options */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="border-white/10 text-white">
@@ -512,21 +494,13 @@ function TransactionHistory() {
                         </div>
                       ) : transaction.type === 'Received' && transaction.txId ? (
                         (() => {
-                          // First check for cryptocurrency in details or metadata
                           const cryptoFromDetails = transaction.details?.crypto;
                           const cryptoFromMetadata = transaction.metadata?.crypto || transaction.metadata?.asset;
-                          
-                          // Parse currency from the transaction ID
                           const txIdParts = transaction.txId.split('-');
                           const cryptoFromTx = txIdParts.length > 1 ? txIdParts[1].toUpperCase() : null;
-
-                          // Get a detected crypto - prioritize structured data over parsing
                           let detectedCrypto = cryptoFromDetails || cryptoFromMetadata || cryptoFromTx || transaction.asset;
 
-                          // Common cryptocurrencies to check in txId
                           const commonCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'DOGE', 'SOL', 'XRP', 'ADA', 'DOT', 'LINK', 'MATIC', 'WLD'];
-
-                          // Check if any cryptocurrency identifier is in the txId
                           if (!detectedCrypto) {
                             for (const crypto of commonCryptos) {
                               if (transaction.txId?.includes(crypto)) {
@@ -535,8 +509,7 @@ function TransactionHistory() {
                               }
                             }
                           }
-                          
-                          // Special case handling for common amounts that might indicate specific cryptos - only as a last resort
+
                           if (!detectedCrypto) {
                             if (transaction.amount === 61 || transaction.amount === 50 || transaction.amount === 11 || 
                                (transaction.amount > 10 && transaction.amount < 100)) {
@@ -544,7 +517,6 @@ function TransactionHistory() {
                             } else if (transaction.amount < 0.01) {
                               detectedCrypto = 'BTC';
                             } else {
-                              // If we still can't detect by now, use the asset field
                               detectedCrypto = transaction.asset || 'USDT';
                             }
                           }
@@ -556,7 +528,6 @@ function TransactionHistory() {
                                 alt={detectedCrypto || 'USDT'} 
                                 className="w-5 h-5"
                                 onError={(e) => {
-                                  // Fallback to specific known icons if the main source fails
                                   if (detectedCrypto === 'DOGE') {
                                     e.currentTarget.src = "https://assets.coingecko.com/coins/images/5/small/dogecoin.png";
                                   } else if (detectedCrypto === 'BTC') {
@@ -601,18 +572,12 @@ function TransactionHistory() {
                         </>
                       ) : transaction.type === 'Received' && transaction.txId ? (
                         (() => {
-                          // First check for cryptocurrency in details or metadata
                           const cryptoFromDetails = transaction.details?.crypto;
                           const cryptoFromMetadata = transaction.metadata?.crypto || transaction.metadata?.asset;
-                          
-                          // Parse currency from the transaction ID
                           const txIdParts = transaction.txId.split('-');
                           const cryptoFromTx = txIdParts.length > 1 ? txIdParts[1].toUpperCase() : null;
-
-                          // Get a detected crypto
                           let detectedCrypto = cryptoFromDetails || cryptoFromMetadata || cryptoFromTx || transaction.asset;
 
-                          // Check txId for currency
                           if (!detectedCrypto) {
                             const commonCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'DOGE', 'SOL', 'XRP', 'ADA', 'DOT', 'LINK', 'MATIC', 'WLD'];
                             for (const crypto of commonCryptos) {
@@ -623,7 +588,6 @@ function TransactionHistory() {
                             }
                           }
 
-                          // Amount-based detection as last resort
                           if (!detectedCrypto) {
                             if (transaction.amount === 61 || transaction.amount === 50 || transaction.amount === 11 ||
                                 (transaction.amount > 10 && transaction.amount < 100)) {
@@ -635,12 +599,11 @@ function TransactionHistory() {
                             }
                           }
 
-                          // Format the number based on the detected cryptocurrency
                           const formattedNumber = new Intl.NumberFormat('en-US', {
                             minimumFractionDigits: detectedCrypto === 'BTC' || detectedCrypto === 'ETH' ? 4 : 2,
                             maximumFractionDigits: detectedCrypto === 'BTC' || detectedCrypto === 'ETH' ? 4 : 2
                           }).format(transaction.amount);
-                          
+
                           return `${formattedNumber} ${detectedCrypto}`;
                         })()
                       ) : (
@@ -656,22 +619,18 @@ function TransactionHistory() {
                     <TableCell className="text-white font-mono text-xs">
                       {transaction.txId ? `${transaction.txId.substring(0, 8)}...` : 'N/A'}
                     </TableCell>
-                    {/* Method/Network */}
                     <TableCell>
                       <div className="flex items-center space-x-2 text-white">
                         {transaction.type === 'Conversion' ? (
                           <>
-                            {/* DEX logo and name based on the conversion type */}
                             {(() => {
-                              // Determine which DEX to display based on the assets and network
                               const fromAsset = transaction.fromAsset?.toUpperCase() || '';
                               const toAsset = transaction.toAsset?.toUpperCase() || '';
                               const network = transaction.network?.toUpperCase() || '';
 
-                              // ETH → USDC on Ethereum
                               if ((fromAsset === 'ETH' && toAsset === 'USDC') || 
                                   (fromAsset.includes('ETH') && network.includes('ERC20'))) {
-                                const useOneInch = Math.random() > 0.5; // Randomly choose between Uniswap and 1inch
+                                const useOneInch = Math.random() > 0.5; 
                                 if (useOneInch) {
                                   return (
                                     <>
@@ -703,7 +662,6 @@ function TransactionHistory() {
                                 }
                               }
 
-                              // USDT → BUSD on BSC
                               else if ((fromAsset === 'USDT' && toAsset === 'BUSD') || 
                                        network.includes('BSC') || fromAsset === 'BNB' || toAsset === 'BNB') {
                                 return (
@@ -721,7 +679,6 @@ function TransactionHistory() {
                                 );
                               }
 
-                              // SOL → USDC on Solana
                               else if ((fromAsset === 'SOL' && toAsset === 'USDC') || 
                                        network.includes('SOLANA') || network.includes('SOL') || 
                                        fromAsset === 'SOL' || toAsset === 'SOL') {
@@ -740,7 +697,6 @@ function TransactionHistory() {
                                 );
                               }
 
-                              // Cross-chain (BTC → ETH)
                               else if ((fromAsset === 'BTC' && toAsset === 'ETH') || 
                                        (fromAsset !== toAsset && network === 'NATIVE')) {
                                 return (
@@ -758,7 +714,6 @@ function TransactionHistory() {
                                 );
                               }
 
-                              // Stablecoin swaps
                               else if ((fromAsset.includes('USD') && toAsset.includes('USD')) ||
                                        (fromAsset === 'DAI' || toAsset === 'DAI')) {
                                 return (
@@ -776,12 +731,11 @@ function TransactionHistory() {
                                 );
                               }
 
-                              // Fast/cheap L2 swaps
                               else if (network.includes('ARBITRUM') || network.includes('POLYGON') || network.includes('L2')) {
                                 return (
                                   <>
                                     <img 
-                                      src="https://www.cryptologos.cc/logos/pancakeswap-cake-logo.svg?v=040" 
+       src="https://www.cryptologos.cc/logos/pancakeswap-cake-logo.svg?v=040" 
                                       alt="Uniswap" 
                                       className="w-5 h-5" 
                                       onError={(e) => {
@@ -793,7 +747,6 @@ function TransactionHistory() {
                                 );
                               }
 
-                              // Default case - generic DEX                              
                               else {
                                 return (
                                   <>
@@ -896,7 +849,6 @@ function TransactionHistory() {
         )}
       </CardContent>
 
-      {/* Transaction Details Modal */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="bg-background/95 backdrop-blur-lg border-white/10 text-white">
           <DialogHeader>
@@ -968,22 +920,13 @@ function TransactionHistory() {
                     <p className="text-white flex items-center gap-2">
                     {selectedTransaction.type === 'Received' && selectedTransaction.txId ? (
                       (() => {
-                        // First check if the crypto is directly specified in metadata or details
                         const cryptoFromMetadata = selectedTransaction.metadata?.crypto || selectedTransaction.metadata?.asset;
                         const cryptoFromDetails = selectedTransaction.details?.crypto;
-                        
-                        // Parse currency from the transaction ID
                         const txIdParts = selectedTransaction.txId.split('-');
                         const cryptoFromTx = txIdParts.length > 1 ? txIdParts[1].toUpperCase() : null;
-
-                        // Get a detected crypto - prioritize metadata and details over txId parsing
                         let detectedCrypto = cryptoFromMetadata || cryptoFromDetails || cryptoFromTx || selectedTransaction.asset;
 
-                        // Check if transaction has a direct reference to the crypto in its ID
-                        // Common cryptocurrencies to check in txId
                         const commonCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'DOGE', 'SOL', 'XRP', 'ADA', 'DOT', 'LINK', 'MATIC', 'WLD'];
-
-                        // Check if any cryptocurrency identifier is in the txId
                         for (const crypto of commonCryptos) {
                           if (selectedTransaction.txId?.includes(crypto)) {
                             detectedCrypto = crypto;
@@ -991,7 +934,6 @@ function TransactionHistory() {
                           }
                         }
 
-                        // Special case handling for specific amount ranges as a last resort
                         if (!detectedCrypto) {
                           if (selectedTransaction.amount === 61 || selectedTransaction.amount === 50 || 
                               selectedTransaction.amount === 21 || selectedTransaction.amount === 11 || 
@@ -1001,7 +943,6 @@ function TransactionHistory() {
                           } else if (selectedTransaction.amount < 0.01) {
                             detectedCrypto = 'BTC';
                           } else {
-                            // If we still can't detect, use the asset field or fall back to a default
                             detectedCrypto = selectedTransaction.asset || 'USDT';
                           }
                         }
@@ -1013,7 +954,6 @@ function TransactionHistory() {
                               alt={detectedCrypto || 'USDT'} 
                               className="w-5 h-5"
                               onError={(e) => {
-                                // Fallback to specific known icons if the main source fails
                                 if (detectedCrypto === 'DOGE') {
                                   e.currentTarget.src = "https://assets.coingecko.com/coins/images/5/small/dogecoin.png";
                                 } else if (detectedCrypto === 'BTC') {
@@ -1082,19 +1022,16 @@ function TransactionHistory() {
                         ? `${parseFloat((selectedTransaction.fromAmount || 0).toString()).toFixed(4)} ${selectedTransaction.fromAsset} → ${parseFloat((selectedTransaction.toAmount || 0).toString()).toFixed(4)} ${selectedTransaction.toAsset}`
                         : selectedTransaction.type === 'Received' && selectedTransaction.txId
                         ? (() => {
-                            // For DOGE transactions
                             if (selectedTransaction.txId?.includes('DOGE') || 
                                 selectedTransaction.amount === 61 || selectedTransaction.amount === 50 || selectedTransaction.amount === 11 ||
                                 (selectedTransaction.type === 'Received' && selectedTransaction.asset === 'DOGE')) {
                               return `${parseFloat(selectedTransaction.amount.toString()).toFixed(2)} DOGE`;
                             }
 
-                            // For BTC transactions
                             if (selectedTransaction.txId.includes('BTC') || selectedTransaction.amount < 0.01) {
                               return `${parseFloat(selectedTransaction.amount.toString()).toFixed(4)} BTC`;
                             }
 
-                            // Get crypto from transaction ID if possible
                             const txIdParts = selectedTransaction.txId.split('-');
                             const cryptoFromTx = txIdParts.length > 1 ? txIdParts[1].toUpperCase() : null;
                             const cryptoFromMetadata = selectedTransaction.metadata?.crypto || selectedTransaction.metadata?.asset;
@@ -1169,7 +1106,6 @@ function TransactionHistory() {
                   </div>
                 )}
 
-                {/* Metadata if available */}
                 {selectedTransaction.metadata && Object.keys(selectedTransaction.metadata).length > 0 && (
                   <div className="col-span-2 border-t border-white/10 pt-4 mt-2">
                     <p className="text-sm text-white/70 mb-2">Additional Details</p>

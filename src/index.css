@@ -39,6 +39,44 @@
 }
 
 @keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Notification styles */
+.notification-toast {
+  animation: slideIn 0.3s ease-out forwards;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  border-left: 4px solid #F2FF44;
+  background-color: rgba(30, 30, 40, 0.95);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.notification-badge {
+  position: relative;
+}
+
+.notification-badge::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  background: #F2FF44;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
 
 /* Chart Touch Handling */
 .chart-container {
@@ -52,10 +90,6 @@
     height: 400px !important; /* Smaller height on mobile for better usability */
     width: 100% !important;
   }
-}
-
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
 }
 
 /* Animation Classes */

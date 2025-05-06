@@ -5,8 +5,10 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
 import { UserService } from "@/lib/user-service";
-import { doc, runTransaction } from "firebase/firestore";
+import { doc, runTransaction, setDoc } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
+import { NotificationService } from "@/lib/notification-service";
+import { cn } from "@/lib/utils";
 
 interface UidTransferProps {
   currentBalance: number;
@@ -221,7 +223,10 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
           direction: "in",
           senderId: currentUserId,
           senderName: senderDoc.data().fullName || "User",
-          description: `Received from ${senderDoc.data().fullName || "User"}`
+          description: `Received from ${senderDoc.data().fullName || "User"}`,
+          asset: selectedCrypto, // Add the cryptocurrency type
+          isRead: false, // Flag to track if the notification has been seen
+          notificationId: `transfer-${Date.now()}-${Math.random().toString(36).substr(2, 9)}` // Unique notification ID
         };
 
         // Update transactions arrays
@@ -233,14 +238,50 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
         });
 
         transaction.update(recipientRef, { 
-          transactions: [recipientTransaction, ...recipientTransactions] 
+          transactions: [recipientTransaction, ...recipientTransactions],
+          hasUnreadNotifications: true // Set flag that recipient has unread notifications
         });
+        
+        // Store a notification in the notifications collection for the recipient
+        // This will be used to trigger real-time notifications
+        const notificationData = {
+          userId: recipientUid,
+          type: "transfer",
+          asset: selectedCrypto,
+          amount: transferAmount,
+          senderId: currentUserId,
+          senderName: senderDoc.data().fullName || "User",
+          timestamp: new Date().toISOString(),
+          isRead: false,
+          notificationId: recipientTransaction.notificationId
+        };
+        
+        // This will be added outside the transaction to avoid making the transaction too complex
       });
+
+      // Add notification document (outside the transaction)
+      try {
+        const notificationRef = doc(db, 'notifications', `transfer-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
+        await setDoc(notificationRef, {
+          userId: recipientUid,
+          type: "transfer",
+          asset: selectedCrypto,
+          amount: transferAmount,
+          senderId: currentUserId,
+          senderName: auth.currentUser?.displayName || "User",
+          timestamp: new Date().toISOString(),
+          isRead: false
+        });
+        
+        console.log("Notification created for recipient");
+      } catch (error) {
+        console.error("Error creating notification:", error);
+      }
 
       // Show success message
       toast({
         title: "Transfer Successful",
-        description: `Successfully sent ${transferAmount} to user`,
+        description: `Successfully sent ${transferAmount} ${selectedCrypto} to user`,
       });
 
       // Reset form
