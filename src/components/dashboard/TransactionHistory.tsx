@@ -216,7 +216,7 @@ const TransactionHistory = () => {
 
     const formattedNumber = new Intl.NumberFormat('en-US', {
       minimumFractionDigits: 2,
-      maximumFractionDigits: 8
+      maximumFractionDigits: 4
     }).format(amount);
 
     // For transfers and crypto transactions, show the amount with crypto symbol
@@ -572,9 +572,9 @@ const TransactionHistory = () => {
                       ) : transaction.type === 'Conversion' ? (
                         <>
                           <div className="flex flex-col items-end">
-                            <span>{(transaction.fromAmount || 0).toFixed(8)} {transaction.fromAsset}</span>
+                            <span>{(transaction.fromAmount || 0).toFixed(4)} {transaction.fromAsset}</span>
                             <span className="text-gray-400">→</span>
-                            <span>{(transaction.toAmount || 0).toFixed(8)} {transaction.toAsset}</span>
+                            <span>{(transaction.toAmount || 0).toFixed(4)} {transaction.toAsset}</span>
                           </div>
                         </>
                       ) : transaction.type === 'Received' && transaction.txId ? (
@@ -590,7 +590,7 @@ const TransactionHistory = () => {
                           if (transaction.txId?.includes('BTC') || transaction.amount < 0.01) {
                             const formattedNumber = new Intl.NumberFormat('en-US', {
                               minimumFractionDigits: 2,
-                              maximumFractionDigits: 8
+                              maximumFractionDigits: 4
                             }).format(transaction.amount);
                             return `${formattedNumber} BTC`;
                           }
@@ -748,8 +748,7 @@ const TransactionHistory = () => {
                                 );
                               }
 
-                              // Default case - generic DEX
-                              else {
+                              // Default case - generic DEX                              else {
                                 return (
                                   <>
                                     <img 
@@ -1025,9 +1024,9 @@ const TransactionHistory = () => {
                     <span>Amount:</span>
                     <span>
                       {selectedTransaction.type === 'Transfer' && selectedTransaction.details?.crypto && selectedTransaction.details?.amount
-                        ? `${parseFloat(selectedTransaction.details.amount.toString()).toFixed(8)} ${selectedTransaction.details.crypto}`
+                        ? `${parseFloat(selectedTransaction.details.amount.toString()).toFixed(4)} ${selectedTransaction.details.crypto}`
                         : selectedTransaction.type === 'Conversion'
-                        ? `${parseFloat((selectedTransaction.fromAmount || 0).toString()).toFixed(8)} ${selectedTransaction.fromAsset} → ${parseFloat((selectedTransaction.toAmount || 0).toString()).toFixed(8)} ${selectedTransaction.toAsset}`
+                        ? `${parseFloat((selectedTransaction.fromAmount || 0).toString()).toFixed(4)} ${selectedTransaction.fromAsset} → ${parseFloat((selectedTransaction.toAmount || 0).toString()).toFixed(4)} ${selectedTransaction.toAsset}`
                         : selectedTransaction.type === 'Received' && selectedTransaction.txId
                         ? (() => {
                             // For DOGE transactions
@@ -1039,7 +1038,7 @@ const TransactionHistory = () => {
 
                             // For BTC transactions
                             if (selectedTransaction.txId.includes('BTC') || selectedTransaction.amount < 0.01) {
-                              return `${parseFloat(selectedTransaction.amount.toString()).toFixed(8)} BTC`;
+                              return `${parseFloat(selectedTransaction.amount.toString()).toFixed(4)} BTC`;
                             }
 
                             // Get crypto from transaction ID if possible
@@ -1048,10 +1047,10 @@ const TransactionHistory = () => {
                             const cryptoFromMetadata = selectedTransaction.metadata?.crypto || selectedTransaction.metadata?.asset;
                             const detectedCrypto = cryptoFromMetadata || cryptoFromTx || selectedTransaction.asset;
 
-                            return `${parseFloat(selectedTransaction.amount.toString()).toFixed(detectedCrypto === 'BTC' ? 8 : 2)} ${detectedCrypto || 'USDT'}`;
+                            return `${parseFloat(selectedTransaction.amount.toString()).toFixed(detectedCrypto === 'BTC' ? 4 : 2)} ${detectedCrypto || 'USDT'}`;
                           })()
                         : selectedTransaction.amount !== undefined
-                        ? `${parseFloat(selectedTransaction.amount.toString()).toFixed(8)} ${selectedTransaction.asset || 'USDT'}`
+                        ? `${parseFloat(selectedTransaction.amount.toString()).toFixed(4)} ${selectedTransaction.asset || 'USDT'}`
                         : "0.00"}
                     </span>
                   </div>
