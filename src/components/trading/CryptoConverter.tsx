@@ -4,6 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
+import { UserService } from '@/lib/user-service';
+import { auth } from '@/lib/firebase';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { v4 as uuidv4 } from 'uuid';
 
 interface CryptoConverterProps {
   onAmountChange?: (amount: number, fromCurrency: string, toCurrency: string) => void;
@@ -17,20 +21,72 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
   const [timeLeft, setTimeLeft] = useState<number>(18);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { toast } = useToast();
+  const [userBalances, setUserBalances] = useState<Record<string, number>>({
+    USDT: 0,
+    BTC: 0,
+    ETH: 0,
+    SOL: 0,
+    DOGE: 0,
+  });
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  // Mock user balances - in a real app, these would come from your user state
-  const userBalances = {
-    USDT: 72.00000000,
-    BTC: 0.00263289,
-    ETH: 0.15000000,
-  };
+  // Supported cryptocurrencies
+  const supportedCryptos = ['BTC', 'ETH', 'USDT', 'SOL', 'DOGE'];
+
+  // Fetch user balances
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const userId = auth.currentUser?.uid || localStorage.getItem('userId');
+      if (!userId) return;
+
+      setCurrentUserId(userId);
+
+      try {
+        const userData = await UserService.getUserData(userId);
+        if (userData) {
+          // Extract crypto balances from user data
+          const balances: Record<string, number> = {};
+          
+          // Set default balances to 0
+          supportedCryptos.forEach(crypto => {
+            balances[crypto] = 0;
+          });
+          
+          // Update with actual balances if they exist
+          if (userData.cryptoBalances) {
+            Object.keys(userData.cryptoBalances).forEach(crypto => {
+              if (supportedCryptos.includes(crypto)) {
+                balances[crypto] = userData.cryptoBalances[crypto];
+              }
+            });
+          }
+          
+          setUserBalances(balances);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+    
+    // Refresh balances when the page is focused
+    const handleFocus = () => fetchUserData();
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
 
   // Mock conversion rates - in a real app, these would come from an API
   const rates = {
-    BTC: { USD: 65000, ETH: 20, USDT: 65000 },
-    ETH: { USD: 3200, BTC: 0.05, USDT: 3200 },
-    USDT: { USD: 1, BTC: 0.000015, ETH: 0.0003 },
-    USD: { BTC: 0.000015, ETH: 0.0003, USDT: 1 },
+    BTC: { USD: 65000, ETH: 20, USDT: 65000, SOL: 650, DOGE: 325000 },
+    ETH: { USD: 3200, BTC: 0.05, USDT: 3200, SOL: 32, DOGE: 16000 },
+    USDT: { USD: 1, BTC: 0.000015, ETH: 0.0003, SOL: 0.01, DOGE: 5 },
+    SOL: { USD: 100, BTC: 0.0015, ETH: 0.03, USDT: 100, DOGE: 500 },
+    DOGE: { USD: 0.2, BTC: 0.000003, ETH: 0.00006, USDT: 0.2, SOL: 0.002 },
+    USD: { BTC: 0.000015, ETH: 0.0003, USDT: 1, SOL: 0.01, DOGE: 5 },
   };
 
   useEffect(() => {
@@ -109,7 +165,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
     }, 800);
   };
 
-  const executeConversion = () => {
+  const executeConversion = async () => {
     if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
       toast({
         title: "Invalid Amount",
@@ -119,15 +175,96 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
       return;
     }
 
+    if (!currentUserId) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to perform conversions",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const numAmount = parseFloat(amount);
+    if (numAmount > userBalances[fromCurrency]) {
+      toast({
+        title: "Insufficient Balance",
+        description: `You don't have enough ${fromCurrency} to perform this conversion`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
-    // Simulate processing time
-    setTimeout(() => {
-      setIsLoading(false);
+    
+    try {
+      // Calculate final amounts
+      const resultAmount = convertedAmount || (numAmount * rates[fromCurrency][toCurrency] * 0.999); // Apply 0.1% fee
+      const fromAmount = numAmount;
+      const toAmount = resultAmount;
+      
+      // Get current user data
+      const userData = await UserService.getUserData(currentUserId);
+      if (!userData) throw new Error("User data not found");
+      
+      // Prepare updated crypto balances
+      const updatedCryptoBalances = { ...(userData.cryptoBalances || {}) };
+      
+      // Deduct the 'from' currency
+      updatedCryptoBalances[fromCurrency] = (updatedCryptoBalances[fromCurrency] || 0) - fromAmount;
+      
+      // Add the 'to' currency
+      updatedCryptoBalances[toCurrency] = (updatedCryptoBalances[toCurrency] || 0) + toAmount;
+      
+      // Create transaction record
+      const timestamp = new Date().toISOString();
+      const txId = `conv-${fromCurrency}-${toCurrency}-${uuidv4().substring(0, 8)}`;
+      
+      const newTransaction = {
+        txId,
+        timestamp,
+        type: 'Conversion',
+        fromAsset: fromCurrency,
+        toAsset: toCurrency,
+        fromAmount,
+        toAmount,
+        status: 'completed',
+        network: 'NATIVE',
+        details: {
+          conversionRate: rates[fromCurrency][toCurrency],
+          fee: fromAmount * 0.001,
+          processingTime: '< 1 minute'
+        }
+      };
+      
+      // Update user data with new transaction and balances
+      const transactions = userData.transactions || [];
+      await UserService.updateUserData(currentUserId, {
+        cryptoBalances: updatedCryptoBalances,
+        transactions: [newTransaction, ...transactions]
+      });
+      
+      // Update local state
+      setUserBalances(updatedCryptoBalances);
+      
       toast({
         title: "Conversion Successful",
-        description: `Successfully converted ${amount} ${fromCurrency} to ${convertedAmount?.toFixed(8)} ${toCurrency}`,
+        description: `Successfully converted ${fromAmount.toFixed(8)} ${fromCurrency} to ${toAmount.toFixed(8)} ${toCurrency}`,
       });
-    }, 1500);
+      
+      // Reset form
+      setAmount('');
+      setConvertedAmount(null);
+      
+    } catch (error) {
+      console.error('Error executing conversion:', error);
+      toast({
+        title: "Conversion Failed",
+        description: "There was an error processing your conversion. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const getCurrencyIcon = (currency: string) => {
@@ -148,6 +285,18 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
         return (
           <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs text-white font-bold">
             Ξ
+          </div>
+        );
+      case 'SOL':
+        return (
+          <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center text-xs text-white font-bold">
+            S
+          </div>
+        );
+      case 'DOGE':
+        return (
+          <div className="w-6 h-6 rounded-full bg-yellow-500 flex items-center justify-center text-xs text-white font-bold">
+            D
           </div>
         );
       default:
@@ -171,8 +320,8 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
         <div className="space-y-4">
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <label className="text-sm text-gray-400">From</label>
-              <span className="text-xs text-gray-400">Available Balance: {userBalances[fromCurrency]?.toFixed(8) || "0.00000000"} {fromCurrency}</span>
+              <label className="text-sm text-white">From</label>
+              <span className="text-xs text-white">Available Balance: {userBalances[fromCurrency]?.toFixed(8) || "0.00000000"} {fromCurrency}</span>
             </div>
             <div className="flex relative">
               <Input
@@ -184,10 +333,28 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
                 disabled={isLoading}
               />
               <div className="absolute right-0 top-0 h-full flex items-center pr-4">
-                <div className="flex items-center gap-2 bg-transparent text-white px-3 py-2 rounded-full">
-                  {getCurrencyIcon(fromCurrency)}
-                  <span className="font-medium">{fromCurrency}</span>
-                </div>
+                <Select 
+                  value={fromCurrency} 
+                  onValueChange={setFromCurrency}
+                  disabled={isLoading}
+                >
+                  <SelectTrigger className="border-0 bg-transparent text-white w-auto p-0 focus:ring-0">
+                    <div className="flex items-center gap-2">
+                      {getCurrencyIcon(fromCurrency)}
+                      <span className="font-medium">{fromCurrency}</span>
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-900 border-gray-700 text-white">
+                    {supportedCryptos.map(crypto => (
+                      <SelectItem key={crypto} value={crypto} className="text-white hover:bg-gray-800">
+                        <div className="flex items-center gap-2">
+                          {getCurrencyIcon(crypto)}
+                          <span>{crypto}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
@@ -208,8 +375,8 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
 
           <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <label className="text-sm text-gray-400">To</label>
-              <span className="text-xs text-gray-400">Available Balance: {userBalances[toCurrency]?.toFixed(8) || "0.00000000"} {toCurrency}</span>
+              <label className="text-sm text-white">To</label>
+              <span className="text-xs text-white">Available Balance: {userBalances[toCurrency]?.toFixed(8) || "0.00000000"} {toCurrency}</span>
             </div>
             <div className="flex relative">
               <Input
@@ -220,10 +387,28 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
                 className="bg-black border-gray-700 text-white rounded-full h-12 pr-28"
               />
               <div className="absolute right-0 top-0 h-full flex items-center pr-4">
-                <div className="flex items-center gap-2 bg-transparent text-white px-3 py-2 rounded-full">
-                  {getCurrencyIcon(toCurrency)}
-                  <span className="font-medium">{toCurrency}</span>
-                </div>
+                <Select 
+                  value={toCurrency} 
+                  onValueChange={setToCurrency}
+                  disabled={isLoading}
+                >
+                  <SelectTrigger className="border-0 bg-transparent text-white w-auto p-0 focus:ring-0">
+                    <div className="flex items-center gap-2">
+                      {getCurrencyIcon(toCurrency)}
+                      <span className="font-medium">{toCurrency}</span>
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-900 border-gray-700 text-white">
+                    {supportedCryptos.map(crypto => (
+                      <SelectItem key={crypto} value={crypto} className="text-white hover:bg-gray-800">
+                        <div className="flex items-center gap-2">
+                          {getCurrencyIcon(crypto)}
+                          <span>{crypto}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
@@ -231,15 +416,15 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
           {/* Fee information */}
           {convertedAmount !== null && (
             <div className="bg-gray-900 rounded-lg p-3 text-xs space-y-1">
-              <div className="flex justify-between text-gray-400">
+              <div className="flex justify-between text-white">
                 <span>Rate:</span>
                 <span>1 {fromCurrency} = {rates[fromCurrency][toCurrency].toFixed(8)} {toCurrency}</span>
               </div>
-              <div className="flex justify-between text-gray-400">
+              <div className="flex justify-between text-white">
                 <span>Network Fee:</span>
                 <span>≈ {estimatedNetworkFee.toFixed(8)} {toCurrency}</span>
               </div>
-              <div className="flex justify-between text-gray-400">
+              <div className="flex justify-between text-white">
                 <span>Slippage Tolerance:</span>
                 <span>0.5%</span>
               </div>
@@ -253,9 +438,10 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
           <Button 
             onClick={executeConversion} 
             className="w-full bg-[#9ba419] hover:bg-[#8a9315] text-black font-medium rounded-full py-6 h-12"
-            disabled={!amount || isNaN(Number(amount)) || Number(amount) <= 0 || isLoading}
+            disabled={!amount || isNaN(Number(amount)) || Number(amount) <= 0 || isLoading || Number(amount) > userBalances[fromCurrency]}
           >
-            {isLoading ? "Converting..." : !amount ? "Enter an amount" : "Convert Now"}
+            {isLoading ? "Converting..." : !amount ? "Enter an amount" : 
+             Number(amount) > userBalances[fromCurrency] ? `Insufficient ${fromCurrency}` : "Convert Now"}
           </Button>
 
           <Button 
