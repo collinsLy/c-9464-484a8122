@@ -1,8 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowUpDown } from 'lucide-react';
 
 interface CryptoConverterProps {
@@ -14,6 +14,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
   const [fromCurrency, setFromCurrency] = useState<string>('USDT');
   const [toCurrency, setToCurrency] = useState<string>('BTC');
   const [convertedAmount, setConvertedAmount] = useState<number | null>(null);
+  const [timeLeft, setTimeLeft] = useState<number>(18);
 
   // Mock user balances - in a real app, these would come from your user state
   const userBalances = {
@@ -29,6 +30,30 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
     USDT: { USD: 1, BTC: 0.000015, ETH: 0.0003 },
     USD: { BTC: 0.000015, ETH: 0.0003, USDT: 1 },
   };
+
+  useEffect(() => {
+    if (amount && !isNaN(Number(amount))) {
+      handleConvert();
+    }
+  }, [amount, fromCurrency, toCurrency]);
+
+  useEffect(() => {
+    // Reset timer when conversion happens
+    if (convertedAmount !== null) {
+      setTimeLeft(18);
+      const timer = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      
+      return () => clearInterval(timer);
+    }
+  }, [convertedAmount]);
 
   const handleConvert = () => {
     if (!amount || isNaN(Number(amount))) return;
@@ -58,13 +83,43 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
   const refreshRate = () => {
     // In a real app, this would fetch fresh rates
     handleConvert();
+    setTimeLeft(18);
+  };
+
+  const getCurrencyIcon = (currency: string) => {
+    switch (currency) {
+      case 'BTC':
+        return (
+          <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center text-xs">
+            B
+          </div>
+        );
+      case 'USDT':
+        return (
+          <div className="w-6 h-6 rounded-full bg-teal-500 flex items-center justify-center text-xs">
+            T
+          </div>
+        );
+      case 'ETH':
+        return (
+          <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs">
+            E
+          </div>
+        );
+      default:
+        return (
+          <div className="w-6 h-6 rounded-full bg-gray-500 flex items-center justify-center text-xs">
+            ?
+          </div>
+        );
+    }
   };
 
   return (
     <Card className="bg-black text-white border border-gray-800 rounded-lg">
       <CardHeader className="pb-2">
         <CardTitle className="text-xl font-semibold">Convert {fromCurrency} to {toCurrency}</CardTitle>
-        <p className="text-xs text-gray-400 mt-1">Instant Conversion | Real-Time Rates | Rate locked for 18s</p>
+        <p className="text-xs text-gray-400 mt-1">Instant Conversion | Real-Time Rates | Rate locked for {timeLeft}s</p>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -73,7 +128,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
               <label className="text-sm text-gray-400">From</label>
               <span className="text-xs text-gray-400">Available Balance: {userBalances[fromCurrency]?.toFixed(8) || "0.00000000"} {fromCurrency}</span>
             </div>
-            <div className="flex">
+            <div className="flex relative">
               <Input
                 type="text"
                 value={amount}
@@ -81,12 +136,10 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
                 placeholder="0.01 - 4,700,000"
                 className="bg-black border-gray-700 text-white rounded-full h-12 pr-28"
               />
-              <div className="absolute right-7 translate-y-2">
+              <div className="absolute right-0 top-0 h-full flex items-center pr-4">
                 <div className="flex items-center gap-2 bg-transparent text-white px-3 py-2 rounded-full">
-                  <div className="w-6 h-6 rounded-full bg-teal-500 flex items-center justify-center text-xs">
-                    T
-                  </div>
-                  <span className="font-medium">USDT</span>
+                  {getCurrencyIcon(fromCurrency)}
+                  <span className="font-medium">{fromCurrency}</span>
                 </div>
               </div>
             </div>
@@ -110,7 +163,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
               <label className="text-sm text-gray-400">To</label>
               <span className="text-xs text-gray-400">Available Balance: {userBalances[toCurrency]?.toFixed(8) || "0.00000000"} {toCurrency}</span>
             </div>
-            <div className="flex">
+            <div className="flex relative">
               <Input
                 type="text"
                 value={convertedAmount !== null ? convertedAmount.toFixed(8) : '0'}
@@ -118,12 +171,10 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
                 placeholder="0"
                 className="bg-black border-gray-700 text-white rounded-full h-12 pr-28"
               />
-              <div className="absolute right-7 translate-y-2">
+              <div className="absolute right-0 top-0 h-full flex items-center pr-4">
                 <div className="flex items-center gap-2 bg-transparent text-white px-3 py-2 rounded-full">
-                  <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center text-xs">
-                    B
-                  </div>
-                  <span className="font-medium">BTC</span>
+                  {getCurrencyIcon(toCurrency)}
+                  <span className="font-medium">{toCurrency}</span>
                 </div>
               </div>
             </div>
@@ -134,7 +185,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
             className="w-full bg-[#9ba419] hover:bg-[#8a9315] text-black font-medium rounded-full py-6 h-12"
             disabled={!amount || isNaN(Number(amount))}
           >
-            {!amount ? "Enter an amount" : "Enter an amount"}
+            {!amount ? "Enter an amount" : "Convert"}
           </Button>
 
           <Button 
