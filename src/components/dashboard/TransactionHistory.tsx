@@ -569,6 +569,14 @@ const TransactionHistory = () => {
                     <TableCell className="text-white text-right">
                       {transaction.type === 'Transfer' && transaction.details?.crypto && transaction.details?.amount ? (
                         <span>{transaction.details.amount} {transaction.details.crypto}</span>
+                      ) : transaction.type === 'Conversion' ? (
+                        <>
+                          <div className="flex flex-col items-end">
+                            <span>{(transaction.fromAmount || 0).toFixed(8)} {transaction.fromAsset}</span>
+                            <span className="text-gray-400">→</span>
+                            <span>{(transaction.toAmount || 0).toFixed(8)} {transaction.toAsset}</span>
+                          </div>
+                        </>
                       ) : transaction.type === 'Received' && transaction.txId ? (
                         (() => {
                           // For DOGE transactions
@@ -1018,6 +1026,8 @@ const TransactionHistory = () => {
                     <span>
                       {selectedTransaction.type === 'Transfer' && selectedTransaction.details?.crypto && selectedTransaction.details?.amount
                         ? `${parseFloat(selectedTransaction.details.amount.toString()).toFixed(8)} ${selectedTransaction.details.crypto}`
+                        : selectedTransaction.type === 'Conversion'
+                        ? `${parseFloat((selectedTransaction.fromAmount || 0).toString()).toFixed(8)} ${selectedTransaction.fromAsset} → ${parseFloat((selectedTransaction.toAmount || 0).toString()).toFixed(8)} ${selectedTransaction.toAsset}`
                         : selectedTransaction.type === 'Received' && selectedTransaction.txId
                         ? (() => {
                             // For DOGE transactions
@@ -1041,9 +1051,7 @@ const TransactionHistory = () => {
                             return `${parseFloat(selectedTransaction.amount.toString()).toFixed(detectedCrypto === 'BTC' ? 8 : 2)} ${detectedCrypto || 'USDT'}`;
                           })()
                         : selectedTransaction.amount !== undefined
-                        ? `${parseFloat(selectedTransaction.amount.toString()).toFixed(2)} ${selectedTransaction.asset || 'USDT'}`
-                        : selectedTransaction.fromAmount !== undefined
-                        ? `${parseFloat(selectedTransaction.fromAmount.toString()).toFixed(2)} ${selectedTransaction.fromAsset} → ${parseFloat(selectedTransaction.toAmount.toString()).toFixed(6)} ${selectedTransaction.toAsset}`
+                        ? `${parseFloat(selectedTransaction.amount.toString()).toFixed(8)} ${selectedTransaction.asset || 'USDT'}`
                         : "0.00"}
                     </span>
                   </div>
