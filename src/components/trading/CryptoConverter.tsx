@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -62,10 +61,10 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
   };
 
   return (
-    <Card className="bg-black/90 text-white border-gray-800">
+    <Card className="bg-black text-white border border-gray-800 rounded-lg">
       <CardHeader className="pb-2">
-        <CardTitle>Convert {fromCurrency} to {toCurrency}</CardTitle>
-        <p className="text-xs text-gray-400 mt-1">Instant Conversion | Real-Time Rates | Rate locked for 51s</p>
+        <CardTitle className="text-xl font-semibold">Convert {fromCurrency} to {toCurrency}</CardTitle>
+        <p className="text-xs text-gray-400 mt-1">Instant Conversion | Real-Time Rates | Rate locked for 18s</p>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -74,56 +73,35 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
               <label className="text-sm text-gray-400">From</label>
               <span className="text-xs text-gray-400">Available Balance: {userBalances[fromCurrency]?.toFixed(8) || "0.00000000"} {fromCurrency}</span>
             </div>
-            <div className="flex space-x-2">
+            <div className="flex">
               <Input
                 type="text"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.01 - 4,700,000"
-                className="bg-black/50 border-gray-700 text-white rounded-full flex-grow"
+                className="bg-black border-gray-700 text-white rounded-full h-12 pr-28"
               />
-              <Select value={fromCurrency} onValueChange={setFromCurrency}>
-                <SelectTrigger className="bg-black/50 border-gray-700 text-white rounded-full w-32">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-teal-500 flex items-center justify-center text-xs">
-                      {fromCurrency === 'USDT' && 'T'}
-                      {fromCurrency === 'BTC' && 'B'}
-                      {fromCurrency === 'ETH' && 'E'}
-                    </div>
-                    <SelectValue />
+              <div className="absolute right-7 translate-y-2">
+                <div className="flex items-center gap-2 bg-transparent text-white px-3 py-2 rounded-full">
+                  <div className="w-6 h-6 rounded-full bg-teal-500 flex items-center justify-center text-xs">
+                    T
                   </div>
-                </SelectTrigger>
-                <SelectContent className="bg-black/95 border-gray-700">
-                  <SelectItem value="USDT" className="text-white">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-teal-500 flex items-center justify-center text-xs">T</div>
-                      USDT
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="BTC" className="text-white">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center text-xs">B</div>
-                      BTC
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="ETH" className="text-white">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs">E</div>
-                      ETH
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+                  <span className="font-medium">USDT</span>
+                </div>
+              </div>
             </div>
           </div>
 
           <div className="flex justify-center">
             <Button 
               variant="ghost" 
-              className="rounded-full h-10 w-10 p-0 bg-gray-800 hover:bg-gray-700"
+              className="rounded-full h-10 w-10 p-0 bg-transparent hover:bg-gray-800"
               onClick={handleSwapCurrencies}
             >
-              <ArrowUpDown className="h-5 w-5 text-white" />
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white">
+                <path d="M7 10L12 5L17 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M17 14L12 19L7 14" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </Button>
           </div>
 
@@ -132,61 +110,37 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
               <label className="text-sm text-gray-400">To</label>
               <span className="text-xs text-gray-400">Available Balance: {userBalances[toCurrency]?.toFixed(8) || "0.00000000"} {toCurrency}</span>
             </div>
-            <div className="flex space-x-2">
+            <div className="flex">
               <Input
                 type="text"
-                value={convertedAmount !== null ? convertedAmount.toFixed(8) : ''}
+                value={convertedAmount !== null ? convertedAmount.toFixed(8) : '0'}
                 readOnly
                 placeholder="0"
-                className="bg-black/50 border-gray-700 text-white rounded-full flex-grow"
+                className="bg-black border-gray-700 text-white rounded-full h-12 pr-28"
               />
-              <Select value={toCurrency} onValueChange={setToCurrency}>
-                <SelectTrigger className="bg-black/50 border-gray-700 text-white rounded-full w-32">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center text-xs">
-                      {toCurrency === 'USDT' && 'T'}
-                      {toCurrency === 'BTC' && 'B'}
-                      {toCurrency === 'ETH' && 'E'}
-                    </div>
-                    <SelectValue />
+              <div className="absolute right-7 translate-y-2">
+                <div className="flex items-center gap-2 bg-transparent text-white px-3 py-2 rounded-full">
+                  <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center text-xs">
+                    B
                   </div>
-                </SelectTrigger>
-                <SelectContent className="bg-black/95 border-gray-700">
-                  <SelectItem value="USDT" className="text-white">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-teal-500 flex items-center justify-center text-xs">T</div>
-                      USDT
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="BTC" className="text-white">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center text-xs">B</div>
-                      BTC
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="ETH" className="text-white">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-xs">E</div>
-                      ETH
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+                  <span className="font-medium">BTC</span>
+                </div>
+              </div>
             </div>
           </div>
 
           <Button 
             onClick={handleConvert} 
-            className="w-full bg-olive-600 hover:bg-olive-700 text-black font-medium rounded-full py-6"
+            className="w-full bg-[#9ba419] hover:bg-[#8a9315] text-black font-medium rounded-full py-6 h-12"
             disabled={!amount || isNaN(Number(amount))}
           >
-            {!amount ? "Enter an amount" : "Convert"}
+            {!amount ? "Enter an amount" : "Enter an amount"}
           </Button>
 
           <Button 
             onClick={refreshRate} 
             variant="outline" 
-            className="w-full border-gray-700 text-white hover:bg-gray-800 rounded-full"
+            className="w-full border border-gray-700 text-white hover:bg-gray-800 rounded-full h-12"
           >
             Refresh Rate
           </Button>
