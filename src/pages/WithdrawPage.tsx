@@ -360,7 +360,7 @@ const WithdrawPage = () => {
 
       try {
         const userData = await UserService.getUserData(uid);
-        
+
         // Initialize balances object with defaults
         const supportedCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'DOGE', 'SOL', 'XRP', 'WLD', 'ADA', 'DOT', 'LINK', 'MATIC'];
         const defaultBalances = supportedCryptos.reduce((acc, crypto) => {
@@ -376,9 +376,9 @@ const WithdrawPage = () => {
           } else if (typeof userData.balance === 'string') {
             defaultBalances['USDT'] = parseFloat(userData.balance) || 0;
           }
-          
+
           console.log("User USDT balance from main balance field:", defaultBalances['USDT']);
-          
+
           // Then check assets
           if (userData.assets) {
             console.log("Raw user assets:", userData.assets);
@@ -420,17 +420,17 @@ const WithdrawPage = () => {
     if (uid) {
       const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
         if (!userData) return;
-        
+
         // Create a new balances object
         const updatedBalances = { ...userCryptoBalances };
-        
+
         // Update USDT from main balance field
         if (typeof userData.balance === 'number') {
           updatedBalances['USDT'] = userData.balance;
         } else if (typeof userData.balance === 'string') {
           updatedBalances['USDT'] = parseFloat(userData.balance) || 0;
         }
-        
+
         // Update from assets if available
         if (userData.assets) {
           Object.entries(userData.assets).forEach(([key, asset]: [string, any]) => {
@@ -465,16 +465,31 @@ const WithdrawPage = () => {
 
       try {
         const userData = await UserService.getUserData(uid);
-        if (userData && userData.assets) {
+        if (userData) {
           // Explicitly handle USDT balance correctly
           let balance = 0;
 
-          // Check if the asset exists in user data
-          if (userData.assets[selectedCrypto]) {
-            balance = userData.assets[selectedCrypto].amount || 0;
+          // Special handling for USDT - check both locations
+          if (selectedCrypto === 'USDT') {
+            // First check main balance field (legacy location)
+            if (typeof userData.balance === 'number') {
+              balance = userData.balance;
+            } else if (typeof userData.balance === 'string') {
+              balance = parseFloat(userData.balance) || 0;
+            }
+
+            // Then check assets.USDT (new location), which overrides if present
+            if (userData.assets && userData.assets.USDT && userData.assets.USDT.amount !== undefined) {
+              balance = Number(userData.assets.USDT.amount);
+            }
+          } 
+          // Standard handling for other assets
+          else if (userData.assets && userData.assets[selectedCrypto]) {
+            balance = Number(userData.assets[selectedCrypto].amount) || 0;
           }
 
-          console.log(`Fresh balance check for ${selectedCrypto}:`, balance);
+          console.log(`Fresh balance check for ${selectedCrypto}:`, balance, 
+            selectedCrypto === 'USDT' ? "USDT also checked in main balance field" : "");
 
           // Update the specific crypto that was selected
           setUserCryptoBalances(prev => ({
@@ -976,7 +991,7 @@ const WithdrawPage = () => {
       'USDT': 1,
       'USDC': 1,
       'BNB': 600,
-      'WLD': 3.5
+      'WLD: 3.5
     };
     return rates[crypto] || 1;
   };
@@ -1177,9 +1192,9 @@ const WithdrawPage = () => {
                                     } else if (typeof userData.balance === 'string') {
                                       freshBalance = parseFloat(userData.balance) || 0;
                                     }
-                                    
+
                                     console.log(`USDT from main balance field: ${freshBalance}`);
-                                    
+
                                     // Then check assets.USDT (new location), which overrides if present
                                     if (userData.assets && userData.assets.USDT && userData.assets.USDT.amount !== undefined) {
                                       freshBalance = Number(userData.assets.USDT.amount);
@@ -1647,8 +1662,7 @@ const WithdrawPage = () => {
                         "border bg-black/20",
                         selectedCrypto === crypto.symbol 
                           ? "border-[#F2FF44]" 
-                          : "border-white/10 hover:border-white/20",
-                        "flex flex-col items-center justify-center gap-2"
+                          : "border-white/10 hover:border-white/20",                        "flex flex-col items-center justify-center gap-2"
                       )}
                     >
                       <div className="relative w-8 h-8">
