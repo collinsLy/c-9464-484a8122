@@ -991,7 +991,7 @@ const WithdrawPage = () => {
       'USDT': 1,
       'USDC': 1,
       'BNB': 600,
-      'WLD: 3.5
+      'WLD': 3.5
     };
     return rates[crypto] || 1;
   };
