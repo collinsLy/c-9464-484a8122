@@ -1,13 +1,10 @@
 
-import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { UserService } from '@/lib/user-service';
-
-import { ArrowDownRight as TrendingDown, ArrowUpRight as TrendingUp, Wallet, CreditCard } from "lucide-react"; 
+import { ArrowDownRight, ArrowUpRight, Wallet, CreditCard } from "lucide-react"; 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
+import { UserService } from "@/lib/user-service";
 
 interface AccountOverviewProps {
   isDemoMode?: boolean;
@@ -41,9 +38,8 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
     }
 
     setIsLoading(true);
-    console.log('Subscribing to balance updates for user:', uid);
-
-    // Use UserService to subscribe to user data
+    
+    // Subscribe to user data updates
     const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
       if (!userData) {
         console.error('No user data found');
@@ -51,9 +47,13 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         return;
       }
       
-      const parsedBalance = typeof userData.balance === 'string' ? parseFloat(userData.balance) : userData.balance;
+      // Parse balance values
+      const parsedBalance = typeof userData.balance === 'number' ? userData.balance : 
+                           (typeof userData.balance === 'string' ? parseFloat(userData.balance) : 0);
+      
       const initialBalance = userData.initialBalance || parsedBalance;
       const totalPL = userData.totalProfitLoss || 0;
+      const assetsValue = userData.assetsValue || 0;
 
       if (isNaN(parsedBalance)) {
         console.error('Invalid balance value received:', userData.balance);
@@ -61,15 +61,15 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         setTotalBalance(0);
       } else {
         setBalance(parsedBalance);
-        setTotalBalance(parsedBalance + (userData.assetsValue || 0));
+        setTotalBalance(parsedBalance + assetsValue);
         setProfitLoss(totalPL);
-        setProfitLossPercent((totalPL / initialBalance) * 100);
+        setProfitLossPercent(initialBalance > 0 ? (totalPL / initialBalance) * 100 : 0);
       }
+      
       setIsLoading(false);
     });
 
     return () => {
-      console.log('Unsubscribing from balance updates');
       unsubscribe();
     };
   }, [isDemoMode]);
@@ -116,7 +116,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
           </div>
           {!isDemoMode && (
             <div className="flex items-center mt-1 text-sm">
-              <TrendingUp className="w-4 h-4 mr-1 text-green-400" />
+              <ArrowUpRight className="w-4 h-4 mr-1 text-green-400" />
               <span className="text-green-400">+0.00%</span>
               <span className="ml-1 text-white/60">today</span>
             </div>
@@ -176,9 +176,9 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
           </div>
           <div className="flex items-center mt-1 text-sm">
             {profitLoss >= 0 ? (
-              <TrendingUp className="w-4 h-4 mr-1 text-green-400" />
+              <ArrowUpRight className="w-4 h-4 mr-1 text-green-400" />
             ) : (
-              <TrendingDown className="w-4 h-4 mr-1 text-red-400" />
+              <ArrowDownRight className="w-4 h-4 mr-1 text-red-400" />
             )}
             <span className={profitLoss >= 0 ? 'text-green-400' : 'text-red-400'}>
               {profitLoss >= 0 ? '+' : '-'}{Math.abs(profitLossPercent).toFixed(2)}%
