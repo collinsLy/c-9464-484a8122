@@ -1,11 +1,12 @@
+
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { UserService } from '@/lib/firebase-service'; 
+import { UserService } from '@/lib/user-service';
 
 import { ArrowDownRight as TrendingDown, ArrowUpRight as TrendingUp, Wallet, CreditCard } from "lucide-react"; 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
 
 interface AccountOverviewProps {
@@ -21,9 +22,20 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   const [totalBalance, setTotalBalance] = useState(0);
 
   useEffect(() => {
+    if (isDemoMode) {
+      // Load demo balance from localStorage
+      const demoBalance = parseFloat(localStorage.getItem('demoBalance') || '10000');
+      setBalance(demoBalance);
+      setTotalBalance(demoBalance);
+      setProfitLoss(0);
+      setProfitLossPercent(0);
+      setIsLoading(false);
+      return;
+    }
+
     const uid = localStorage.getItem('userId');
 
-    if (!uid || isDemoMode) {
+    if (!uid) {
       setIsLoading(false);
       return;
     }
@@ -33,6 +45,12 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
 
     // Use UserService to subscribe to user data
     const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
+      if (!userData) {
+        console.error('No user data found');
+        setIsLoading(false);
+        return;
+      }
+      
       const parsedBalance = typeof userData.balance === 'string' ? parseFloat(userData.balance) : userData.balance;
       const initialBalance = userData.initialBalance || parsedBalance;
       const totalPL = userData.totalProfitLoss || 0;
