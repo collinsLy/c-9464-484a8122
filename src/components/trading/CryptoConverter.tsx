@@ -27,6 +27,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
     ETH: 0,
     SOL: 0,
     DOGE: 0,
+    USDC: 0 // Added USDC to initial balances
   });
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
@@ -35,7 +36,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
   const [isRatesLoading, setIsRatesLoading] = useState<boolean>(true);
 
   // Supported cryptocurrencies
-  const supportedCryptos = ['BTC', 'ETH', 'USDT', 'SOL', 'DOGE', 'XRP', 'ADA', 'BNB', 'MATIC', 'DOT', 'LINK', 'WLD'];
+  const supportedCryptos = ['BTC', 'ETH', 'USDT', 'SOL', 'DOGE', 'XRP', 'ADA', 'BNB', 'MATIC', 'DOT', 'LINK', 'WLD', 'USDC']; // Added USDC
 
   // Currency mapping between symbols and CoinGecko IDs
   const coinGeckoMapping: Record<string, string> = {
@@ -50,7 +51,8 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
     'MATIC': 'matic-network',
     'DOT': 'polkadot',
     'LINK': 'chainlink',
-    'WLD': 'worldcoin'
+    'WLD': 'worldcoin',
+    'USDC': 'usd-coin' // Added USDC mapping
   };
 
   // Fetch user balances
@@ -159,8 +161,9 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
             }
           });
 
-          // Add special handling for USDT which should be 1:1 with USD
+          // Add special handling for stable coins which should be 1:1 with USD
           usdRates['USDT'] = 1;
+          usdRates['USDC'] = 1;
 
           // Calculate cross rates
           supportedCryptos.forEach(from => {
@@ -181,11 +184,12 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
         } else {
           // Fallback to default rates if API fails
           const fallbackRates = {
-            BTC: { USDT: 65000, ETH: 20, SOL: 650, DOGE: 325000 },
-            ETH: { USDT: 3200, BTC: 0.05, SOL: 32, DOGE: 16000 },
-            USDT: { BTC: 0.000015, ETH: 0.0003, SOL: 0.01, DOGE: 5 },
-            SOL: { USDT: 100, BTC: 0.0015, ETH: 0.03, DOGE: 500 },
-            DOGE: { USDT: 0.2, BTC: 0.000003, ETH: 0.00006, SOL: 0.002 },
+            BTC: { USDT: 65000, ETH: 20, SOL: 650, DOGE: 325000, USDC: 65000 }, //Added USDC
+            ETH: { USDT: 3200, BTC: 0.05, SOL: 32, DOGE: 16000, USDC: 3200 }, //Added USDC
+            USDT: { BTC: 0.000015, ETH: 0.0003, SOL: 0.01, DOGE: 5, USDC: 1 }, //Added USDC
+            SOL: { USDT: 100, BTC: 0.0015, ETH: 0.03, DOGE: 500, USDC: 100 }, //Added USDC
+            DOGE: { USDT: 0.2, BTC: 0.000003, ETH: 0.00006, SOL: 0.002, USDC: 0.2 }, //Added USDC
+            USDC: { BTC: 0.000015, ETH: 0.0003, SOL: 0.01, DOGE: 5, USDT: 1 } //Added USDC
           };
 
           // Initialize with fallback rates
@@ -408,8 +412,9 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
             }
           });
 
-          // Add special handling for USDT which should be 1:1 with USD
+          // Add special handling for stable coins which should be 1:1 with USD
           usdRates['USDT'] = 1;
+          usdRates['USDC'] = 1;
 
           // Calculate cross rates
           supportedCryptos.forEach(from => {
@@ -675,6 +680,8 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
             e.currentTarget.src = "https://assets.coingecko.com/coins/images/279/small/ethereum.png";
           } else if (currency === 'SOL') {
             e.currentTarget.src = "https://assets.coingecko.com/coins/images/4128/small/solana.png";
+          } else if (currency === 'USDC'){
+            e.currentTarget.src = "https://assets.coingecko.com/coins/images/6319/small/USD_Coin_icon.png?1624695678";
           } else {
             e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
           }
