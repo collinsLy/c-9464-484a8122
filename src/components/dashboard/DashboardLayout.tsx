@@ -4,7 +4,7 @@ import DashboardSidebar from "./DashboardSidebar";
 import {
   Home, LineChart, BarChart3, Wallet, CreditCard,
   TrendingUp, History, Settings, PlayCircle, HelpCircle, ArrowDownCircle, ArrowUpCircle,
-  Users
+  Users, Bell
 } from "lucide-react";
 
 interface DashboardContextType {
@@ -58,6 +58,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { icon: ArrowUpCircle, label: "Deposit", id: "deposit", path: "/deposit" },
     { icon: ArrowDownCircle, label: "Withdraw", id: "withdraw", path: "/withdraw" },
     { icon: BarChart3, label: "Bots & Strategies", id: "bots", path: "/bots" },
+    { icon: Bell, label: "Alerts", id: "alerts", path: "/alerts" },
+    { icon: Users, label: "Social Trading", id: "social-trading", path: "/social-trading" },
     { icon: Users, label: "Referrals", id: "referrals", path: "/referrals" },
     { icon: PlayCircle, label: "Demo", id: "demo", path: "/demo" },
     { icon: History, label: "History", id: "history", path: "/dashboard?tab=history" },
