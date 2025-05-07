@@ -1,0 +1,75 @@
+Uncaught Error: `TabsList` must be used within `Tabs`
+    at useContext2 (chunk-VK7ZPAS3.js?v=b099fba6:50:13)
+    at @radix-ui_react-tabs.js?v=b099fba6:96:21
+    at renderWithHooks (chunk-FJ2A54M7.js?v=b099fba6:11548:26)
+    at updateForwardRef (chunk-FJ2A54M7.js?v=b099fba6:14325:28)
+    at beginWork (chunk-FJ2A54M7.js?v=b099fba6:15946:22)
+    at HTMLUnknownElement.callCallback2 (chunk-FJ2A54M7.js?v=b099fba6:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-FJ2A54M7.js?v=b099fba6:3699:24)
+    at invokeGuardedCallback (chunk-FJ2A54M7.js?v=b099fba6:3733:39)
+    at beginWork$1 (chunk-FJ2A54M7.js?v=b099fba6:19765:15)
+    at performUnitOfWork (chunk-FJ2A54M7.js?v=b099fba6:19198:20)Understand this error
+chunk-FJ2A54M7.js?v=b099fba6:14032 The above error occurred in the <TabsList> component:
+
+    at https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=b099fba6:95:13
+    at _c (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/src/components/ui/tabs.tsx:14:57)
+    at div
+    at div
+    at _c2 (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/src/components/ui/card.tsx:28:60)
+    at div
+    at _c (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/src/components/ui/card.tsx:12:53)
+    at PortfolioAnalytics (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/src/components/dashboard/PortfolioAnalytics.tsx:111:39)
+    at div
+    at div
+    at main
+    at div
+    at div
+    at DashboardProvider (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/src/components/dashboard/DashboardLayout.tsx?t=1746642336135:16:37)
+    at DashboardLayout (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/src/components/dashboard/DashboardLayout.tsx?t=1746642336135:45:43)
+    at Dashboard (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/src/pages/Dashboard.tsx?t=1746642337599:28:49)
+    at ErrorBoundary (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/src/components/ErrorBoundary.tsx:36:9)
+    at RenderedRoute (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=b099fba6:4069:5)
+    at Routes (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=b099fba6:4508:5)
+    at DashboardProvider (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/src/components/dashboard/DashboardLayout.tsx?t=1746642336135:16:37)
+    at Router (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=b099fba6:4451:15)
+    at BrowserRouter (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/node_modules/.vite/deps/react-router-dom.js?v=b099fba6:5196:5)
+    at Provider (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/node_modules/.vite/deps/chunk-VK7ZPAS3.js?v=b099fba6:38:15)
+    at TooltipProvider (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=b099fba6:63:5)
+    at QueryClientProvider (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/node_modules/.vite/deps/@tanstack_react-query.js?v=b099fba6:2794:3)
+    at ErrorBoundary (https://48a19f04-128f-4775-bc44-d10b640c05dc-00-30svviax96qry.spock.replit.dev/src/components/ErrorBoundary.tsx:36:9)
+    at App
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+logCapturedError @ chunk-FJ2A54M7.js?v=b099fba6:14032Understand this error
+ErrorBoundary.tsx:25 Error caught by ErrorBoundary: Error: `TabsList` must be used within `Tabs`
+    at useContext2 (chunk-VK7ZPAS3.js?v=b099fba6:50:13)
+    at @radix-ui_react-tabs.js?v=b099fba6:96:21
+    at renderWithHooks (chunk-FJ2A54M7.js?v=b099fba6:11548:26)
+    at updateForwardRef (chunk-FJ2A54M7.js?v=b099fba6:14325:28)
+    at beginWork (chunk-FJ2A54M7.js?v=b099fba6:15946:22)
+    at beginWork$1 (chunk-FJ2A54M7.js?v=b099fba6:19753:22)
+    at performUnitOfWork (chunk-FJ2A54M7.js?v=b099fba6:19198:20)
+    at workLoopSync (chunk-FJ2A54M7.js?v=b099fba6:19137:13)
+    at renderRootSync (chunk-FJ2A54M7.js?v=b099fba6:19116:15)
+    at recoverFromConcurrentError (chunk-FJ2A54M7.js?v=b099fba6:18736:28) Object
+componentDidCatch @ ErrorBoundary.tsx:25Understand this error
+transfer.mp3:1 
+            
+            
+           Failed to load resource: the server responded with a status of 416 (Requested Range Not Satisfiable)Understand this error
+deposit.mp3:1 
+            
+            
+           Failed to load resource: the server responded with a status of 416 (Requested Range Not Satisfiable)Understand this error
+success.mp3:1 
+            
+            
+           Failed to load resource: the server responded with a status of 416 (Requested Range Not Satisfiable)Understand this error
+warning.mp3:1 
+            
+            
+           Failed to load resource: the server responded with a status of 416 (Requested Range Not Satisfiable)Understand this error
+error.mp3:1 
+            
+            
+           Failed to load resource: the server responded with a status of 416 (Requested Range Not Satisfiable)

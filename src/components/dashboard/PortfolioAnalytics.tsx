@@ -92,18 +92,19 @@ export function PortfolioAnalytics() {
       <CardHeader>
         <CardTitle>Portfolio Analytics</CardTitle>
         <div className="flex justify-start">
-          <TabsList className="bg-background/40 border-white/10 text-white">
-            {timeRanges.map((range) => (
-              <TabsTrigger 
-                key={range.value}
-                value={range.value}
-                onClick={() => setTimeRange(range.value)}
-                className={`text-white ${timeRange === range.value ? 'bg-accent' : ''}`}
-              >
-                {range.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          <Tabs value={timeRange} onValueChange={setTimeRange}>
+            <TabsList className="bg-background/40 border-white/10 text-white">
+              {timeRanges.map((range) => (
+                <TabsTrigger 
+                  key={range.value}
+                  value={range.value}
+                  className={`text-white ${timeRange === range.value ? 'bg-accent' : ''}`}
+                >
+                  {range.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
         </div>
       </CardHeader>
       <CardContent>
