@@ -1305,7 +1305,7 @@ const WithdrawPage = () => {
                           <div className="flex items-center justify-center mb-1">
                             <img 
                               src={crypto.symbol === 'WLD' 
-                                ? "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040" 
+                                ? "/favicon.svg" 
                                 : `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${crypto.symbol.toLowerCase()}.svg`}
                               alt={crypto.symbol}
                               className="w-10 h-10" // Slightly larger icons for main coins
