@@ -450,7 +450,7 @@ function TransactionHistory() {
                               alt={transaction.fromAsset || 'USDT'} 
                               className="w-5 h-5"
                               onError={(e) => {
-                                e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
+                                e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
                               }}
                             />
                             <span className="mx-1">{transaction.fromAsset || 'USDT'}</span>
@@ -462,7 +462,7 @@ function TransactionHistory() {
                               alt={transaction.toAsset || 'BTC'} 
                               className="w-5 h-5"
                               onError={(e) => {
-                                e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
+                                e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
                               }}
                             />
                             <span className="mx-1">{transaction.toAsset || 'BTC'}</span>
@@ -475,7 +475,7 @@ function TransactionHistory() {
                             alt={transaction.details.crypto} 
                             className="w-5 h-5"
                             onError={(e) => {
-                              e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
+                              e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
                             }}
                           />
                           <span>{transaction.details.crypto}</span>
@@ -487,7 +487,7 @@ function TransactionHistory() {
                             alt={transaction.details.crypto} 
                             className="w-5 h-5"
                             onError={(e) => {
-                              e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
+                              e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
                             }}
                           />
                           <span>{transaction.details.crypto}</span>
@@ -538,7 +538,7 @@ function TransactionHistory() {
                                   } else if (detectedCrypto === 'SOL') {
                                     e.currentTarget.src = "https://assets.coingecko.com/coins/images/4128/small/solana.png";
                                   } else {
-                                    e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
+                                    e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
                                   }
                                 }}
                               />
@@ -553,7 +553,7 @@ function TransactionHistory() {
                             alt={transaction.asset || 'USDT'} 
                             className="w-5 h-5"
                             onError={(e) => {
-                              e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
+                              e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
                             }}
                           />
                           {transaction.asset || 'USDT'}
@@ -579,10 +579,10 @@ function TransactionHistory() {
                           const txIdParts = transaction.txId.split('-');
                           const cryptoFromTx = txIdParts.length > 1 ? txIdParts[1].toUpperCase() : null;
                           let detectedCrypto = cryptoFromDetails || cryptoFromMetadata || cryptoFromTx || transaction.asset;
-                          
+
                           // Extract the correct amount from transaction metadata or use a reasonable approach
                           let actualAmount = transaction.metadata?.originalAmount;
-                          
+
                           // If the txId contains the original amount (common pattern for internal transfers)
                           if (!actualAmount && transaction.txId) {
                             const amountPattern = /-([0-9\.]+)-/;
@@ -591,7 +591,7 @@ function TransactionHistory() {
                               actualAmount = parseFloat(match[1]);
                             }
                           }
-                          
+
                           // If BTC received with a suspicious large amount (likely USD value shown as BTC)
                           if (!actualAmount && 
                               detectedCrypto === 'BTC' && 
@@ -604,7 +604,7 @@ function TransactionHistory() {
                             // For other crypto received
                             actualAmount = transaction.details?.amount || transaction.metadata?.amount || transaction.amount;
                           }
-                          
+
                           if (!detectedCrypto) {
                             const commonCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'DOGE', 'SOL', 'XRP', 'ADA', 'DOT', 'LINK', 'MATIC', 'WLD'];
                             for (const crypto of commonCryptos) {
@@ -725,7 +725,7 @@ function TransactionHistory() {
                                         alt="1inch" 
                                         className="w-5 h-5" 
                                         onError={(e) => {
-                                          e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
+                                          e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
                                         }}
                                       />
                                       <span>1inch (Ethereum)</span>
@@ -775,7 +775,7 @@ function TransactionHistory() {
                                       alt="Jupiter" 
                                       className="w-5 h-5" 
                                       onError={(e) => {
-                                        e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
+                                        e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
                                       }}
                                     />
                                     <span>Jupiter (Solana)</span>
@@ -792,7 +792,7 @@ function TransactionHistory() {
                                       alt="Thorchain" 
                                       className="w-5 h-5" 
                                       onError={(e) => {
-                                        e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
+                                        e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
                                       }}
                                     />
                                     <span>Thorchain (Cross-chain)</span>
@@ -841,7 +841,7 @@ function TransactionHistory() {
                                       alt="DEX" 
                                       className="w-5 h-5" 
                                       onError={(e) => {
-                                        e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
+                                        e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
                                       }}
                                     />
                                     <span>DEX</span>
@@ -972,7 +972,7 @@ function TransactionHistory() {
                           alt={selectedTransaction.fromAsset || 'USDT'} 
                           className="w-5 h-5"
                           onError={(e) => {
-                            e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
+                            e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
                           }}
                         />
                         <span className="mx-1">{selectedTransaction.fromAsset || 'USDT'}</span>
@@ -984,7 +984,7 @@ function TransactionHistory() {
                           alt={selectedTransaction.toAsset || 'BTC'} 
                           className="w-5 h-5"
                           onError={(e) => {
-                            e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
+                            e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
                           }}
                         />
                         <span className="mx-1">{selectedTransaction.toAsset || 'BTC'}</span>
@@ -997,7 +997,7 @@ function TransactionHistory() {
                         alt={selectedTransaction.details.crypto} 
                         className="w-5 h-5"
                         onError={(e) => {
-                          e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
+                          e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
                         }}
                       />
                       {selectedTransaction.details.crypto} ({selectedTransaction.details.amount})
@@ -1049,7 +1049,7 @@ function TransactionHistory() {
                                 } else if (detectedCrypto === 'SOL') {
                                   e.currentTarget.src = "https://assets.coingecko.com/coins/images/4128/small/solana.png";
                                 } else {
-                                  e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
+                                  e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
                                 }
                               }}
                             />
@@ -1064,7 +1064,7 @@ function TransactionHistory() {
                           alt={selectedTransaction.metadata.crypto} 
                           className="w-5 h-5"
                           onError={(e) => {
-                            e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
+                            e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
                           }}
                         />
                         {selectedTransaction.metadata.crypto}
@@ -1076,7 +1076,7 @@ function TransactionHistory() {
                           alt={selectedTransaction.details.crypto} 
                           className="w-5 h-5"
                           onError={(e) => {
-                            e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
+                            e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
                           }}
                         />
                         {selectedTransaction.details.crypto}
@@ -1088,7 +1088,7 @@ function TransactionHistory() {
                           alt={selectedTransaction.asset || 'USDT'} 
                           className="w-5 h-5"
                           onError={(e) => {
-                            e.currentTarget.src = "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040";
+                            e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
                           }}
                         />
                         {selectedTransaction.asset || 'USDT'}
@@ -1113,10 +1113,10 @@ function TransactionHistory() {
                             const txIdParts = selectedTransaction.txId.split('-');
                             const cryptoFromTx = txIdParts.length > 1 ? txIdParts[1].toUpperCase() : null;
                             let detectedCrypto = cryptoFromDetails || cryptoFromMetadata || cryptoFromTx || selectedTransaction.asset;
-                            
+
                             // Extract correct amount for received transactions
                             let actualAmount = selectedTransaction.metadata?.originalAmount;
-                            
+
                             // If the txId contains the original amount
                             if (!actualAmount && selectedTransaction.txId) {
                               const amountPattern = /-([0-9\.]+)-/;
@@ -1125,25 +1125,25 @@ function TransactionHistory() {
                                 actualAmount = parseFloat(match[1]);
                               }
                             }
-                            
+
                             // If it's the known problematic BTC value (208.3861)
                             if (detectedCrypto === 'BTC' && selectedTransaction.amount === 208.3861) {
                               actualAmount = 0.003157365; // The correct amount from sender's view
                               return `${actualAmount} BTC (~$${selectedTransaction.amount.toFixed(2)} USD)`;
                             }
-                            
+
                             // For specific DOGE transactions
                             if (selectedTransaction.txId?.includes('DOGE') || 
                                 selectedTransaction.amount === 61 || selectedTransaction.amount === 50 || selectedTransaction.amount === 300 ||
                                 (selectedTransaction.type === 'Received' && selectedTransaction.asset === 'DOGE')) {
                               return `${parseFloat(selectedTransaction.amount.toString()).toFixed(2)} DOGE`;
                             }
-                            
+
                             // For micro BTC transactions
                             if (selectedTransaction.txId.includes('BTC') || selectedTransaction.amount < 0.01) {
                               return `${parseFloat(selectedTransaction.amount.toString()).toFixed(8)} BTC`;
                             }
-                            
+
                             // Try to detect crypto from transaction ID
                             if (!detectedCrypto) {
                               const commonCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'DOGE', 'SOL', 'XRP', 'ADA', 'DOT', 'LINK', 'MATIC', 'WLD'];
@@ -1154,10 +1154,10 @@ function TransactionHistory() {
                                 }
                               }
                             }
-                            
+
                             // For other received transactions, use best available amount
                             actualAmount = actualAmount || selectedTransaction.details?.amount || selectedTransaction.amount;
-                            
+
                             const precision = detectedCrypto === 'BTC' || detectedCrypto === 'ETH' ? 8 : 2;
                             return `${parseFloat(actualAmount.toString()).toFixed(precision)} ${detectedCrypto || 'USDT'}`;
                           })()

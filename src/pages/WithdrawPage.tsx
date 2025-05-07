@@ -1963,7 +1963,7 @@ const WithdrawPage = () => {
               >
                 <img
                   src={crypto.symbol === 'WLD'
-                    ? "https://cryptologos.cc/logos/worldcoin-org-wld-logo.svg?v=040"
+                    ? "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406"
                     : `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${crypto.symbol.toLowerCase()}.svg`}
                   alt={crypto.symbol}
                   className="w-7 h-7"
