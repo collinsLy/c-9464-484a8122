@@ -42,6 +42,10 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
 
   // Fetch current prices for assets with increased debounce and memoization
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    const FETCH_INTERVAL = 5000; // 5 seconds
+    const CHANGE_THRESHOLD = 0.001; // 0.1%
+
     const fetchPrices = async () => {
       try {
         const symbols = Object.keys(userAssets)
@@ -60,16 +64,28 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         });
         newPrices['USDT'] = 1;
 
-        // Only update if prices have changed significantly (0.1% threshold)
+        // Deep compare prices to prevent unnecessary updates
         const hasSignificantChanges = Object.entries(newPrices).some(
           ([key, value]) => {
             const oldPrice = assetPrices[key];
-            return !oldPrice || Math.abs((value - oldPrice) / oldPrice) > 0.001;
+            return !oldPrice || Math.abs((value - oldPrice) / oldPrice) > CHANGE_THRESHOLD;
           }
         );
 
         if (hasSignificantChanges) {
-          setAssetPrices(newPrices);
+          setAssetPrices(prev => {
+            // Smooth transition between old and new prices
+            const smoothedPrices: Record<string, number> = {};
+            Object.entries(newPrices).forEach(([key, value]) => {
+              const oldPrice = prev[key];
+              smoothedPrices[key] = oldPrice 
+                ? oldPrice + (value - oldPrice) * 0.3 // Gradual transition
+                : value;
+            });
+            return smoothedPrices;
+          });
+          
+          // Only calculate portfolio value if prices changed significantly
           calculatePortfolioValue(userAssets, newPrices, balance);
         }
       } catch (error) {

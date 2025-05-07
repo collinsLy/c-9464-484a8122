@@ -74,22 +74,11 @@ export function PortfolioAnalytics() {
   // Optimized price fetching with smooth updates
   useEffect(() => {
     let isMounted = true;
-
-      {/* Tooltip for pie chart */}
-      <div
-        id="pie-tooltip"
-        className="fixed z-50 px-2 py-1 text-sm bg-black/90 text-white rounded pointer-events-none hidden"
-        style={{ transform: 'translate(-50%, -100%)' }}
-      />
-
-
-    let previousUpdate = 0;
-    const UPDATE_THRESHOLD = 3000; // Minimum time between updates
+    let timeoutId: NodeJS.Timeout;
+    const UPDATE_INTERVAL = 5000; // 5 seconds between updates
+    const CHANGE_THRESHOLD = 0.001; // 0.1% change threshold
 
     const fetchPrices = async () => {
-      const now = Date.now();
-      if (now - previousUpdate < UPDATE_THRESHOLD) return;
-
       try {
         const symbols = baseAssets
           .map(asset => asset.symbol)
@@ -108,28 +97,26 @@ export function PortfolioAnalytics() {
         });
         newPrices['USDT'] = 1;
 
-        // Only update if changes are significant (0.1% threshold)
+        // Deep compare before updating to prevent unnecessary renders
         const hasSignificantChanges = Object.entries(newPrices).some(
           ([key, value]) => {
             const oldPrice = assetPrices[key];
-            return !oldPrice || Math.abs((value - oldPrice) / oldPrice) > 0.001;
+            return !oldPrice || Math.abs((value - oldPrice) / oldPrice) > CHANGE_THRESHOLD;
           }
         );
 
         if (hasSignificantChanges) {
           setAssetPrices(prev => {
-            // Smooth transition between old and new prices
+            // Implement smooth price transitions
             const smoothedPrices: Record<string, number> = {};
             Object.entries(newPrices).forEach(([key, value]) => {
               const oldPrice = prev[key];
               smoothedPrices[key] = oldPrice 
-                ? oldPrice + (value - oldPrice) * 0.3 // Smooth transition
+                ? oldPrice + (value - oldPrice) * 0.3 
                 : value;
             });
             return smoothedPrices;
           });
-          calculatePortfolioValue(userAssets, newPrices);
-          previousUpdate = now;
         }
 
         if (isLoading) {
@@ -141,11 +128,11 @@ export function PortfolioAnalytics() {
     };
 
     fetchPrices();
-    const interval = setInterval(fetchPrices, 5000);
+    timeoutId = setInterval(fetchPrices, UPDATE_INTERVAL);
 
     return () => {
       isMounted = false;
-      clearInterval(interval);
+      clearInterval(timeoutId);
     };
   }, [userAssets, isLoading]);
 
@@ -497,26 +484,26 @@ export function PortfolioAnalytics() {
 function renderPieSlices(allocation: { percent: number; color: string; symbol: string; value: number }[]) {
   let currentAngle = 0;
   const total = allocation.reduce((sum, asset) => sum + asset.percent, 0);
-  
+
   return allocation.map((asset, index) => {
     const angleSize = (asset.percent / total) * 360;
     const startAngle = currentAngle;
     currentAngle += angleSize;
-    
+
     const x1 = 50 + 40 * Math.cos((startAngle * Math.PI) / 180);
     const y1 = 50 + 40 * Math.sin((startAngle * Math.PI) / 180);
     const x2 = 50 + 40 * Math.cos(((startAngle + angleSize) * Math.PI) / 180);
     const y2 = 50 + 40 * Math.sin(((startAngle + angleSize) * Math.PI) / 180);
-    
+
     const largeArcFlag = angleSize > 180 ? 1 : 0;
-    
+
     const pathData = [
       `M 50 50`,
       `L ${x1} ${y1}`,
       `A 40 40 0 ${largeArcFlag} 1 ${x2} ${y2}`,
       `L 50 50`,
     ].join(' ');
-    
+
     return (
       <path
         key={index}
