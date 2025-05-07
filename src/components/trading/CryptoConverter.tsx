@@ -128,24 +128,6 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
       return () => unsubscribe();
     }
   }, []);
-  const [rates, setRates] = useState<Record<string, Record<string, number>>>({});
-  const [isRatesLoading, setIsRatesLoading] = useState<boolean>(true);
-  
-  // Currency mapping between symbols and CoinGecko IDs
-  const coinGeckoMapping: Record<string, string> = {
-    'BTC': 'bitcoin',
-    'ETH': 'ethereum',
-    'USDT': 'tether',
-    'SOL': 'solana',
-    'DOGE': 'dogecoin',
-    'XRP': 'ripple',
-    'ADA': 'cardano',
-    'BNB': 'binancecoin', 
-    'MATIC': 'matic-network',
-    'DOT': 'polkadot',
-    'LINK': 'chainlink',
-    'WLD': 'worldcoin'
-  };
   
   // Fetch initial rates
   useEffect(() => {
