@@ -74,6 +74,15 @@ export function PortfolioAnalytics() {
   // Optimized price fetching with smooth updates
   useEffect(() => {
     let isMounted = true;
+
+      {/* Tooltip for pie chart */}
+      <div
+        id="pie-tooltip"
+        className="fixed z-50 px-2 py-1 text-sm bg-black/90 text-white rounded pointer-events-none hidden"
+        style={{ transform: 'translate(-50%, -100%)' }}
+      />
+
+
     let previousUpdate = 0;
     const UPDATE_THRESHOLD = 3000; // Minimum time between updates
 
@@ -436,23 +445,23 @@ export function PortfolioAnalytics() {
                 <div className="w-36 h-36 bg-white/10 animate-pulse rounded-full"></div>
               ) : (
                 <div className={`w-36 h-36 rounded-full border-8 border-accent/30 flex items-center justify-center relative ${transitionClass}`}>
-                  {portfolioData.allocation.length === 0 ? (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <PieChart className="w-12 h-12 text-white/70" />
-                      <p className="text-xs text-white/70 mt-16">No assets</p>
+                {portfolioData.allocation.length === 0 ? (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <PieChart className="w-12 h-12 text-white/70" />
+                    <p className="text-xs text-white/70 mt-16">No assets</p>
+                  </div>
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
+                      {renderPieSlices(portfolioData.allocation)}
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-transparent">
+                      <span className="text-sm text-white/70">Total</span>
+                      <span className="text-lg font-bold text-white">${portfolioData.current.toFixed(2)}</span>
                     </div>
-                  ) : (
-                    <>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-full h-full" style={{ 
-                          background: generateConicGradient(portfolioData.allocation)
-                        }} className="rounded-full">
-                        </div>
-                      </div>
-                      <PieChart className="w-12 h-12 text-white/70 z-10" />
-                    </>
-                  )}
-                </div>
+                  </div>
+                )}
+              </div>
               )}
             </div>
 
@@ -484,24 +493,54 @@ export function PortfolioAnalytics() {
   );
 }
 
-// Helper function to generate conic gradient from allocation data
-function generateConicGradient(allocation: { percent: number, color: string }[]) {
-  if (allocation.length === 0) return 'none';
-
-  let gradientString = 'conic-gradient(';
-  let currentPercent = 0;
-
-  allocation.forEach((asset, index) => {
-    const startPercent = currentPercent;
-    currentPercent += asset.percent;
-
-    gradientString += `${asset.color} ${startPercent}% ${currentPercent}%`;
-
-    if (index < allocation.length - 1) {
-      gradientString += ', ';
-    }
+// Helper function to render pie chart slices
+function renderPieSlices(allocation: { percent: number; color: string; symbol: string; value: number }[]) {
+  let currentAngle = 0;
+  const total = allocation.reduce((sum, asset) => sum + asset.percent, 0);
+  
+  return allocation.map((asset, index) => {
+    const angleSize = (asset.percent / total) * 360;
+    const startAngle = currentAngle;
+    currentAngle += angleSize;
+    
+    const x1 = 50 + 40 * Math.cos((startAngle * Math.PI) / 180);
+    const y1 = 50 + 40 * Math.sin((startAngle * Math.PI) / 180);
+    const x2 = 50 + 40 * Math.cos(((startAngle + angleSize) * Math.PI) / 180);
+    const y2 = 50 + 40 * Math.sin(((startAngle + angleSize) * Math.PI) / 180);
+    
+    const largeArcFlag = angleSize > 180 ? 1 : 0;
+    
+    const pathData = [
+      `M 50 50`,
+      `L ${x1} ${y1}`,
+      `A 40 40 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+      `L 50 50`,
+    ].join(' ');
+    
+    return (
+      <path
+        key={index}
+        d={pathData}
+        fill={asset.color}
+        stroke="rgba(255,255,255,0.1)"
+        strokeWidth="0.5"
+        className="transition-all duration-300 hover:opacity-90"
+        onMouseEnter={(e) => {
+          const tooltip = document.getElementById('pie-tooltip');
+          if (tooltip) {
+            tooltip.innerHTML = `${asset.symbol}: $${asset.value.toFixed(2)} (${asset.percent.toFixed(1)}%)`;
+            tooltip.style.display = 'block';
+            tooltip.style.left = `${e.clientX + 10}px`;
+            tooltip.style.top = `${e.clientY - 20}px`;
+          }
+        }}
+        onMouseLeave={() => {
+          const tooltip = document.getElementById('pie-tooltip');
+          if (tooltip) {
+            tooltip.style.display = 'none';
+          }
+        }}
+      />
+    );
   });
-
-  gradientString += ')';
-  return gradientString;
 }
