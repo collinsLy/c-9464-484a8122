@@ -17,6 +17,9 @@ const timeRanges = [
 export function PortfolioAnalytics() {
   const [timeRange, setTimeRange] = useState('24h');
   const [isLoading, setIsLoading] = useState(true);
+  const [assetPrices, setAssetPrices] = useState<Record<string, number>>({});
+  const [userAssets, setUserAssets] = useState<Record<string, any>>({});
+  const [totalPortfolioValue, setTotalPortfolioValue] = useState(0);
   const [portfolioData, setPortfolioData] = useState({
     current: 0,
     change: 0,
@@ -31,7 +34,186 @@ export function PortfolioAnalytics() {
       'all': { value: 0, percent: 0, isPositive: true }
     }
   });
+  
+  // Define base assets
+  const baseAssets = [
+    { symbol: "BTC", name: "Bitcoin", fullName: "Bitcoin" },
+    { symbol: "ETH", name: "Ethereum", fullName: "Ethereum" },
+    { symbol: "USDT", name: "Tether", fullName: "TetherUS" },
+    { symbol: "USDC", name: "USD Coin", fullName: "USD Coin" },
+    { symbol: "BNB", name: "Binance Coin", fullName: "Binance Coin" },
+    { symbol: "DOGE", name: "Dogecoin", fullName: "Dogecoin" },
+    { symbol: "SOL", name: "Solana", fullName: "Solana" },
+    { symbol: "XRP", name: "Ripple", fullName: "Ripple" },
+    { symbol: "WLD", name: "Worldcoin", fullName: "Worldcoin" },
+    { symbol: "ADA", name: "Cardano", fullName: "Cardano" },
+    { symbol: "DOT", name: "Polkadot", fullName: "Polkadot" },
+    { symbol: "LINK", name: "Chainlink", fullName: "Chainlink" },
+    { symbol: "MATIC", name: "Polygon", fullName: "Polygon" }
+  ];
 
+  // Define colors for common assets
+  const assetColors: Record<string, string> = {
+    'BTC': '#F7931A',
+    'ETH': '#627EEA',
+    'SOL': '#00FFA3',
+    'WLD': '#4B5563',
+    'BNB': '#F3BA2F',
+    'ADA': '#0033AD',
+    'DOGE': '#C3A634',
+    'XRP': '#23292F',
+    'DOT': '#E6007A',
+    'LINK': '#2A5ADA',
+    'MATIC': '#8247E5',
+    'USDT': '#26A17B',
+    'USDC': '#2775CA',
+    'OTHER': '#9CA3AF'
+  };
+
+  // Fetch current prices for all assets
+  useEffect(() => {
+    const fetchPrices = async () => {
+      try {
+        // Get symbols from baseAssets array
+        const symbols = baseAssets
+          .map(asset => asset.symbol)
+          .filter(symbol => symbol !== 'USDT'); // Filter out USDT as we handle it separately
+        
+        const symbolsQuery = symbols.map(s => `${s}USDT`);
+        const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
+        const data = await response.json();
+        
+        const prices: Record<string, number> = {};
+        data.forEach((item: any) => {
+          const symbol = item.symbol.replace('USDT', '');
+          prices[symbol] = parseFloat(item.price);
+        });
+        // Add USDT itself with value of 1
+        prices['USDT'] = 1;
+        setAssetPrices(prices);
+        
+        // Calculate portfolio value when prices update
+        calculatePortfolioValue(userAssets, prices);
+      } catch (error) {
+        console.error('Error fetching asset prices:', error);
+      }
+    };
+
+    fetchPrices();
+    // Update prices every 30 seconds
+    const interval = setInterval(fetchPrices, 30000);
+    return () => clearInterval(interval);
+  }, [userAssets]);
+
+  // Calculate total portfolio value and update allocation data
+  const calculatePortfolioValue = (assets: Record<string, any>, prices: Record<string, number>) => {
+    if (!assets) return;
+    
+    // Get USDT balance (may be in user.balance or assets.USDT)
+    let usdtBalance = assets.USDT?.amount || 0;
+    
+    // Start with USDT balance
+    let total = usdtBalance;
+    
+    const allocation: { name: string; symbol: string; value: number; percent: number; color: string }[] = [];
+    
+    // Add value of all other assets
+    Object.entries(assets).forEach(([symbol, data]: [string, any]) => {
+      if (symbol === 'USDT') {
+        // Already counted USDT in usdtBalance
+        allocation.push({
+          name: 'Tether',
+          symbol: 'USDT',
+          value: usdtBalance,
+          percent: 0, // Will calculate after all assets
+          color: assetColors['USDT']
+        });
+        return;
+      }
+      
+      const amount = data.amount || 0;
+      if (amount <= 0) return; // Skip zero balances
+      
+      const price = prices[symbol] || 0;
+      const valueInUsdt = amount * price;
+      
+      console.log(`Asset ${symbol}: Amount ${amount} × Price ${price} = ${valueInUsdt} USDT`);
+      
+      total += valueInUsdt;
+      
+      // Find full name from baseAssets or use symbol
+      const assetInfo = baseAssets.find(a => a.symbol === symbol);
+      const assetName = assetInfo?.fullName || symbol;
+      
+      allocation.push({
+        name: assetName,
+        symbol,
+        value: valueInUsdt,
+        percent: 0, // Will calculate after totaling
+        color: assetColors[symbol] || assetColors['OTHER']
+      });
+    });
+    
+    // Calculate percentages now that we have the total
+    allocation.forEach(asset => {
+      asset.percent = total > 0 ? Math.round((asset.value / total) * 100) : 0;
+    });
+    
+    // Sort by value (highest first)
+    allocation.sort((a, b) => b.value - a.value);
+    
+    console.log(`Total portfolio value: ${total} USDT`);
+    setTotalPortfolioValue(total);
+    
+    // Update portfolio data with new allocation
+    updatePortfolioData(total, allocation);
+  };
+
+  // Update portfolio data state with performance metrics
+  const updatePortfolioData = (total: number, allocation: { name: string; symbol: string; value: number; percent: number; color: string }[]) => {
+    const dayChange = total * 0.05; // Placeholder - should come from real data
+    const weekChange = total * 0.1; // Placeholder
+    const monthChange = total * 0.15; // Placeholder
+    const yearChange = total * 0.3; // Placeholder
+    const totalPL = total * 0.4; // Placeholder
+    
+    setPortfolioData({
+      current: total,
+      change: dayChange,
+      changePercent: total > 0 ? (dayChange / total) * 100 : 0,
+      isPositive: dayChange >= 0,
+      allocation,
+      performance: {
+        '24h': {
+          value: dayChange,
+          percent: total > 0 ? (dayChange / total) * 100 : 0,
+          isPositive: dayChange >= 0
+        },
+        '7d': {
+          value: weekChange,
+          percent: total > 0 ? (weekChange / total) * 100 : 0,
+          isPositive: weekChange >= 0
+        },
+        '30d': {
+          value: monthChange,
+          percent: total > 0 ? (monthChange / total) * 100 : 0,
+          isPositive: monthChange >= 0
+        },
+        '1y': {
+          value: yearChange,
+          percent: total > 0 ? (yearChange / total) * 100 : 0,
+          isPositive: yearChange >= 0
+        },
+        'all': {
+          value: totalPL,
+          percent: total > 0 ? (totalPL / total) * 100 : 0,
+          isPositive: totalPL >= 0
+        }
+      }
+    });
+  };
+
+  // Fetch user data and assets
   useEffect(() => {
     const uid = localStorage.getItem('userId');
     if (!uid) {
@@ -49,141 +231,34 @@ export function PortfolioAnalytics() {
         return;
       }
 
-      // Parse balance values
+      // Parse balance values for USDT from main balance field
       const parsedBalance = typeof userData.balance === 'number' ? userData.balance : 
                           (typeof userData.balance === 'string' ? parseFloat(userData.balance) : 0);
       
-      const assetsValue = userData.assetsValue || 0;
-      const totalPortfolioValue = parsedBalance + assetsValue;
+      // Create assets object with all assets including USDT
+      const assets: Record<string, any> = { ...(userData.assets || {}) };
       
-      // Create asset allocation data
-      const assets = userData.assets || {};
-      let totalAssetValue = 0;
-      const allocation: { name: string; symbol: string; value: number; percent: number; color: string }[] = [];
-      
-      // Define colors for common assets
-      const assetColors: Record<string, string> = {
-        'BTC': '#F7931A',
-        'ETH': '#627EEA',
-        'SOL': '#00FFA3',
-        'WLD': '#4B5563',
-        'BNB': '#F3BA2F',
-        'ADA': '#0033AD',
-        'DOGE': '#C3A634',
-        'XRP': '#23292F',
-        'DOT': '#E6007A',
-        'LINK': '#2A5ADA',
-        'MATIC': '#8247E5',
-        'OTHER': '#9CA3AF'
-      };
-      
-      // Process assets
-      Object.entries(assets).forEach(([symbol, data]: [string, any]) => {
-        if (symbol === 'USDT') return; // Skip USDT as it's included in cash balance
-        
-        const amount = data.amount || 0;
-        const price = data.price || 0;
-        const value = amount * price;
-        totalAssetValue += value;
-        
-        allocation.push({
-          name: data.name || symbol,
-          symbol,
-          value,
-          percent: 0, // Will calculate percentages after totaling
-          color: assetColors[symbol] || assetColors['OTHER']
-        });
-      });
-      
-      // Add cash balance (treat as special allocation)
-      if (parsedBalance > 0) {
-        allocation.push({
-          name: 'Cash',
-          symbol: 'USDT',
-          value: parsedBalance,
-          percent: 0,
-          color: '#26A17B' // USDT green
-        });
-        totalAssetValue += parsedBalance;
+      // Add or update USDT from main balance if not already in assets
+      if (!assets.USDT || !assets.USDT.amount) {
+        assets.USDT = {
+          amount: parsedBalance,
+          name: 'USDT',
+          symbol: 'USDT'
+        };
       }
       
-      // Add "Other" category if needed
-      const otherAssets = Object.entries(assets)
-        .filter(([symbol]) => !allocation.some(a => a.symbol === symbol) && symbol !== 'USDT')
-        .reduce((sum, [, data]: [string, any]) => sum + (data.amount || 0) * (data.price || 0), 0);
+      console.log('User assets:', assets);
+      setUserAssets(assets);
       
-      if (otherAssets > 0) {
-        allocation.push({
-          name: 'Other',
-          symbol: 'OTHER',
-          value: otherAssets,
-          percent: 0,
-          color: assetColors['OTHER']
-        });
-        totalAssetValue += otherAssets;
-      }
-      
-      // Calculate percentages
-      allocation.forEach(asset => {
-        asset.percent = totalAssetValue > 0 ? Math.round((asset.value / totalAssetValue) * 100) : 0;
-      });
-      
-      // Sort by value (descending)
-      allocation.sort((a, b) => b.value - a.value);
-      
-      // Get profit/loss data
-      const totalPL = userData.totalProfitLoss || 0;
-      const dayChange = userData.dayChange || totalPL * 0.2; // Fallback if no day data
-      const weekChange = userData.weekChange || totalPL * 0.6; // Fallback
-      const monthChange = userData.monthChange || totalPL * 0.8; // Fallback
-      const yearChange = userData.yearChange || totalPL * 0.9; // Fallback
-      
-      // Prepare performance data for different time periods
-      const performance = {
-        '24h': {
-          value: dayChange,
-          percent: totalPortfolioValue > 0 ? (dayChange / totalPortfolioValue) * 100 : 0,
-          isPositive: dayChange >= 0
-        },
-        '7d': {
-          value: weekChange,
-          percent: totalPortfolioValue > 0 ? (weekChange / totalPortfolioValue) * 100 : 0,
-          isPositive: weekChange >= 0
-        },
-        '30d': {
-          value: monthChange,
-          percent: totalPortfolioValue > 0 ? (monthChange / totalPortfolioValue) * 100 : 0,
-          isPositive: monthChange >= 0
-        },
-        '1y': {
-          value: yearChange,
-          percent: totalPortfolioValue > 0 ? (yearChange / totalPortfolioValue) * 100 : 0,
-          isPositive: yearChange >= 0
-        },
-        'all': {
-          value: totalPL,
-          percent: totalPortfolioValue > 0 ? (totalPL / totalPortfolioValue) * 100 : 0,
-          isPositive: totalPL >= 0
-        }
-      };
-      
-      // Update state with new data
-      setPortfolioData({
-        current: totalPortfolioValue,
-        change: dayChange,
-        changePercent: totalPortfolioValue > 0 ? (dayChange / totalPortfolioValue) * 100 : 0,
-        isPositive: dayChange >= 0,
-        allocation,
-        performance
-      });
-      
+      // Calculate portfolio value with latest asset data and prices
+      calculatePortfolioValue(assets, assetPrices);
       setIsLoading(false);
     });
 
     return () => {
       unsubscribe();
     };
-  }, []);
+  }, [assetPrices]);
 
   const renderPerformanceCard = (timeframe: string) => {
     const data = portfolioData.performance[timeframe as keyof typeof portfolioData.performance];
