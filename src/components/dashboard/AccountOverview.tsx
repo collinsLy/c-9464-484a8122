@@ -170,14 +170,14 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white rounded-2xl shadow-lg">
           <CardContent className="pt-6 pb-5">
             <div className="text-lg text-[#7a7a7a] mb-1">Total Balance</div>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold h-8 flex items-center">
               {isLoading ? (
                 <span className="text-white/60">Loading...</span>
               ) : (
                 `$${totalBalance.toFixed(2)}`
               )}
             </div>
-            <div className="flex items-center mt-1 text-sm">
+            <div className="flex items-center mt-1 text-sm h-5">
               {dailyChange >= 0 ? (
                 <>
                   <ArrowUp className="w-4 h-4 mr-1 text-green-500" />
@@ -197,7 +197,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white rounded-2xl shadow-lg">
           <CardContent className="pt-6 pb-5">
             <div className="text-lg text-[#7a7a7a] mb-1">Available Cash</div>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold h-8 flex items-center">
               {isLoading ? (
                 <span className="text-white/60">Loading...</span>
               ) : (
@@ -228,14 +228,14 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white rounded-2xl shadow-lg">
           <CardContent className="pt-6 pb-5">
             <div className="text-lg text-[#7a7a7a] mb-1">Profit / Loss</div>
-            <div className={`text-2xl font-bold ${profitLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+            <div className={`text-2xl font-bold h-8 flex items-center ${profitLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
               {isLoading ? (
                 <span className="text-white/60">Loading...</span>
               ) : (
                 `${profitLoss >= 0 ? '+' : ''}$${profitLoss.toFixed(2)}`
               )}
             </div>
-            <div className="flex items-center mt-1 text-sm">
+            <div className="flex items-center mt-1 text-sm h-5">
               {profitLossPercent >= 0 ? (
                 <>
                   <ArrowUp className="w-4 h-4 mr-1 text-green-500" />
