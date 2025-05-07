@@ -791,7 +791,7 @@ const WithdrawPage = () => {
     // Double-check with latest data from the database first
     let userData;
     let userAssets;
-    let cryptoBalance;
+    let cryptoBalance = 0;
 
     try {
       // Get fresh user data from the database
@@ -806,9 +806,32 @@ const WithdrawPage = () => {
         return;
       }
 
-      // Get user's crypto assets
+      // Get user's crypto assets and handle special case for USDT
       userAssets = userData.assets || {};
-      cryptoBalance = userAssets[selectedCrypto]?.amount || 0;
+      
+      // Special handling for USDT - check both locations
+      if (selectedCrypto === 'USDT') {
+        // First check main balance field (legacy location)
+        if (typeof userData.balance === 'number') {
+          cryptoBalance = userData.balance;
+        } else if (typeof userData.balance === 'string') {
+          cryptoBalance = parseFloat(userData.balance) || 0;
+        }
+        
+        console.log(`USDT from main balance field (in withdrawal function): ${cryptoBalance}`);
+        
+        // Then check assets.USDT (new location), which overrides if present
+        if (userAssets.USDT && userAssets.USDT.amount !== undefined) {
+          const assetAmount = Number(userAssets.USDT.amount);
+          if (assetAmount > 0) {
+            cryptoBalance = assetAmount;
+            console.log(`USDT from assets object (in withdrawal function): ${cryptoBalance}`);
+          }
+        }
+      } else {
+        // Standard handling for other cryptos
+        cryptoBalance = Number(userAssets[selectedCrypto]?.amount) || 0;
+      }
 
       console.log(`Database check - ${selectedCrypto} balance:`, cryptoBalance);
 
@@ -845,24 +868,65 @@ const WithdrawPage = () => {
       const estimatedUsdValue = cryptoAmountValue * getEstimatedRate(selectedCrypto);
       console.log(`Withdrawing ${cryptoAmountValue} ${selectedCrypto} (≈ $${estimatedUsdValue})`);
 
-      // Update crypto balance by decreasing the amount
-      const updatedUserAssets = { ...userAssets };
-      const newCryptoAmount = cryptoBalance - cryptoAmountValue;
-
-      if (newCryptoAmount <= 0) {
-        // If balance becomes zero or negative, set to zero
-        if (updatedUserAssets[selectedCrypto]) {
-          updatedUserAssets[selectedCrypto] = {
-            ...updatedUserAssets[selectedCrypto],
-            amount: 0
+      // Prepare the update data
+      let updateData = {};
+      
+      // Special handling for USDT
+      if (selectedCrypto === 'USDT') {
+        const newCryptoAmount = cryptoBalance - cryptoAmountValue;
+        
+        // Check if the USDT is stored in main balance field or in assets
+        const isInMainBalance = (
+          (typeof userData.balance === 'number' || typeof userData.balance === 'string') && 
+          (!userAssets.USDT || !userAssets.USDT.amount || Number(userAssets.USDT.amount) === 0)
+        );
+        
+        console.log(`USDT is stored in main balance field: ${isInMainBalance}`);
+        
+        if (isInMainBalance) {
+          // Update the main balance field
+          updateData = {
+            balance: Math.max(0, newCryptoAmount)
           };
+          console.log(`Updating main balance to: ${Math.max(0, newCryptoAmount)}`);
+        } else {
+          // Update in assets
+          const updatedUserAssets = { ...userAssets };
+          if (newCryptoAmount <= 0) {
+            updatedUserAssets.USDT = {
+              ...updatedUserAssets.USDT,
+              amount: 0
+            };
+          } else {
+            updatedUserAssets.USDT = {
+              ...updatedUserAssets.USDT,
+              amount: newCryptoAmount
+            };
+          }
+          updateData = { assets: updatedUserAssets };
+          console.log(`Updating USDT in assets to: ${newCryptoAmount}`);
         }
       } else {
-        // Otherwise update with new amount
-        updatedUserAssets[selectedCrypto] = {
-          ...updatedUserAssets[selectedCrypto],
-          amount: newCryptoAmount
-        };
+        // Standard handling for other cryptos
+        const updatedUserAssets = { ...userAssets };
+        const newCryptoAmount = cryptoBalance - cryptoAmountValue;
+
+        if (newCryptoAmount <= 0) {
+          // If balance becomes zero or negative, set to zero
+          if (updatedUserAssets[selectedCrypto]) {
+            updatedUserAssets[selectedCrypto] = {
+              ...updatedUserAssets[selectedCrypto],
+              amount: 0
+            };
+          }
+        } else {
+          // Otherwise update with new amount
+          updatedUserAssets[selectedCrypto] = {
+            ...updatedUserAssets[selectedCrypto],
+            amount: newCryptoAmount
+          };
+        }
+        updateData = { assets: updatedUserAssets };
       }
 
       // Create the transaction with Pending status
@@ -885,13 +949,16 @@ const WithdrawPage = () => {
         }
       };
 
-      // Update the user's assets in Firebase
-      await UserService.updateUserData(uid, {
-        assets: updatedUserAssets,
+      // Add transaction to update data
+      updateData = {
+        ...updateData,
         transactions: arrayUnion(transaction)
-      });
+      };
+      
+      // Update the user data in Firebase
+      await UserService.updateUserData(uid, updateData);
 
-      console.log(`Transaction ${transaction.txId} created, updated assets`);
+      console.log(`Transaction ${transaction.txId} created, updated user data with:`, updateData);
 
       // Update balances in state to reflect immediately in UI
       setUserCryptoBalances(prevBalances => ({
