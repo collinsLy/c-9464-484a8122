@@ -107,7 +107,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
     <div className="mb-6">
       <h2 className="text-2xl font-bold text-white mb-4">Account Summary</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-[#0f0f0f] border-[#2a2a2a] text-white rounded-2xl shadow-lg">
+        <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white rounded-2xl shadow-lg">
           <CardContent className="pt-6 pb-5">
             <div className="text-lg text-[#7a7a7a] mb-1">Total Balance</div>
             <div className="text-2xl font-bold">
@@ -134,7 +134,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
           </CardContent>
         </Card>
 
-        <Card className="bg-[#0f0f0f] border-[#2a2a2a] text-white rounded-2xl shadow-lg">
+        <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white rounded-2xl shadow-lg">
           <CardContent className="pt-6 pb-5">
             <div className="text-lg text-[#7a7a7a] mb-1">Available Cash</div>
             <div className="text-2xl font-bold">
@@ -148,7 +148,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="mr-2 text-white border-[#2a2a2a] hover:bg-[#2a2a2a] rounded-md"
+                className="mr-2 text-white border-white/10 hover:bg-white/10 rounded-md"
                 onClick={handleDeposit}
               >
                 Deposit
@@ -156,7 +156,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="text-white border-[#2a2a2a] hover:bg-[#2a2a2a] rounded-md"
+                className="text-white border-white/10 hover:bg-white/10 rounded-md"
                 onClick={handleWithdraw}
               >
                 Withdraw
@@ -165,7 +165,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
           </CardContent>
         </Card>
 
-        <Card className="bg-[#0f0f0f] border-[#2a2a2a] text-white rounded-2xl shadow-lg">
+        <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white rounded-2xl shadow-lg">
           <CardContent className="pt-6 pb-5">
             <div className="text-lg text-[#7a7a7a] mb-1">Profit / Loss</div>
             <div className={`text-2xl font-bold ${profitLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
