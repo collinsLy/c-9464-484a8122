@@ -135,10 +135,8 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
       });
       return;
     }
-    toast({
-      title: "Withdrawal Initiated",
-      description: "Please follow the verification steps to complete your withdrawal.",
-    });
+    // Navigate to the withdraw page
+    window.location.href = "/withdraw";
   };
 
   const handleTestBalanceUpdate = async () => {
