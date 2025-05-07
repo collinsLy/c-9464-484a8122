@@ -1,4 +1,5 @@
-import { ArrowUp, Wallet, CreditCard } from "lucide-react"; 
+
+import { ArrowUp } from "lucide-react"; 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -48,7 +49,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
 
       // Parse balance values
       const parsedBalance = typeof userData.balance === 'number' ? userData.balance : 
-                           (typeof userData.balance === 'string' ? parseFloat(userData.balance) : 0);
+                          (typeof userData.balance === 'string' ? parseFloat(userData.balance) : 0);
 
       const initialBalance = userData.initialBalance || parsedBalance;
       const totalPL = userData.totalProfitLoss || 0;
@@ -134,7 +135,6 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
               className="mr-2 text-white border-[#2a2a2a] hover:bg-[#2a2a2a] rounded-md"
               onClick={handleDeposit}
             >
-              <Wallet className="w-4 h-4 mr-1" />
               Deposit
             </Button>
             <Button 
@@ -143,7 +143,6 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
               className="text-white border-[#2a2a2a] hover:bg-[#2a2a2a] rounded-md"
               onClick={handleWithdraw}
             >
-              <CreditCard className="w-4 h-4 mr-1" />
               Withdraw
             </Button>
           </div>
@@ -154,13 +153,15 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         <CardContent className="pt-6 pb-5">
           <div className="text-[#7a7a7a] mb-1">Profit / Loss</div>
           <div className="text-3xl font-bold text-green-500">
-            {isDemoMode ? "+$0.00" : (profitLoss >= 0 ? `+$${profitLoss.toFixed(2)}` : `-$${Math.abs(profitLoss).toFixed(2)}`)}
+            {isLoading ? (
+              <span className="text-white/60">Loading...</span>
+            ) : (
+              `+$${profitLoss.toFixed(2)}`
+            )}
           </div>
           <div className="flex items-center mt-1 text-sm">
             <ArrowUp className="w-4 h-4 mr-1 text-green-500" />
-            <span className="text-green-500">
-              {profitLoss >= 0 ? '+' : '-'}{Math.abs(profitLossPercent).toFixed(2)}%
-            </span>
+            <span className="text-green-500">+0.00%</span>
             <span className="ml-1 text-[#7a7a7a]">all time</span>
           </div>
         </CardContent>
