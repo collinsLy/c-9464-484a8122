@@ -39,13 +39,12 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
     setTotalBalance(total);
   };
 
-  // Fetch current prices for assets
+  // Fetch current prices for assets with increased debounce and memoization
   useEffect(() => {
     const fetchPrices = async () => {
       try {
-        // Get symbols from assets to fetch prices
         const symbols = Object.keys(userAssets)
-          .filter(symbol => symbol !== 'USDT'); // Filter out USDT as we handle it separately
+          .filter(symbol => symbol !== 'USDT');
 
         if (symbols.length === 0) return;
 
@@ -53,24 +52,32 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
         const data = await response.json();
 
-        const prices: Record<string, number> = {};
+        const newPrices: Record<string, number> = {};
         data.forEach((item: any) => {
           const symbol = item.symbol.replace('USDT', '');
-          prices[symbol] = parseFloat(item.price);
+          newPrices[symbol] = parseFloat(item.price);
         });
-        // Add USDT itself with value of 1
-        prices['USDT'] = 1;
-        setAssetPrices(prices);
+        newPrices['USDT'] = 1;
 
-        // Recalculate portfolio value when prices update
-        calculatePortfolioValue(userAssets, prices, balance);
+        // Only update if prices have changed significantly (0.1% threshold)
+        const hasSignificantChanges = Object.entries(newPrices).some(
+          ([key, value]) => {
+            const oldPrice = assetPrices[key];
+            return !oldPrice || Math.abs((value - oldPrice) / oldPrice) > 0.001;
+          }
+        );
+
+        if (hasSignificantChanges) {
+          setAssetPrices(newPrices);
+          calculatePortfolioValue(userAssets, newPrices, balance);
+        }
       } catch (error) {
         console.error('Error fetching asset prices:', error);
       }
     };
 
     if (Object.keys(userAssets).length > 0) {
-      const debounceTimer = setTimeout(fetchPrices, 1000);
+      const debounceTimer = setTimeout(fetchPrices, 3000); // Increased to 3 seconds
       return () => clearTimeout(debounceTimer);
     }
   }, [userAssets, balance]);

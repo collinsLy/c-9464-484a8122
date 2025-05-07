@@ -71,10 +71,16 @@ export function PortfolioAnalytics() {
     'OTHER': '#9CA3AF'
   };
 
-  // Fetch current prices for all assets
+  // Optimized price fetching with smooth updates
   useEffect(() => {
     let isMounted = true;
+    let previousUpdate = 0;
+    const UPDATE_THRESHOLD = 3000; // Minimum time between updates
+
     const fetchPrices = async () => {
+      const now = Date.now();
+      if (now - previousUpdate < UPDATE_THRESHOLD) return;
+
       try {
         const symbols = baseAssets
           .map(asset => asset.symbol)
@@ -86,21 +92,35 @@ export function PortfolioAnalytics() {
 
         if (!isMounted) return;
 
-        const prices: Record<string, number> = {};
+        const newPrices: Record<string, number> = {};
         data.forEach((item: any) => {
           const symbol = item.symbol.replace('USDT', '');
-          prices[symbol] = parseFloat(item.price);
+          newPrices[symbol] = parseFloat(item.price);
         });
-        prices['USDT'] = 1;
+        newPrices['USDT'] = 1;
 
-        // Compare with previous prices to avoid unnecessary updates
-        const hasChanges = Object.entries(prices).some(
-          ([key, value]) => value !== assetPrices[key]
+        // Only update if changes are significant (0.1% threshold)
+        const hasSignificantChanges = Object.entries(newPrices).some(
+          ([key, value]) => {
+            const oldPrice = assetPrices[key];
+            return !oldPrice || Math.abs((value - oldPrice) / oldPrice) > 0.001;
+          }
         );
 
-        if (hasChanges) {
-          setAssetPrices(prices);
-          calculatePortfolioValue(userAssets, prices);
+        if (hasSignificantChanges) {
+          setAssetPrices(prev => {
+            // Smooth transition between old and new prices
+            const smoothedPrices: Record<string, number> = {};
+            Object.entries(newPrices).forEach(([key, value]) => {
+              const oldPrice = prev[key];
+              smoothedPrices[key] = oldPrice 
+                ? oldPrice + (value - oldPrice) * 0.3 // Smooth transition
+                : value;
+            });
+            return smoothedPrices;
+          });
+          calculatePortfolioValue(userAssets, newPrices);
+          previousUpdate = now;
         }
 
         if (isLoading) {
