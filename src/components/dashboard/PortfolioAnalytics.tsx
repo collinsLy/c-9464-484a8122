@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, DollarSign, PieChart } from "lucide-react";
 import { UserService } from "@/lib/user-service";
+import { db } from '@/lib/firebase';
 
 // Time range options
 const timeRanges = [
@@ -41,143 +42,184 @@ export function PortfolioAnalytics() {
 
     setIsLoading(true);
 
+    // Base assets list with standard properties and colors
+    const baseAssets = [
+      { symbol: 'BTC', name: 'Bitcoin', color: '#F7931A' },
+      { symbol: 'ETH', name: 'Ethereum', color: '#627EEA' },
+      { symbol: 'USDT', name: 'Tether', color: '#26A17B' },
+      { symbol: 'SOL', name: 'Solana', color: '#00FFA3' },
+      { symbol: 'DOGE', name: 'Dogecoin', color: '#C3A634' },
+      { symbol: 'XRP', name: 'Ripple', color: '#23292F' },
+      { symbol: 'ADA', name: 'Cardano', color: '#0033AD' },
+      { symbol: 'BNB', name: 'Binance Coin', color: '#F3BA2F' },
+      { symbol: 'MATIC', name: 'Polygon', color: '#8247E5' },
+      { symbol: 'DOT', name: 'Polkadot', color: '#E6007A' },
+      { symbol: 'LINK', name: 'Chainlink', color: '#2A5ADA' },
+      { symbol: 'WLD', name: 'Worldcoin', color: '#4B5563' },
+      { symbol: 'USDC', name: 'USD Coin', color: '#2775CA' },
+      { symbol: 'OTHER', name: 'Other', color: '#9CA3AF' }
+    ];
+
+    // Map colors by symbol for easy lookup
+    const assetColors: Record<string, string> = {};
+    baseAssets.forEach(asset => {
+      assetColors[asset.symbol] = asset.color;
+    });
+
     // Subscribe to user data changes
-    const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
+    const unsubscribe = UserService.subscribeToUserData(uid, async (userData) => {
       if (!userData) {
         console.error('No user data found');
         setIsLoading(false);
         return;
       }
 
-      // Parse balance values
-      const parsedBalance = typeof userData.balance === 'number' ? userData.balance : 
-                          (typeof userData.balance === 'string' ? parseFloat(userData.balance) : 0);
-      
-      const assetsValue = userData.assetsValue || 0;
-      const totalPortfolioValue = parsedBalance + assetsValue;
-      
-      // Create asset allocation data
-      const assets = userData.assets || {};
-      let totalAssetValue = 0;
-      const allocation: { name: string; symbol: string; value: number; percent: number; color: string }[] = [];
-      
-      // Define colors for common assets
-      const assetColors: Record<string, string> = {
-        'BTC': '#F7931A',
-        'ETH': '#627EEA',
-        'SOL': '#00FFA3',
-        'WLD': '#4B5563',
-        'BNB': '#F3BA2F',
-        'ADA': '#0033AD',
-        'DOGE': '#C3A634',
-        'XRP': '#23292F',
-        'DOT': '#E6007A',
-        'LINK': '#2A5ADA',
-        'MATIC': '#8247E5',
-        'OTHER': '#9CA3AF'
-      };
-      
-      // Process assets
-      Object.entries(assets).forEach(([symbol, data]: [string, any]) => {
-        if (symbol === 'USDT') return; // Skip USDT as it's included in cash balance
+      try {
+        // Parse USDT balance (cash)
+        const parsedBalance = typeof userData.balance === 'number' ? userData.balance : 
+                            (typeof userData.balance === 'string' ? parseFloat(userData.balance) : 0);
         
-        const amount = data.amount || 0;
-        const price = data.price || 0;
-        const value = amount * price;
-        totalAssetValue += value;
+        // Get all assets from user data
+        const userAssets = userData.assets || {};
         
-        allocation.push({
-          name: data.name || symbol,
-          symbol,
-          value,
-          percent: 0, // Will calculate percentages after totaling
-          color: assetColors[symbol] || assetColors['OTHER']
-        });
-      });
-      
-      // Add cash balance (treat as special allocation)
-      if (parsedBalance > 0) {
-        allocation.push({
-          name: 'Cash',
-          symbol: 'USDT',
-          value: parsedBalance,
-          percent: 0,
-          color: '#26A17B' // USDT green
-        });
-        totalAssetValue += parsedBalance;
-      }
-      
-      // Add "Other" category if needed
-      const otherAssets = Object.entries(assets)
-        .filter(([symbol]) => !allocation.some(a => a.symbol === symbol) && symbol !== 'USDT')
-        .reduce((sum, [, data]: [string, any]) => sum + (data.amount || 0) * (data.price || 0), 0);
-      
-      if (otherAssets > 0) {
-        allocation.push({
-          name: 'Other',
-          symbol: 'OTHER',
-          value: otherAssets,
-          percent: 0,
-          color: assetColors['OTHER']
-        });
-        totalAssetValue += otherAssets;
-      }
-      
-      // Calculate percentages
-      allocation.forEach(asset => {
-        asset.percent = totalAssetValue > 0 ? Math.round((asset.value / totalAssetValue) * 100) : 0;
-      });
-      
-      // Sort by value (descending)
-      allocation.sort((a, b) => b.value - a.value);
-      
-      // Get profit/loss data
-      const totalPL = userData.totalProfitLoss || 0;
-      const dayChange = userData.dayChange || totalPL * 0.2; // Fallback if no day data
-      const weekChange = userData.weekChange || totalPL * 0.6; // Fallback
-      const monthChange = userData.monthChange || totalPL * 0.8; // Fallback
-      const yearChange = userData.yearChange || totalPL * 0.9; // Fallback
-      
-      // Prepare performance data for different time periods
-      const performance = {
-        '24h': {
-          value: dayChange,
-          percent: totalPortfolioValue > 0 ? (dayChange / totalPortfolioValue) * 100 : 0,
-          isPositive: dayChange >= 0
-        },
-        '7d': {
-          value: weekChange,
-          percent: totalPortfolioValue > 0 ? (weekChange / totalPortfolioValue) * 100 : 0,
-          isPositive: weekChange >= 0
-        },
-        '30d': {
-          value: monthChange,
-          percent: totalPortfolioValue > 0 ? (monthChange / totalPortfolioValue) * 100 : 0,
-          isPositive: monthChange >= 0
-        },
-        '1y': {
-          value: yearChange,
-          percent: totalPortfolioValue > 0 ? (yearChange / totalPortfolioValue) * 100 : 0,
-          isPositive: yearChange >= 0
-        },
-        'all': {
-          value: totalPL,
-          percent: totalPortfolioValue > 0 ? (totalPL / totalPortfolioValue) * 100 : 0,
-          isPositive: totalPL >= 0
+        // Fetch current prices for all assets
+        const assetPrices: Record<string, number> = {};
+        
+        // Get symbols from user assets and base assets to ensure we have all prices
+        const symbols = Array.from(
+          new Set([
+            ...Object.keys(userAssets), 
+            ...baseAssets.map(asset => asset.symbol)
+          ])
+        ).filter(symbol => symbol !== 'USDT'); // USDT has a fixed price of 1
+        
+        // Add USDT with price 1
+        assetPrices['USDT'] = 1;
+        
+        // Try to get prices from API
+        try {
+          const symbolsQuery = symbols.map(s => `${s}USDT`);
+          const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
+          if (response.ok) {
+            const data = await response.json();
+            
+            data.forEach((item: any) => {
+              const symbol = item.symbol.replace('USDT', '');
+              assetPrices[symbol] = parseFloat(item.price);
+            });
+          }
+        } catch (error) {
+          console.error('Error fetching asset prices:', error);
+          // If fetch fails, try to use prices stored in user assets data
+          Object.entries(userAssets).forEach(([symbol, data]: [string, any]) => {
+            if (data.price && !assetPrices[symbol]) {
+              assetPrices[symbol] = data.price;
+            }
+          });
         }
-      };
-      
-      // Update state with new data
-      setPortfolioData({
-        current: totalPortfolioValue,
-        change: dayChange,
-        changePercent: totalPortfolioValue > 0 ? (dayChange / totalPortfolioValue) * 100 : 0,
-        isPositive: dayChange >= 0,
-        allocation,
-        performance
-      });
-      
-      setIsLoading(false);
+        
+        // Calculate total portfolio value and build allocation data
+        let totalPortfolioValue = parsedBalance; // Start with cash balance
+        const allocation: { name: string; symbol: string; value: number; percent: number; color: string }[] = [];
+        
+        // Process each asset with balance > 0
+        Object.entries(userAssets).forEach(([symbol, data]: [string, any]) => {
+          if (symbol === 'USDT') return; // Skip USDT as it's handled separately
+          
+          const amount = data.amount || 0;
+          if (amount <= 0) return; // Skip assets with zero balance
+          
+          const price = assetPrices[symbol] || data.price || 0;
+          const value = amount * price;
+          
+          // Skip negligible values
+          if (value < 0.01) return;
+          
+          totalPortfolioValue += value;
+          
+          // Find asset info from base assets
+          const baseAsset = baseAssets.find(a => a.symbol === symbol);
+          
+          allocation.push({
+            name: baseAsset?.name || data.name || symbol,
+            symbol,
+            value,
+            percent: 0, // Will calculate after totaling
+            color: assetColors[symbol] || assetColors['OTHER']
+          });
+        });
+        
+        // Add USDT balance if > 0
+        if (parsedBalance > 0) {
+          allocation.push({
+            name: 'Cash (USDT)',
+            symbol: 'USDT',
+            value: parsedBalance,
+            percent: 0, // Will calculate after totaling
+            color: assetColors['USDT']
+          });
+        }
+        
+        // Calculate percentages
+        allocation.forEach(asset => {
+          asset.percent = totalPortfolioValue > 0 
+            ? Math.round((asset.value / totalPortfolioValue) * 100) 
+            : 0;
+        });
+        
+        // Sort by value (descending)
+        allocation.sort((a, b) => b.value - a.value);
+        
+        // Get or calculate profit/loss data
+        const totalPL = userData.totalProfitLoss || 0;
+        const dayChange = userData.dayChange || (totalPL * 0.2); // Fallback if no day data
+        const weekChange = userData.weekChange || (totalPL * 0.6); // Fallback
+        const monthChange = userData.monthChange || (totalPL * 0.8); // Fallback
+        const yearChange = userData.yearChange || (totalPL * 0.9); // Fallback
+        
+        // Prepare performance data for different time periods
+        const performance = {
+          '24h': {
+            value: dayChange,
+            percent: totalPortfolioValue > 0 ? (dayChange / totalPortfolioValue) * 100 : 0,
+            isPositive: dayChange >= 0
+          },
+          '7d': {
+            value: weekChange,
+            percent: totalPortfolioValue > 0 ? (weekChange / totalPortfolioValue) * 100 : 0,
+            isPositive: weekChange >= 0
+          },
+          '30d': {
+            value: monthChange,
+            percent: totalPortfolioValue > 0 ? (monthChange / totalPortfolioValue) * 100 : 0,
+            isPositive: monthChange >= 0
+          },
+          '1y': {
+            value: yearChange,
+            percent: totalPortfolioValue > 0 ? (yearChange / totalPortfolioValue) * 100 : 0,
+            isPositive: yearChange >= 0
+          },
+          'all': {
+            value: totalPL,
+            percent: totalPortfolioValue > 0 ? (totalPL / totalPortfolioValue) * 100 : 0,
+            isPositive: totalPL >= 0
+          }
+        };
+        
+        // Update state with new data
+        setPortfolioData({
+          current: totalPortfolioValue,
+          change: dayChange,
+          changePercent: totalPortfolioValue > 0 ? (dayChange / totalPortfolioValue) * 100 : 0,
+          isPositive: dayChange >= 0,
+          allocation,
+          performance
+        });
+      } catch (error) {
+        console.error('Error processing portfolio data:', error);
+      } finally {
+        setIsLoading(false);
+      }
     });
 
     return () => {
@@ -321,13 +363,17 @@ export function PortfolioAnalytics() {
                     </div>
                   ) : (
                     <>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-full h-full" style={{ 
-                          background: generateConicGradient(portfolioData.allocation)
-                        }} className="rounded-full">
-                        </div>
+                      <div className="absolute inset-0">
+                        <div 
+                          className="w-full h-full rounded-full" 
+                          style={{ 
+                            background: generateConicGradient(portfolioData.allocation)
+                          }}
+                        ></div>
                       </div>
-                      <PieChart className="w-12 h-12 text-white/70 z-10" />
+                      <div className="w-20 h-20 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center z-10">
+                        <PieChart className="w-10 h-10 text-white/70" />
+                      </div>
                     </>
                   )}
                 </div>
@@ -369,16 +415,24 @@ function generateConicGradient(allocation: { percent: number, color: string }[])
   let gradientString = 'conic-gradient(';
   let currentPercent = 0;
   
-  allocation.forEach((asset, index) => {
+  // Only include assets with non-zero percentages
+  const filteredAllocation = allocation.filter(asset => asset.percent > 0);
+  
+  filteredAllocation.forEach((asset, index) => {
     const startPercent = currentPercent;
     currentPercent += asset.percent;
     
     gradientString += `${asset.color} ${startPercent}% ${currentPercent}%`;
     
-    if (index < allocation.length - 1) {
+    if (index < filteredAllocation.length - 1) {
       gradientString += ', ';
     }
   });
+  
+  // If we don't have any assets with percentages, show a default gray
+  if (filteredAllocation.length === 0) {
+    gradientString += '#374151';
+  }
   
   gradientString += ')';
   return gradientString;
