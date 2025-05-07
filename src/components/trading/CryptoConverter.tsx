@@ -7,6 +7,7 @@ import { UserService } from '@/lib/user-service';
 import { auth } from '@/lib/firebase';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { v4 as uuidv4 } from 'uuid';
+import { getTopCoins, getCoinPrice, getCoingeckoIdFromSymbol } from '@/lib/api/coingecko';
 
 interface CryptoConverterProps {
   onAmountChange?: (amount: number, fromCurrency: string, toCurrency: string) => void;
@@ -28,9 +29,29 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
     DOGE: 0,
   });
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-
+  
+  // Real-time conversion rates from CoinGecko API
+  const [rates, setRates] = useState<Record<string, Record<string, number>>>({});
+  const [isRatesLoading, setIsRatesLoading] = useState<boolean>(true);
+  
   // Supported cryptocurrencies
   const supportedCryptos = ['BTC', 'ETH', 'USDT', 'SOL', 'DOGE', 'XRP', 'ADA', 'BNB', 'MATIC', 'DOT', 'LINK', 'WLD'];
+  
+  // Currency mapping between symbols and CoinGecko IDs
+  const coinGeckoMapping: Record<string, string> = {
+    'BTC': 'bitcoin',
+    'ETH': 'ethereum',
+    'USDT': 'tether',
+    'SOL': 'solana',
+    'DOGE': 'dogecoin',
+    'XRP': 'ripple',
+    'ADA': 'cardano',
+    'BNB': 'binancecoin', 
+    'MATIC': 'matic-network',
+    'DOT': 'polkadot',
+    'LINK': 'chainlink',
+    'WLD': 'worldcoin'
+  };
 
   // Fetch user balances
   useEffect(() => {
@@ -107,12 +128,6 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
       return () => unsubscribe();
     }
   }, []);
-
-  // Import CoinGecko API functions
-  import { getTopCoins, getCoinPrice, getCoingeckoIdFromSymbol } from '@/lib/api/coingecko';
-  import { useEffect } from 'react';
-  
-  // Real-time conversion rates from CoinGecko API
   const [rates, setRates] = useState<Record<string, Record<string, number>>>({});
   const [isRatesLoading, setIsRatesLoading] = useState<boolean>(true);
   
