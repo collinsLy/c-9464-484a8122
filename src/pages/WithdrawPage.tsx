@@ -548,6 +548,9 @@ const WithdrawPage = () => {
     const isWalletMethod = selectedPaymentMethod === 'mpesa' || selectedPaymentMethod === 'airtel';
     const minAmount = isWalletMethod ? 20 : 50;
 
+    // Import NotificationService if it's not already used elsewhere in this file
+    const { NotificationService } = await import('@/lib/notification-service');
+
     if (!amount || amountValue <= 0) {
       toast({
         title: "Invalid Amount",
@@ -638,6 +641,11 @@ const WithdrawPage = () => {
         title: "Withdrawal Successful",
         description: `Your withdrawal of $${amountValue.toFixed(2)} has been processed`,
       });
+
+      // Add notification for mobile money withdrawals
+      if (isWalletMethod) {
+        await NotificationService.sendWithdrawalNotification(uid, transaction);
+      }
     } catch (error) {
       console.error('Withdrawal error:', error);
       toast({
@@ -808,7 +816,7 @@ const WithdrawPage = () => {
 
       // Get user's crypto assets and handle special case for USDT
       userAssets = userData.assets || {};
-      
+
       // Special handling for USDT - check both locations
       if (selectedCrypto === 'USDT') {
         // First check main balance field (legacy location)
@@ -817,9 +825,9 @@ const WithdrawPage = () => {
         } else if (typeof userData.balance === 'string') {
           cryptoBalance = parseFloat(userData.balance) || 0;
         }
-        
+
         console.log(`USDT from main balance field (in withdrawal function): ${cryptoBalance}`);
-        
+
         // Then check assets.USDT (new location), which overrides if present
         if (userAssets.USDT && userAssets.USDT.amount !== undefined) {
           const assetAmount = Number(userAssets.USDT.amount);
@@ -870,19 +878,19 @@ const WithdrawPage = () => {
 
       // Prepare the update data
       let updateData = {};
-      
+
       // Special handling for USDT
       if (selectedCrypto === 'USDT') {
         const newCryptoAmount = cryptoBalance - cryptoAmountValue;
-        
+
         // Check if the USDT is stored in main balance field or in assets
         const isInMainBalance = (
           (typeof userData.balance === 'number' || typeof userData.balance === 'string') && 
           (!userAssets.USDT || !userAssets.USDT.amount || Number(userAssets.USDT.amount) === 0)
         );
-        
+
         console.log(`USDT is stored in main balance field: ${isInMainBalance}`);
-        
+
         if (isInMainBalance) {
           // Update the main balance field
           updateData = {
@@ -954,7 +962,7 @@ const WithdrawPage = () => {
         ...updateData,
         transactions: arrayUnion(transaction)
       };
-      
+
       // Update the user data in Firebase
       await UserService.updateUserData(uid, updateData);
 
