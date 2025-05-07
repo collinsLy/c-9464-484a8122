@@ -16,7 +16,8 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   const [profitLoss, setProfitLoss] = useState(0);
   const [profitLossPercent, setProfitLossPercent] = useState(0);
   const [totalBalance, setTotalBalance] = useState(0);
-  const [dailyChange, setDailyChange] = useState(0.00); // Added for daily performance
+  const [dailyChange, setDailyChange] = useState(0.00);
+  const [previousDayBalance, setPreviousDayBalance] = useState(0);
   const [assetPrices, setAssetPrices] = useState<Record<string, number>>({});
   const [userAssets, setUserAssets] = useState<Record<string, any>>({});
 
@@ -117,9 +118,13 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
 
       const initialBalance = userData.initialBalance || parsedBalance;
       const totalPL = userData.totalProfitLoss || 0;
+      const prevBalance = userData.previousDayBalance || 0;
+      setPreviousDayBalance(prevBalance);
 
-      // Get daily change (if available, otherwise default to 0)
-      const dailyChangeValue = userData.dailyChange || 0;
+      // Calculate daily change percentage
+      const dailyChangeValue = prevBalance > 0 
+        ? ((parsedBalance - prevBalance) / prevBalance) * 100 
+        : 0;
       setDailyChange(dailyChangeValue);
 
       if (isNaN(parsedBalance)) {
