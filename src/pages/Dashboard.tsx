@@ -15,7 +15,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { auth, db } from "@/lib/firebase";
 import { collection, query, where, onSnapshot, orderBy, limit, Timestamp, doc, updateDoc } from "firebase/firestore";
 import { NotificationService } from "@/lib/notification-service";
-import { PortfolioAnalytics } from "@/components/dashboard/PortfolioAnalytics";
 
 
 const Dashboard = () => {
@@ -158,7 +157,7 @@ const Dashboard = () => {
                 <AssetsList />
               </div>
             </div>
-            <PortfolioAnalytics />
+            {/* PortfolioAnalytics moved to AssetsPage */}
           </>
         );
 

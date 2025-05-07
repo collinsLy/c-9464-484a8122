@@ -4,6 +4,7 @@ import { UserService } from "@/lib/firebase-service";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PortfolioAnalytics } from "@/components/dashboard/PortfolioAnalytics";
 
 const AssetsPage = () => {
   const [balance, setBalance] = useState(0);
@@ -244,6 +245,8 @@ const AssetsPage = () => {
   return (
     <DashboardLayout>
       <div className="space-y-4 px-2 sm:px-4 pb-20">
+        <PortfolioAnalytics />
+        
         <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
           <CardHeader className="p-4 sm:p-6">
             <CardTitle className="text-xl sm:text-2xl">Estimated Balance</CardTitle>
