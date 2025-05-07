@@ -53,7 +53,6 @@ const DashboardHeader = () => {
           </div>
         )}
         <div className="flex items-center gap-2">
-          <img src="/favicon.svg" alt="Whalex" className="h-7 w-7" />
           <div className="text-xl font-bold">Whalex</div>
         </div>
       </div>
