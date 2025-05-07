@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowUpRight, ArrowDownRight, TrendingUp, TrendingDown, DollarSign, PieChart } from "lucide-react";
@@ -93,85 +93,108 @@ export function PortfolioAnalytics() {
         prices['USDT'] = 1;
         setAssetPrices(prices);
 
-        // Use setTimeout to debounce frequent updates and prevent UI flicker
+        // Calculate portfolio value when prices update, with a fixed timeout to prevent flicker
+        // This creates an intentional slight delay but improves UI stability
         setTimeout(() => {
-          // Calculate portfolio value when prices update
           calculatePortfolioValue(userAssets, prices);
           setIsLoading(false);
-        }, 300);
+        }, 500);
       } catch (error) {
         console.error('Error fetching asset prices:', error);
       }
     };
 
     fetchPrices();
-    // Update prices every 30 seconds
+    // Fetch prices every 30 seconds
     const interval = setInterval(fetchPrices, 30000);
     return () => clearInterval(interval);
   }, [userAssets]);
+
+  // Create a debounced version of the calculation to prevent UI flickering
+  const [isCalculating, setIsCalculating] = useState(false);
+  const debounceTimer = useRef<number | null>(null);
 
   // Calculate total portfolio value and update allocation data
   const calculatePortfolioValue = (assets: Record<string, any>, prices: Record<string, number>) => {
     if (!assets) return;
 
-    // Get USDT balance (may be in user.balance or assets.USDT)
-    let usdtBalance = assets.USDT?.amount || 0;
+    // Prevent multiple calculations happening too quickly
+    if (isCalculating) return;
 
-    // Start with USDT balance
-    let total = usdtBalance;
+    // Set calculating flag and clear any pending calculation
+    setIsCalculating(true);
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
 
-    const allocation: { name: string; symbol: string; value: number; percent: number; color: string }[] = [];
+    // Use timeout to debounce frequent calculations
+    debounceTimer.current = window.setTimeout(() => {
+      // Actual calculation logic
+      // Get USDT balance (may be in user.balance or assets.USDT)
+      let usdtBalance = assets.USDT?.amount || 0;
 
-    // Add value of all other assets
-    Object.entries(assets).forEach(([symbol, data]: [string, any]) => {
-      if (symbol === 'USDT') {
-        // Already counted USDT in usdtBalance
+      // Start with USDT balance
+      let total = usdtBalance;
+
+      const allocation: { name: string; symbol: string; value: number; percent: number; color: string }[] = [];
+
+      // Add value of all other assets
+      Object.entries(assets).forEach(([symbol, data]: [string, any]) => {
+        if (symbol === 'USDT') {
+          // Already counted USDT in usdtBalance
+          allocation.push({
+            name: 'Tether',
+            symbol: 'USDT',
+            value: usdtBalance,
+            percent: 0, // Will calculate after all assets
+            color: assetColors['USDT']
+          });
+          return;
+        }
+
+        const amount = data.amount || 0;
+        if (amount <= 0) return; // Skip zero balances
+
+        const price = prices[symbol] || 0;
+        const valueInUsdt = amount * price;
+
+        // Remove excessive logging which contributes to console spam
+        // console.log(`Asset ${symbol}: Amount ${amount} × Price ${price} = ${valueInUsdt} USDT`);
+
+        total += valueInUsdt;
+
+        // Find full name from baseAssets or use symbol
+        const assetInfo = baseAssets.find(a => a.symbol === symbol);
+        const assetName = assetInfo?.fullName || symbol;
+
         allocation.push({
-          name: 'Tether',
-          symbol: 'USDT',
-          value: usdtBalance,
-          percent: 0, // Will calculate after all assets
-          color: assetColors['USDT']
+          name: assetName,
+          symbol,
+          value: valueInUsdt,
+          percent: 0, // Will calculate after totaling
+          color: assetColors[symbol] || assetColors['OTHER']
         });
-        return;
-      }
-
-      const amount = data.amount || 0;
-      if (amount <= 0) return; // Skip zero balances
-
-      const price = prices[symbol] || 0;
-      const valueInUsdt = amount * price;
-
-      console.log(`Asset ${symbol}: Amount ${amount} × Price ${price} = ${valueInUsdt} USDT`);
-
-      total += valueInUsdt;
-
-      // Find full name from baseAssets or use symbol
-      const assetInfo = baseAssets.find(a => a.symbol === symbol);
-      const assetName = assetInfo?.fullName || symbol;
-
-      allocation.push({
-        name: assetName,
-        symbol,
-        value: valueInUsdt,
-        percent: 0, // Will calculate after totaling
-        color: assetColors[symbol] || assetColors['OTHER']
       });
-    });
 
-    // Calculate percentages now that we have the total
-    allocation.forEach(asset => {
-      asset.percent = total > 0 ? Math.round((asset.value / total) * 100) : 0;
-    });
+      // Calculate percentages now that we have the total
+      allocation.forEach(asset => {
+        asset.percent = total > 0 ? Math.round((asset.value / total) * 100) : 0;
+      });
 
-    // Sort by value (highest first)
-    allocation.sort((a, b) => b.value - a.value);
+      // Sort by value (highest first)
+      allocation.sort((a, b) => b.value - a.value);
 
-    console.log(`Total portfolio value: ${total} USDT`);
-    setTotalPortfolioValue(total);
+      // Reduced logging to avoid console spam
+      // console.log(`Total portfolio value: ${total} USDT`);
+      setTotalPortfolioValue(total);
 
-    // Update portfolio data with new allocation
-    updatePortfolioData(total, allocation);
+      // Update portfolio data with new allocation
+      updatePortfolioData(total, allocation);
+
+      // Reset calculation flag after completion
+      setIsCalculating(false);
+
+    }, 300); // 300ms debounce time
   };
 
   // Update portfolio data state with performance metrics
@@ -182,6 +205,7 @@ export function PortfolioAnalytics() {
     const yearChange = total * 0.3; // Placeholder
     const totalPL = total * 0.4; // Placeholder
 
+    // Use functional update to avoid state dependency issues
     setPortfolioData({
       current: total,
       change: dayChange,
@@ -237,7 +261,7 @@ export function PortfolioAnalytics() {
       }
 
       // Parse balance values for USDT from main balance field
-      const parsedBalance = typeof userData.balance === 'number' ? userData.balance : 
+      const parsedBalance = typeof userData.balance === 'number' ? userData.balance :
                           (typeof userData.balance === 'string' ? parseFloat(userData.balance) : 0);
 
       // Create assets object with all assets including USDT
@@ -262,6 +286,10 @@ export function PortfolioAnalytics() {
 
     return () => {
       unsubscribe();
+      // Clear any pending debounce timer
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
     };
   }, [assetPrices]);
 
@@ -277,8 +305,8 @@ export function PortfolioAnalytics() {
               {isLoading ? (
                 <div className="w-5 h-5 bg-white/10 animate-pulse rounded-full"></div>
               ) : (
-                data.isPositive ? 
-                  <TrendingUp className="w-5 h-5 text-green-500" /> : 
+                data.isPositive ?
+                  <TrendingUp className="w-5 h-5 text-green-500" /> :
                   <TrendingDown className="w-5 h-5 text-red-500" />
               )}
             </div>
@@ -295,8 +323,8 @@ export function PortfolioAnalytics() {
               <div className="w-16 h-4 bg-white/10 animate-pulse rounded"></div>
             ) : (
               <div className={`flex items-center ${data.isPositive ? 'text-green-500' : 'text-red-500'}`}>
-                {data.isPositive ? 
-                  <ArrowUpRight className="w-4 h-4 mr-1" /> : 
+                {data.isPositive ?
+                  <ArrowUpRight className="w-4 h-4 mr-1" /> :
                   <ArrowDownRight className="w-4 h-4 mr-1" />
                 }
                 <span>{data.isPositive ? '+' : '-'}{Math.abs(data.percent).toFixed(2)}%</span>
@@ -316,7 +344,7 @@ export function PortfolioAnalytics() {
           <Tabs value={timeRange} onValueChange={setTimeRange}>
             <TabsList className="bg-background/40 border-white/10 text-white">
               {timeRanges.map((range) => (
-                <TabsTrigger 
+                <TabsTrigger
                   key={range.value}
                   value={range.value}
                   className={`text-white ${timeRange === range.value ? 'bg-accent' : ''}`}
@@ -346,13 +374,13 @@ export function PortfolioAnalytics() {
                     <div className="w-28 h-5 bg-white/10 animate-pulse rounded"></div>
                   ) : (
                     <div className={`flex items-center ${portfolioData.isPositive ? 'text-green-500' : 'text-red-500'}`}>
-                      {portfolioData.isPositive ? 
-                        <ArrowUpRight className="w-4 h-4 mr-1" /> : 
+                      {portfolioData.isPositive ?
+                        <ArrowUpRight className="w-4 h-4 mr-1" /> :
                         <ArrowDownRight className="w-4 h-4 mr-1" />
                       }
                       <span>
                         {portfolioData.isPositive ? '+' : '-'}
-                        ${Math.abs(portfolioData.change).toFixed(2)} 
+                        ${Math.abs(portfolioData.change).toFixed(2)}
                         ({Math.abs(portfolioData.changePercent).toFixed(2)}%)
                       </span>
                     </div>
@@ -414,7 +442,7 @@ export function PortfolioAnalytics() {
                   ) : (
                     <>
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-full h-full" style={{ 
+                        <div className="w-full h-full" style={{
                           background: generateConicGradient(portfolioData.allocation)
                         }} className="rounded-full">
                         </div>
