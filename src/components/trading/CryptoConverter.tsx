@@ -29,14 +29,14 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
     DOGE: 0,
   });
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  
+
   // Real-time conversion rates from CoinGecko API
   const [rates, setRates] = useState<Record<string, Record<string, number>>>({});
   const [isRatesLoading, setIsRatesLoading] = useState<boolean>(true);
-  
+
   // Supported cryptocurrencies
   const supportedCryptos = ['BTC', 'ETH', 'USDT', 'SOL', 'DOGE', 'XRP', 'ADA', 'BNB', 'MATIC', 'DOT', 'LINK', 'WLD'];
-  
+
   // Currency mapping between symbols and CoinGecko IDs
   const coinGeckoMapping: Record<string, string> = {
     'BTC': 'bitcoin',
@@ -128,13 +128,13 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
       return () => unsubscribe();
     }
   }, []);
-  
+
   // Fetch initial rates
   useEffect(() => {
     const fetchRates = async () => {
       try {
         setIsRatesLoading(true);
-        
+
         // Initialize rates object with default 1:1 for same currencies
         const initialRates: Record<string, Record<string, number>> = {};
         supportedCryptos.forEach(from => {
@@ -143,14 +143,14 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
             initialRates[from][to] = from === to ? 1 : 0; // Default to 1 for same currency
           });
         });
-        
+
         // Fetch top coins data from CoinGecko for pricing
         const topCoinsData = await getTopCoins('usd', 100);
-        
+
         if (topCoinsData && topCoinsData.length > 0) {
           // Process the rates
           const usdRates: Record<string, number> = {};
-          
+
           // Extract USD prices
           topCoinsData.forEach(coin => {
             const symbol = coin.symbol.toUpperCase();
@@ -158,10 +158,10 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
               usdRates[symbol] = coin.current_price;
             }
           });
-          
+
           // Add special handling for USDT which should be 1:1 with USD
           usdRates['USDT'] = 1;
-          
+
           // Calculate cross rates
           supportedCryptos.forEach(from => {
             supportedCryptos.forEach(to => {
@@ -176,7 +176,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
               }
             });
           });
-          
+
           setRates(initialRates);
         } else {
           // Fallback to default rates if API fails
@@ -187,7 +187,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
             SOL: { USDT: 100, BTC: 0.0015, ETH: 0.03, DOGE: 500 },
             DOGE: { USDT: 0.2, BTC: 0.000003, ETH: 0.00006, SOL: 0.002 },
           };
-          
+
           // Initialize with fallback rates
           supportedCryptos.forEach(from => {
             supportedCryptos.forEach(to => {
@@ -200,7 +200,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
               }
             });
           });
-          
+
           setRates(initialRates);
           toast({
             title: "Using Fallback Rates",
@@ -219,7 +219,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
         setIsRatesLoading(false);
       }
     };
-    
+
     fetchRates();
   }, []);
 
@@ -256,7 +256,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
       return () => clearInterval(timer);
     }
   }, [convertedAmount]);
-  
+
   // Auto-refresh rates every 60 seconds
   useEffect(() => {
     const autoRefreshInterval = setInterval(() => {
@@ -264,7 +264,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
         refreshRate();
       }
     }, 60000); // 60 seconds
-    
+
     return () => clearInterval(autoRefreshInterval);
   }, [isLoading, fromCurrency, toCurrency]);
 
@@ -313,40 +313,40 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
 
   const refreshRate = async () => {
     setIsLoading(true);
-    
+
     try {
       // Get the pair we need to focus on first
       const fromId = coinGeckoMapping[fromCurrency.toLowerCase()] || fromCurrency.toLowerCase();
       const toId = coinGeckoMapping[toCurrency.toLowerCase()] || toCurrency.toLowerCase();
-      
+
       // Get specific pair price
       let pairUpdated = false;
-      
+
       // Attempt to get direct pair price first
       if (fromCurrency !== toCurrency) {
         try {
           const directPriceData = await getCoinPrice(fromId, toCurrency.toLowerCase());
-          
+
           if (directPriceData && directPriceData[fromId] && 
               directPriceData[fromId][toCurrency.toLowerCase()]) {
-              
+
             // Direct price found
             const directRate = directPriceData[fromId][toCurrency.toLowerCase()];
             const updatedRates = { ...rates };
-            
+
             if (!updatedRates[fromCurrency]) {
               updatedRates[fromCurrency] = {};
             }
-            
+
             updatedRates[fromCurrency][toCurrency] = directRate;
-            
+
             // Also update inverse rate
             if (!updatedRates[toCurrency]) {
               updatedRates[toCurrency] = {};
             }
-            
+
             updatedRates[toCurrency][fromCurrency] = 1 / directRate;
-            
+
             setRates(updatedRates);
             pairUpdated = true;
           }
@@ -354,52 +354,52 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
           console.log("Could not fetch direct pair price, falling back to USD conversion");
         }
       }
-      
+
       // If direct pair failed, try via USD
       if (!pairUpdated && fromCurrency !== toCurrency) {
         // Fetch individual USD prices
         const fromPriceData = await getCoinPrice(fromId, 'usd');
         const toPriceData = await getCoinPrice(toId, 'usd');
-        
+
         if (fromPriceData && fromPriceData[fromId] && fromPriceData[fromId].usd &&
             toPriceData && toPriceData[toId] && toPriceData[toId].usd) {
-            
+
           const fromUsdPrice = fromPriceData[fromId].usd;
           const toUsdPrice = toPriceData[toId].usd;
-          
+
           // Calculate cross rate
           const crossRate = fromUsdPrice / toUsdPrice;
-          
+
           const updatedRates = { ...rates };
-          
+
           // Ensure objects exist
           if (!updatedRates[fromCurrency]) {
             updatedRates[fromCurrency] = {};
           }
-          
+
           updatedRates[fromCurrency][toCurrency] = crossRate;
-          
+
           // Also update inverse rate
           if (!updatedRates[toCurrency]) {
             updatedRates[toCurrency] = {};
           }
-          
+
           updatedRates[toCurrency][fromCurrency] = 1 / crossRate;
-          
+
           setRates(updatedRates);
           pairUpdated = true;
         }
       }
-      
+
       // As fallback, fetch fresh rates for all currencies if specific pair update failed
       if (!pairUpdated) {
         const topCoinsData = await getTopCoins('usd', 50);
-        
+
         if (topCoinsData && topCoinsData.length > 0) {
           // Process the rates
           const usdRates: Record<string, number> = {};
           const updatedRates = { ...rates };
-          
+
           // Extract USD prices
           topCoinsData.forEach(coin => {
             const symbol = coin.symbol.toUpperCase();
@@ -407,14 +407,14 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
               usdRates[symbol] = coin.current_price;
             }
           });
-          
+
           // Add special handling for USDT which should be 1:1 with USD
           usdRates['USDT'] = 1;
-          
+
           // Calculate cross rates
           supportedCryptos.forEach(from => {
             if (!updatedRates[from]) updatedRates[from] = {};
-            
+
             supportedCryptos.forEach(to => {
               if (from !== to) {
                 if (usdRates[from] && usdRates[to]) {
@@ -424,30 +424,30 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
               }
             });
           });
-          
+
           setRates(updatedRates);
         } else {
           throw new Error("Failed to fetch rates");
         }
       }
-      
+
       // Update conversion with new rates
       handleConvert();
       setTimeLeft(18);
-      
+
       toast({
         title: "Rates Updated",
         description: "Live exchange rates have been refreshed",
       });
     } catch (error) {
       console.error('Error refreshing rates:', error);
-      
+
       // Fallback to small random changes if API fails
       const updatedRates = { ...rates };
-      
+
       supportedCryptos.forEach(fromCrypto => {
         if (!updatedRates[fromCrypto]) return;
-        
+
         supportedCryptos.forEach(toCrypto => {
           if (fromCrypto !== toCrypto && updatedRates[fromCrypto] && updatedRates[fromCrypto][toCrypto]) {
             const currentRate = updatedRates[fromCrypto][toCrypto];
@@ -456,10 +456,10 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
           }
         });
       });
-      
+
       setRates(updatedRates);
       handleConvert();
-      
+
       toast({
         title: "Rate Update Fallback",
         description: "Using estimated rates due to API limitations",
@@ -691,7 +691,6 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
         <CardTitle className="text-xl font-semibold text-white">Convert {fromCurrency} to {toCurrency}</CardTitle>
         <p className="text-xs text-gray-400 mt-1">
           Instant Conversion | 
-          <span className="text-green-400"> Live CoinGecko Rates</span> | 
           {isRatesLoading ? (
             <span className="text-amber-400"> Loading rates...</span>
           ) : (
