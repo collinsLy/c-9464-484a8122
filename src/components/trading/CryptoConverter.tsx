@@ -108,53 +108,123 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
     }
   }, []);
 
-  // Mock conversion rates - in a real app, these would come from an API
-  // Define exchange rates between pairs
-  const [rates, setRates] = useState(() => {
-    // Create a complete matrix of all currency pairs
-    const initialRates: Record<string, Record<string, number>> = {};
-    const supportedSymbols = ['BTC', 'ETH', 'USDT', 'SOL', 'DOGE', 'USD', 'XRP', 'ADA', 'BNB', 'MATIC', 'DOT', 'LINK', 'WLD'];
-
-    // Set base rates
-    const baseRates = {
-      BTC: { USD: 65000, ETH: 20, USDT: 65000, SOL: 650, DOGE: 325000 },
-      ETH: { USD: 3200, BTC: 0.05, USDT: 3200, SOL: 32, DOGE: 16000 },
-      USDT: { USD: 1, BTC: 0.000015, ETH: 0.0003, SOL: 0.01, DOGE: 5 },
-      SOL: { USD: 100, BTC: 0.0015, ETH: 0.03, USDT: 100, DOGE: 500 },
-      DOGE: { USD: 0.2, BTC: 0.000003, ETH: 0.00006, USDT: 0.2, SOL: 0.002 },
-      USD: { BTC: 0.000015, ETH: 0.0003, USDT: 1, SOL: 0.01, DOGE: 5 },
-      XRP: { USD: 0.5, USDT: 0.5, BTC: 0.0000077 },
-      ADA: { USD: 0.35, USDT: 0.35, BTC: 0.0000054 },
-      BNB: { USD: 580, USDT: 580, BTC: 0.0089 },
-      MATIC: { USD: 0.6, USDT: 0.6, BTC: 0.0000092 },
-      DOT: { USD: 5.8, USDT: 5.8, BTC: 0.000089 },
-      LINK: { USD: 15, USDT: 15, BTC: 0.00023 },
-      WLD: { USD: 3.2, USDT: 3.2, BTC: 0.000049 },
-    };
-
-    // Initialize complete rate matrix with defaults
-    supportedSymbols.forEach(fromSymbol => {
-      initialRates[fromSymbol] = {};
-      supportedSymbols.forEach(toSymbol => {
-        if (fromSymbol === toSymbol) {
-          initialRates[fromSymbol][toSymbol] = 1; // Same currency conversion is 1:1
-        } else if (baseRates[fromSymbol]?.[toSymbol]) {
-          initialRates[fromSymbol][toSymbol] = baseRates[fromSymbol][toSymbol];
-        } else if (baseRates[toSymbol]?.[fromSymbol]) {
-          // Use inverse if direct rate not available
-          initialRates[fromSymbol][toSymbol] = 1 / baseRates[toSymbol][fromSymbol];
-        } else if (baseRates[fromSymbol]?.USDT && baseRates[toSymbol]?.USDT) {
-          // Calculate via USDT if both have USDT rate
-          initialRates[fromSymbol][toSymbol] = baseRates[fromSymbol].USDT / baseRates[toSymbol].USDT;
+  // Import CoinGecko API functions
+  import { getTopCoins, getCoinPrice, getCoingeckoIdFromSymbol } from '@/lib/api/coingecko';
+  import { useEffect } from 'react';
+  
+  // Real-time conversion rates from CoinGecko API
+  const [rates, setRates] = useState<Record<string, Record<string, number>>>({});
+  const [isRatesLoading, setIsRatesLoading] = useState<boolean>(true);
+  
+  // Currency mapping between symbols and CoinGecko IDs
+  const coinGeckoMapping: Record<string, string> = {
+    'BTC': 'bitcoin',
+    'ETH': 'ethereum',
+    'USDT': 'tether',
+    'SOL': 'solana',
+    'DOGE': 'dogecoin',
+    'XRP': 'ripple',
+    'ADA': 'cardano',
+    'BNB': 'binancecoin', 
+    'MATIC': 'matic-network',
+    'DOT': 'polkadot',
+    'LINK': 'chainlink',
+    'WLD': 'worldcoin'
+  };
+  
+  // Fetch initial rates
+  useEffect(() => {
+    const fetchRates = async () => {
+      try {
+        setIsRatesLoading(true);
+        
+        // Initialize rates object with default 1:1 for same currencies
+        const initialRates: Record<string, Record<string, number>> = {};
+        supportedCryptos.forEach(from => {
+          initialRates[from] = {};
+          supportedCryptos.forEach(to => {
+            initialRates[from][to] = from === to ? 1 : 0; // Default to 1 for same currency
+          });
+        });
+        
+        // Fetch top coins data from CoinGecko for pricing
+        const topCoinsData = await getTopCoins('usd', 100);
+        
+        if (topCoinsData && topCoinsData.length > 0) {
+          // Process the rates
+          const usdRates: Record<string, number> = {};
+          
+          // Extract USD prices
+          topCoinsData.forEach(coin => {
+            const symbol = coin.symbol.toUpperCase();
+            if (supportedCryptos.includes(symbol)) {
+              usdRates[symbol] = coin.current_price;
+            }
+          });
+          
+          // Add special handling for USDT which should be 1:1 with USD
+          usdRates['USDT'] = 1;
+          
+          // Calculate cross rates
+          supportedCryptos.forEach(from => {
+            supportedCryptos.forEach(to => {
+              if (from !== to) {
+                if (usdRates[from] && usdRates[to]) {
+                  // Calculate cross rate through USD
+                  initialRates[from][to] = usdRates[from] / usdRates[to];
+                } else {
+                  // Fallback to reasonable default if coin not found
+                  initialRates[from][to] = 0; // Will be updated on refresh or with specific API call
+                }
+              }
+            });
+          });
+          
+          setRates(initialRates);
         } else {
-          // Fallback to a reasonable default
-          initialRates[fromSymbol][toSymbol] = 1;
+          // Fallback to default rates if API fails
+          const fallbackRates = {
+            BTC: { USDT: 65000, ETH: 20, SOL: 650, DOGE: 325000 },
+            ETH: { USDT: 3200, BTC: 0.05, SOL: 32, DOGE: 16000 },
+            USDT: { BTC: 0.000015, ETH: 0.0003, SOL: 0.01, DOGE: 5 },
+            SOL: { USDT: 100, BTC: 0.0015, ETH: 0.03, DOGE: 500 },
+            DOGE: { USDT: 0.2, BTC: 0.000003, ETH: 0.00006, SOL: 0.002 },
+          };
+          
+          // Initialize with fallback rates
+          supportedCryptos.forEach(from => {
+            supportedCryptos.forEach(to => {
+              if (from !== to) {
+                if (fallbackRates[from]?.[to]) {
+                  initialRates[from][to] = fallbackRates[from][to];
+                } else if (fallbackRates[to]?.[from]) {
+                  initialRates[from][to] = 1 / fallbackRates[to][from];
+                }
+              }
+            });
+          });
+          
+          setRates(initialRates);
+          toast({
+            title: "Using Fallback Rates",
+            description: "Could not connect to price API. Using cached rates.",
+            variant: "destructive"
+          });
         }
-      });
-    });
-
-    return initialRates;
-  });
+      } catch (error) {
+        console.error('Error fetching exchange rates:', error);
+        toast({
+          title: "Rate Fetching Error",
+          description: "Unable to fetch latest rates. Using fallback data.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsRatesLoading(false);
+      }
+    };
+    
+    fetchRates();
+  }, []);
 
   // Update conversion when amount or currencies change
   useEffect(() => {
@@ -178,7 +248,9 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
         setTimeLeft((prev) => {
           if (prev <= 1) {
             clearInterval(timer);
-            return 0;
+            // Auto-refresh rates when timer expires
+            refreshRate();
+            return 18;
           }
           return prev - 1;
         });
@@ -187,6 +259,17 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
       return () => clearInterval(timer);
     }
   }, [convertedAmount]);
+  
+  // Auto-refresh rates every 60 seconds
+  useEffect(() => {
+    const autoRefreshInterval = setInterval(() => {
+      if (!isLoading) {
+        refreshRate();
+      }
+    }, 60000); // 60 seconds
+    
+    return () => clearInterval(autoRefreshInterval);
+  }, [isLoading, fromCurrency, toCurrency]);
 
   const handleConvert = () => {
     if (!amount || isNaN(Number(amount))) return;
@@ -231,35 +314,164 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
     setConvertedAmount(null);
   };
 
-  const refreshRate = () => {
-    // In a real app, this would fetch fresh rates from an API
+  const refreshRate = async () => {
     setIsLoading(true);
-
-    // Simulate a network request with a small delay
-    setTimeout(() => {
-      // Add some random fluctuation to rates (±2%) to simulate market movement
+    
+    try {
+      // Get the pair we need to focus on first
+      const fromId = coinGeckoMapping[fromCurrency.toLowerCase()] || fromCurrency.toLowerCase();
+      const toId = coinGeckoMapping[toCurrency.toLowerCase()] || toCurrency.toLowerCase();
+      
+      // Get specific pair price
+      let pairUpdated = false;
+      
+      // Attempt to get direct pair price first
+      if (fromCurrency !== toCurrency) {
+        try {
+          const directPriceData = await getCoinPrice(fromId, toCurrency.toLowerCase());
+          
+          if (directPriceData && directPriceData[fromId] && 
+              directPriceData[fromId][toCurrency.toLowerCase()]) {
+              
+            // Direct price found
+            const directRate = directPriceData[fromId][toCurrency.toLowerCase()];
+            const updatedRates = { ...rates };
+            
+            if (!updatedRates[fromCurrency]) {
+              updatedRates[fromCurrency] = {};
+            }
+            
+            updatedRates[fromCurrency][toCurrency] = directRate;
+            
+            // Also update inverse rate
+            if (!updatedRates[toCurrency]) {
+              updatedRates[toCurrency] = {};
+            }
+            
+            updatedRates[toCurrency][fromCurrency] = 1 / directRate;
+            
+            setRates(updatedRates);
+            pairUpdated = true;
+          }
+        } catch (error) {
+          console.log("Could not fetch direct pair price, falling back to USD conversion");
+        }
+      }
+      
+      // If direct pair failed, try via USD
+      if (!pairUpdated && fromCurrency !== toCurrency) {
+        // Fetch individual USD prices
+        const fromPriceData = await getCoinPrice(fromId, 'usd');
+        const toPriceData = await getCoinPrice(toId, 'usd');
+        
+        if (fromPriceData && fromPriceData[fromId] && fromPriceData[fromId].usd &&
+            toPriceData && toPriceData[toId] && toPriceData[toId].usd) {
+            
+          const fromUsdPrice = fromPriceData[fromId].usd;
+          const toUsdPrice = toPriceData[toId].usd;
+          
+          // Calculate cross rate
+          const crossRate = fromUsdPrice / toUsdPrice;
+          
+          const updatedRates = { ...rates };
+          
+          // Ensure objects exist
+          if (!updatedRates[fromCurrency]) {
+            updatedRates[fromCurrency] = {};
+          }
+          
+          updatedRates[fromCurrency][toCurrency] = crossRate;
+          
+          // Also update inverse rate
+          if (!updatedRates[toCurrency]) {
+            updatedRates[toCurrency] = {};
+          }
+          
+          updatedRates[toCurrency][fromCurrency] = 1 / crossRate;
+          
+          setRates(updatedRates);
+          pairUpdated = true;
+        }
+      }
+      
+      // As fallback, fetch fresh rates for all currencies if specific pair update failed
+      if (!pairUpdated) {
+        const topCoinsData = await getTopCoins('usd', 50);
+        
+        if (topCoinsData && topCoinsData.length > 0) {
+          // Process the rates
+          const usdRates: Record<string, number> = {};
+          const updatedRates = { ...rates };
+          
+          // Extract USD prices
+          topCoinsData.forEach(coin => {
+            const symbol = coin.symbol.toUpperCase();
+            if (supportedCryptos.includes(symbol)) {
+              usdRates[symbol] = coin.current_price;
+            }
+          });
+          
+          // Add special handling for USDT which should be 1:1 with USD
+          usdRates['USDT'] = 1;
+          
+          // Calculate cross rates
+          supportedCryptos.forEach(from => {
+            if (!updatedRates[from]) updatedRates[from] = {};
+            
+            supportedCryptos.forEach(to => {
+              if (from !== to) {
+                if (usdRates[from] && usdRates[to]) {
+                  // Calculate cross rate through USD
+                  updatedRates[from][to] = usdRates[from] / usdRates[to];
+                }
+              }
+            });
+          });
+          
+          setRates(updatedRates);
+        } else {
+          throw new Error("Failed to fetch rates");
+        }
+      }
+      
+      // Update conversion with new rates
+      handleConvert();
+      setTimeLeft(18);
+      
+      toast({
+        title: "Rates Updated",
+        description: "Live exchange rates have been refreshed",
+      });
+    } catch (error) {
+      console.error('Error refreshing rates:', error);
+      
+      // Fallback to small random changes if API fails
       const updatedRates = { ...rates };
-
+      
       supportedCryptos.forEach(fromCrypto => {
+        if (!updatedRates[fromCrypto]) return;
+        
         supportedCryptos.forEach(toCrypto => {
-          if (fromCrypto !== toCrypto && rates[fromCrypto] && rates[fromCrypto][toCrypto]) {
-            const currentRate = rates[fromCrypto][toCrypto];
-            const fluctuation = currentRate * (0.98 + Math.random() * 0.04); // Random between -2% and +2%
+          if (fromCrypto !== toCrypto && updatedRates[fromCrypto] && updatedRates[fromCrypto][toCrypto]) {
+            const currentRate = updatedRates[fromCrypto][toCrypto];
+            const fluctuation = currentRate * (0.99 + Math.random() * 0.02); // Random between -1% and +1%
             updatedRates[fromCrypto][toCrypto] = fluctuation;
           }
         });
       });
-
+      
       setRates(updatedRates);
       handleConvert();
-      setTimeLeft(18);
-      setIsLoading(false);
-
+      
       toast({
-        title: "Rates Updated",
-        description: "Exchange rates have been refreshed",
+        title: "Rate Update Fallback",
+        description: "Using estimated rates due to API limitations",
+        variant: "destructive",
       });
-    }, 800);
+    } finally {
+      setIsLoading(false);
+      setTimeLeft(18);
+    }
   };
 
   const executeConversion = async () => {
@@ -480,7 +692,15 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
     <Card className="bg-[#0F1115] border-gray-800 rounded-lg shadow-md">
       <CardHeader className="pb-2">
         <CardTitle className="text-xl font-semibold text-white">Convert {fromCurrency} to {toCurrency}</CardTitle>
-        <p className="text-xs text-gray-400 mt-1">Instant Conversion | Real-Time Rates | Rate locked for {timeLeft}s</p>
+        <p className="text-xs text-gray-400 mt-1">
+          Instant Conversion | 
+          <span className="text-green-400"> Live CoinGecko Rates</span> | 
+          {isRatesLoading ? (
+            <span className="text-amber-400"> Loading rates...</span>
+          ) : (
+            <span> Rate locked for {timeLeft}s</span>
+          )}
+        </p>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -584,7 +804,8 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
             <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-3 text-xs space-y-1">
               <div className="flex justify-between text-white">
                 <span>Rate:</span>
-                <span>1 {fromCurrency} = {rates[fromCurrency][toCurrency].toFixed(4)} {toCurrency}</span>
+                <span>1 {fromCurrency} = {rates[fromCurrency]?.[toCurrency] ? rates[fromCurrency][toCurrency].toFixed(4) : '...'} {toCurrency}</span>
+                {isRatesLoading && <span className="text-amber-400 text-xs ml-1">(updating)</span>}
               </div>
               <div className="flex justify-between text-white">
                 <span>Network Fee:</span>
@@ -616,7 +837,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
             className="w-full border border-gray-700 text-white hover:bg-gray-800 rounded-full h-12"
             disabled={isLoading}
           >
-            {isLoading ? "Refreshing..." : "Refresh Rate"}
+            {isLoading ? "Refreshing..." : isRatesLoading ? "Loading Rates..." : "Refresh Live Rates"}
           </Button>
         </div>
       </CardContent>
