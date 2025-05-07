@@ -15,6 +15,8 @@ const timeRanges = [
 ];
 
 export function PortfolioAnalytics() {
+  // Add CSS transition class to smooth out any layout changes
+  const transitionClass = "transition-all duration-300 ease-in-out";
   const [timeRange, setTimeRange] = useState('24h');
   const [isLoading, setIsLoading] = useState(true);
   const [assetPrices, setAssetPrices] = useState<Record<string, number>>({});
@@ -264,36 +266,38 @@ export function PortfolioAnalytics() {
     const data = portfolioData.performance[timeframe as keyof typeof portfolioData.performance];
     
     return (
-      <Card className="bg-background/40 backdrop-blur-lg border-white/10">
+      <Card className={`bg-background/40 backdrop-blur-lg border-white/10 ${transitionClass}`}>
         <CardContent className="p-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium text-white">{timeframe} Performance</h3>
-            {isLoading ? (
-              <div className="w-5 h-5 bg-white/10 animate-pulse rounded-full"></div>
-            ) : (
-              data.isPositive ? 
-                <TrendingUp className="w-5 h-5 text-green-500" /> : 
-                <TrendingDown className="w-5 h-5 text-red-500" />
-            )}
+            <div className="h-5 w-5 flex items-center justify-center">
+              {isLoading ? (
+                <div className="w-5 h-5 bg-white/10 animate-pulse rounded-full"></div>
+              ) : (
+                data.isPositive ? 
+                  <TrendingUp className="w-5 h-5 text-green-500" /> : 
+                  <TrendingDown className="w-5 h-5 text-red-500" />
+              )}
+            </div>
           </div>
-          <div className="text-3xl font-bold mb-2 text-white">
+          <div className="h-8 mb-2 flex items-center">
             {isLoading ? (
               <div className="w-24 h-8 bg-white/10 animate-pulse rounded"></div>
             ) : (
-              `$${Math.abs(data.value).toFixed(2)}`
+              <div className="text-3xl font-bold text-white">${Math.abs(data.value).toFixed(2)}</div>
             )}
           </div>
-          <div className={`flex items-center ${data.isPositive ? 'text-green-500' : 'text-red-500'}`}>
+          <div className="h-4 flex items-center">
             {isLoading ? (
               <div className="w-16 h-4 bg-white/10 animate-pulse rounded"></div>
             ) : (
-              <>
+              <div className={`flex items-center ${data.isPositive ? 'text-green-500' : 'text-red-500'}`}>
                 {data.isPositive ? 
                   <ArrowUpRight className="w-4 h-4 mr-1" /> : 
                   <ArrowDownRight className="w-4 h-4 mr-1" />
                 }
                 <span>{data.isPositive ? '+' : '-'}{Math.abs(data.percent).toFixed(2)}%</span>
-              </>
+              </div>
             )}
           </div>
         </CardContent>
@@ -325,28 +329,32 @@ export function PortfolioAnalytics() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <div>
+              <div className="min-h-[100px]">
                 <p className="text-white/70">Total Portfolio Value</p>
-                {isLoading ? (
-                  <div className="w-36 h-10 bg-white/10 animate-pulse rounded my-2"></div>
-                ) : (
-                  <h2 className="text-3xl font-bold">${portfolioData.current.toFixed(2)}</h2>
-                )}
-                {isLoading ? (
-                  <div className="w-28 h-5 bg-white/10 animate-pulse rounded"></div>
-                ) : (
-                  <div className={`flex items-center ${portfolioData.isPositive ? 'text-green-500' : 'text-red-500'}`}>
-                    {portfolioData.isPositive ? 
-                      <ArrowUpRight className="w-4 h-4 mr-1" /> : 
-                      <ArrowDownRight className="w-4 h-4 mr-1" />
-                    }
-                    <span>
-                      {portfolioData.isPositive ? '+' : '-'}
-                      ${Math.abs(portfolioData.change).toFixed(2)} 
-                      ({Math.abs(portfolioData.changePercent).toFixed(2)}%)
-                    </span>
-                  </div>
-                )}
+                <div className="h-10 my-2">
+                  {isLoading ? (
+                    <div className="w-36 h-10 bg-white/10 animate-pulse rounded"></div>
+                  ) : (
+                    <h2 className="text-3xl font-bold">${portfolioData.current.toFixed(2)}</h2>
+                  )}
+                </div>
+                <div className="h-5">
+                  {isLoading ? (
+                    <div className="w-28 h-5 bg-white/10 animate-pulse rounded"></div>
+                  ) : (
+                    <div className={`flex items-center ${portfolioData.isPositive ? 'text-green-500' : 'text-red-500'}`}>
+                      {portfolioData.isPositive ? 
+                        <ArrowUpRight className="w-4 h-4 mr-1" /> : 
+                        <ArrowDownRight className="w-4 h-4 mr-1" />
+                      }
+                      <span>
+                        {portfolioData.isPositive ? '+' : '-'}
+                        ${Math.abs(portfolioData.change).toFixed(2)} 
+                        ({Math.abs(portfolioData.changePercent).toFixed(2)}%)
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center">
                 <DollarSign className="w-8 h-8 text-accent" />
@@ -355,40 +363,46 @@ export function PortfolioAnalytics() {
             
             <div>
               <h3 className="text-lg font-medium mb-4">Asset Allocation</h3>
-              {isLoading ? (
-                <div className="space-y-3">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="flex items-center justify-between">
-                      <div className="w-24 h-5 bg-white/10 animate-pulse rounded"></div>
-                      <div className="w-28 h-5 bg-white/10 animate-pulse rounded"></div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {portfolioData.allocation.map((asset) => (
-                    <div key={asset.symbol} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: asset.color }}></div>
-                        <span>{asset.name} ({asset.symbol})</span>
+              <div className="min-h-[160px]">
+                {isLoading ? (
+                  <div className="space-y-3">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="flex items-center justify-between h-8">
+                        <div className="w-24 h-5 bg-white/10 animate-pulse rounded"></div>
+                        <div className="w-28 h-5 bg-white/10 animate-pulse rounded"></div>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <span className="text-white/70">{asset.percent}%</span>
-                        <span>${asset.value.toFixed(2)}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {portfolioData.allocation.length > 0 ? (
+                      portfolioData.allocation.map((asset) => (
+                        <div key={asset.symbol} className="flex items-center justify-between h-8">
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: asset.color }}></div>
+                            <span>{asset.name} ({asset.symbol})</span>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <span className="text-white/70">{asset.percent}%</span>
+                            <span>${asset.value.toFixed(2)}</span>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-white/50 text-center pt-4">No assets found</div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           
           <div className="space-y-6">
-            <div className="flex items-center justify-center h-56">
+            <div className={`flex items-center justify-center h-56 ${transitionClass}`}>
               {isLoading ? (
                 <div className="w-36 h-36 bg-white/10 animate-pulse rounded-full"></div>
               ) : (
-                <div className="w-36 h-36 rounded-full border-8 border-accent/30 flex items-center justify-center relative">
+                <div className={`w-36 h-36 rounded-full border-8 border-accent/30 flex items-center justify-center relative ${transitionClass}`}>
                   {portfolioData.allocation.length === 0 ? (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <PieChart className="w-12 h-12 text-white/70" />
@@ -411,20 +425,20 @@ export function PortfolioAnalytics() {
             
             <div className="grid grid-cols-2 gap-4">
               {renderPerformanceCard(timeRange)}
-              <Card className="bg-background/40 backdrop-blur-lg border-white/10">
+              <Card className={`bg-background/40 backdrop-blur-lg border-white/10 ${transitionClass}`}>
                 <CardContent className="p-6">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-medium text-white">Total Assets</h3>
                     <PieChart className="w-5 h-5 text-white/70" />
                   </div>
-                  <div className="text-3xl font-bold mb-2 text-white">
+                  <div className="h-8 mb-2 flex items-center">
                     {isLoading ? (
                       <div className="w-8 h-8 bg-white/10 animate-pulse rounded"></div>
                     ) : (
-                      portfolioData.allocation.length
+                      <div className="text-3xl font-bold text-white">{portfolioData.allocation.length}</div>
                     )}
                   </div>
-                  <div className="text-white/70">
+                  <div className="h-5 text-white/70">
                     {portfolioData.allocation.length > 3 ? 'Diversified Portfolio' : 'Building Portfolio'}
                   </div>
                 </CardContent>
