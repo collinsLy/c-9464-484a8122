@@ -15,6 +15,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { auth, db } from "@/lib/firebase";
 import { collection, query, where, onSnapshot, orderBy, limit, Timestamp, doc, updateDoc } from "firebase/firestore";
 import { NotificationService } from "@/lib/notification-service";
+import { PortfolioAnalytics } from "@/components/dashboard/PortfolioAnalytics"; // Added import
+
 
 const Dashboard = () => {
   const [selectedSymbol, setSelectedSymbol] = useState("BTCUSD");
@@ -25,7 +27,7 @@ const Dashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   // Check for welcome notification flag on component mount
   useEffect(() => {
     const showWelcome = localStorage.getItem('showWelcome');
@@ -38,25 +40,25 @@ const Dashboard = () => {
       // Remove the flag so notification doesn't show again on refresh
       localStorage.removeItem('showWelcome');
     }
-    
+
     // Request notification permissions
     if (!permissionRequested.current) {
       NotificationService.requestPermission();
       permissionRequested.current = true;
     }
   }, []);
-  
+
   // Subscribe to notifications
   useEffect(() => {
     const userId = auth.currentUser?.uid;
     if (!userId) return;
-    
+
     // Clean up previous listener if it exists
     if (notificationListenerRef.current) {
       notificationListenerRef.current();
       notificationListenerRef.current = null;
     }
-    
+
     // Listen for new notifications
     const notificationsQuery = query(
       collection(db, 'notifications'),
@@ -65,13 +67,13 @@ const Dashboard = () => {
       orderBy('timestamp', 'desc'),
       limit(10)
     );
-    
+
     // Set up real-time listener
     notificationListenerRef.current = onSnapshot(notificationsQuery, (snapshot) => {
       snapshot.docChanges().forEach((change) => {
         if (change.type === 'added') {
           const notification = change.doc.data();
-          
+
           // Show notification for new incoming transfers
           if (notification.type === 'transfer') {
             NotificationService.notifyFundReceived(
@@ -84,20 +86,20 @@ const Dashboard = () => {
                 soundType: 'transfer'
               }
             );
-            
+
             // Mark the notification as read
             updateDoc(doc(db, 'notifications', change.doc.id), { isRead: true })
               .catch(error => console.error("Error marking notification as read:", error));
           }
         }
       });
-      
+
       // Update unread notifications flag
       setHasUnreadNotifications(snapshot.size > 0);
     }, (error) => {
       console.error("Error listening for notifications:", error);
     });
-    
+
     // Clean up on unmount
     return () => {
       if (notificationListenerRef.current) {
@@ -128,7 +130,7 @@ const Dashboard = () => {
     } else if (activeTab === "dashboard" && currentTab) {
       navigate('/dashboard', { replace: true });
     }
-    
+
     // Debug
     console.log("Current active tab:", activeTab);
   }, [activeTab, location.search, navigate]);
@@ -140,9 +142,6 @@ const Dashboard = () => {
         return (
           <>
             {/* Account Overview Cards */}
-            <AccountOverview />
-
-            {/* Market Chart and Assets Grid */}
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
               <div className="xl:col-span-3">
                 <MarketChart 
@@ -156,6 +155,7 @@ const Dashboard = () => {
                 <AssetsList />
               </div>
             </div>
+            <PortfolioAnalytics /> {/* Added PortfolioAnalytics */}
           </>
         );
 

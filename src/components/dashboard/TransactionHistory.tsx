@@ -450,7 +450,11 @@ function TransactionHistory() {
                               alt={transaction.fromAsset || 'USDT'} 
                               className="w-5 h-5"
                               onError={(e) => {
-                                e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
+                                // Replace the image with a span displaying the currency code
+                                const span = document.createElement('span');
+                                span.textContent = transaction.fromAsset || 'UNKNOWN';
+                                span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                                e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                               }}
                             />
                             <span className="mx-1">{transaction.fromAsset || 'USDT'}</span>
@@ -462,7 +466,11 @@ function TransactionHistory() {
                               alt={transaction.toAsset || 'BTC'} 
                               className="w-5 h-5"
                               onError={(e) => {
-                                e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
+                                // Replace the image with a span displaying the currency code
+                                const span = document.createElement('span');
+                                span.textContent = transaction.toAsset || 'UNKNOWN';
+                                span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                                e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                               }}
                             />
                             <span className="mx-1">{transaction.toAsset || 'BTC'}</span>
@@ -475,7 +483,11 @@ function TransactionHistory() {
                             alt={transaction.details.crypto} 
                             className="w-5 h-5"
                             onError={(e) => {
-                              e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
+                              // Replace the image with a span displaying the currency code
+                              const span = document.createElement('span');
+                              span.textContent = transaction.details.crypto || 'UNKNOWN';
+                              span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                              e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                             }}
                           />
                           <span>{transaction.details.crypto}</span>
@@ -487,7 +499,11 @@ function TransactionHistory() {
                             alt={transaction.details.crypto} 
                             className="w-5 h-5"
                             onError={(e) => {
-                              e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
+                              // Replace the image with a span displaying the currency code
+                              const span = document.createElement('span');
+                              span.textContent = transaction.details.crypto || 'UNKNOWN';
+                              span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                              e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                             }}
                           />
                           <span>{transaction.details.crypto}</span>
@@ -540,7 +556,11 @@ function TransactionHistory() {
                                   } else if (detectedCrypto === 'WLD') {
                                     e.currentTarget.src = "/favicon.svg";
                                   } else {
-                                    e.currentTarget.src = "/favicon.svg";
+                                    // Replace the image with a span displaying the currency code
+                                    const span = document.createElement('span');
+                                    span.textContent = detectedCrypto || 'UNKNOWN';
+                                    span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                                    e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                                   }
                                 }}
                               />
@@ -555,7 +575,11 @@ function TransactionHistory() {
                             alt={transaction.asset || 'USDT'} 
                             className="w-5 h-5"
                             onError={(e) => {
-                              e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
+                              // Replace the image with a span displaying the currency code
+                              const span = document.createElement('span');
+                              span.textContent = transaction.asset || 'UNKNOWN';
+                              span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                              e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                             }}
                           />
                           {transaction.asset || 'USDT'}
@@ -727,7 +751,11 @@ function TransactionHistory() {
                                         alt="1inch" 
                                         className="w-5 h-5" 
                                         onError={(e) => {
-                                          e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
+                                          // Replace the image with a span displaying the currency code
+                                          const span = document.createElement('span');
+                                          span.textContent = '1inch (Ethereum)';
+                                          span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                                          e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                                         }}
                                       />
                                       <span>1inch (Ethereum)</span>
@@ -741,7 +769,11 @@ function TransactionHistory() {
                                         alt="Uniswap" 
                                         className="w-5 h-5" 
                                         onError={(e) => {
-                                          e.currentTarget.src = "https://assets.coingecko.com/coins/images/12504/small/uniswap-uni.png";
+                                          // Replace the image with a span displaying the currency code
+                                          const span = document.createElement('span');
+                                          span.textContent = 'Uniswap (Ethereum)';
+                                          span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                                          e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                                         }}
                                       />
                                       <span>Uniswap (Ethereum)</span>
@@ -759,7 +791,11 @@ function TransactionHistory() {
                                       alt="PancakeSwap" 
                                       className="w-5 h-5" 
                                       onError={(e) => {
-                                        e.currentTarget.src = "https://assets.coingecko.com/coins/images/12632/small/pancakeswap-cake-logo.png";
+                                        // Replace the image with a span displaying the currency code
+                                        const span = document.createElement('span');
+                                        span.textContent = 'PancakeSwap (BSC)';
+                                        span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                                        e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                                       }}
                                     />
                                     <span>PancakeSwap (BSC)</span>
@@ -777,7 +813,11 @@ function TransactionHistory() {
                                       alt="Jupiter" 
                                       className="w-5 h-5" 
                                       onError={(e) => {
-                                        e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
+                                        // Replace the image with a span displaying the currency code
+                                        const span = document.createElement('span');
+                                        span.textContent = 'Jupiter (Solana)';
+                                        span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                                        e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                                       }}
                                     />
                                     <span>Jupiter (Solana)</span>
@@ -794,7 +834,11 @@ function TransactionHistory() {
                                       alt="Thorchain" 
                                       className="w-5 h-5" 
                                       onError={(e) => {
-                                        e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
+                                        // Replace the image with a span displaying the currency code
+                                        const span = document.createElement('span');
+                                        span.textContent = 'Thorchain (Cross-chain)';
+                                        span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                                        e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                                       }}
                                     />
                                     <span>Thorchain (Cross-chain)</span>
@@ -811,7 +855,11 @@ function TransactionHistory() {
                                       alt="Curve" 
                                       className="w-5 h-5" 
                                       onError={(e) => {
-                                        e.currentTarget.src = "https://assets.coingecko.com/coins/images/12124/small/Curve.png";
+                                        // Replace the image with a span displaying the currency code
+                                        const span = document.createElement('span');
+                                        span.textContent = 'Curve Finance';
+                                        span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                                        e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                                       }}
                                     />
                                     <span>Curve Finance</span>
@@ -827,7 +875,11 @@ function TransactionHistory() {
                                       alt="Uniswap" 
                                       className="w-5 h-5" 
                                       onError={(e) => {
-                                        e.currentTarget.src = "https://assets.coingecko.com/coins/images/4713/small/polygon.png";
+                                        // Replace the image with a span displaying the currency code
+                                        const span = document.createElement('span');
+                                        span.textContent = `Uniswap (${network.includes('ARBITRUM') ? 'Arbitrum' : 'Polygon'})`;
+                                        span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                                        e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                                       }}
                                     />
                                     <span>Uniswap ({network.includes('ARBITRUM') ? 'Arbitrum' : 'Polygon'})</span>
@@ -843,7 +895,11 @@ function TransactionHistory() {
                                       alt="DEX" 
                                       className="w-5 h-5" 
                                       onError={(e) => {
-                                        e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
+                                        // Replace the image with a span displaying the currency code
+                                        const span = document.createElement('span');
+                                        span.textContent = 'DEX';
+                                        span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                                        e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                                       }}
                                     />
                                     <span>DEX</span>
@@ -881,6 +937,13 @@ function TransactionHistory() {
                                 src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/eth.svg" 
                                 alt="Ethereum" 
                                 className="w-5 h-5" 
+                                onError={(e) => {
+                                  // Replace the image with a span displaying the currency code
+                                  const span = document.createElement('span');
+                                  span.textContent = 'Ethereum';
+                                  span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                                  e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
+                                }}
                               />
                             )}
                             {transaction.network && transaction.network.includes('TRC20') && (
@@ -888,6 +951,13 @@ function TransactionHistory() {
                                 src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/trx.svg" 
                                 alt="Tron" 
                                 className="w-5 h-5" 
+                                onError={(e) => {
+                                  // Replace the image with a span displaying the currency code
+                                  const span = document.createElement('span');
+                                  span.textContent = 'Tron';
+                                  span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                                  e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
+                                }}
                               />
                             )}
                             {transaction.network && transaction.network.includes('BSC') && (
@@ -895,6 +965,13 @@ function TransactionHistory() {
                                 src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/bnb.svg" 
                                 alt="BSC" 
                                 className="w-5 h-5" 
+                                onError={(e) => {
+                                  // Replace the image with a span displaying the currency code
+                                  const span = document.createElement('span');
+                                  span.textContent = 'BSC';
+                                  span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                                  e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
+                                }}
                               />
                             )}
                             {transaction.network && (transaction.network.includes('SOLANA') || transaction.network.includes('SOL')) && (
@@ -902,6 +979,13 @@ function TransactionHistory() {
                                 src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/sol.svg" 
                                 alt="Solana" 
                                 className="w-5 h-5" 
+                                onError={(e) => {
+                                  // Replace the image with a span displaying the currency code
+                                  const span = document.createElement('span');
+                                  span.textContent = 'Solana';
+                                  span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                                  e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
+                                }}
                               />
                             )}
                             {transaction.network && transaction.network === 'NATIVE' && transaction.asset === 'BTC' && (
@@ -909,6 +993,13 @@ function TransactionHistory() {
                                 src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/btc.svg" 
                                 alt="BTC" 
                                 className="w-5 h-5" 
+                                onError={(e) => {
+                                  // Replace the image with a span displaying the currency code
+                                  const span = document.createElement('span');
+                                  span.textContent = 'BTC';
+                                  span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                                  e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
+                                }}
                               />
                             )}
                             <span>{transaction.network}</span>
@@ -974,7 +1065,11 @@ function TransactionHistory() {
                           alt={selectedTransaction.fromAsset || 'USDT'} 
                           className="w-5 h-5"
                           onError={(e) => {
-                            e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
+                            // Replace the image with a span displaying the currency code
+                            const span = document.createElement('span');
+                            span.textContent = selectedTransaction.fromAsset || 'UNKNOWN';
+                            span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                            e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                           }}
                         />
                         <span className="mx-1">{selectedTransaction.fromAsset || 'USDT'}</span>
@@ -986,7 +1081,11 @@ function TransactionHistory() {
                           alt={selectedTransaction.toAsset || 'BTC'} 
                           className="w-5 h-5"
                           onError={(e) => {
-                            e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
+                            // Replace the image with a span displaying the currency code
+                            const span = document.createElement('span');
+                            span.textContent = selectedTransaction.toAsset || 'UNKNOWN';
+                            span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                            e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                           }}
                         />
                         <span className="mx-1">{selectedTransaction.toAsset || 'BTC'}</span>
@@ -999,7 +1098,11 @@ function TransactionHistory() {
                         alt={selectedTransaction.details.crypto} 
                         className="w-5 h-5"
                         onError={(e) => {
-                          e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
+                          // Replace the image with a span displaying the currency code
+                          const span = document.createElement('span');
+                          span.textContent = selectedTransaction.details.crypto || 'UNKNOWN';
+                          span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                          e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                         }}
                       />
                       {selectedTransaction.details.crypto} ({selectedTransaction.details.amount})
@@ -1053,7 +1156,11 @@ function TransactionHistory() {
                                 } else if (detectedCrypto === 'WLD') {
                                   e.currentTarget.src = "/favicon.svg";
                                 } else {
-                                  e.currentTarget.src = "/favicon.svg";
+                                  // Replace the image with a span displaying the currency code
+                                  const span = document.createElement('span');
+                                  span.textContent = detectedCrypto || 'UNKNOWN';
+                                  span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                                  e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                                 }
                               }}
                             />
@@ -1068,7 +1175,11 @@ function TransactionHistory() {
                           alt={selectedTransaction.metadata.crypto} 
                           className="w-5 h-5"
                           onError={(e) => {
-                            e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
+                            // Replace the image with a span displaying the currency code
+                            const span = document.createElement('span');
+                            span.textContent = selectedTransaction.metadata.crypto || 'UNKNOWN';
+                            span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                            e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                           }}
                         />
                         {selectedTransaction.metadata.crypto}
@@ -1080,7 +1191,11 @@ function TransactionHistory() {
                           alt={selectedTransaction.details.crypto} 
                           className="w-5 h-5"
                           onError={(e) => {
-                            e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
+                            // Replace the image with a span displaying the currency code
+                            const span = document.createElement('span');
+                            span.textContent = selectedTransaction.details.crypto || 'UNKNOWN';
+                            span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                            e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                           }}
                         />
                         {selectedTransaction.details.crypto}
@@ -1092,7 +1207,11 @@ function TransactionHistory() {
                           alt={selectedTransaction.asset || 'USDT'} 
                           className="w-5 h-5"
                           onError={(e) => {
-                            e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
+                            // Replace the image with a span displaying the currency code
+                            const span = document.createElement('span');
+                            span.textContent = selectedTransaction.asset || 'UNKNOWN';
+                            span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                            e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                           }}
                         />
                         {selectedTransaction.asset || 'USDT'}
@@ -1199,19 +1318,59 @@ function TransactionHistory() {
                     ) : selectedTransaction.network ? (
                       <>
                         {selectedTransaction.network && selectedTransaction.network.includes('ERC20') && (
-                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/eth.svg" alt="ETH" className="w-5 h-5" />
+                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/eth.svg" alt="ETH" className="w-5 h-5" 
+                          onError={(e) => {
+                            // Replace the image with a span displaying the currency code
+                            const span = document.createElement('span');
+                            span.textContent = 'ETH';
+                            span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                            e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
+                          }}
+                          />
                         )}
                         {selectedTransaction.network && selectedTransaction.network.includes('TRC20') && (
-                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/trx.svg" alt="TRX" className="w-5 h-5" />
+                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/trx.svg" alt="TRX" className="w-5 h-5" 
+                          onError={(e) => {
+                            // Replace the image with a span displaying the currency code
+                            const span = document.createElement('span');
+                            span.textContent = 'TRX';
+                            span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                            e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
+                          }}
+                          />
                         )}
                         {selectedTransaction.network && selectedTransaction.network.includes('BSC') && (
-                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/bnb.svg" alt="BNB" className="w-5 h-5" />
+                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/bnb.svg" alt="BNB" className="w-5 h-5" 
+                          onError={(e) => {
+                            // Replace the image with a span displaying the currency code
+                            const span = document.createElement('span');
+                            span.textContent = 'BNB';
+                            span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                            e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
+                          }}
+                          />
                         )}
                         {selectedTransaction.network && (selectedTransaction.network.includes('SOLANA') || selectedTransaction.network.includes('SOL')) && (
-                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/sol.svg" alt="SOL" className="w-5 h-5" />
+                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/sol.svg" alt="SOL" className="w-5 h-5" 
+                          onError={(e)=> {
+                            // Replace the image with a span displaying the currency code
+                            const span = document.createElement('span');
+                            span.textContent = 'SOL';
+                            span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                            e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
+                          }}
+                          />
                         )}
                         {selectedTransaction.network && selectedTransaction.network === 'NATIVE' && selectedTransaction.asset === 'BTC' && (
-                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/btc.svg" alt="BTC" className="w-5 h-5" />
+                          <img src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/btc.svg" alt="BTC" className="w-5 h-5" 
+                          onError={(e) => {
+                            // Replace the image with a span displaying the currency code
+                            const span = document.createElement('span');
+                            span.textContent = 'BTC';
+                            span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
+                            e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
+                          }}
+                          />
                         )}
                         <span>{selectedTransaction.network}</span>
                       </>

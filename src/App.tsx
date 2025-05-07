@@ -16,9 +16,10 @@ import BotsPage from "./pages/BotsPage";
 import DepositPage from "./pages/DepositPage";
 import StrategiesPage from "./pages/StrategiesPage";
 import SupportPage from "./pages/SupportPage";
-
 import WithdrawPage from "./pages/WithdrawPage";
 import ReferralsPage from "./pages/ReferralsPage";
+import AlertsPage from "./pages/AlertsPage";
+import SocialTradingPage from "./pages/SocialTradingPage";
 
 // Configure query client to not show error toasts
 const queryClient = new QueryClient({
@@ -55,6 +56,8 @@ const App = () => (
               <Route path="/support" element={<ErrorBoundary><SupportPage /></ErrorBoundary>} />
               <Route path="/withdraw" element={<ErrorBoundary><WithdrawPage /></ErrorBoundary>} />
               <Route path="/referrals" element={<ErrorBoundary><ReferralsPage /></ErrorBoundary>} />
+              <Route path="/alerts" element={<ErrorBoundary><AlertsPage /></ErrorBoundary>} />
+              <Route path="/social-trading" element={<ErrorBoundary><SocialTradingPage /></ErrorBoundary>} />
             </Routes>
           </DashboardProvider>
         </BrowserRouter>
