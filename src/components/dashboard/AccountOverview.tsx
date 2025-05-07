@@ -18,6 +18,62 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   const [profitLossPercent, setProfitLossPercent] = useState(0);
   const [totalBalance, setTotalBalance] = useState(0);
   const [dailyChange, setDailyChange] = useState(0.00); // Added for daily performance
+  const [assetPrices, setAssetPrices] = useState<Record<string, number>>({});
+  const [userAssets, setUserAssets] = useState<Record<string, any>>({});
+
+  // Calculate total portfolio value with current prices
+  const calculatePortfolioValue = (assets: Record<string, any>, prices: Record<string, number>, usdtBalance: number) => {
+    // Always include USDT balance in the total
+    let total = usdtBalance;
+    
+    // Add value of all other assets
+    if (assets) {
+      Object.entries(assets).forEach(([symbol, data]) => {
+        if (symbol === 'USDT') return; // Skip USDT as it's already included in balance
+        const amount = data.amount || 0;
+        const price = prices[symbol] || 0;
+        const valueInUsdt = amount * price;
+        total += valueInUsdt;
+      });
+    }
+    
+    setTotalBalance(total);
+  };
+
+  // Fetch current prices for assets
+  useEffect(() => {
+    const fetchPrices = async () => {
+      try {
+        // Get symbols from assets to fetch prices
+        const symbols = Object.keys(userAssets)
+          .filter(symbol => symbol !== 'USDT'); // Filter out USDT as we handle it separately
+        
+        if (symbols.length === 0) return;
+
+        const symbolsQuery = symbols.map(s => `${s}USDT`);
+        const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
+        const data = await response.json();
+        
+        const prices: Record<string, number> = {};
+        data.forEach((item: any) => {
+          const symbol = item.symbol.replace('USDT', '');
+          prices[symbol] = parseFloat(item.price);
+        });
+        // Add USDT itself with value of 1
+        prices['USDT'] = 1;
+        setAssetPrices(prices);
+        
+        // Recalculate portfolio value when prices update
+        calculatePortfolioValue(userAssets, prices, balance);
+      } catch (error) {
+        console.error('Error fetching asset prices:', error);
+      }
+    };
+
+    if (Object.keys(userAssets).length > 0) {
+      fetchPrices();
+    }
+  }, [userAssets, balance]);
 
   useEffect(() => {
     if (isDemoMode) {
@@ -54,7 +110,6 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
 
       const initialBalance = userData.initialBalance || parsedBalance;
       const totalPL = userData.totalProfitLoss || 0;
-      const assetsValue = userData.assetsValue || 0;
       
       // Get daily change (if available, otherwise default to 0)
       const dailyChangeValue = userData.dailyChange || 0;
@@ -66,9 +121,14 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         setTotalBalance(0);
       } else {
         setBalance(parsedBalance);
-        setTotalBalance(parsedBalance + assetsValue);
         setProfitLoss(totalPL);
         setProfitLossPercent(initialBalance > 0 ? (totalPL / initialBalance) * 100 : 0);
+        
+        // Store user assets for portfolio calculation
+        setUserAssets(userData.assets || {});
+        
+        // Calculate portfolio value including all assets
+        calculatePortfolioValue(userData.assets || {}, assetPrices, parsedBalance);
       }
 
       setIsLoading(false);
@@ -77,7 +137,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
     return () => {
       unsubscribe();
     };
-  }, [isDemoMode]);
+  }, [isDemoMode, assetPrices]);
 
   const handleDeposit = () => {
     if (isDemoMode) {
