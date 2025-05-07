@@ -1048,8 +1048,10 @@ function TransactionHistory() {
                                   e.currentTarget.src = "https://assets.coingecko.com/coins/images/279/small/ethereum.png";
                                 } else if (detectedCrypto === 'SOL') {
                                   e.currentTarget.src = "https://assets.coingecko.com/coins/images/4128/small/solana.png";
+                                } else if (detectedCrypto === 'WLD') {
+                                  e.currentTarget.src = "/favicon.svg";
                                 } else {
-                                  e.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Worldcoin_Logo.png/960px-Worldcoin_Logo.png?20230810200406";
+                                  e.currentTarget.src = "/favicon.svg";
                                 }
                               }}
                             />
