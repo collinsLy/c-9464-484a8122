@@ -1,4 +1,3 @@
-
 import { ArrowUp, ArrowDown } from "lucide-react"; 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,7 +24,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   const calculatePortfolioValue = (assets: Record<string, any>, prices: Record<string, number>, usdtBalance: number) => {
     // Always include USDT balance in the total
     let total = usdtBalance;
-    
+
     // Add value of all other assets
     if (assets) {
       Object.entries(assets).forEach(([symbol, data]) => {
@@ -36,7 +35,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         total += valueInUsdt;
       });
     }
-    
+
     setTotalBalance(total);
   };
 
@@ -47,13 +46,13 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         // Get symbols from assets to fetch prices
         const symbols = Object.keys(userAssets)
           .filter(symbol => symbol !== 'USDT'); // Filter out USDT as we handle it separately
-        
+
         if (symbols.length === 0) return;
 
         const symbolsQuery = symbols.map(s => `${s}USDT`);
         const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
         const data = await response.json();
-        
+
         const prices: Record<string, number> = {};
         data.forEach((item: any) => {
           const symbol = item.symbol.replace('USDT', '');
@@ -62,7 +61,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         // Add USDT itself with value of 1
         prices['USDT'] = 1;
         setAssetPrices(prices);
-        
+
         // Recalculate portfolio value when prices update
         calculatePortfolioValue(userAssets, prices, balance);
       } catch (error) {
@@ -71,7 +70,8 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
     };
 
     if (Object.keys(userAssets).length > 0) {
-      fetchPrices();
+      const debounceTimer = setTimeout(fetchPrices, 1000);
+      return () => clearTimeout(debounceTimer);
     }
   }, [userAssets, balance]);
 
@@ -110,7 +110,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
 
       const initialBalance = userData.initialBalance || parsedBalance;
       const totalPL = userData.totalProfitLoss || 0;
-      
+
       // Get daily change (if available, otherwise default to 0)
       const dailyChangeValue = userData.dailyChange || 0;
       setDailyChange(dailyChangeValue);
@@ -123,10 +123,10 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         setBalance(parsedBalance);
         setProfitLoss(totalPL);
         setProfitLossPercent(initialBalance > 0 ? (totalPL / initialBalance) * 100 : 0);
-        
+
         // Store user assets for portfolio calculation
         setUserAssets(userData.assets || {});
-        
+
         // Calculate portfolio value including all assets
         calculatePortfolioValue(userData.assets || {}, assetPrices, parsedBalance);
       }

@@ -73,42 +73,52 @@ export function PortfolioAnalytics() {
 
   // Fetch current prices for all assets
   useEffect(() => {
+    let isMounted = true;
     const fetchPrices = async () => {
       try {
-        // Get symbols from baseAssets array
         const symbols = baseAssets
           .map(asset => asset.symbol)
-          .filter(symbol => symbol !== 'USDT'); // Filter out USDT as we handle it separately
+          .filter(symbol => symbol !== 'USDT');
 
         const symbolsQuery = symbols.map(s => `${s}USDT`);
         const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
         const data = await response.json();
+
+        if (!isMounted) return;
 
         const prices: Record<string, number> = {};
         data.forEach((item: any) => {
           const symbol = item.symbol.replace('USDT', '');
           prices[symbol] = parseFloat(item.price);
         });
-        // Add USDT itself with value of 1
         prices['USDT'] = 1;
-        setAssetPrices(prices);
 
-        // Use setTimeout to debounce frequent updates and prevent UI flicker
-        setTimeout(() => {
-          // Calculate portfolio value when prices update
+        // Compare with previous prices to avoid unnecessary updates
+        const hasChanges = Object.entries(prices).some(
+          ([key, value]) => value !== assetPrices[key]
+        );
+
+        if (hasChanges) {
+          setAssetPrices(prices);
           calculatePortfolioValue(userAssets, prices);
+        }
+
+        if (isLoading) {
           setIsLoading(false);
-        }, 300);
+        }
       } catch (error) {
         console.error('Error fetching asset prices:', error);
       }
     };
 
     fetchPrices();
-    // Update prices every 30 seconds
-    const interval = setInterval(fetchPrices, 30000);
-    return () => clearInterval(interval);
-  }, [userAssets]);
+    const interval = setInterval(fetchPrices, 5000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [userAssets, isLoading]);
 
   // Calculate total portfolio value and update allocation data
   const calculatePortfolioValue = (assets: Record<string, any>, prices: Record<string, number>) => {
