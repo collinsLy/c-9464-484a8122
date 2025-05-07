@@ -3,6 +3,10 @@ import { doc, onSnapshot, updateDoc, getDoc, increment } from 'firebase/firestor
 import { db, auth } from './firebase';
 
 export class UserService {
+  static getCurrentUserId(): string | null {
+    const auth = getAuth();
+    return auth.currentUser?.uid || null;
+  }
   static subscribeToUserData(uid: string, callback: (userData: any) => void) {
     const userRef = doc(db, 'users', uid);
 
