@@ -31,7 +31,21 @@ const WithdrawPage = () => {
   const [walletAddress, setWalletAddress] = useState("");
   const [network, setNetwork] = useState("NATIVE");
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
-  const [userCryptoBalances, setUserCryptoBalances] = useState<Record<string, number>>({});
+  const [userCryptoBalances, setUserCryptoBalances] = useState<Record<string, number>>({
+    USDT: 0,
+    BTC: 0,
+    ETH: 0,
+    BNB: 0,
+    USDC: 0,
+    DOGE: 0,
+    SOL: 0,
+    XRP: 0,
+    WLD: 0,
+    ADA: 0,
+    DOT: 0,
+    LINK: 0,
+    MATIC: 0,
+  });
   const [accountDetails, setAccountDetails] = useState({
     bankName: "",
     accountNumber: "",
@@ -346,37 +360,50 @@ const WithdrawPage = () => {
 
       try {
         const userData = await UserService.getUserData(uid);
-
-        // Create a default balance object for all supported cryptocurrencies
-        const supportedCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB'];
+        
+        // Initialize balances object with defaults
+        const supportedCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'DOGE', 'SOL', 'XRP', 'WLD', 'ADA', 'DOT', 'LINK', 'MATIC'];
         const defaultBalances = supportedCryptos.reduce((acc, crypto) => {
           acc[crypto] = 0;
           return acc;
         }, {} as Record<string, number>);
 
-        // If user has assets, merge them with defaults
-        if (userData && userData.assets) {
-          // Log raw user assets for debugging
-          console.log("Raw user assets:", userData.assets);
+        // If user has assets, update with actual balances
+        if (userData) {
+          // First check for USDT in user's main balance (for backward compatibility)
+          if (typeof userData.balance === 'number') {
+            defaultBalances['USDT'] = userData.balance;
+          } else if (typeof userData.balance === 'string') {
+            defaultBalances['USDT'] = parseFloat(userData.balance) || 0;
+          }
+          
+          console.log("User USDT balance from main balance field:", defaultBalances['USDT']);
+          
+          // Then check assets
+          if (userData.assets) {
+            console.log("Raw user assets:", userData.assets);
 
-          // Process each asset and add to our balances object
-          Object.entries(userData.assets).forEach(([key, asset]: [string, any]) => {
-            if (asset && (typeof asset.amount === 'number' || typeof asset.amount === 'string')) {
-              // Convert to number if it's a string
-              defaultBalances[key] = Number(asset.amount);
+            // Process each asset
+            Object.entries(userData.assets).forEach(([key, asset]: [string, any]) => {
+              if (asset && (typeof asset.amount === 'number' || typeof asset.amount === 'string')) {
+                // Convert to number if it's a string
+                defaultBalances[key] = Number(asset.amount);
+              }
+            });
+
+            // Double-check USDT from assets (may override the balance field)
+            if (userData.assets.USDT) {
+              const usdtAmount = userData.assets.USDT.amount;
+              if (usdtAmount !== undefined) {
+                defaultBalances['USDT'] = Number(usdtAmount);
+                console.log("USDT amount from assets:", usdtAmount, "Converted:", defaultBalances['USDT']);
+              }
             }
-          });
-
-          // Ensure USDT is correctly processed
-          if (userData.assets.USDT) {
-            const usdtAmount = userData.assets.USDT.amount;
-            defaultBalances['USDT'] = Number(usdtAmount) || 0;
-            console.log("USDT amount specifically:", usdtAmount, "Converted:", defaultBalances['USDT']);
           }
 
           console.log("Processed crypto balances:", defaultBalances);
         } else {
-          console.log("No assets found in user data, using defaults");
+          console.log("No user data found, using defaults");
         }
 
         // Set the balances in state
@@ -392,25 +419,29 @@ const WithdrawPage = () => {
     const uid = localStorage.getItem('userId');
     if (uid) {
       const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
-        if (userData && userData.assets) {
-          const balances = Object.keys(userData.assets).reduce((acc, key) => {
-            acc[key] = userData.assets[key].amount || 0;
-            return acc;
-          }, {} as Record<string, number>);
-
-          // Always maintain all supported cryptocurrencies in the state
-          const supportedCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'DOGE', 'SOL', 'XRP', 'WLD', 'ADA', 'DOT', 'LINK', 'MATIC'];
-          const completeBalances = { ...balances };
-
-          supportedCryptos.forEach(crypto => {
-            if (completeBalances[crypto] === undefined) {
-              completeBalances[crypto] = 0;
+        if (!userData) return;
+        
+        // Create a new balances object
+        const updatedBalances = { ...userCryptoBalances };
+        
+        // Update USDT from main balance field
+        if (typeof userData.balance === 'number') {
+          updatedBalances['USDT'] = userData.balance;
+        } else if (typeof userData.balance === 'string') {
+          updatedBalances['USDT'] = parseFloat(userData.balance) || 0;
+        }
+        
+        // Update from assets if available
+        if (userData.assets) {
+          Object.entries(userData.assets).forEach(([key, asset]: [string, any]) => {
+            if (asset && (typeof asset.amount === 'number' || typeof asset.amount === 'string')) {
+              updatedBalances[key] = Number(asset.amount);
             }
           });
-
-          console.log("Updated crypto balances from subscription:", completeBalances);
-          setUserCryptoBalances(completeBalances);
         }
+
+        console.log("Updated crypto balances from subscription:", updatedBalances);
+        setUserCryptoBalances(updatedBalances);
       });
 
       return () => unsubscribe();
