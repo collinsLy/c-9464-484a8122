@@ -968,10 +968,11 @@ const WithdrawPage = () => {
 
       console.log(`Transaction ${transaction.txId} created, updated user data with:`, updateData);
 
-      // Update balances in state to reflect immediately in UI
+      // Calculate updated crypto amount and update balances in state to reflect immediately in UI
+      const updatedCryptoAmount = cryptoBalance - cryptoAmountValue;
       setUserCryptoBalances(prevBalances => ({
         ...prevBalances,
-        [selectedCrypto]: newCryptoAmount
+        [selectedCrypto]: Math.max(0, updatedCryptoAmount)
       }));
 
       // Immediately update to Processing

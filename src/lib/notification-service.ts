@@ -42,6 +42,42 @@ export class NotificationService {
     const permission = await Notification.requestPermission();
     return permission === 'granted';
   }
+  
+  // Send a withdrawal notification
+  static async sendWithdrawalNotification(userId: string, transaction: any): Promise<void> {
+    try {
+      // Play success sound
+      this.playSound('success');
+      
+      // Show toast notification
+      toast({
+        title: "Withdrawal Processing",
+        description: `Your withdrawal has been submitted and is being processed`,
+        variant: "success",
+        className: "notification-toast",
+      });
+      
+      // Show browser notification if permission granted
+      if (Notification.permission === 'granted') {
+        const cryptoAmount = transaction.cryptoAmount || null;
+        const cryptoType = transaction.crypto || null;
+        
+        if (cryptoAmount && cryptoType) {
+          new Notification('Withdrawal Processing', {
+            body: `Your withdrawal of ${cryptoAmount} ${cryptoType} is being processed`,
+            icon: '/favicon.svg'
+          });
+        } else {
+          new Notification('Withdrawal Processing', {
+            body: `Your withdrawal is being processed`,
+            icon: '/favicon.svg'
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error sending withdrawal notification:', error);
+    }
+  }
 
   // Show a notification for fund transfer
   static notifyFundReceived(
