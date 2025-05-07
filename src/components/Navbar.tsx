@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LogIn, Menu, X } from "lucide-react";
@@ -14,15 +13,18 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-4 bg-background/80 backdrop-blur-lg">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <div className="text-2xl font-bold text-white">Vertex Trading</div>
-        
+        <div className="flex items-center space-x-2">
+          <img src="/favicon.svg" alt="Vertex Trading" className="h-8 w-8" />
+          <div className="text-2xl font-bold text-white">Vertex Trading</div>
+        </div>
+
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-8">
           <a href="#" className="text-white/80 hover:text-white transition-colors">Markets</a>
           <a href="#" className="text-white/80 hover:text-white transition-colors">Trading</a>
           <a href="#" className="text-white/80 hover:text-white transition-colors">Company</a>
           <a href="#" className="text-white/80 hover:text-white transition-colors">Pricing</a>
-          
+
           <Dialog open={openAccount} onOpenChange={setOpenAccount}>
             <DialogTrigger asChild>
               <Button variant="outline" className="text-white border-white/20 hover:bg-white/10">
@@ -39,7 +41,7 @@ const Navbar = () => {
               <OpenAccountForm onSuccess={() => setOpenAccount(false)} />
             </DialogContent>
           </Dialog>
-          
+
           <Dialog open={openSignIn} onOpenChange={setOpenSignIn}>
             <DialogTrigger asChild>
               <Button className="bg-[#F2FF44] text-black hover:bg-[#E2EF34]">
@@ -72,7 +74,7 @@ const Navbar = () => {
               <a href="#" className="text-white/80 hover:text-white transition-colors text-lg">Trading</a>
               <a href="#" className="text-white/80 hover:text-white transition-colors text-lg">Company</a>
               <a href="#" className="text-white/80 hover:text-white transition-colors text-lg">Pricing</a>
-              
+
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="outline" className="text-white border-white/20 hover:bg-white/10 w-full">
@@ -89,7 +91,7 @@ const Navbar = () => {
                   <OpenAccountForm onSuccess={() => {}} />
                 </DialogContent>
               </Dialog>
-              
+
               <Dialog>
                 <DialogTrigger asChild>
                   <Button className="bg-[#F2FF44] text-black hover:bg-[#E2EF34] w-full">

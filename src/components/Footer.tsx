@@ -1,4 +1,3 @@
-
 import { Github, Twitter, Linkedin } from "lucide-react";
 import { Button } from "./ui/button";
 
@@ -9,7 +8,10 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           <div className="space-y-4">
-            <h3 className="text-2xl font-bold text-white">Vertex Trading</h3>
+            <div className="flex items-center gap-2">
+              <img src="/favicon.svg" alt="Vertex Trading" className="h-8 w-8" />
+              <h3 className="text-2xl font-bold text-white">Vertex Trading</h3>
+            </div>
             <p className="text-white/60">
               Advanced cryptocurrency trading platform with real-time data and powerful tools.
             </p>
@@ -25,7 +27,7 @@ const Footer = () => {
               </Button>
             </div>
           </div>
-          
+
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-white">Trading</h4>
             <ul className="space-y-2">
@@ -35,7 +37,7 @@ const Footer = () => {
               <li><a href="#" className="text-white/60 hover:text-white transition-colors">Trading Bots</a></li>
             </ul>
           </div>
-          
+
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-white">Markets</h4>
             <ul className="space-y-2">
@@ -45,7 +47,7 @@ const Footer = () => {
               <li><a href="#" className="text-white/60 hover:text-white transition-colors">Market Analysis</a></li>
             </ul>
           </div>
-          
+
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-white">Resources</h4>
             <ul className="space-y-2">
@@ -56,7 +58,7 @@ const Footer = () => {
             </ul>
           </div>
         </div>
-        
+
         <div className="mt-12 pt-8 border-t border-white/10">
           <p className="text-center text-white/60">
             © 2024 Vertex Trading. All rights reserved.

@@ -21,7 +21,7 @@ const DashboardHeader = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { toast } = useToast();
   const [userUid, setUserUid] = useState("");
-  
+
   useEffect(() => {
     // Get current user UID when component loads
     setUserUid(auth.currentUser?.uid || "");
@@ -52,6 +52,10 @@ const DashboardHeader = () => {
             Demo Mode
           </div>
         )}
+        <div className="flex items-center gap-2">
+          <img src="/favicon.svg" alt="Whalex" className="h-7 w-7" />
+          <div className="text-xl font-bold">Whalex</div>
+        </div>
       </div>
 
       <div className="flex items-center space-x-2">
