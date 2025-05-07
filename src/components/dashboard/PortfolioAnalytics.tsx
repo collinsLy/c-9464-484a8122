@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -36,7 +35,7 @@ export function PortfolioAnalytics() {
       'all': { value: 0, percent: 0, isPositive: true }
     }
   });
-  
+
   // Define base assets
   const baseAssets = [
     { symbol: "BTC", name: "Bitcoin", fullName: "Bitcoin" },
@@ -80,11 +79,11 @@ export function PortfolioAnalytics() {
         const symbols = baseAssets
           .map(asset => asset.symbol)
           .filter(symbol => symbol !== 'USDT'); // Filter out USDT as we handle it separately
-        
+
         const symbolsQuery = symbols.map(s => `${s}USDT`);
         const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
         const data = await response.json();
-        
+
         const prices: Record<string, number> = {};
         data.forEach((item: any) => {
           const symbol = item.symbol.replace('USDT', '');
@@ -93,9 +92,13 @@ export function PortfolioAnalytics() {
         // Add USDT itself with value of 1
         prices['USDT'] = 1;
         setAssetPrices(prices);
-        
-        // Calculate portfolio value when prices update
-        calculatePortfolioValue(userAssets, prices);
+
+        // Use setTimeout to debounce frequent updates and prevent UI flicker
+        setTimeout(() => {
+          // Calculate portfolio value when prices update
+          calculatePortfolioValue(userAssets, prices);
+          setIsLoading(false);
+        }, 300);
       } catch (error) {
         console.error('Error fetching asset prices:', error);
       }
@@ -110,15 +113,15 @@ export function PortfolioAnalytics() {
   // Calculate total portfolio value and update allocation data
   const calculatePortfolioValue = (assets: Record<string, any>, prices: Record<string, number>) => {
     if (!assets) return;
-    
+
     // Get USDT balance (may be in user.balance or assets.USDT)
     let usdtBalance = assets.USDT?.amount || 0;
-    
+
     // Start with USDT balance
     let total = usdtBalance;
-    
+
     const allocation: { name: string; symbol: string; value: number; percent: number; color: string }[] = [];
-    
+
     // Add value of all other assets
     Object.entries(assets).forEach(([symbol, data]: [string, any]) => {
       if (symbol === 'USDT') {
@@ -132,21 +135,21 @@ export function PortfolioAnalytics() {
         });
         return;
       }
-      
+
       const amount = data.amount || 0;
       if (amount <= 0) return; // Skip zero balances
-      
+
       const price = prices[symbol] || 0;
       const valueInUsdt = amount * price;
-      
+
       console.log(`Asset ${symbol}: Amount ${amount} × Price ${price} = ${valueInUsdt} USDT`);
-      
+
       total += valueInUsdt;
-      
+
       // Find full name from baseAssets or use symbol
       const assetInfo = baseAssets.find(a => a.symbol === symbol);
       const assetName = assetInfo?.fullName || symbol;
-      
+
       allocation.push({
         name: assetName,
         symbol,
@@ -155,18 +158,18 @@ export function PortfolioAnalytics() {
         color: assetColors[symbol] || assetColors['OTHER']
       });
     });
-    
+
     // Calculate percentages now that we have the total
     allocation.forEach(asset => {
       asset.percent = total > 0 ? Math.round((asset.value / total) * 100) : 0;
     });
-    
+
     // Sort by value (highest first)
     allocation.sort((a, b) => b.value - a.value);
-    
+
     console.log(`Total portfolio value: ${total} USDT`);
     setTotalPortfolioValue(total);
-    
+
     // Update portfolio data with new allocation
     updatePortfolioData(total, allocation);
   };
@@ -178,7 +181,7 @@ export function PortfolioAnalytics() {
     const monthChange = total * 0.15; // Placeholder
     const yearChange = total * 0.3; // Placeholder
     const totalPL = total * 0.4; // Placeholder
-    
+
     setPortfolioData({
       current: total,
       change: dayChange,
@@ -236,10 +239,10 @@ export function PortfolioAnalytics() {
       // Parse balance values for USDT from main balance field
       const parsedBalance = typeof userData.balance === 'number' ? userData.balance : 
                           (typeof userData.balance === 'string' ? parseFloat(userData.balance) : 0);
-      
+
       // Create assets object with all assets including USDT
       const assets: Record<string, any> = { ...(userData.assets || {}) };
-      
+
       // Add or update USDT from main balance if not already in assets
       if (!assets.USDT || !assets.USDT.amount) {
         assets.USDT = {
@@ -248,10 +251,10 @@ export function PortfolioAnalytics() {
           symbol: 'USDT'
         };
       }
-      
+
       console.log('User assets:', assets);
       setUserAssets(assets);
-      
+
       // Calculate portfolio value with latest asset data and prices
       calculatePortfolioValue(assets, assetPrices);
       setIsLoading(false);
@@ -264,7 +267,7 @@ export function PortfolioAnalytics() {
 
   const renderPerformanceCard = (timeframe: string) => {
     const data = portfolioData.performance[timeframe as keyof typeof portfolioData.performance];
-    
+
     return (
       <Card className={`bg-background/40 backdrop-blur-lg border-white/10 ${transitionClass}`}>
         <CardContent className="p-6">
@@ -360,7 +363,7 @@ export function PortfolioAnalytics() {
                 <DollarSign className="w-8 h-8 text-accent" />
               </div>
             </div>
-            
+
             <div>
               <h3 className="text-lg font-medium mb-4">Asset Allocation</h3>
               <div className="min-h-[160px]">
@@ -396,7 +399,7 @@ export function PortfolioAnalytics() {
               </div>
             </div>
           </div>
-          
+
           <div className="space-y-6">
             <div className={`flex items-center justify-center h-56 ${transitionClass}`}>
               {isLoading ? (
@@ -422,7 +425,7 @@ export function PortfolioAnalytics() {
                 </div>
               )}
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               {renderPerformanceCard(timeRange)}
               <Card className={`bg-background/40 backdrop-blur-lg border-white/10 ${transitionClass}`}>
@@ -454,21 +457,21 @@ export function PortfolioAnalytics() {
 // Helper function to generate conic gradient from allocation data
 function generateConicGradient(allocation: { percent: number, color: string }[]) {
   if (allocation.length === 0) return 'none';
-  
+
   let gradientString = 'conic-gradient(';
   let currentPercent = 0;
-  
+
   allocation.forEach((asset, index) => {
     const startPercent = currentPercent;
     currentPercent += asset.percent;
-    
+
     gradientString += `${asset.color} ${startPercent}% ${currentPercent}%`;
-    
+
     if (index < allocation.length - 1) {
       gradientString += ', ';
     }
   });
-  
+
   gradientString += ')';
   return gradientString;
 }
