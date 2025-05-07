@@ -53,7 +53,7 @@ const DashboardHeader = () => {
           </div>
         )}
         <div className="flex items-center gap-2">
-          <div className="text-xl font-bold">Whalex</div>
+          <div className="text-xl font-bold">Vertex Trading</div>
         </div>
       </div>
 
