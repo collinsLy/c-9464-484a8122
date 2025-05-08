@@ -5,6 +5,65 @@ import { toast } from "sonner";
 const COINGECKO_API_KEY = "CG-vfbBd2nG74YmzzoytroimuaZ";
 const COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3";
 
+// Cache implementation
+interface CacheItem<T> {
+  data: T;
+  timestamp: number;
+}
+
+class ApiCache {
+  private cache: Record<string, CacheItem<any>> = {};
+  private cacheDuration = 60000; // 1 minute cache duration by default
+
+  constructor(cacheDuration?: number) {
+    if (cacheDuration) {
+      this.cacheDuration = cacheDuration;
+    }
+  }
+
+  get<T>(key: string): T | null {
+    const item = this.cache[key];
+    if (!item) return null;
+
+    const now = Date.now();
+    if (now - item.timestamp > this.cacheDuration) {
+      // Cache expired
+      delete this.cache[key];
+      return null;
+    }
+
+    return item.data;
+  }
+
+  set<T>(key: string, data: T): void {
+    this.cache[key] = {
+      data,
+      timestamp: Date.now()
+    };
+  }
+}
+
+// Rate limiting implementation
+class RateLimiter {
+  private lastRequestTime = 0;
+  private requestInterval = 1500; // 1.5 seconds between requests
+
+  async throttle(): Promise<void> {
+    const now = Date.now();
+    const timeToWait = this.lastRequestTime + this.requestInterval - now;
+    
+    if (timeToWait > 0) {
+      await new Promise(resolve => setTimeout(resolve, timeToWait));
+    }
+    
+    this.lastRequestTime = Date.now();
+  }
+}
+
+// Create instances
+const cache = new ApiCache(300000); // 5 minute cache
+const rateLimiter = new RateLimiter();
+
 // Define interfaces for API responses
 export interface CoinMarketData {
   id: string;
@@ -72,9 +131,19 @@ export interface CoinDetailData {
 // Helper function to fetch data from CoinGecko
 const fetchCoinGeckoData = async <T>(endpoint: string, params: Record<string, string> = {}): Promise<T> => {
   try {
-    // Use relative URL to avoid CORS issues (requires setting up a proxy)
-    // This will work with Vite's dev server proxy or a dedicated backend proxy
+    // Generate cache key
     const queryParams = new URLSearchParams(params);
+    const cacheKey = `${endpoint}?${queryParams.toString()}`;
+    
+    // Check cache first
+    const cachedData = cache.get<T>(cacheKey);
+    if (cachedData) {
+      console.log(`Using cached data for ${cacheKey}`);
+      return cachedData;
+    }
+    
+    // Apply rate limiting
+    await rateLimiter.throttle();
     
     // Create a proxy URL that will be handled by your backend or dev server
     const url = `/api/coingecko${endpoint}?${queryParams.toString()}`;
@@ -86,7 +155,13 @@ const fetchCoinGeckoData = async <T>(endpoint: string, params: Record<string, st
     });
     
     if (response.status === 429) {
-      toast.error("Rate limit exceeded. Please try again later.");
+      console.warn("Rate limit exceeded. Using last cached data if available or showing error.");
+      toast.error("API rate limit exceeded. Data may be stale.");
+      
+      // If we have cached data (even if expired), return it as fallback
+      const fallbackData = cache.get<T>(cacheKey);
+      if (fallbackData) return fallbackData;
+      
       return {} as T;
     }
     
@@ -96,6 +171,10 @@ const fetchCoinGeckoData = async <T>(endpoint: string, params: Record<string, st
     }
     
     const data = await response.json();
+    
+    // Store in cache
+    cache.set<T>(cacheKey, data);
+    
     return data as T;
   } catch (error) {
     console.error("CoinGecko API error:", error);
@@ -134,10 +213,12 @@ export const getCoingeckoIdFromSymbol = (symbol: string): string => {
     "BNBUSD": "binancecoin",
     "ADAUSD": "cardano",
     "DOTUSD": "polkadot",
-    "XRPUSD": "ripple"
+    "XRPUSD": "ripple",
+    "USDTUSD": "tether",
+    "WLDUSD": "worldcoin"
   };
   
-  return mapping[symbol] || symbol.toLowerCase().slice(0, 3);
+  return mapping[symbol] || symbol.toLowerCase().replace("usd", "");
 };
 
 // Get trading pairs in format expected by the app

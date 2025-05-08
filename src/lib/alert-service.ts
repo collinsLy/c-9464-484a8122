@@ -123,47 +123,60 @@ class AlertServiceClass {
         }
       });
       
-      // Fetch current prices for each symbol
-      for (const symbol in symbolGroups) {
-        try {
-          const coinId = getCoingeckoIdFromSymbol(symbol);
-          const priceData = await getCoinPrice(coinId);
-          
-          if (!priceData || !priceData[coinId]) {
-            console.error(`Failed to fetch price for ${symbol}`);
-            continue;
-          }
-          
-          const currentPrice = priceData[coinId].usd;
-          
-          // Check each alert for this symbol
-          for (const { alert, id } of symbolGroups[symbol]) {
-            const { targetPrice, condition } = alert;
+      // Batch API calls to reduce chances of rate limiting
+      const symbolEntries = Object.entries(symbolGroups);
+      const batchSize = 2; // Process 2 symbols at a time
+      
+      for (let i = 0; i < symbolEntries.length; i += batchSize) {
+        const batch = symbolEntries.slice(i, i + batchSize);
+        
+        // Process each batch with a delay between batches
+        await Promise.all(batch.map(async ([symbol, alerts]) => {
+          try {
+            const coinId = getCoingeckoIdFromSymbol(symbol);
+            const priceData = await getCoinPrice(coinId);
             
-            let isTriggered = false;
-            
-            if (condition === 'above' && currentPrice >= targetPrice) {
-              isTriggered = true;
-            } else if (condition === 'below' && currentPrice <= targetPrice) {
-              isTriggered = true;
+            if (!priceData || !priceData[coinId]) {
+              console.warn(`No price data available for ${symbol}`);
+              return;
             }
             
-            if (isTriggered) {
-              // Update the alert to mark it as triggered
-              const alertRef = ref(this.db, `users/${user.uid}/alerts/${id}`);
-              await update(alertRef, { triggered: true });
+            const currentPrice = priceData[coinId].usd;
+            
+            // Check each alert for this symbol
+            for (const { alert, id } of alerts) {
+              const { targetPrice, condition } = alert;
               
-              // Notify the user
-              toast.success(
-                `Alert triggered: ${symbol} is now ${condition} $${targetPrice}`,
-                { duration: 6000 }
-              );
+              let isTriggered = false;
               
-              playAlertSound();
+              if (condition === 'above' && currentPrice >= targetPrice) {
+                isTriggered = true;
+              } else if (condition === 'below' && currentPrice <= targetPrice) {
+                isTriggered = true;
+              }
+              
+              if (isTriggered) {
+                // Update the alert to mark it as triggered
+                const alertRef = ref(this.db, `users/${user.uid}/alerts/${id}`);
+                await update(alertRef, { triggered: true });
+                
+                // Notify the user
+                toast.success(
+                  `Alert triggered: ${symbol} is now ${condition} $${targetPrice}`,
+                  { duration: 6000 }
+                );
+                
+                playAlertSound();
+              }
             }
+          } catch (error) {
+            console.error(`Error checking alerts for ${symbol}:`, error);
           }
-        } catch (error) {
-          console.error(`Error checking alerts for ${symbol}:`, error);
+        }));
+        
+        // Add delay between batches to avoid rate limiting
+        if (i + batchSize < symbolEntries.length) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
         }
       }
     }, { onlyOnce: !forcedCheck }); // onlyOnce: true for manual checks
