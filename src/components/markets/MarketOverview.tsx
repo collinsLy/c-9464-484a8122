@@ -1,8 +1,9 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 
-const MarketOverview = () => {
+export const MarketOverview = () => {
   const [marketData, setMarketData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -56,7 +57,7 @@ const MarketOverview = () => {
   }
 
   return (
-    <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-2"> {/* Updated grid layout */}
+    <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
       <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
         <CardHeader>
           <CardTitle>Market Overview</CardTitle>
