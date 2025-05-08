@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
-import AvatarCollection from "@/components/AvatarCollection"; // Simulated import
+import AvatarCollection, { avatarOptions } from "@/components/AvatarCollection"; // Import avatarOptions
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 
@@ -65,6 +65,9 @@ const SettingsPage = () => {
 
             setInitialValues(profileData);
             profileForm.reset(profileData);
+            
+            // Set the selected avatar ID from the user data
+            setSelectedAvatarId(userData.avatarId || "default");
 
             if (userData.profilePhoto) {
               const cacheBustedUrl = `${userData.profilePhoto}?t=${Date.now()}`;
@@ -173,28 +176,41 @@ const SettingsPage = () => {
                 <div className="flex flex-col md:flex-row md:items-center gap-6">
                   <div className="flex flex-col items-center gap-2">
                     <Avatar className="h-24 w-24">
-                      <AvatarImage 
-                        className="avatar-image" 
-                        src={profileImageUrl || "https://github.com/shadcn.png"}
-                        key={`profile-${imageUpdateTimestamp}`} 
-                        onError={(e) => {
-                          console.log("Image failed to load, retrying with direct Supabase URL...");
-                          if (profileForm.getValues().profilePhoto) {
-                            setTimeout(async () => {
-                              try {
-                                const { getProfileImageUrl } = await import('@/lib/supabase');
-                                const freshUrl = getProfileImageUrl(profileForm.getValues().profilePhoto);
-                                console.log("Generated fresh Supabase URL:", freshUrl);
-                                setProfileImageUrl(freshUrl);
-                                setImageUpdateTimestamp(Date.now());
-                              } catch (err) {
-                                console.error("Error refreshing profile image URL:", err);
-                              }
-                            }, 500);
-                          }
-                        }}
-                      />
-                      <AvatarFallback>
+                      {selectedAvatarId !== "default" && selectedAvatarId ? (
+                        // If avatar is selected, show the avatar from avatarOptions
+                        <AvatarImage 
+                          className="avatar-image" 
+                          src={avatarOptions.find(a => a.id === selectedAvatarId)?.imageUrl || ""}
+                          key={`avatar-${selectedAvatarId}-${imageUpdateTimestamp}`} 
+                        />
+                      ) : profileImageUrl ? (
+                        // If no avatar selected but profile image exists, show that
+                        <AvatarImage 
+                          className="avatar-image" 
+                          src={profileImageUrl}
+                          key={`profile-${imageUpdateTimestamp}`} 
+                          onError={(e) => {
+                            console.log("Image failed to load, retrying with direct Supabase URL...");
+                            if (profileForm.getValues().profilePhoto) {
+                              setTimeout(async () => {
+                                try {
+                                  const { getProfileImageUrl } = await import('@/lib/supabase');
+                                  const freshUrl = getProfileImageUrl(profileForm.getValues().profilePhoto);
+                                  console.log("Generated fresh Supabase URL:", freshUrl);
+                                  setProfileImageUrl(freshUrl);
+                                  setImageUpdateTimestamp(Date.now());
+                                } catch (err) {
+                                  console.error("Error refreshing profile image URL:", err);
+                                }
+                              }, 500);
+                            }
+                          }}
+                        />
+                      ) : (
+                        // Default fallback
+                        <AvatarImage src="https://github.com/shadcn.png" />
+                      )}
+                      <AvatarFallback style={selectedAvatarId === "initials" ? {backgroundColor: avatarOptions.find(a => a.id === "initials")?.bgColor} : {}}>
                         {initialValues.name ? initialValues.name.slice(0, 2).toUpperCase() : "JD"}
                       </AvatarFallback>
                     </Avatar>
@@ -754,7 +770,35 @@ const SettingsPage = () => {
                 selectedAvatarId={selectedAvatarId} 
                 onSelectAvatar={(avatar) => {
                   setSelectedAvatarId(avatar.id);
-                  setIsAvatarDialogOpen(false);
+                  
+                  // Update the form value
+                  profileForm.setValue('avatarId', avatar.id);
+                  
+                  // Save avatar change immediately
+                  const user = auth.currentUser;
+                  if (user) {
+                    updateDoc(doc(db, 'users', user.uid), {
+                      avatarId: avatar.id,
+                      updatedAt: new Date().toISOString()
+                    })
+                    .then(() => {
+                      toast({
+                        title: "Avatar Updated",
+                        description: "Your avatar has been updated successfully",
+                      });
+                      setIsAvatarDialogOpen(false);
+                    })
+                    .catch(error => {
+                      console.error("Error updating avatar:", error);
+                      toast({
+                        title: "Error",
+                        description: "Failed to update avatar",
+                        variant: "destructive"
+                      });
+                    });
+                  } else {
+                    setIsAvatarDialogOpen(false);
+                  }
                 }}
                 userInitials={initialValues.name ? initialValues.name.slice(0, 2).toUpperCase() : "VT"}
               />
