@@ -98,7 +98,13 @@ const AvatarCollection: React.FC<AvatarCollectionProps> = ({
           <HoverCard key={avatar.id}>
             <HoverCardTrigger asChild>
               <button
-                onClick={() => onSelectAvatar(avatar)}
+                onClick={(e) => {
+                  // Prevent default in a safe way that works with passive listeners
+                  if (e.cancelable) {
+                    e.preventDefault();
+                  }
+                  onSelectAvatar(avatar);
+                }}
                 className={cn(
                   "p-2 rounded-lg transition-all",
                   selectedAvatarId === avatar.id

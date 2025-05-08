@@ -22,7 +22,7 @@ import {
 import { useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
 import AvatarCollection from "@/components/AvatarCollection"; // Simulated import
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 
 const SettingsPage = () => {
@@ -746,6 +746,9 @@ const SettingsPage = () => {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Choose an Avatar</DialogTitle>
+              <DialogDescription>
+                Select an avatar to use as your profile picture
+              </DialogDescription>
             </DialogHeader>
               <AvatarCollection 
                 selectedAvatarId={selectedAvatarId} 
