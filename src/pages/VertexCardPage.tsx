@@ -4,18 +4,53 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
-import { auth } from '@/lib/firebase';
-import { CreditCard, Shield, Globe, Bell, ChevronRight, Gift, Percent, RefreshCw, DollarSign, ArrowRight, Wallet, Settings, Star, Info } from "lucide-react";
+import { auth, db } from '@/lib/firebase';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { CreditCard, Shield, Globe, Bell, ChevronRight, Gift, Percent, RefreshCw, DollarSign, ArrowRight, Wallet, Settings, Star, Info, CheckCircle, Clock, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Credit3DCard from '@/components/trading/Credit3DCard';
+import VertexCardApplication from '@/components/trading/VertexCardApplication';
 
 
 const VertexCardPage: React.FC = () => {
   const { isDemoMode } = useDashboardContext();
   const [isCardFrozen, setIsCardFrozen] = useState(false);
-  // We removed the mock data states and fetch function
+  const [applicationStatus, setApplicationStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none');
+  const [applicationData, setApplicationData] = useState<any>(null);
+  const [isCardActive, setIsCardActive] = useState(false);
+  
+  useEffect(() => {
+    const checkCardApplication = async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+      
+      // Create a listener for real-time updates to the application status
+      const cardAppRef = doc(db, 'cardApplications', user.uid);
+      const unsubscribe = onSnapshot(cardAppRef, (doc) => {
+        if (doc.exists()) {
+          const data = doc.data();
+          setApplicationStatus(data.status);
+          setApplicationData(data);
+          
+          // If approved, set card as active
+          if (data.status === 'approved') {
+            setIsCardActive(true);
+          }
+        } else {
+          setApplicationStatus('none');
+          setApplicationData(null);
+        }
+      }, (error) => {
+        console.error("Error checking card application status:", error);
+      });
+      
+      return unsubscribe;
+    };
+    
+    checkCardApplication();
+  }, []);
   
   return (
     <DashboardLayout>
@@ -30,6 +65,7 @@ const VertexCardPage: React.FC = () => {
             <Tabs defaultValue="overview" className="w-full">
               <TabsList className="mb-4 bg-background/80 border-white/10 text-white">
                 <TabsTrigger value="overview" className="data-[state=active]:bg-accent text-white">Overview</TabsTrigger>
+                <TabsTrigger value="apply" className="data-[state=active]:bg-accent text-white">Apply</TabsTrigger>
                 <TabsTrigger value="manage" className="data-[state=active]:bg-accent text-white">Manage Card</TabsTrigger>
                 <TabsTrigger value="transactions" className="data-[state=active]:bg-accent text-white">Transactions</TabsTrigger>
                 <TabsTrigger value="settings" className="data-[state=active]:bg-accent text-white">Settings</TabsTrigger>
@@ -41,6 +77,50 @@ const VertexCardPage: React.FC = () => {
                     <div className="space-y-4">
                       <h3 className="text-xl font-semibold">Card Overview</h3>
                       <p>Your Vertex Card gives you global access to your crypto assets in real-world spending.</p>
+                      
+                      {/* Application Status Banner */}
+                      {applicationStatus !== 'approved' && (
+                        <div className={`p-4 rounded-lg flex items-start space-x-3 mt-4 ${
+                          applicationStatus === 'pending' 
+                            ? 'bg-yellow-900/20 border border-yellow-900/30' 
+                            : applicationStatus === 'rejected' 
+                              ? 'bg-red-900/20 border border-red-900/30'
+                              : 'bg-blue-900/20 border border-blue-900/30'
+                        }`}>
+                          {applicationStatus === 'pending' ? (
+                            <Clock className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+                          ) : applicationStatus === 'rejected' ? (
+                            <AlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+                          ) : (
+                            <Info className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                          )}
+                          <div>
+                            <p className="font-medium">
+                              {applicationStatus === 'pending' 
+                                ? 'Your card application is under review' 
+                                : applicationStatus === 'rejected' 
+                                  ? 'Your card application was not approved'
+                                  : 'Apply for your Vertex Card today'}
+                            </p>
+                            <p className="text-sm text-white/70 mt-1">
+                              {applicationStatus === 'pending' 
+                                ? 'We are reviewing your application and will notify you once it\'s approved.'
+                                : applicationStatus === 'rejected' 
+                                  ? applicationData?.rejectionReason || 'Please contact support for more information.'
+                                  : 'Click on the "Apply" tab to start your application process.'}
+                            </p>
+                            {applicationStatus === 'none' && (
+                              <Button 
+                                variant="link" 
+                                className="text-accent p-0 h-auto mt-2" 
+                                onClick={() => document.querySelector('[value="apply"]')?.dispatchEvent(new Event('click'))}
+                              >
+                                Apply now →
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      )}
                       
                       {/* 3D Credit Card Component */}
                       <div className="mt-6">
@@ -103,6 +183,70 @@ const VertexCardPage: React.FC = () => {
                 </Card>
               </TabsContent>
 
+              <TabsContent value="apply">
+                <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
+                  {applicationStatus === 'approved' ? (
+                    <CardContent className="p-6 flex flex-col items-center justify-center text-center space-y-4">
+                      <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center">
+                        <CheckCircle className="h-8 w-8 text-green-500" />
+                      </div>
+                      <h2 className="text-xl font-semibold">Congratulations!</h2>
+                      <p className="max-w-md text-white/80">
+                        Your Vertex Card application has been approved and your card is now active.
+                      </p>
+                      <Button 
+                        className="bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34] mt-4"
+                        onClick={() => document.querySelector('[value="overview"]')?.dispatchEvent(new Event('click'))}
+                      >
+                        View Your Card
+                      </Button>
+                    </CardContent>
+                  ) : applicationStatus === 'pending' ? (
+                    <CardContent className="p-6 flex flex-col items-center justify-center text-center space-y-4">
+                      <div className="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center">
+                        <Clock className="h-8 w-8 text-yellow-500" />
+                      </div>
+                      <h2 className="text-xl font-semibold">Application Under Review</h2>
+                      <p className="max-w-md text-white/80">
+                        Your Vertex Card application is currently being reviewed. We'll notify you once it's approved.
+                      </p>
+                      <div className="w-full max-w-md bg-white/5 p-4 rounded-lg text-left mt-4">
+                        <h3 className="font-medium mb-2">Application Details</h3>
+                        <ul className="space-y-2 text-sm text-white/70">
+                          <li><span className="text-white/50">Submitted:</span> {new Date(applicationData?.createdAt?.toDate()).toLocaleDateString()}</li>
+                          <li><span className="text-white/50">Status:</span> Pending Review</li>
+                          <li><span className="text-white/50">Reference:</span> VC-{auth.currentUser?.uid.substring(0, 8).toUpperCase()}</li>
+                        </ul>
+                      </div>
+                    </CardContent>
+                  ) : applicationStatus === 'rejected' ? (
+                    <CardContent className="p-6 flex flex-col items-center justify-center text-center space-y-4">
+                      <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center">
+                        <AlertTriangle className="h-8 w-8 text-red-500" />
+                      </div>
+                      <h2 className="text-xl font-semibold">Application Not Approved</h2>
+                      <p className="max-w-md text-white/80">
+                        Unfortunately, your card application could not be approved at this time.
+                      </p>
+                      <div className="w-full max-w-md bg-white/5 p-4 rounded-lg text-left mt-4">
+                        <h3 className="font-medium mb-2">Reason</h3>
+                        <p className="text-sm text-white/70">
+                          {applicationData?.rejectionReason || 'Please contact our support team for more information about your application.'}
+                        </p>
+                      </div>
+                      <Button 
+                        className="bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34] mt-4"
+                        onClick={() => document.querySelector('[value="overview"]')?.dispatchEvent(new Event('click'))}
+                      >
+                        Contact Support
+                      </Button>
+                    </CardContent>
+                  ) : (
+                    <VertexCardApplication />
+                  )}
+                </Card>
+              </TabsContent>
+              
               <TabsContent value="manage">
                 <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
                   <CardContent className="p-6">
@@ -205,7 +349,13 @@ const VertexCardPage: React.FC = () => {
                         <div className="flex items-center bg-blue-950/40 p-4 rounded-lg text-sm">
                           <Info className="h-5 w-5 text-blue-400 mr-3 flex-shrink-0" />
                           <p className="text-white/80">
-                            To activate your Vertex Card and start making transactions, please complete your verification in the settings section.
+                            {applicationStatus === 'approved' 
+                              ? 'Your card is active. Start making transactions to see them listed here.'
+                              : applicationStatus === 'pending' 
+                                ? 'Your card application is being reviewed. Once approved, you can start making transactions.'
+                                : applicationStatus === 'rejected' 
+                                  ? 'Your card application was not approved. Please contact support for assistance.'
+                                  : 'To activate your Vertex Card and start making transactions, please apply for a card in the "Apply" tab.'}
                           </p>
                         </div>
                       </div>
