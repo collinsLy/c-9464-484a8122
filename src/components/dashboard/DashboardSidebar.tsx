@@ -35,7 +35,7 @@ const defaultNavCategories: NavCategory[] = [
     label: "Markets & Trading",
     items: [
       { icon: LineChart, label: "Markets", id: "markets", path: "/market" },
-      { icon: TrendingUp, label: "Trading", id: "trading", path: "/trading" },
+      { icon: TrendingUp, label: "Trading", id: "trading", path: "/dashboard?tab=trading" },
       { icon: PlayCircle, label: "Bots & Strategies", id: "bots", path: "/bots" },
       { icon: Bell, label: "Alerts", id: "alerts", path: "/alerts" },
     ]
