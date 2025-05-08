@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { DashboardProvider } from "@/components/dashboard/DashboardLayout";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import MarketPage from "@/pages/MarketPage";
@@ -27,9 +28,14 @@ import FuturesMarketsPage from "@/pages/FuturesMarketsPage";
 import TopMoversPage from "@/pages/TopMoversPage";
 import SpotTradingPage from "./pages/SpotTradingPage";
 import MarginTradingPage from "./pages/MarginTradingPage";
-import StrategyTradingPage from "./pages/StrategyTradingPage"; // Added
-import P2PPage from "./pages/P2PPage"; // Added
-import USDTFuturesPage from "./pages/USDTFuturesPage"; // Added
+import StrategyTradingPage from "./pages/StrategyTradingPage";
+import P2PPage from "./pages/P2PPage";
+import USDTFuturesPage from "./pages/USDTFuturesPage";
+import CoinFuturesPage from "./pages/CoinFuturesPage";
+import OptionsPage from "./pages/OptionsPage";
+import LeaderboardPage from "./pages/LeaderboardPage";
+import SimpleEarnPage from "./pages/SimpleEarnPage";
+import AutoInvestPage from "./pages/AutoInvestPage";
 
 
 // Configure query client to not show error toasts
@@ -76,9 +82,14 @@ const App = () => (
               <Route path="/top-movers" element={<ErrorBoundary><TopMoversPage /></ErrorBoundary>} />
               <Route path="/spot-trading" element={<ErrorBoundary><SpotTradingPage /></ErrorBoundary>} />
               <Route path="/margin-trading" element={<ErrorBoundary><MarginTradingPage /></ErrorBoundary>} />
-              <Route path="/strategy-trading" element={<ErrorBoundary><StrategyTradingPage /></ErrorBoundary>} /> {/* Added */}
-              <Route path="/p2p" element={<ErrorBoundary><P2PPage /></ErrorBoundary>} /> {/* Added */}
-              <Route path="/usdt-futures" element={<ErrorBoundary><USDTFuturesPage /></ErrorBoundary>} /> {/* Added */}
+              <Route path="/strategy-trading" element={<ErrorBoundary><StrategyTradingPage /></ErrorBoundary>} />
+              <Route path="/p2p" element={<ErrorBoundary><P2PPage /></ErrorBoundary>} />
+              <Route path="/usdt-futures" element={<ErrorBoundary><USDTFuturesPage /></ErrorBoundary>} />
+              <Route path="/coin-futures" element={<ErrorBoundary><CoinFuturesPage /></ErrorBoundary>} />
+              <Route path="/options" element={<ErrorBoundary><OptionsPage /></ErrorBoundary>} />
+              <Route path="/leaderboard" element={<ErrorBoundary><LeaderboardPage /></ErrorBoundary>} />
+              <Route path="/simple-earn" element={<ErrorBoundary><SimpleEarnPage /></ErrorBoundary>} />
+              <Route path="/auto-invest" element={<ErrorBoundary><AutoInvestPage /></ErrorBoundary>} />
             </Routes>
           </DashboardProvider>
         </BrowserRouter>
