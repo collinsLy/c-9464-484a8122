@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,15 +21,15 @@ const ApiManagementPage = () => {
   const [ipRestriction, setIpRestriction] = useState(true);
   const [keyType, setKeyType] = useState("general");
   const [selectedApiTab, setSelectedApiTab] = useState("api-keys");
-  
+
   const mockApiKey = "vx1A2B3C4D5E6F7G8H9I0J";
   const mockSecretKey = "sT1U2V3W4X5Y6Z7A8B9C0D1E2F3G4H5I6J7K8L9M0N";
-  
+
   const handleCopyKey = (text: string, type: string) => {
     navigator.clipboard.writeText(text);
     toast.success(`${type} copied to clipboard`);
   };
-  
+
   const handleRegenerateKey = () => {
     if (isDemoMode) {
       toast.success("API keys regenerated", {
@@ -68,7 +67,7 @@ const ApiManagementPage = () => {
             <TabsTrigger value="documentation" className="data-[state=active]:bg-white/10">Documentation</TabsTrigger>
             <TabsTrigger value="usage" className="data-[state=active]:bg-white/10">Usage & Limits</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="api-keys" className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="md:col-span-2">
@@ -90,7 +89,7 @@ const ApiManagementPage = () => {
                             </div>
                             <Badge className="bg-green-500/20 text-green-500">Active</Badge>
                           </div>
-                          
+
                           <div className="space-y-3">
                             <div className="space-y-2">
                               <Label className="text-white/70">API Key</Label>
@@ -116,7 +115,7 @@ const ApiManagementPage = () => {
                                 </Button>
                               </div>
                             </div>
-                            
+
                             <div className="space-y-2">
                               <Label className="text-white/70">Secret Key</Label>
                               <div className="flex items-center space-x-2">
@@ -142,7 +141,7 @@ const ApiManagementPage = () => {
                               </div>
                             </div>
                           </div>
-                          
+
                           <div className="mt-4">
                             <Table>
                               <TableBody>
@@ -169,7 +168,7 @@ const ApiManagementPage = () => {
                               </TableBody>
                             </Table>
                           </div>
-                          
+
                           <div className="flex justify-between mt-4">
                             <Button variant="outline" className="border-white/10 hover:bg-white/10 hover:text-white" onClick={handleRegenerateKey}>
                               <RefreshCw className="mr-2 h-4 w-4" />
@@ -180,7 +179,7 @@ const ApiManagementPage = () => {
                             </Button>
                           </div>
                         </div>
-                        
+
                         <div className="rounded-lg border border-white/10 bg-white/5 p-4">
                           <div className="flex justify-between items-start mb-4">
                             <div>
@@ -189,7 +188,7 @@ const ApiManagementPage = () => {
                             </div>
                             <Badge className="bg-yellow-500/20 text-yellow-500">Read-Only</Badge>
                           </div>
-                          
+
                           <div className="space-y-3">
                             <div className="space-y-2">
                               <Label className="text-white/70">API Key</Label>
@@ -208,7 +207,7 @@ const ApiManagementPage = () => {
                               </div>
                             </div>
                           </div>
-                          
+
                           <div className="mt-4">
                             <Table>
                               <TableBody>
@@ -233,7 +232,7 @@ const ApiManagementPage = () => {
                               </TableBody>
                             </Table>
                           </div>
-                          
+
                           <div className="flex justify-between mt-4">
                             <Button variant="outline" className="border-white/10 hover:bg-white/10 hover:text-white" onClick={handleRegenerateKey}>
                               <RefreshCw className="mr-2 h-4 w-4" />
@@ -258,7 +257,7 @@ const ApiManagementPage = () => {
                     )}
                   </CardContent>
                 </Card>
-                
+
                 {isDemoMode && (
                   <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white mt-4">
                     <CardHeader>
@@ -275,7 +274,7 @@ const ApiManagementPage = () => {
                             <div className="h-full bg-[#F2FF44] rounded-full" style={{ width: "12.45%" }}></div>
                           </div>
                         </div>
-                        
+
                         <div className="rounded-lg bg-white/5 p-4 border border-white/10">
                           <h4 className="font-medium mb-3">Recent API Activity</h4>
                           <Table>
@@ -328,7 +327,7 @@ const ApiManagementPage = () => {
                   </Card>
                 )}
               </div>
-              
+
               <div>
                 <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
                   <CardHeader>
@@ -340,7 +339,7 @@ const ApiManagementPage = () => {
                         <Label>Key Name</Label>
                         <Input className="bg-white/5 border-white/10 text-white" placeholder="My Trading Bot" />
                       </div>
-                      
+
                       <div className="space-y-2">
                         <Label>Key Type</Label>
                         <Select value={keyType} onValueChange={setKeyType}>
@@ -354,7 +353,7 @@ const ApiManagementPage = () => {
                           </SelectContent>
                         </Select>
                       </div>
-                      
+
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <Label>IP Restriction</Label>
@@ -373,7 +372,7 @@ const ApiManagementPage = () => {
                           </div>
                         )}
                       </div>
-                      
+
                       <Button
                         className="w-full bg-[#F2FF44] text-black hover:bg-[#E1EE33]"
                         onClick={(e) => {
@@ -386,7 +385,7 @@ const ApiManagementPage = () => {
                     </form>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white mt-4">
                   <CardHeader>
                     <CardTitle>Security Tips</CardTitle>
@@ -402,7 +401,7 @@ const ApiManagementPage = () => {
                           <div className="text-white/70">Only allow specific IPs to access your API</div>
                         </div>
                       </div>
-                      
+
                       <div className="flex space-x-3">
                         <div className="flex-shrink-0">
                           <KeyIcon className="h-5 w-5 text-[#F2FF44]" />
@@ -412,7 +411,7 @@ const ApiManagementPage = () => {
                           <div className="text-white/70">Only grant the permissions you need</div>
                         </div>
                       </div>
-                      
+
                       <div className="flex space-x-3">
                         <div className="flex-shrink-0">
                           <RefreshCw className="h-5 w-5 text-[#F2FF44]" />
@@ -422,7 +421,7 @@ const ApiManagementPage = () => {
                           <div className="text-white/70">Regenerate your API keys periodically</div>
                         </div>
                       </div>
-                      
+
                       <div className="flex space-x-3">
                         <div className="flex-shrink-0">
                           <InfoIcon className="h-5 w-5 text-[#F2FF44]" />
@@ -438,7 +437,7 @@ const ApiManagementPage = () => {
               </div>
             </div>
           </TabsContent>
-          
+
           <TabsContent value="documentation" className="space-y-4">
             <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
               <CardHeader>
@@ -461,7 +460,7 @@ const ApiManagementPage = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <h3 className="text-lg font-medium">Endpoints</h3>
                     <div className="space-y-4">
@@ -475,7 +474,7 @@ const ApiManagementPage = () => {
                         </div>
                         <p className="text-white/70">Get the latest price ticker for a trading pair</p>
                       </div>
-                      
+
                       <div className="rounded-lg bg-white/5 p-4 border border-white/10">
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex items-center">
@@ -486,7 +485,7 @@ const ApiManagementPage = () => {
                         </div>
                         <p className="text-white/70">Get the current order book for a trading pair</p>
                       </div>
-                      
+
                       <div className="rounded-lg bg-white/5 p-4 border border-white/10">
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex items-center">
@@ -497,7 +496,7 @@ const ApiManagementPage = () => {
                         </div>
                         <p className="text-white/70">Get your account information</p>
                       </div>
-                      
+
                       <div className="rounded-lg bg-white/5 p-4 border border-white/10">
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex items-center">
@@ -508,7 +507,7 @@ const ApiManagementPage = () => {
                         </div>
                         <p className="text-white/70">Place a new order</p>
                       </div>
-                      
+
                       <div className="rounded-lg bg-white/5 p-4 border border-white/10">
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex items-center">
@@ -521,7 +520,7 @@ const ApiManagementPage = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex justify-center">
                     <Button variant="outline" className="border-white/10 hover:bg-white/10 hover:text-white">
                       <Globe className="mr-2 h-4 w-4" />
@@ -531,7 +530,7 @@ const ApiManagementPage = () => {
                 </div>
               </CardContent>
             </Card>
-            
+
             <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
               <CardHeader>
                 <CardTitle>Code Examples</CardTitle>
@@ -543,7 +542,7 @@ const ApiManagementPage = () => {
                     <TabsTrigger value="python" className="data-[state=active]:bg-white/10">Python</TabsTrigger>
                     <TabsTrigger value="go" className="data-[state=active]:bg-white/10">Go</TabsTrigger>
                   </TabsList>
-                  
+
                   <TabsContent value="javascript" className="pt-4">
                     <div className="rounded-lg bg-black/50 p-4 font-mono text-sm">
                       <div className="text-green-400">// Fetch account balance</div>
@@ -559,14 +558,14 @@ const ApiManagementPage = () => {
                       <div className="text-white">    'X-TIMESTAMP': timestamp,</div>
                       <div className="text-white">    'X-SIGNATURE': signature</div>
                       <div className="text-white">  {'}'}</div>
-                      <div className="text-white">{'}'}).then(response => {'{'}</div>
+                      <div className="text-white">{'}'}).then((response) {'=>'} {'{'}</div>
                       <div className="text-white">  console.log(response.data);</div>
-                      <div className="text-white">{'}'}).catch(error => {'{'}</div>
+                      <div className="text-white">{'}'}).catch((error) {'=>'} {'{'}</div>
                       <div className="text-white">  console.error(error);</div>
                       <div className="text-white">{'}'});</div>
                     </div>
                   </TabsContent>
-                  
+
                   <TabsContent value="python" className="pt-4">
                     <div className="rounded-lg bg-black/50 p-4 font-mono text-sm">
                       <div className="text-green-400"># Fetch account balance</div>
@@ -600,7 +599,7 @@ const ApiManagementPage = () => {
                       <div className="text-white">print(response.json())</div>
                     </div>
                   </TabsContent>
-                  
+
                   <TabsContent value="go" className="pt-4">
                     <div className="rounded-lg bg-black/50 p-4 font-mono text-sm">
                       <div className="text-green-400">// Fetch account balance</div>
@@ -652,7 +651,7 @@ const ApiManagementPage = () => {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="usage" className="space-y-4">
             <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
               <CardHeader>
@@ -676,7 +675,7 @@ const ApiManagementPage = () => {
                         </div>
                       </CardContent>
                     </Card>
-                    
+
                     <Card className="bg-white/5 border-white/10">
                       <CardContent className="pt-6">
                         <div className="flex flex-col items-center text-center">
@@ -689,7 +688,7 @@ const ApiManagementPage = () => {
                         </div>
                       </CardContent>
                     </Card>
-                    
+
                     <Card className="bg-white/5 border-white/10">
                       <CardContent className="pt-6">
                         <div className="flex flex-col items-center text-center">
@@ -703,7 +702,7 @@ const ApiManagementPage = () => {
                       </CardContent>
                     </Card>
                   </div>
-                  
+
                   <div className="rounded-lg bg-white/5 p-4 border border-white/10">
                     <h3 className="font-medium mb-4">Rate Limit Tiers</h3>
                     <Table>
@@ -743,7 +742,7 @@ const ApiManagementPage = () => {
                       </TableBody>
                     </Table>
                   </div>
-                  
+
                   <div className="rounded-lg bg-white/5 p-4 border border-white/10">
                     <h3 className="font-medium mb-3">Rate Limit Headers</h3>
                     <p className="text-white/70 mb-4">
@@ -772,7 +771,7 @@ const ApiManagementPage = () => {
                       </TableBody>
                     </Table>
                   </div>
-                  
+
                   <div className="rounded-lg bg-white/5 p-4 border border-white/10">
                     <h3 className="font-medium mb-3">Best Practices</h3>
                     <div className="space-y-3">
@@ -785,7 +784,7 @@ const ApiManagementPage = () => {
                           <div className="text-white/70 text-sm">When rate limited, wait and retry with increasing delays</div>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-start space-x-3">
                         <div className="flex-shrink-0 h-6 w-6 rounded-full bg-[#F2FF44]/20 flex items-center justify-center">
                           <span className="text-sm font-medium">2</span>
@@ -795,7 +794,7 @@ const ApiManagementPage = () => {
                           <div className="text-white/70 text-sm">WebSocket connections are more efficient for price updates</div>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-start space-x-3">
                         <div className="flex-shrink-0 h-6 w-6 rounded-full bg-[#F2FF44]/20 flex items-center justify-center">
                           <span className="text-sm font-medium">3</span>
@@ -805,7 +804,7 @@ const ApiManagementPage = () => {
                           <div className="text-white/70 text-sm">Cache responses to reduce the number of API calls</div>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-start space-x-3">
                         <div className="flex-shrink-0 h-6 w-6 rounded-full bg-[#F2FF44]/20 flex items-center justify-center">
                           <span className="text-sm font-medium">4</span>
