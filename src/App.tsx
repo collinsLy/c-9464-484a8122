@@ -38,6 +38,8 @@ import SimpleEarnPage from "./pages/SimpleEarnPage";
 import AutoInvestPage from "./pages/AutoInvestPage";
 import StakingPage from "./pages/StakingPage";
 import VertexCardPage from "./pages/VertexCardPage";
+import LiquidityFarmingPage from "./pages/LiquidityFarmingPage";
+import ApiManagementPage from "./pages/ApiManagementPage";
 
 
 // Configure query client to not show error toasts
@@ -94,6 +96,8 @@ const App = () => (
               <Route path="/auto-invest" element={<ErrorBoundary><AutoInvestPage /></ErrorBoundary>} />
               <Route path="/staking" element={<ErrorBoundary><StakingPage /></ErrorBoundary>} />
               <Route path="/vertex-card" element={<ErrorBoundary><VertexCardPage /></ErrorBoundary>} />
+              <Route path="/liquidity-farming" element={<ErrorBoundary><LiquidityFarmingPage /></ErrorBoundary>} />
+              <Route path="/api-management" element={<ErrorBoundary><ApiManagementPage /></ErrorBoundary>} />
             </Routes>
           </DashboardProvider>
         </BrowserRouter>
