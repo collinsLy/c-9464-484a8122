@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { 
   ChevronRight, ChevronLeft, Home, LineChart, BarChart3, 
   Wallet, CreditCard, TrendingUp, History, Settings, PlayCircle, Menu, X,
-  Users, Bell, Sparkles // Added Sparkles icon import
+  Users, Bell, Sparkles, ArrowUpCircle, ArrowDownCircle, HelpCircle
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -26,36 +26,35 @@ const defaultNavCategories: NavCategory[] = [
     label: "Overview",
     items: [
       { icon: Home, label: "Dashboard", id: "dashboard", path: "/dashboard" },
-      { icon: Bell, label: "Alerts", id: "alerts", path: "/alerts" },
+      { icon: Wallet, label: "Assets", id: "assets", path: "/assets" },
       { icon: History, label: "History", id: "history", path: "/history" },
       { icon: Settings, label: "Settings", id: "settings", path: "/settings" },
     ]
   },
   {
-    label: "Markets",
+    label: "Markets & Trading",
     items: [
-      { icon: LineChart, label: "Spot", id: "spot-markets", path: "/market/spot" },
-      { icon: TrendingUp, label: "Futures", id: "futures-markets", path: "/market/futures" },
-      { icon: Sparkles, label: "New Listings", id: "new-listings", path: "/new-listings" },
-      { icon: BarChart3, label: "Top Movers", id: "top-movers", path: "/market/movers" },
+      { icon: LineChart, label: "Markets", id: "markets", path: "/market" },
+      { icon: TrendingUp, label: "Trading", id: "trading", path: "/trading" },
+      { icon: PlayCircle, label: "Bots & Strategies", id: "bots", path: "/bots" },
+      { icon: Bell, label: "Alerts", id: "alerts", path: "/alerts" },
     ]
   },
   {
-    label: "Trading",
+    label: "Transfers",
     items: [
-      { icon: CreditCard, label: "Convert", id: "convert", path: "/trading/convert" },
-      { icon: TrendingUp, label: "Spot", id: "spot-trading", path: "/trading/spot" },
-      { icon: BarChart3, label: "Strategy", id: "strategy", path: "/trading/strategy" },
-      { icon: PlayCircle, label: "Bots", id: "bots", path: "/bots" },
+      { icon: ArrowDownCircle, label: "Deposit", id: "deposit", path: "/deposit" },
+      { icon: ArrowUpCircle, label: "Withdraw", id: "withdraw", path: "/withdraw" },
+      { icon: Users, label: "Social Trading", id: "social", path: "/social-trading" },
+      { icon: Users, label: "Referrals", id: "referrals", path: "/referrals" },
     ]
   },
   {
-    label: "Earn & Finance",
+    label: "Other",
     items: [
-      { icon: Wallet, label: "Simple Earn", id: "earn", path: "/earn/simple" },
-      { icon: BarChart3, label: "Auto-Invest", id: "auto-invest", path: "/earn/auto-invest" },
-      { icon: Wallet, label: "Staking", id: "staking", path: "/earn/staking" },
-      { icon: CreditCard, label: "Pay", id: "pay", path: "/finance/pay" },
+      { icon: PlayCircle, label: "Demo", id: "demo", path: "/demo" },
+      { icon: HelpCircle, label: "Support", id: "support", path: "/support" },
+      { icon: Settings, label: "Settings", id: "settings", path: "/settings" },
     ]
   }
 ];
