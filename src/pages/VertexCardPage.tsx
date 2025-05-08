@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
+import { auth } from '@/lib/firebase';
 import { CreditCard, Shield, Globe, Bell, ChevronRight, Gift, Percent, RefreshCw, DollarSign, ArrowRight, Wallet, Settings, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,39 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 const VertexCardPage: React.FC = () => {
   const { isDemoMode } = useDashboardContext();
+  const [isCardFrozen, setIsCardFrozen] = useState(false);
+  const [userBalance, setUserBalance] = useState(0);
+  const [monthlySpending, setMonthlySpending] = useState(0);
+  
+  // Fetch user card data
+  useEffect(() => {
+    // In a real implementation, this would fetch data from your API
+    const fetchCardData = async () => {
+      try {
+        if (!isDemoMode && auth.currentUser) {
+          // Here you would make an API call to get the real data
+          // For now we'll simulate a random balance
+          const randomBalance = Math.random() * 5000 + 500;
+          const randomSpending = Math.random() * 2000 + 100;
+          
+          setUserBalance(randomBalance);
+          setMonthlySpending(randomSpending);
+        } else {
+          // Demo mode fallback
+          setUserBalance(2450.25);
+          setMonthlySpending(1240.80);
+        }
+      } catch (error) {
+        console.error("Error fetching card data:", error);
+        // Set fallback values in case of error
+        setUserBalance(0);
+        setMonthlySpending(0);
+      }
+    };
+    
+    fetchCardData();
+  }, [isDemoMode]);
+  
   return (
     <DashboardLayout>
       <div className="container mx-auto p-4">
@@ -36,39 +70,98 @@ const VertexCardPage: React.FC = () => {
                     <div className="space-y-4">
                       <h3 className="text-xl font-semibold">Card Overview</h3>
                       <p>Your Vertex Card gives you global access to your crypto assets in real-world spending.</p>
-                      {isDemoMode && (
-                        <div className="mt-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl p-6 shadow-lg">
-                          <div className="flex flex-col h-48 justify-between">
-                            <div className="flex justify-between items-start">
-                              <div className="text-lg font-medium">VERTEX</div>
-                              <div className="text-sm">Virtual Card</div>
+                      <div className="mt-6 bg-[#111] text-white rounded-xl p-6 shadow-lg relative overflow-hidden">
+                        <div 
+                          className="absolute inset-0 opacity-50"
+                          style={{
+                            backgroundImage: 'url("data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z" fill="%23333" fill-opacity="0.2" fill-rule="evenodd"/%3E%3C/svg%3E")',
+                            backgroundSize: '20px 20px'
+                          }}
+                        ></div>
+                        <div className="flex flex-col h-48 justify-between relative z-10">
+                          <div className="flex justify-between items-start">
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white">
+                              <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M12 16V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M12 8H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                            <div className="flex items-center">
+                              <span className="text-sm font-medium mr-2">BINANCE</span>
+                              <span className="text-xs px-2 py-1 bg-white/10 rounded">VIRTUAL</span>
                             </div>
-                            <div className="text-lg font-mono">•••• •••• •••• 4321</div>
-                            <div className="flex justify-between items-end">
+                          </div>
+                          
+                          <div className="text-lg font-mono mt-4">5360 •••• •••• 5858</div>
+                          
+                          <div className="flex justify-between items-end mt-auto">
+                            <div>
+                              <div className="text-xs text-white/70">Card Holder</div>
+                              <div className="font-medium uppercase">{auth?.currentUser?.displayName || "USER NAME"}</div>
+                            </div>
+                            <div className="flex items-center space-x-2">
                               <div>
-                                <div className="text-xs">Card Holder</div>
-                                <div>JOHN DOE</div>
+                                <div className="text-xs text-white/70">Expires</div>
+                                <div>05/28</div>
                               </div>
-                              <div>
-                                <div className="text-xs">Expires</div>
-                                <div>12/27</div>
+                              <div className="flex space-x-1">
+                                <div className="w-6 h-6 bg-red-500 rounded-full opacity-80"></div>
+                                <div className="w-6 h-6 bg-yellow-500 rounded-full opacity-70 -ml-3"></div>
                               </div>
                             </div>
                           </div>
                         </div>
-                      )}
+                      </div>
+
+                      <div className="mt-4 flex justify-center space-x-6">
+                        <Button variant="outline" className="flex flex-col items-center p-4 h-auto border-white/10 hover:bg-white/5">
+                          <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <rect width="18" height="18" x="3" y="3" rx="2" />
+                              <path d="M7 7h.01" />
+                              <path d="M12 7h.01" />
+                              <path d="M17 7h.01" />
+                              <path d="M7 12h.01" />
+                              <path d="M12 12h.01" />
+                              <path d="M17 12h.01" />
+                              <path d="M7 17h.01" />
+                              <path d="M12 17h.01" />
+                              <path d="M17 17h.01" />
+                            </svg>
+                          </div>
+                          <span className="text-sm">Show Details</span>
+                        </Button>
+                        <Button variant="outline" className="flex flex-col items-center p-4 h-auto border-white/10 hover:bg-white/5">
+                          <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg>
+                          </div>
+                          <span className="text-sm">Manage</span>
+                        </Button>
+                        <Button variant="outline" className="flex flex-col items-center p-4 h-auto border-white/10 hover:bg-white/5">
+                          <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <circle cx="12" cy="12" r="10" />
+                              <circle cx="12" cy="10" r="3" />
+                              <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662" />
+                            </svg>
+                          </div>
+                          <span className="text-sm">Profile</span>
+                        </Button>
+                      </div>
+                      
                       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                         <Card className="bg-slate-800 p-4 rounded-lg border-white/10">
                           <div className="text-sm text-slate-400">Available Balance</div>
-                          <div className="text-2xl font-semibold text-white">$2,450.25</div>
+                          <div className="text-2xl font-semibold text-white">${userBalance ? userBalance.toFixed(2) : '0.00'}</div>
                         </Card>
                         <Card className="bg-slate-800 p-4 rounded-lg border-white/10">
                           <div className="text-sm text-slate-400">Monthly Spending</div>
-                          <div className="text-2xl font-semibold text-white">$1,240.80</div>
+                          <div className="text-2xl font-semibold text-white">${monthlySpending ? monthlySpending.toFixed(2) : '0.00'}</div>
                         </Card>
                         <Card className="bg-slate-800 p-4 rounded-lg border-white/10">
                           <div className="text-sm text-slate-400">Reward Points</div>
-                          <div className="text-2xl font-semibold text-white">2,450</div>
+                          <div className="text-2xl font-semibold text-white">{(userBalance * 10).toFixed(0) || '0'}</div>
                         </Card>
                       </div>
                     </div>
@@ -86,9 +179,16 @@ const VertexCardPage: React.FC = () => {
                         <div className="flex items-center justify-between p-4 border border-white/10 rounded-lg bg-slate-800">
                           <div>
                             <div className="font-medium">Card Status</div>
-                            <div className="text-green-600">Active</div>
+                            <div className={isCardFrozen ? "text-red-500" : "text-green-500"}>
+                              {isCardFrozen ? "Frozen" : "Active"}
+                            </div>
                           </div>
-                          <Button className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md">Freeze Card</Button>
+                          <Button 
+                            className={`px-4 py-2 ${isCardFrozen ? "bg-blue-500 hover:bg-blue-600" : "bg-red-500 hover:bg-red-600"} text-white rounded-md`}
+                            onClick={() => setIsCardFrozen(!isCardFrozen)}
+                          >
+                            {isCardFrozen ? "Unfreeze Card" : "Freeze Card"}
+                          </Button>
                         </div>
                         
                         <div className="flex items-center justify-between p-4 border border-white/10 rounded-lg bg-slate-800">
