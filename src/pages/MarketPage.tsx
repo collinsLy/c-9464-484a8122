@@ -13,45 +13,7 @@ import { LivePriceTicker } from "@/components/markets/LivePriceTicker";
 
 import { TwelveDataTicker } from "@/components/markets/TwelveDataTicker";
 import { toast } from "sonner";
-const MarketPage = () => {
-  const [activeTab, setActiveTab] = useState('prices');
-  const { isDemoMode } = useDashboardContext();
-
-  return (
-    <DashboardLayout>
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-white">Market Overview</h1>
-        </div>
-
-        <CryptoTicker />
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="col-span-2 bg-background/40 backdrop-blur-lg border-white/10">
-            <CardHeader>
-              <CardTitle>BTC/USD</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <TradingViewChart symbol="BTCUSD" />
-            </CardContent>
-          </Card>
-
-          <div className="space-y-4">
-            <LivePriceTicker />
-            <MarketNews />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <MarketOverview />
-          <CoinGeckoData />
-        </div>
-      </div>
-    </DashboardLayout>
-  );
-};
-
-export default MarketPage;
+// Removed StockTicker import
 
 interface StockData {
   symbol: string;
