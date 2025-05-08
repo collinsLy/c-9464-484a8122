@@ -106,6 +106,13 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
     }
   };
 
+  const avatarOptions = [
+    { id: 1, imageUrl: 'avatar1.jpg' },
+    { id: 2, imageUrl: 'avatar2.png' },
+    { id: 3, imageUrl: 'avatar3.svg' }
+    // Add more avatar options here...
+  ];
+
   const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
@@ -121,13 +128,18 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
       const userDoc = await getDoc(userDocRef);
 
       if (!userDoc.exists()) {
+        // Select a random avatar for new users
+        const randomAvatarIndex = Math.floor(Math.random() * avatarOptions.length);
+        const randomAvatar = avatarOptions[randomAvatarIndex];
+
         // Create new user document if it doesn't exist
         await setDoc(userDocRef, {
           fullName: user.displayName || '',
           email: user.email || '',
           phone: user.phoneNumber || '',
           balance: 0,
-          profilePhoto: user.photoURL || '',
+          profilePhoto: randomAvatar.imageUrl || user.photoURL || '',
+          avatarId: randomAvatar.id,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         });
@@ -179,13 +191,18 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
       const userDoc = await getDoc(userDocRef);
 
       if (!userDoc.exists()) {
+        // Select a random avatar for new users
+        const randomAvatarIndex = Math.floor(Math.random() * avatarOptions.length);
+        const randomAvatar = avatarOptions[randomAvatarIndex];
+
         // Create new user document if it doesn't exist
         await setDoc(userDocRef, {
           fullName: user.displayName || '',
           email: user.email || '',
           phone: user.phoneNumber || '',
           balance: 0,
-          profilePhoto: user.photoURL || '',
+          profilePhoto: randomAvatar.imageUrl || user.photoURL || '',
+          avatarId: randomAvatar.id,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         });

@@ -12,6 +12,26 @@ import { Link, useNavigate } from "react-router-dom";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/ui/use-toast";
 
+// New AvatarCollection component
+const AvatarCollection = ({ selectedAvatar, onAvatarSelect }) => {
+  const avatars = [
+    { id: 1, src: '/avatars/avatar1.png', alt: 'Avatar 1' },
+    { id: 2, src: '/avatars/avatar2.png', alt: 'Avatar 2' },
+    { id: 3, src: '/avatars/avatar3.png', alt: 'Avatar 3' },
+    // Add more avatars as needed
+  ];
+
+  return (
+    <div className="grid grid-cols-4 gap-4">
+      {avatars.map(avatar => (
+        <Avatar key={avatar.id} onClick={() => onAvatarSelect(avatar.src)} className="cursor-pointer hover:opacity-90">
+          <AvatarImage src={avatar.src} alt={avatar.alt} />
+        </Avatar>
+      ))}
+    </div>
+  );
+};
+
 
 const DashboardHeader = () => {
   const [profileOpen, setProfileOpen] = React.useState(false);
@@ -21,6 +41,7 @@ const DashboardHeader = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { toast } = useToast();
   const [userUid, setUserUid] = useState("");
+  const [selectedAvatar, setSelectedAvatar] = useState(''); // Added state for selected avatar
 
   useEffect(() => {
     // Get current user UID when component loads
@@ -136,8 +157,12 @@ const DashboardHeader = () => {
             <div className="space-y-6">
               <div className="flex items-center space-x-4">
                 <Avatar className="h-16 w-16">
-                  <AvatarImage src="https://github.com/shadcn.png" />
-                  <AvatarFallback>JD</AvatarFallback>
+                  {/* Placeholder for avatar image - replace with actual image source */}
+                  {selectedAvatar ? (
+                    <AvatarImage src={selectedAvatar} />
+                  ) : (
+                    <AvatarFallback>JD</AvatarFallback>
+                  )}
                 </Avatar>
                 <div>
                   <h3 className="font-medium">John Doe</h3>
@@ -160,7 +185,6 @@ const DashboardHeader = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Settings Dialog */}
         {/* Settings Dialog remains unchanged */}
       </div>
     </header>

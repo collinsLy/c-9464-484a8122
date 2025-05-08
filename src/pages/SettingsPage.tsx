@@ -17,10 +17,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { 
   User, Lock, Bell, Moon, Sun, CreditCard, Globe, Shield, LogOut, 
-  Upload, Database, Smartphone
+  Upload, Database, Smartphone, PictureInPicture
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
+import AvatarCollection from "@/components/AvatarCollection"; // Simulated import
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
 
 const SettingsPage = () => {
   const { isDemoMode } = useDashboardContext();
@@ -31,13 +34,14 @@ const SettingsPage = () => {
     name: "",
     email: "",
     phone: "",
-    profilePhoto: ""
+    profilePhoto: "",
+    avatarId: "default" // Added avatarId
   });
 
-  // Add state to track image updates and force re-renders
   const [imageUpdateTimestamp, setImageUpdateTimestamp] = useState(Date.now());
-  // Add state to track the full image URL with timestamp
   const [profileImageUrl, setProfileImageUrl] = useState("");
+  const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false);
+  const [selectedAvatarId, setSelectedAvatarId] = useState("default");
 
   const profileForm = useForm({
     defaultValues: initialValues
@@ -55,13 +59,13 @@ const SettingsPage = () => {
               name: userData.fullName || "",
               email: user.email || "",
               phone: userData.phone || "",
-              profilePhoto: userData.profilePhoto || ""
+              profilePhoto: userData.profilePhoto || "",
+              avatarId: userData.avatarId || "default" // Added avatarId
             };
 
             setInitialValues(profileData);
             profileForm.reset(profileData);
 
-            // Generate cached URL with timestamp for the image
             if (userData.profilePhoto) {
               const cacheBustedUrl = `${userData.profilePhoto}?t=${Date.now()}`;
               setProfileImageUrl(cacheBustedUrl);
@@ -96,6 +100,7 @@ const SettingsPage = () => {
       await updateDoc(doc(db, 'users', user.uid), {
         fullName: data.name,
         phone: data.phone,
+        avatarId: selectedAvatarId, // Update avatarId
         updatedAt: new Date().toISOString()
       });
 
@@ -103,18 +108,18 @@ const SettingsPage = () => {
         await updateEmail(user, data.email);
       }
 
-      // Update the initial values after successful save
       setInitialValues({
         name: data.name,
         email: data.email,
-        phone: data.phone
+        phone: data.phone,
+        avatarId: selectedAvatarId // Update avatarId
       });
 
-      // Reset form with new values
       profileForm.reset({
         name: data.name,
         email: data.email,
-        phone: data.phone
+        phone: data.phone,
+        avatarId: selectedAvatarId // Update avatarId
       });
 
       toast({
@@ -171,21 +176,16 @@ const SettingsPage = () => {
                       <AvatarImage 
                         className="avatar-image" 
                         src={profileImageUrl || "https://github.com/shadcn.png"}
-                        key={`profile-${imageUpdateTimestamp}`} // Key tied to the timestamp state
+                        key={`profile-${imageUpdateTimestamp}`} 
                         onError={(e) => {
                           console.log("Image failed to load, retrying with direct Supabase URL...");
-                          // If image fails to load, try to get a fresh URL directly from Supabase
                           if (profileForm.getValues().profilePhoto) {
                             setTimeout(async () => {
                               try {
-                                // Import the getProfileImageUrl function
                                 const { getProfileImageUrl } = await import('@/lib/supabase');
-                                // Get a fresh URL with cache busting
                                 const freshUrl = getProfileImageUrl(profileForm.getValues().profilePhoto);
                                 console.log("Generated fresh Supabase URL:", freshUrl);
-                                // Update the state with the fresh URL
                                 setProfileImageUrl(freshUrl);
-                                // Force re-render with a new timestamp
                                 setImageUpdateTimestamp(Date.now());
                               } catch (err) {
                                 console.error("Error refreshing profile image URL:", err);
@@ -198,6 +198,20 @@ const SettingsPage = () => {
                         {initialValues.name ? initialValues.name.slice(0, 2).toUpperCase() : "JD"}
                       </AvatarFallback>
                     </Avatar>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="gap-2"
+                      onClick={() => {
+                        setIsAvatarDialogOpen(true); // Open dialog on click
+                      }}
+                      type="button"
+                      disabled={isDemoMode}
+                    >
+                      <PictureInPicture className="h-4 w-4" /> {/* Changed icon */}
+                      {isDemoMode ? "Disabled in Demo" : "Change Avatar"} {/* Changed text */}
+                    </Button>
+                    <p className="text-xs text-white/60 text-center mt-1">Select from Avatars</p> {/* Changed text */}
                     <Input
                       type="file"
                       accept="image/*"
@@ -403,17 +417,6 @@ const SettingsPage = () => {
                         }
                       }}
                     />
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="gap-2"
-                      onClick={() => document.getElementById('avatar-upload')?.click()}
-                      type="button"
-                      disabled={isDemoMode}
-                    >
-                      <Upload className="h-4 w-4" />
-                      {isDemoMode ? "Disabled in Demo" : "Change"}
-                    </Button>
                     <p className="text-xs text-white/60 text-center mt-1">Max size: 5MB</p>
                   </div>
 
@@ -739,6 +742,11 @@ const SettingsPage = () => {
             </Card>
           </TabsContent>
         </Tabs>
+        <Dialog open={isAvatarDialogOpen} onOpenChange={setIsAvatarDialogOpen}>
+          <DialogContent>
+              <AvatarCollection onAvatarSelect={setSelectedAvatarId} />
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   );
