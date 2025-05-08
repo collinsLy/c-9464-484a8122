@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -40,25 +39,25 @@ const SimpleEarnPage = () => {
       <div className="flex flex-col space-y-4">
         <div className="flex flex-col md:flex-row justify-between items-start gap-4">
           <div className="w-full md:w-2/3">
-            <Card>
+            <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
               <CardHeader>
                 <CardTitle>Simple Earn</CardTitle>
-                <CardDescription>Earn interest on your crypto assets</CardDescription>
+                <CardDescription className="text-white/70">Earn interest on your crypto assets</CardDescription>
               </CardHeader>
               <CardContent>
                 <Tabs defaultValue={earnType} onValueChange={setEarnType}>
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="flexible">Flexible</TabsTrigger>
-                    <TabsTrigger value="locked">Locked</TabsTrigger>
+                  <TabsList className="grid w-full grid-cols-2 bg-white/5 text-white">
+                    <TabsTrigger value="flexible" className="data-[state=active]:bg-white/10">Flexible</TabsTrigger>
+                    <TabsTrigger value="locked" className="data-[state=active]:bg-white/10">Locked</TabsTrigger>
                   </TabsList>
                   <TabsContent value="flexible" className="space-y-4 pt-4">
                     <div className="space-y-2">
                       <Label>Select Asset</Label>
                       <Select value={selectedAsset} onValueChange={setSelectedAsset}>
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-white/5 border-white/10 text-white">
                           <SelectValue placeholder="Select asset" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-zinc-900 border-white/10 text-white">
                           <SelectItem value="BTC">Bitcoin (BTC)</SelectItem>
                           <SelectItem value="ETH">Ethereum (ETH)</SelectItem>
                           <SelectItem value="USDT">Tether (USDT)</SelectItem>
@@ -68,7 +67,7 @@ const SimpleEarnPage = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="rounded-md border p-4">
                       <div className="flex justify-between">
                         <div>
@@ -80,9 +79,9 @@ const SimpleEarnPage = () => {
                           <div className="text-sm text-muted-foreground">Estimated APY</div>
                         </div>
                       </div>
-                      
+
                       <Separator className="my-4" />
-                      
+
                       <div className="space-y-4">
                         <div className="flex justify-between items-center text-sm">
                           <span>Minimum Purchase</span>
@@ -98,15 +97,16 @@ const SimpleEarnPage = () => {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <Label>Subscription Amount</Label>
                       <div className="relative">
-                        <Input 
-                          type="text" 
-                          placeholder="0.00" 
+                        <Input
+                          type="text"
+                          placeholder="0.00"
                           value={amount}
                           onChange={(e) => setAmount(e.target.value)}
+                          className="bg-white/5 border-white/10 text-white"
                         />
                         <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                           <span className="text-sm font-medium">{selectedAsset}</span>
@@ -117,22 +117,22 @@ const SimpleEarnPage = () => {
                         <Button variant="ghost" size="sm" className="h-5 p-0">MAX</Button>
                       </div>
                     </div>
-                    
+
                     <div className="pt-2">
-                      <Button className="w-full" onClick={handleSubscribe}>
+                      <Button className="w-full bg-[#F2FF44] text-black hover:bg-[#E1EE33]">
                         Subscribe Now
                       </Button>
                     </div>
                   </TabsContent>
-                  
+
                   <TabsContent value="locked" className="space-y-4 pt-4">
                     <div className="space-y-2">
                       <Label>Select Asset</Label>
                       <Select value={selectedAsset} onValueChange={setSelectedAsset}>
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-white/5 border-white/10 text-white">
                           <SelectValue placeholder="Select asset" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-zinc-900 border-white/10 text-white">
                           <SelectItem value="BTC">Bitcoin (BTC)</SelectItem>
                           <SelectItem value="ETH">Ethereum (ETH)</SelectItem>
                           <SelectItem value="USDT">Tether (USDT)</SelectItem>
@@ -142,7 +142,7 @@ const SimpleEarnPage = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <Label>Lock-up Duration</Label>
                       <RadioGroup value={duration} onValueChange={setDuration} className="grid grid-cols-3 gap-4">
@@ -175,7 +175,7 @@ const SimpleEarnPage = () => {
                         </Label>
                       </RadioGroup>
                     </div>
-                    
+
                     <div className="rounded-md border p-4">
                       <div className="flex justify-between">
                         <div>
@@ -189,9 +189,9 @@ const SimpleEarnPage = () => {
                           <div className="text-sm text-muted-foreground">Fixed APY</div>
                         </div>
                       </div>
-                      
+
                       <Separator className="my-4" />
-                      
+
                       <div className="space-y-4">
                         <div className="flex justify-between items-center text-sm">
                           <span>Redemption Period</span>
@@ -207,15 +207,16 @@ const SimpleEarnPage = () => {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <Label>Subscription Amount</Label>
                       <div className="relative">
-                        <Input 
-                          type="text" 
-                          placeholder="0.00" 
+                        <Input
+                          type="text"
+                          placeholder="0.00"
                           value={amount}
                           onChange={(e) => setAmount(e.target.value)}
+                          className="bg-white/5 border-white/10 text-white"
                         />
                         <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                           <span className="text-sm font-medium">{selectedAsset}</span>
@@ -226,18 +227,18 @@ const SimpleEarnPage = () => {
                         <Button variant="ghost" size="sm" className="h-5 p-0">MAX</Button>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center space-x-2">
-                      <Switch 
-                        id="auto-renew" 
+                      <Switch
+                        id="auto-renew"
                         checked={autoRenew}
                         onCheckedChange={setAutoRenew}
                       />
                       <Label htmlFor="auto-renew">Auto-renew at maturity</Label>
                     </div>
-                    
+
                     <div className="pt-2">
-                      <Button className="w-full" onClick={handleSubscribe}>
+                      <Button className="w-full bg-[#F2FF44] text-black hover:bg-[#E1EE33]">
                         Subscribe Now
                       </Button>
                     </div>
@@ -245,11 +246,11 @@ const SimpleEarnPage = () => {
                 </Tabs>
               </CardContent>
             </Card>
-            
-            <Card className="mt-4">
+
+            <Card className="mt-4 bg-background/40 backdrop-blur-lg border-white/10 text-white">
               <CardHeader>
                 <CardTitle>Interest Calculator</CardTitle>
-                <CardDescription>Estimate your potential earnings</CardDescription>
+                <CardDescription className="text-white/70">Estimate your potential earnings</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col md:flex-row gap-4">
@@ -257,10 +258,10 @@ const SimpleEarnPage = () => {
                     <div className="space-y-2">
                       <Label>Asset</Label>
                       <Select defaultValue="BTC">
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-white/5 border-white/10 text-white">
                           <SelectValue placeholder="Select asset" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-zinc-900 border-white/10 text-white">
                           <SelectItem value="BTC">Bitcoin (BTC)</SelectItem>
                           <SelectItem value="ETH">Ethereum (ETH)</SelectItem>
                           <SelectItem value="USDT">Tether (USDT)</SelectItem>
@@ -268,12 +269,12 @@ const SimpleEarnPage = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <Label>Amount</Label>
-                      <Input type="text" placeholder="0.00" defaultValue="1" />
+                      <Input type="text" placeholder="0.00" defaultValue="1" className="bg-white/5 border-white/10 text-white"/>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <Label>Duration (Days)</Label>
                       <Slider defaultValue={[30]} min={1} max={90} step={1} />
@@ -284,26 +285,26 @@ const SimpleEarnPage = () => {
                         <span>90 Days</span>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <Label>Product Type</Label>
                       <Select defaultValue="locked">
-                        <SelectTrigger>
+                        <SelectTrigger className="bg-white/5 border-white/10 text-white">
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-zinc-900 border-white/10 text-white">
                           <SelectItem value="flexible">Flexible Savings</SelectItem>
                           <SelectItem value="locked">Locked Savings</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <Button variant="outline" className="w-full">
                       <Calculator className="mr-2 h-4 w-4" />
                       Calculate
                     </Button>
                   </div>
-                  
+
                   <div className="w-full md:w-1/2 border rounded-md p-4">
                     <h3 className="font-medium mb-4">Estimated Earnings</h3>
                     <div className="space-y-4">
@@ -311,31 +312,31 @@ const SimpleEarnPage = () => {
                         <span className="text-sm">Est. APY</span>
                         <span className="font-bold text-green-500">6.8%</span>
                       </div>
-                      
+
                       <Separator />
-                      
+
                       <div className="flex justify-between items-center">
                         <span className="text-sm">Daily Interest</span>
                         <span className="font-mono">0.000186 BTC</span>
                       </div>
-                      
+
                       <div className="flex justify-between items-center">
                         <span className="text-sm">Monthly Interest</span>
                         <span className="font-mono">0.00558 BTC</span>
                       </div>
-                      
+
                       <div className="flex justify-between items-center">
                         <span className="text-sm">Yearly Interest</span>
                         <span className="font-mono">0.068 BTC</span>
                       </div>
-                      
+
                       <Separator />
-                      
+
                       <div className="flex justify-between items-center">
                         <span className="text-sm">Initial Investment</span>
                         <span className="font-mono">1.00 BTC</span>
                       </div>
-                      
+
                       <div className="flex justify-between items-center font-bold">
                         <span>Total Value (30 Days)</span>
                         <span className="font-mono text-green-500">1.0186 BTC</span>
@@ -346,12 +347,12 @@ const SimpleEarnPage = () => {
               </CardContent>
             </Card>
           </div>
-          
+
           <div className="w-full md:w-1/3">
-            <Card>
+            <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
               <CardHeader>
                 <CardTitle>My Earn Assets</CardTitle>
-                <CardDescription>Currently earning interest</CardDescription>
+                <CardDescription className="text-white/70">Currently earning interest</CardDescription>
               </CardHeader>
               <CardContent>
                 {isDemoMode ? (
@@ -371,9 +372,9 @@ const SimpleEarnPage = () => {
                         <div className="text-xs text-green-500">3.5% APY</div>
                       </div>
                     </div>
-                    
+
                     <Separator />
-                    
+
                     <div className="flex justify-between items-center">
                       <div className="flex items-center space-x-2">
                         <div className="h-8 w-8 rounded-full bg-blue-500/20 flex items-center justify-center">
@@ -389,9 +390,9 @@ const SimpleEarnPage = () => {
                         <div className="text-xs text-green-500">5.2% APY</div>
                       </div>
                     </div>
-                    
+
                     <Separator />
-                    
+
                     <div className="flex justify-between items-center">
                       <div className="flex items-center space-x-2">
                         <div className="h-8 w-8 rounded-full bg-green-500/20 flex items-center justify-center">
@@ -407,9 +408,9 @@ const SimpleEarnPage = () => {
                         <div className="text-xs text-green-500">12.5% APY</div>
                       </div>
                     </div>
-                    
+
                     <Separator />
-                    
+
                     <div className="pt-2">
                       <Button variant="outline" className="w-full">
                         <Lock className="mr-2 h-4 w-4" />
@@ -425,8 +426,8 @@ const SimpleEarnPage = () => {
                 )}
               </CardContent>
             </Card>
-            
-            <Card className="mt-4">
+
+            <Card className="mt-4 bg-background/40 backdrop-blur-lg border-white/10 text-white">
               <CardHeader>
                 <CardTitle>Redemption History</CardTitle>
               </CardHeader>
@@ -443,9 +444,9 @@ const SimpleEarnPage = () => {
                         <div className="text-xs text-muted-foreground">2023-11-04</div>
                       </div>
                     </div>
-                    
+
                     <Separator />
-                    
+
                     <div className="flex justify-between">
                       <div>
                         <div className="font-medium">500 USDT</div>
@@ -456,7 +457,7 @@ const SimpleEarnPage = () => {
                         <div className="text-xs text-muted-foreground">2023-10-28</div>
                       </div>
                     </div>
-                    
+
                     <div className="pt-2">
                       <Button variant="link" size="sm" className="w-full">
                         View All History
@@ -470,50 +471,41 @@ const SimpleEarnPage = () => {
                 )}
               </CardContent>
             </Card>
-            
-            <Card className="mt-4">
+
+            <Card className="mt-4 bg-background/40 backdrop-blur-lg border-white/10 text-white">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm">Featured Products</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <div className="rounded-md border p-3">
-                    <div className="flex justify-between">
-                      <div className="flex items-center space-x-2">
-                        <div className="h-6 w-6 rounded-full bg-purple-500/20 flex items-center justify-center">
-                          <span className="text-xs font-bold text-purple-500">DOT</span>
-                        </div>
-                        <span className="font-medium">Polkadot</span>
+                  <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <div className="font-medium">Polkadot (DOT)</div>
+                        <div className="text-sm text-white/70">90-day lock-up period</div>
                       </div>
                       <Badge className="bg-green-500/20 text-green-500">14.5% APY</Badge>
                     </div>
-                    <div className="mt-2 text-xs">90-day lock-up period</div>
                   </div>
-                  
-                  <div className="rounded-md border p-3">
-                    <div className="flex justify-between">
-                      <div className="flex items-center space-x-2">
-                        <div className="h-6 w-6 rounded-full bg-blue-500/20 flex items-center justify-center">
-                          <span className="text-xs font-bold text-blue-500">AVAX</span>
-                        </div>
-                        <span className="font-medium">Avalanche</span>
+
+                  <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <div className="font-medium">Avalanche (AVAX)</div>
+                        <div className="text-sm text-white/70">60-day lock-up period</div>
                       </div>
                       <Badge className="bg-green-500/20 text-green-500">12.8% APY</Badge>
                     </div>
-                    <div className="mt-2 text-xs">60-day lock-up period</div>
                   </div>
-                  
-                  <div className="rounded-md border p-3">
-                    <div className="flex justify-between">
-                      <div className="flex items-center space-x-2">
-                        <div className="h-6 w-6 rounded-full bg-green-500/20 flex items-center justify-center">
-                          <span className="text-xs font-bold text-green-500">USDC</span>
-                        </div>
-                        <span className="font-medium">USD Coin</span>
+
+                  <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <div className="font-medium">USD Coin (USDC)</div>
+                        <div className="text-sm text-white/70">Flexible savings</div>
                       </div>
                       <Badge className="bg-green-500/20 text-green-500">9.5% APY</Badge>
                     </div>
-                    <div className="mt-2 text-xs">Flexible savings</div>
                   </div>
                 </div>
               </CardContent>

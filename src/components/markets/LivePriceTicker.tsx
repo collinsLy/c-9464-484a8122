@@ -26,7 +26,7 @@ export function LivePriceTicker({ symbol }: { symbol?: string }) {
   useEffect(() => {
     if (!symbol) return;
 
-    const ws = symbol.includes('USDT') 
+    const ws = symbol.includes('USDT')
       ? new WebSocket(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@trade`)
       : new WebSocket(`wss://ws.finnhub.io?token=${import.meta.env.VITE_FINNHUB_API_KEY}`);
 

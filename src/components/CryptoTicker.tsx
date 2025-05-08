@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import Marquee from 'react-fast-marquee';
 
@@ -9,7 +8,7 @@ interface CryptoPrice {
 }
 
 const SYMBOLS = [
-  'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'ADAUSDT', 
+  'BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'SOLUSDT', 'ADAUSDT',
   'DOGEUSDT', 'DOTUSDT', 'MATICUSDT', 'LINKUSDT', 'XRPUSDT'
 ];
 
@@ -78,9 +77,9 @@ export function CryptoTicker() {
             <span className="font-bold text-white">{crypto.price}</span>
             <span
               className={`${
-                parseFloat(crypto.priceChange) >= 0 
-                ? 'text-green-400' 
-                : 'text-red-400'
+                parseFloat(crypto.priceChange) >= 0
+                  ? 'text-green-400'
+                  : 'text-red-400'
               } font-medium`}
             >
               {parseFloat(crypto.priceChange) >= 0 ? '+' : ''}{crypto.priceChange}%
