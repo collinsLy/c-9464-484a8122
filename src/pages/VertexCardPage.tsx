@@ -9,6 +9,7 @@ import { CreditCard, Shield, Globe, Bell, ChevronRight, Gift, Percent, RefreshCw
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import Credit3DCard from '@/components/trading/Credit3DCard';
 
 
 const VertexCardPage: React.FC = () => {
@@ -41,52 +42,9 @@ const VertexCardPage: React.FC = () => {
                       <h3 className="text-xl font-semibold">Card Overview</h3>
                       <p>Your Vertex Card gives you global access to your crypto assets in real-world spending.</p>
                       
-                      {/* Binance Virtual Card based on the shared image */}
-                      <div className="mt-6 bg-black rounded-xl p-4 shadow-lg relative overflow-hidden max-w-lg mx-auto">
-                        {/* Card background pattern - black diamond pattern */}
-                        <div className="absolute inset-0" style={{
-                          backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23222\' fill-opacity=\'0.8\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M0 0h20v20H0z\'/%3E%3C/g%3E%3C/svg%3E")',
-                          backgroundSize: '10px 10px'
-                        }}></div>
-                        
-                        {/* Card Content */}
-                        <div className="relative z-10">
-                          {/* Top row: Vertex logo and badge */}
-                          <div className="flex justify-between items-center mb-8">
-                            <div className="h-6 w-6 rounded-full flex items-center justify-center bg-white">
-                              <Info className="h-4 w-4 text-black" />
-                            </div>
-                            <div className="flex items-center">
-                              <span className="text-sm font-bold mr-2">VERTEX</span>
-                              <div className="bg-transparent border border-gray-600 rounded px-2 py-0.5">
-                                <span className="text-xs text-gray-300">PREMIUM</span>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Card number */}
-                          <div className="font-mono text-lg font-medium mb-10">5360 •••• •••• 5858</div>
-                          
-                          {/* Bottom row: Cardholder and expiry/logo */}
-                          <div className="flex justify-between items-end">
-                            <div>
-                              <div className="text-xs text-gray-400 mb-1">Card Holder</div>
-                              <div className="text-sm font-medium uppercase">
-                                {auth?.currentUser?.displayName || "USER NAME"}
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              <div className="mr-3">
-                                <div className="text-xs text-gray-400 mb-1">Expires</div>
-                                <div className="text-sm">05/28</div>
-                              </div>
-                              <div className="flex">
-                                <div className="h-5 w-5 bg-red-500 rounded-full"></div>
-                                <div className="h-5 w-5 bg-yellow-500 rounded-full -ml-2"></div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                      {/* 3D Credit Card Component */}
+                      <div className="mt-6">
+                        <Credit3DCard />
                       </div>
 
                       {/* Button controls */}
