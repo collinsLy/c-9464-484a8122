@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
 import { auth } from '@/lib/firebase';
-import { CreditCard, Shield, Globe, Bell, ChevronRight, Gift, Percent, RefreshCw, DollarSign, ArrowRight, Wallet, Settings, Star } from "lucide-react";
+import { CreditCard, Shield, Globe, Bell, ChevronRight, Gift, Percent, RefreshCw, DollarSign, ArrowRight, Wallet, Settings, Star, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -14,43 +14,47 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const VertexCardPage: React.FC = () => {
   const { isDemoMode } = useDashboardContext();
   const [isCardFrozen, setIsCardFrozen] = useState(false);
-  const [userBalance, setUserBalance] = useState(0);
-  const [monthlySpending, setMonthlySpending] = useState(0);
+  const [userBalance, setUserBalance] = useState<number | null>(null);
+  const [monthlySpending, setMonthlySpending] = useState<number | null>(null);
+  const [rewardPoints, setRewardPoints] = useState<number | null>(null);
   
   // Fetch user card data
   useEffect(() => {
     // In a real implementation, this would fetch data from your API
     const fetchCardData = async () => {
       try {
-        if (!isDemoMode && auth.currentUser) {
+        if (auth.currentUser) {
           // Here you would make an API call to get the real data
-          // For now we'll simulate a random balance
-          const randomBalance = Math.random() * 5000 + 500;
-          const randomSpending = Math.random() * 2000 + 100;
+          // For now we're showing API loading state
+          setUserBalance(null);
+          setMonthlySpending(null);
+          setRewardPoints(null);
           
-          setUserBalance(randomBalance);
-          setMonthlySpending(randomSpending);
-        } else {
-          // Demo mode fallback
-          setUserBalance(2450.25);
-          setMonthlySpending(1240.80);
+          // Simulate API call
+          setTimeout(() => {
+            // This would be replaced with actual API data
+            // The API would fetch the real user's card data
+            setUserBalance(0);
+            setMonthlySpending(0);
+            setRewardPoints(0);
+          }, 1000);
         }
       } catch (error) {
         console.error("Error fetching card data:", error);
-        // Set fallback values in case of error
         setUserBalance(0);
         setMonthlySpending(0);
+        setRewardPoints(0);
       }
     };
     
     fetchCardData();
-  }, [isDemoMode]);
+  }, []);
   
   return (
     <DashboardLayout>
       <div className="container mx-auto p-4">
         <div className="flex flex-col space-y-6">
-          <h1 className="text-3xl font-bold">Vertex Card</h1>
+          <h1 className="text-3xl font-bold text-white">Vertex Card</h1>
           <p className="text-slate-500 dark:text-slate-400">
             Access financial services with the Vertex Card.
           </p>
@@ -70,52 +74,60 @@ const VertexCardPage: React.FC = () => {
                     <div className="space-y-4">
                       <h3 className="text-xl font-semibold">Card Overview</h3>
                       <p>Your Vertex Card gives you global access to your crypto assets in real-world spending.</p>
-                      <div className="mt-6 bg-[#111] text-white rounded-xl p-6 shadow-lg relative overflow-hidden">
-                        <div 
-                          className="absolute inset-0 opacity-50"
-                          style={{
-                            backgroundImage: 'url("data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z" fill="%23333" fill-opacity="0.2" fill-rule="evenodd"/%3E%3C/svg%3E")',
-                            backgroundSize: '20px 20px'
-                          }}
-                        ></div>
-                        <div className="flex flex-col h-48 justify-between relative z-10">
-                          <div className="flex justify-between items-start">
-                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-white">
-                              <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                              <path d="M12 16V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                              <path d="M12 8H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
+                      
+                      {/* Binance Virtual Card based on the shared image */}
+                      <div className="mt-6 bg-black rounded-xl p-4 shadow-lg relative overflow-hidden max-w-lg mx-auto">
+                        {/* Card background pattern - black diamond pattern */}
+                        <div className="absolute inset-0" style={{
+                          backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23222\' fill-opacity=\'0.8\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M0 0h20v20H0z\'/%3E%3C/g%3E%3C/svg%3E")',
+                          backgroundSize: '10px 10px'
+                        }}></div>
+                        
+                        {/* Card Content */}
+                        <div className="relative z-10">
+                          {/* Top row: Binance logo and virtual badge */}
+                          <div className="flex justify-between items-center mb-8">
+                            <div className="h-6 w-6 rounded-full flex items-center justify-center bg-white">
+                              <Info className="h-4 w-4 text-black" />
+                            </div>
                             <div className="flex items-center">
-                              <span className="text-sm font-medium mr-2">BINANCE</span>
-                              <span className="text-xs px-2 py-1 bg-white/10 rounded">VIRTUAL</span>
+                              <span className="text-sm font-bold mr-2">BINANCE</span>
+                              <div className="bg-transparent border border-gray-600 rounded px-2 py-0.5">
+                                <span className="text-xs text-gray-300">VIRTUAL</span>
+                              </div>
                             </div>
                           </div>
                           
-                          <div className="text-lg font-mono mt-4">5360 •••• •••• 5858</div>
+                          {/* Card number */}
+                          <div className="font-mono text-lg font-medium mb-10">5360 •••• •••• 5858</div>
                           
-                          <div className="flex justify-between items-end mt-auto">
+                          {/* Bottom row: Cardholder and expiry/logo */}
+                          <div className="flex justify-between items-end">
                             <div>
-                              <div className="text-xs text-white/70">Card Holder</div>
-                              <div className="font-medium uppercase">{auth?.currentUser?.displayName || "USER NAME"}</div>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <div>
-                                <div className="text-xs text-white/70">Expires</div>
-                                <div>05/28</div>
+                              <div className="text-xs text-gray-400 mb-1">Card Holder</div>
+                              <div className="text-sm font-medium uppercase">
+                                {auth?.currentUser?.displayName || "USER NAME"}
                               </div>
-                              <div className="flex space-x-1">
-                                <div className="w-6 h-6 bg-red-500 rounded-full opacity-80"></div>
-                                <div className="w-6 h-6 bg-yellow-500 rounded-full opacity-70 -ml-3"></div>
+                            </div>
+                            <div className="flex items-center">
+                              <div className="mr-3">
+                                <div className="text-xs text-gray-400 mb-1">Expires</div>
+                                <div className="text-sm">05/28</div>
+                              </div>
+                              <div className="flex">
+                                <div className="h-5 w-5 bg-red-500 rounded-full"></div>
+                                <div className="h-5 w-5 bg-yellow-500 rounded-full -ml-2"></div>
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      <div className="mt-4 flex justify-center space-x-6">
-                        <Button variant="outline" className="flex flex-col items-center p-4 h-auto border-white/10 hover:bg-white/5">
-                          <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center mb-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      {/* Button controls */}
+                      <div className="mt-6 grid grid-cols-3 gap-2">
+                        <Button variant="outline" className="flex flex-col items-center justify-center py-4 h-auto border-white/10 hover:bg-white/5">
+                          <div className="w-6 h-6 bg-yellow-500/10 rounded-full flex items-center justify-center mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <rect width="18" height="18" x="3" y="3" rx="2" />
                               <path d="M7 7h.01" />
                               <path d="M12 7h.01" />
@@ -128,40 +140,53 @@ const VertexCardPage: React.FC = () => {
                               <path d="M17 17h.01" />
                             </svg>
                           </div>
-                          <span className="text-sm">Show Details</span>
+                          <span className="text-xs text-center">Show Details</span>
                         </Button>
-                        <Button variant="outline" className="flex flex-col items-center p-4 h-auto border-white/10 hover:bg-white/5">
-                          <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center mb-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <Button variant="outline" className="flex flex-col items-center justify-center py-4 h-auto border-white/10 hover:bg-white/5">
+                          <div className="w-6 h-6 bg-yellow-500/10 rounded-full flex items-center justify-center mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                             </svg>
                           </div>
-                          <span className="text-sm">Manage</span>
+                          <span className="text-xs text-center">Manage</span>
                         </Button>
-                        <Button variant="outline" className="flex flex-col items-center p-4 h-auto border-white/10 hover:bg-white/5">
-                          <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center mb-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <Button variant="outline" className="flex flex-col items-center justify-center py-4 h-auto border-white/10 hover:bg-white/5">
+                          <div className="w-6 h-6 bg-yellow-500/10 rounded-full flex items-center justify-center mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <circle cx="12" cy="12" r="10" />
                               <circle cx="12" cy="10" r="3" />
                               <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662" />
                             </svg>
                           </div>
-                          <span className="text-sm">Profile</span>
+                          <span className="text-xs text-center">Profile</span>
                         </Button>
                       </div>
                       
+                      {/* Card stats */}
                       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
                         <Card className="bg-slate-800 p-4 rounded-lg border-white/10">
                           <div className="text-sm text-slate-400">Available Balance</div>
-                          <div className="text-2xl font-semibold text-white">${userBalance ? userBalance.toFixed(2) : '0.00'}</div>
+                          {userBalance === null ? (
+                            <div className="text-2xl font-semibold text-white h-7 bg-slate-700 animate-pulse rounded mt-1 w-24"></div>
+                          ) : (
+                            <div className="text-2xl font-semibold text-white">${userBalance.toFixed(2)}</div>
+                          )}
                         </Card>
                         <Card className="bg-slate-800 p-4 rounded-lg border-white/10">
                           <div className="text-sm text-slate-400">Monthly Spending</div>
-                          <div className="text-2xl font-semibold text-white">${monthlySpending ? monthlySpending.toFixed(2) : '0.00'}</div>
+                          {monthlySpending === null ? (
+                            <div className="text-2xl font-semibold text-white h-7 bg-slate-700 animate-pulse rounded mt-1 w-24"></div>
+                          ) : (
+                            <div className="text-2xl font-semibold text-white">${monthlySpending.toFixed(2)}</div>
+                          )}
                         </Card>
                         <Card className="bg-slate-800 p-4 rounded-lg border-white/10">
                           <div className="text-sm text-slate-400">Reward Points</div>
-                          <div className="text-2xl font-semibold text-white">{(userBalance * 10).toFixed(0) || '0'}</div>
+                          {rewardPoints === null ? (
+                            <div className="text-2xl font-semibold text-white h-7 bg-slate-700 animate-pulse rounded mt-1 w-24"></div>
+                          ) : (
+                            <div className="text-2xl font-semibold text-white">{rewardPoints}</div>
+                          )}
                         </Card>
                       </div>
                     </div>
