@@ -55,7 +55,6 @@ const defaultNavItems: NavItem[] = [
   { icon: Settings, label: "Support", id: "support", path: "/support" },
   { icon: Settings, label: "Settings", id: "settings", path: "/settings" },
 ];
-];
 
 interface SidebarProps {
   navItems?: NavItem[];
