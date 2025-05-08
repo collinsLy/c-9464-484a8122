@@ -25,7 +25,7 @@ const defaultNavItems: NavItem[] = [
   { icon: CreditCard, label: "Withdraw", id: "withdraw", path: "/withdraw" },
   { icon: BarChart3, label: "Bots & Strategies", id: "bots", path: "/bots" },
   { icon: Bell, label: "Alerts", id: "alerts", path: "/alerts" },
-  { icon: Sparkles, label: "DEX Screener", id: "dexscreener", path: "/dexscreener" },
+  { icon: Sparkles, label: "New listing pairs", id: "dexscreener", path: "/dexscreener" },
   { icon: Users, label: "Referrals", id: "referrals", path: "/referrals" },
   { icon: PlayCircle, label: "Demo", id: "demo", path: "/demo" },
   { icon: History, label: "History", id: "history", path: "/history" },

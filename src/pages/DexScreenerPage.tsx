@@ -38,14 +38,14 @@ const DexScreenerPage = () => {
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-white">DEX Screener</h1>
-            <p className="text-sm text-white/70 mt-1">Monitor decentralized exchange pairs</p>
+            <h1 className="text-3xl font-bold text-white">New listing pairs</h1>
+            <p className="text-sm text-white/70 mt-1">Monitor newly listed decentralized exchange pairs</p>
           </div>
           <Button variant="outline" className="gap-2">
             <RefreshCw className="h-4 w-4" /> Refresh
           </Button>
         </div>
-        
+
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => (
