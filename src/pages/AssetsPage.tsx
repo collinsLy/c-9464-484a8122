@@ -10,7 +10,7 @@ import { PortfolioAnalytics } from "@/components/dashboard/PortfolioAnalytics";
 const AssetsPage = () => {
   const [balance, setBalance] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [profitLoss, setProfitLoss] = useState(0);
+  const [previousDayBalance, setPreviousDayBalance] = useState(0);
   const [selectedCrypto, setSelectedCrypto] = useState("BTC");
 
   const [totalPortfolioValue, setTotalPortfolioValue] = useState(0);
@@ -80,7 +80,16 @@ const AssetsPage = () => {
       return;
     }
 
+    // Get yesterday's date at midnight
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    yesterday.setHours(0, 0, 0, 0);
+
     const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
+      // Set previous day balance from userData
+      if (userData?.previousDayBalance) {
+        setPreviousDayBalance(userData.previousDayBalance);
+      }
       if (userData) {
         const parsedBalance = typeof userData.balance === 'string' ? parseFloat(userData.balance) : userData.balance;
         setBalance(parsedBalance || 0);
@@ -262,8 +271,10 @@ const AssetsPage = () => {
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <span>Today's PnL</span>
-                <span className={`${profitLoss >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                  {profitLoss >= 0 ? '+' : ''}{profitLoss.toFixed(2)} ({(profitLoss / (balance || 1) * 100).toFixed(2)}%)
+                <span className={`${totalPortfolioValue >= previousDayBalance ? 'text-green-400' : 'text-red-400'}`}>
+                  {totalPortfolioValue >= previousDayBalance ? '+' : ''}
+                  ${(totalPortfolioValue - previousDayBalance).toFixed(2)} 
+                  ({previousDayBalance > 0 ? ((totalPortfolioValue - previousDayBalance) / previousDayBalance * 100).toFixed(2) : '0.00'}%)
                 </span>
               </div>
             </div>
