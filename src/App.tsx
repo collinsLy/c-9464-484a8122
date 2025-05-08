@@ -22,8 +22,9 @@ import AlertsPage from "./pages/AlertsPage";
 import SocialTradingPage from "./pages/SocialTradingPage";
 import DexScreenerPage from "./pages/DexScreenerPage";
 import VertexNewListingsPage from "./pages/BinanceNewListingsPage";
-import HistoryPage from "./pages/HistoryPage"; // Added import
-import SpotMarketsPage from "@/pages/SpotMarketsPage"; // Added import
+import HistoryPage from "./pages/HistoryPage";
+import SpotMarketsPage from "@/pages/SpotMarketsPage";
+import FuturesMarketsPage from "@/pages/FuturesMarketsPage"; // Added import
 
 
 // Configure query client to not show error toasts
@@ -51,7 +52,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<ErrorBoundary><Index /></ErrorBoundary>} />
               <Route path="/dashboard" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
-              <Route path="/spot-markets" element={<ErrorBoundary><SpotMarketsPage /></ErrorBoundary>} /> {/* Added route */}
+              <Route path="/spot-markets" element={<ErrorBoundary><SpotMarketsPage /></ErrorBoundary>} />
               <Route path="/market" element={<ErrorBoundary><MarketPage /></ErrorBoundary>} />
               <Route path="/settings" element={<ErrorBoundary><SettingsPage /></ErrorBoundary>} />
               <Route path="/assets" element={<ErrorBoundary><AssetsPage /></ErrorBoundary>} />
@@ -65,7 +66,8 @@ const App = () => (
               <Route path="/alerts" element={<ErrorBoundary><AlertsPage /></ErrorBoundary>} />
               <Route path="/social-trading" element={<ErrorBoundary><SocialTradingPage /></ErrorBoundary>} />
               <Route path="/history" element={<ErrorBoundary><HistoryPage /></ErrorBoundary>} />
-              <Route path="/new-listings" element={<ErrorBoundary><VertexNewListingsPage /></ErrorBoundary>} /> {/* Added route */}
+              <Route path="/new-listings" element={<ErrorBoundary><VertexNewListingsPage /></ErrorBoundary>} />
+              <Route path="/futures-markets" element={<ErrorBoundary><FuturesMarketsPage /></ErrorBoundary>} /> {/* Added route */}
             </Routes>
           </DashboardProvider>
         </BrowserRouter>

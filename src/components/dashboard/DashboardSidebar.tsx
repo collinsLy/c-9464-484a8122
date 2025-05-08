@@ -132,6 +132,7 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
     if (pathname === '/demo') return 'demo';
     if (pathname === '/alerts') return 'alerts';
     if (pathname === '/new-listings') return 'newlistings'; // Added new-listings check
+    if (pathname === '/futures-markets') return 'futures-markets'; //Added futures-markets check
 
     // Log the current pathname for debugging
     console.log("Current active tab:", pathname);
@@ -241,3 +242,14 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
 };
 
 export default DashboardSidebar;
+
+//Minimal FuturesMarkets Component
+const FuturesMarkets = () => {
+    return (
+        <div>
+            <h1>Futures Markets</h1>
+            <p>This is the Futures Markets page.</p>
+        </div>
+    )
+}
+export default FuturesMarkets;
