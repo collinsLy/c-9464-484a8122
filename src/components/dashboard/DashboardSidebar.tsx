@@ -19,18 +19,18 @@ interface NavItem {
 const defaultNavItems: NavItem[] = [
   { icon: Home, label: "Dashboard", id: "dashboard", path: "/dashboard" },
   { icon: LineChart, label: "Markets", id: "markets", path: "/market" },
+  { icon: Sparkles, label: "DEX Screener", id: "dexscreener", path: "/dexscreener" },
   { icon: TrendingUp, label: "Trading", id: "trading", path: "/trading" },
   { icon: Wallet, label: "Assets", id: "assets", path: "/assets" },
   { icon: CreditCard, label: "Deposit", id: "deposit", path: "/deposit" },
   { icon: CreditCard, label: "Withdraw", id: "withdraw", path: "/withdraw" },
   { icon: BarChart3, label: "Bots & Strategies", id: "bots", path: "/bots" },
-  { icon: Bell, label: "Alerts", id: "alerts", path: "/alerts" }, // Added Alerts item
+  { icon: Bell, label: "Alerts", id: "alerts", path: "/alerts" },
   { icon: Users, label: "Referrals", id: "referrals", path: "/referrals" },
   { icon: PlayCircle, label: "Demo", id: "demo", path: "/demo" },
   { icon: History, label: "History", id: "history", path: "/history" },
   { icon: Settings, label: "Support", id: "support", path: "/support" },  
   { icon: Settings, label: "Settings", id: "settings", path: "/settings" },
-  { icon: Sparkles, label: "DEX Screener", id: "dexscreener", path: "/dexscreener" }, // Added DexScreener item
 ];
 
 interface SidebarProps {

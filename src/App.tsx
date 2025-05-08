@@ -59,7 +59,7 @@ const App = () => (
               <Route path="/referrals" element={<ErrorBoundary><ReferralsPage /></ErrorBoundary>} />
               <Route path="/alerts" element={<ErrorBoundary><AlertsPage /></ErrorBoundary>} />
               <Route path="/social-trading" element={<ErrorBoundary><SocialTradingPage /></ErrorBoundary>} />
-              <Route path="/dexscreener" element={<ErrorBoundary><DexScreenerPage /></ErrorBoundary>} /> {/* Added route for DexScreenerPage */}
+              <Route path="/dexscreener" element={<ErrorBoundary><DexScreenerPage /></ErrorBoundary>} />
             </Routes>
           </DashboardProvider>
         </BrowserRouter>
