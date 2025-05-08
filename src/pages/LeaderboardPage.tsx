@@ -57,12 +57,12 @@ const LeaderboardPage = () => {
   return (
     <DashboardLayout>
       <div className="flex flex-col space-y-4">
-        <Card>
+        <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
           <CardHeader>
             <div className="flex flex-col md:flex-row justify-between md:items-center space-y-2 md:space-y-0">
               <div>
                 <CardTitle>Trading Leaderboard</CardTitle>
-                <CardDescription>Top traders ranked by performance</CardDescription>
+                <CardDescription className="text-white/60">Top traders ranked by performance</CardDescription>
               </div>
               <div className="flex space-x-2">
                 <div className="relative">
@@ -70,12 +70,12 @@ const LeaderboardPage = () => {
                   <Input
                     type="search"
                     placeholder="Search traders..."
-                    className="pl-8 w-[200px]"
+                    className="pl-8 w-[200px] bg-white/10 border-white/10"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <Button variant="outline" size="icon">
+                <Button variant="outline" size="icon" className="border-white/10 bg-white/5">
                   <Filter className="h-4 w-4" />
                 </Button>
               </div>
@@ -83,38 +83,38 @@ const LeaderboardPage = () => {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="weekly" onValueChange={setTimeframe} className="mb-4">
-              <TabsList>
-                <TabsTrigger value="daily">Daily</TabsTrigger>
-                <TabsTrigger value="weekly">Weekly</TabsTrigger>
-                <TabsTrigger value="monthly">Monthly</TabsTrigger>
-                <TabsTrigger value="all-time">All Time</TabsTrigger>
+              <TabsList className="bg-white/5">
+                <TabsTrigger value="daily" className="data-[state=active]:bg-white/10">Daily</TabsTrigger>
+                <TabsTrigger value="weekly" className="data-[state=active]:bg-white/10">Weekly</TabsTrigger>
+                <TabsTrigger value="monthly" className="data-[state=active]:bg-white/10">Monthly</TabsTrigger>
+                <TabsTrigger value="all-time" className="data-[state=active]:bg-white/10">All Time</TabsTrigger>
               </TabsList>
             </Tabs>
             
             <Tabs defaultValue="roi" onValueChange={setCategory}>
-              <TabsList>
-                <TabsTrigger value="roi">ROI</TabsTrigger>
-                <TabsTrigger value="win-rate">Win Rate</TabsTrigger>
-                <TabsTrigger value="volume">Trading Volume</TabsTrigger>
-                <TabsTrigger value="followers">Followers</TabsTrigger>
+              <TabsList className="bg-white/5">
+                <TabsTrigger value="roi" className="data-[state=active]:bg-white/10">ROI</TabsTrigger>
+                <TabsTrigger value="win-rate" className="data-[state=active]:bg-white/10">Win Rate</TabsTrigger>
+                <TabsTrigger value="volume" className="data-[state=active]:bg-white/10">Trading Volume</TabsTrigger>
+                <TabsTrigger value="followers" className="data-[state=active]:bg-white/10">Followers</TabsTrigger>
               </TabsList>
               
               <TabsContent value="roi" className="pt-4">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-12">Rank</TableHead>
-                      <TableHead>Trader</TableHead>
-                      <TableHead className="text-right">ROI ({timeframe})</TableHead>
-                      <TableHead className="text-right">Win Rate</TableHead>
-                      <TableHead className="text-right">Trades</TableHead>
-                      <TableHead className="text-right">Followers</TableHead>
+                <Table className="border-white/10">
+                  <TableHeader className="bg-white/5">
+                    <TableRow className="border-white/10 hover:bg-white/5">
+                      <TableHead className="w-12 text-white/60">Rank</TableHead>
+                      <TableHead className="text-white/60">Trader</TableHead>
+                      <TableHead className="text-right text-white/60">ROI ({timeframe})</TableHead>
+                      <TableHead className="text-right text-white/60">Win Rate</TableHead>
+                      <TableHead className="text-right text-white/60">Trades</TableHead>
+                      <TableHead className="text-right text-white/60">Followers</TableHead>
                       <TableHead></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredTraders.map((trader, index) => (
-                      <TableRow key={trader.id}>
+                      <TableRow key={trader.id} className="border-white/10 hover:bg-white/5">
                         <TableCell className="font-medium">
                           {index === 0 ? <Trophy className="h-5 w-5 text-yellow-500" /> : 
                            index === 1 ? <Trophy className="h-5 w-5 text-gray-400" /> : 
@@ -124,7 +124,7 @@ const LeaderboardPage = () => {
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Avatar>
-                              <AvatarFallback>{trader.avatar}</AvatarFallback>
+                              <AvatarFallback className="bg-white/10">{trader.avatar}</AvatarFallback>
                             </Avatar>
                             <div>
                               <div className="font-medium">{trader.name}</div>
@@ -136,7 +136,7 @@ const LeaderboardPage = () => {
                                   <Badge variant="outline" className="text-xs px-1 py-0 bg-blue-500/10 text-blue-500 border-blue-500/20">Verified</Badge>
                                 }
                                 {trader.anonymity && 
-                                  <Badge variant="outline" className="text-xs px-1 py-0">Anon</Badge>
+                                  <Badge variant="outline" className="text-xs px-1 py-0 border-white/10 bg-white/5">Anon</Badge>
                                 }
                               </div>
                             </div>
@@ -147,7 +147,7 @@ const LeaderboardPage = () => {
                         <TableCell className="text-right font-mono">{trader.trades}</TableCell>
                         <TableCell className="text-right font-mono">{trader.followers.toLocaleString()}</TableCell>
                         <TableCell>
-                          <Button variant="outline" size="sm" onClick={() => handleCopyTrader(trader.id)}>
+                          <Button variant="outline" size="sm" onClick={() => handleCopyTrader(trader.id)} className="border-white/10 bg-white/5 hover:bg-white/10 hover:text-white">
                             <Copy className="mr-2 h-4 w-4" />
                             Copy
                           </Button>
@@ -209,98 +209,98 @@ const LeaderboardPage = () => {
         </Card>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
+          <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
             <CardHeader>
               <CardTitle className="text-lg">Your Ranking</CardTitle>
             </CardHeader>
             <CardContent>
               {isDemoMode ? (
                 <div className="flex flex-col items-center justify-center py-4">
-                  <Badge className="mb-2 text-lg px-4 py-2 bg-primary/20">#437</Badge>
-                  <p className="text-sm text-muted-foreground">Out of 24,831 traders</p>
-                  <Separator className="my-4" />
+                  <Badge className="mb-2 text-lg px-4 py-2 bg-[#F2FF44]/20 text-[#F2FF44]">#437</Badge>
+                  <p className="text-sm text-white/60">Out of 24,831 traders</p>
+                  <Separator className="my-4 bg-white/10" />
                   <div className="grid grid-cols-2 gap-4 w-full">
                     <div className="text-center">
-                      <p className="text-muted-foreground text-xs">Your ROI</p>
+                      <p className="text-white/60 text-xs">Your ROI</p>
                       <p className="text-green-500 font-mono">+12.45%</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-muted-foreground text-xs">Win Rate</p>
+                      <p className="text-white/60 text-xs">Win Rate</p>
                       <p className="font-mono">56%</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-muted-foreground text-xs">Trades</p>
+                      <p className="text-white/60 text-xs">Trades</p>
                       <p className="font-mono">28</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-muted-foreground text-xs">Followers</p>
+                      <p className="text-white/60 text-xs">Followers</p>
                       <p className="font-mono">3</p>
                     </div>
                   </div>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-8">
-                  <p className="text-muted-foreground">Enable demo mode to see your ranking</p>
+                  <p className="text-white/60">Enable demo mode to see your ranking</p>
                 </div>
               )}
             </CardContent>
           </Card>
           
-          <Card>
+          <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
             <CardHeader>
               <CardTitle className="text-lg">Top Performers</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <div className="text-xs font-semibold text-muted-foreground">HIGHEST ROI (WEEKLY)</div>
+                  <div className="text-xs font-semibold text-white/60">HIGHEST ROI (WEEKLY)</div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <Avatar className="h-8 w-8">
-                        <AvatarFallback>CW</AvatarFallback>
+                        <AvatarFallback className="bg-white/10">CW</AvatarFallback>
                       </Avatar>
                       <div>
                         <div className="font-medium text-sm">CryptoWhale</div>
-                        <div className="text-xs text-muted-foreground">342 trades</div>
+                        <div className="text-xs text-white/60">342 trades</div>
                       </div>
                     </div>
                     <Badge className="bg-green-500/20 text-green-500">+287.32%</Badge>
                   </div>
                 </div>
                 
-                <Separator />
+                <Separator className="bg-white/10" />
                 
                 <div className="space-y-2">
-                  <div className="text-xs font-semibold text-muted-foreground">HIGHEST WIN RATE</div>
+                  <div className="text-xs font-semibold text-white/60">HIGHEST WIN RATE</div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <Avatar className="h-8 w-8">
-                        <AvatarFallback>TS</AvatarFallback>
+                        <AvatarFallback className="bg-white/10">TS</AvatarFallback>
                       </Avatar>
                       <div>
                         <div className="font-medium text-sm">TradeSurfer</div>
-                        <div className="text-xs text-muted-foreground">245 trades</div>
+                        <div className="text-xs text-white/60">245 trades</div>
                       </div>
                     </div>
-                    <Badge variant="outline">81%</Badge>
+                    <Badge variant="outline" className="border-white/10 bg-white/5">81%</Badge>
                   </div>
                 </div>
                 
-                <Separator />
+                <Separator className="bg-white/10" />
                 
                 <div className="space-y-2">
-                  <div className="text-xs font-semibold text-muted-foreground">MOST COPIED</div>
+                  <div className="text-xs font-semibold text-white/60">MOST COPIED</div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <Avatar className="h-8 w-8">
-                        <AvatarFallback>CW</AvatarFallback>
+                        <AvatarFallback className="bg-white/10">CW</AvatarFallback>
                       </Avatar>
                       <div>
                         <div className="font-medium text-sm">CryptoWhale</div>
-                        <div className="text-xs text-muted-foreground">15,482 followers</div>
+                        <div className="text-xs text-white/60">15,482 followers</div>
                       </div>
                     </div>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" className="border-white/10 bg-white/5 hover:bg-white/10 hover:text-white">
                       <Copy className="h-4 w-4" />
                     </Button>
                   </div>
@@ -309,7 +309,7 @@ const LeaderboardPage = () => {
             </CardContent>
           </Card>
           
-          <Card>
+          <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
             <CardHeader>
               <CardTitle className="text-lg">Your Copied Traders</CardTitle>
             </CardHeader>
@@ -319,33 +319,33 @@ const LeaderboardPage = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <Avatar className="h-8 w-8">
-                        <AvatarFallback>CW</AvatarFallback>
+                        <AvatarFallback className="bg-white/10">CW</AvatarFallback>
                       </Avatar>
                       <div>
                         <div className="font-medium text-sm">CryptoWhale</div>
-                        <div className="text-xs text-muted-foreground">Copied 2 days ago</div>
+                        <div className="text-xs text-white/60">Copied 2 days ago</div>
                       </div>
                     </div>
                     <Badge className="bg-green-500/20 text-green-500">+12.4%</Badge>
                   </div>
                   
-                  <Separator />
+                  <Separator className="bg-white/10" />
                   
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <Avatar className="h-8 w-8">
-                        <AvatarFallback>BH</AvatarFallback>
+                        <AvatarFallback className="bg-white/10">BH</AvatarFallback>
                       </Avatar>
                       <div>
                         <div className="font-medium text-sm">BTCHunter</div>
-                        <div className="text-xs text-muted-foreground">Copied 5 days ago</div>
+                        <div className="text-xs text-white/60">Copied 5 days ago</div>
                       </div>
                     </div>
                     <Badge className="bg-red-500/20 text-red-500">-2.8%</Badge>
                   </div>
                   
                   <div className="pt-4">
-                    <Button variant="outline" className="w-full">
+                    <Button variant="outline" className="w-full border-white/10 bg-white/5 hover:bg-white/10 hover:text-white">
                       <Users className="mr-2 h-4 w-4" />
                       Find Traders to Copy
                     </Button>
@@ -353,8 +353,8 @@ const LeaderboardPage = () => {
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-8">
-                  <p className="text-muted-foreground mb-4">Enable demo mode to see your copied traders</p>
-                  <Button variant="outline">
+                  <p className="text-white/60 mb-4">Enable demo mode to see your copied traders</p>
+                  <Button variant="outline" className="border-white/10 bg-white/5 hover:bg-white/10 hover:text-white">
                     <Users className="mr-2 h-4 w-4" />
                     Find Traders to Copy
                   </Button>
