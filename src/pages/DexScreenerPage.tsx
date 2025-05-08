@@ -102,13 +102,11 @@ export const fetchPairsByChain = async (chainId: string): Promise<DexPair[]> => 
 };
 
 
-
 // pages/index.tsx (App.tsx) -  Assume this is your main app file.  Update routing.
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import DashboardPage from '@/pages/dashboard';
 import DexScreenerPage from '@/pages/dexscreener';
-
 
 const router = createBrowserRouter([
   {
@@ -120,7 +118,6 @@ const router = createBrowserRouter([
     ]
   }
 ]);
-
 
 export default function App() {
   return (

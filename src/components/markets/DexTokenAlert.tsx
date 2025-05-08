@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   Card, 
@@ -14,6 +13,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Bell, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import React from 'react';
+import { DexPair } from '@/lib/dexscreener-service';
 
 interface TokenAlert {
   id: string;
@@ -23,7 +24,7 @@ interface TokenAlert {
   isActive: boolean;
 }
 
-export function DexTokenAlert() {
+export function DexTokenAlertOriginal() { // Renamed to avoid conflict
   const [alerts, setAlerts] = useState<TokenAlert[]>([]);
   const [newToken, setNewToken] = useState("");
   const [newPrice, setNewPrice] = useState("");
@@ -147,3 +148,21 @@ export function DexTokenAlert() {
     </Card>
   );
 }
+
+
+interface DexTokenAlertProps {
+  pair: DexPair;
+}
+
+export const DexTokenAlert: React.FC<DexTokenAlertProps> = ({ pair }) => {
+  return (
+    <div>
+      <h3>{pair.token0.symbol}/{pair.token1.symbol}</h3>
+      <p>Volume: {pair.volume24h}</p>
+      <p>Liquidity: {pair.liquidity}</p>
+      {/* Add more details as needed */}
+    </div>
+  );
+};
+
+export default DexTokenAlertOriginal; // Exporting the original function as default
