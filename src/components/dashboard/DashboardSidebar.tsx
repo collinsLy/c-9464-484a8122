@@ -16,44 +16,48 @@ interface NavItem {
   path: string;
 }
 
-const defaultNavItems: NavItem[] = [
-  { icon: Home, label: "Dashboard", id: "dashboard", path: "/dashboard" },
-  
-  // Markets Section
-  { icon: LineChart, label: "Spot Markets", id: "spot-markets", path: "/market/spot" },
-  { icon: TrendingUp, label: "Futures Markets", id: "futures-markets", path: "/market/futures" },
-  { icon: Sparkles, label: "New Listings", id: "new-listings", path: "/new-listings" },
-  { icon: BarChart3, label: "Top Movers", id: "top-movers", path: "/market/movers" },
-  
-  // Trading Section
-  { icon: CreditCard, label: "Convert", id: "convert", path: "/trading/convert" },
-  { icon: TrendingUp, label: "Spot Trading", id: "spot-trading", path: "/trading/spot" },
-  { icon: TrendingUp, label: "Margin Trading", id: "margin-trading", path: "/trading/margin" },
-  { icon: BarChart3, label: "Strategy Trading", id: "strategy", path: "/trading/strategy" },
-  { icon: Users, label: "P2P Trading", id: "p2p", path: "/trading/p2p" },
-  { icon: PlayCircle, label: "Trading Bots", id: "bots", path: "/bots" },
-  
-  // Derivatives Section
-  { icon: LineChart, label: "USDT-M Futures", id: "usdt-futures", path: "/derivatives/usdt-futures" },
-  { icon: LineChart, label: "COIN-M Futures", id: "coin-futures", path: "/derivatives/coin-futures" },
-  { icon: TrendingUp, label: "Options", id: "options", path: "/derivatives/options" },
-  
-  // Earn Section
-  { icon: Wallet, label: "Simple Earn", id: "earn", path: "/earn/simple" },
-  { icon: BarChart3, label: "Auto-Invest", id: "auto-invest", path: "/earn/auto-invest" },
-  { icon: Wallet, label: "Staking", id: "staking", path: "/earn/staking" },
-  { icon: LineChart, label: "Liquidity Farming", id: "farming", path: "/earn/farming" },
-  
-  // Finance Section
-  { icon: CreditCard, label: "Card", id: "card", path: "/finance/card" },
-  { icon: CreditCard, label: "Loans", id: "loans", path: "/finance/loans" },
-  { icon: CreditCard, label: "Pay", id: "pay", path: "/finance/pay" },
-  
-  // Additional Features
-  { icon: Bell, label: "Alerts", id: "alerts", path: "/alerts" },
-  { icon: History, label: "History", id: "history", path: "/history" },
-  { icon: Settings, label: "Support", id: "support", path: "/support" },
-  { icon: Settings, label: "Settings", id: "settings", path: "/settings" },
+interface NavCategory {
+  label: string;
+  items: NavItem[];
+}
+
+const defaultNavCategories: NavCategory[] = [
+  {
+    label: "Overview",
+    items: [
+      { icon: Home, label: "Dashboard", id: "dashboard", path: "/dashboard" },
+      { icon: Bell, label: "Alerts", id: "alerts", path: "/alerts" },
+      { icon: History, label: "History", id: "history", path: "/history" },
+      { icon: Settings, label: "Settings", id: "settings", path: "/settings" },
+    ]
+  },
+  {
+    label: "Markets",
+    items: [
+      { icon: LineChart, label: "Spot", id: "spot-markets", path: "/market/spot" },
+      { icon: TrendingUp, label: "Futures", id: "futures-markets", path: "/market/futures" },
+      { icon: Sparkles, label: "New Listings", id: "new-listings", path: "/new-listings" },
+      { icon: BarChart3, label: "Top Movers", id: "top-movers", path: "/market/movers" },
+    ]
+  },
+  {
+    label: "Trading",
+    items: [
+      { icon: CreditCard, label: "Convert", id: "convert", path: "/trading/convert" },
+      { icon: TrendingUp, label: "Spot", id: "spot-trading", path: "/trading/spot" },
+      { icon: BarChart3, label: "Strategy", id: "strategy", path: "/trading/strategy" },
+      { icon: PlayCircle, label: "Bots", id: "bots", path: "/bots" },
+    ]
+  },
+  {
+    label: "Earn & Finance",
+    items: [
+      { icon: Wallet, label: "Simple Earn", id: "earn", path: "/earn/simple" },
+      { icon: BarChart3, label: "Auto-Invest", id: "auto-invest", path: "/earn/auto-invest" },
+      { icon: Wallet, label: "Staking", id: "staking", path: "/earn/staking" },
+      { icon: CreditCard, label: "Pay", id: "pay", path: "/finance/pay" },
+    ]
+  }
 ];
 
 interface SidebarProps {
@@ -159,28 +163,35 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
           </Button>
         </div>
 
-        <nav className="space-y-2 px-2 flex-1 overflow-y-auto smooth-scroll">
-          {navItems.map((item) => (
-            <Button
-              key={item.id}
-              variant="ghost"
-              asChild
-              className={cn(
-                "w-full justify-start text-white/70 hover:text-white hover:bg-white/10",
-                activeTab === item.id && "bg-white/10 text-white",
-                "h-11 px-3", // Consistent padding for better alignment
-              )}
-              onClick={() => isMobile && setMobileOpen(false)} // Close sidebar on nav click (mobile)
-            >
-              <Link to={item.path} className="flex items-center w-full">
-                <div className="flex items-center w-full">
-                  <item.icon className={cn("h-5 w-5 flex-shrink-0", collapsed ? "mr-2" : "mr-3")} />
-                  <span className={cn("font-medium whitespace-nowrap overflow-hidden text-ellipsis", collapsed ? "text-xs" : "text-sm")}>
-                    {item.label}
-                  </span>
-                </div>
-              </Link>
-            </Button>
+        <nav className="px-2 flex-1 overflow-y-auto smooth-scroll">
+          {defaultNavCategories.map((category) => (
+            <div key={category.label} className="mb-4">
+              <h3 className="text-xs font-semibold text-white/50 px-3 mb-2">{category.label}</h3>
+              <div className="grid grid-cols-2 gap-2">
+                {category.items.map((item) => (
+                  <Button
+                    key={item.id}
+                    variant="ghost"
+                    asChild
+                    className={cn(
+                      "justify-start text-white/70 hover:text-white hover:bg-white/10",
+                      activeTab === item.id && "bg-white/10 text-white",
+                      "h-11 px-2",
+                    )}
+                    onClick={() => isMobile && setMobileOpen(false)}
+                  >
+                    <Link to={item.path} className="flex items-center w-full">
+                      <div className="flex items-center w-full">
+                        <item.icon className={cn("h-4 w-4 flex-shrink-0", collapsed ? "mr-1" : "mr-2")} />
+                        <span className={cn("font-medium whitespace-nowrap overflow-hidden text-ellipsis", collapsed ? "text-xs" : "text-xs")}>
+                          {item.label}
+                        </span>
+                      </div>
+                    </Link>
+                  </Button>
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
 
