@@ -1,0 +1,158 @@
+ FUNCTIONAL PAGE BLUEPRINTS
+1. Strategy Trading
+Purpose: Users create, backtest, and deploy trading strategies (manual or AI-assisted).
+Features:
+
+Strategy builder (conditions, indicators, triggers)
+
+Backtest engine (past market data visualization)
+
+Deploy to live or paper trading
+
+Performance dashboard
+
+Copy strategy from top users
+
+2. P2P (Peer-to-Peer) Trading
+Purpose: Users can buy/sell crypto directly with others.
+Features:
+
+Listings of buy/sell offers with filters (crypto, payment method, fiat currency)
+
+Escrow system integration
+
+Chat between buyer & seller
+
+KYC and rating system
+
+3. USDT Futures
+Purpose: Leveraged trading of crypto pairs settled in USDT.
+Features:
+
+Market pairs (e.g., BTC/USDT, ETH/USDT)
+
+Long/short positions with leverage (1x–125x)
+
+Order book, market depth chart
+
+Cross/isolated margin options
+
+Risk calculator
+
+Liquidation alerts
+
+4. Coin Futures
+Purpose: Futures settled in the native coin (e.g., BTC, ETH).
+Features:
+
+Similar to USDT Futures but coin-settled
+
+Extra focus on margin in base asset
+
+Conversion tools (USDT <-> BTC etc.)
+
+Historical funding rates chart
+
+5. Options
+Purpose: Buy/sell crypto options (puts, calls).
+Features:
+
+Options chain with expiry dates
+
+Greeks display (Delta, Theta, Vega, etc.)
+
+Strategy templates (straddle, strangle, etc.)
+
+Visual P&L curve
+
+Option writing (for advanced users)
+
+6. Leaderboard
+Purpose: Rank users based on performance, volume, risk management.
+Features:
+
+Daily/weekly/monthly filters
+
+Metrics: ROI, win rate, trade count
+
+Copy trading button
+
+Badges for top traders
+
+Anon/public toggle
+
+7. Simple Earn
+Purpose: Fixed or flexible crypto saving options.
+Features:
+
+Lock-up durations and APR display
+
+Estimated earnings calculator
+
+Auto-renew toggle
+
+Asset transfer to earn account
+
+8. Auto Invest
+Purpose: Schedule regular crypto purchases (like DCA).
+Features:
+
+Choose token, frequency, and amount
+
+Link to payment method or wallet
+
+Performance projection chart
+
+Pause/resume investment
+
+9. Liquidity Farming
+Purpose: Stake LP tokens or assets for yield.
+Features:
+
+Pools available with APR/APY
+
+Impermanent loss calculator
+
+TVL, pool ratio data
+
+Claim/reinvest rewards button
+
+10. Staking
+Purpose: Stake specific tokens for passive income.
+Features:
+
+Token list with lock duration options
+
+Dynamic APY
+
+Reward claim history
+
+Early unstake penalty warnings
+
+11. Vertex Card
+Purpose: Manage your crypto debit/credit card.
+Features:
+
+Card settings (limits, regions, freeze)
+
+Transaction history
+
+Crypto-to-fiat auto conversion settings
+
+Apply for a card (KYC flow)
+
+Cashback/benefit tracker
+
+12. API Management
+Purpose: Developers access trading/account APIs.
+Features:
+
+Generate new API keys
+
+IP whitelisting
+
+Permissions toggle (read, trade, withdraw)
+
+API usage analytics
+
+Regenerate/revoke key
