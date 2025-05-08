@@ -227,54 +227,29 @@ const VertexCardPage: React.FC = () => {
                         </Select>
                       </div>
                       
-                      <div className="mt-6 space-y-4">
-                        <div className="flex items-center justify-between p-4 border-b border-white/10">
-                          <div className="flex items-center space-x-4">
-                            <div className="w-10 h-10 bg-blue-900 rounded-full flex items-center justify-center">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-300" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 100-12 6 6 0 000 12z" clipRule="evenodd" />
-                              </svg>
-                            </div>
-                            <div>
-                              <div className="font-medium">Amazon</div>
-                              <div className="text-sm text-slate-400">May 22, 2023</div>
-                            </div>
-                          </div>
-                          <div className="text-red-500 font-medium">-$34.76</div>
+                      <div className="py-12 flex flex-col items-center justify-center text-center space-y-4 border border-dashed border-white/10 rounded-lg bg-white/5">
+                        <div className="w-16 h-16 bg-yellow-500/10 rounded-full flex items-center justify-center">
+                          <CreditCard className="h-8 w-8 text-yellow-500" />
                         </div>
-                        
-                        <div className="flex items-center justify-between p-4 border-b border-white/10">
-                          <div className="flex items-center space-x-4">
-                            <div className="w-10 h-10 bg-green-900 rounded-full flex items-center justify-center">
-                              <DollarSign className="h-5 w-5 text-green-400" />
-                            </div>
-                            <div>
-                              <div className="font-medium">Deposit</div>
-                              <div className="text-sm text-slate-400">May 20, 2023</div>
-                            </div>
-                          </div>
-                          <div className="text-green-500 font-medium">+$200.00</div>
+                        <div>
+                          <h3 className="text-lg font-medium text-white">No Transactions Yet</h3>
+                          <p className="text-sm text-white/70 max-w-sm mt-1">
+                            Your card transactions will appear here once you start using your Vertex Card.
+                          </p>
                         </div>
-                        
-                        <div className="flex items-center justify-between p-4 border-b border-white/10">
-                          <div className="flex items-center space-x-4">
-                            <div className="w-10 h-10 bg-purple-900 rounded-full flex items-center justify-center">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-400" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
-                                <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd" />
-                              </svg>
-                            </div>
-                            <div>
-                              <div className="font-medium">Netflix</div>
-                              <div className="text-sm text-slate-400">May 15, 2023</div>
-                            </div>
-                          </div>
-                          <div className="text-red-500 font-medium">-$12.99</div>
-                        </div>
+                        <Button variant="outline" className="mt-4 border-white/10 hover:bg-white/10">
+                          <RefreshCw className="h-4 w-4 mr-2" />
+                          Refresh
+                        </Button>
                       </div>
                       
                       <div className="mt-6">
-                        <Button className="w-full py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-md">View All Transactions</Button>
+                        <div className="flex items-center bg-blue-950/40 p-4 rounded-lg text-sm">
+                          <Info className="h-5 w-5 text-blue-400 mr-3 flex-shrink-0" />
+                          <p className="text-white/80">
+                            To activate your Vertex Card and start making transactions, please complete your verification in the settings section.
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
