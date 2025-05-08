@@ -14,41 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const VertexCardPage: React.FC = () => {
   const { isDemoMode } = useDashboardContext();
   const [isCardFrozen, setIsCardFrozen] = useState(false);
-  const [userBalance, setUserBalance] = useState<number | null>(null);
-  const [monthlySpending, setMonthlySpending] = useState<number | null>(null);
-  const [rewardPoints, setRewardPoints] = useState<number | null>(null);
-  
-  // Fetch user card data
-  useEffect(() => {
-    // In a real implementation, this would fetch data from your API
-    const fetchCardData = async () => {
-      try {
-        if (auth.currentUser) {
-          // Here you would make an API call to get the real data
-          // For now we're showing API loading state
-          setUserBalance(null);
-          setMonthlySpending(null);
-          setRewardPoints(null);
-          
-          // Simulate API call
-          setTimeout(() => {
-            // This would be replaced with actual API data
-            // The API would fetch the real user's card data
-            setUserBalance(0);
-            setMonthlySpending(0);
-            setRewardPoints(0);
-          }, 1000);
-        }
-      } catch (error) {
-        console.error("Error fetching card data:", error);
-        setUserBalance(0);
-        setMonthlySpending(0);
-        setRewardPoints(0);
-      }
-    };
-    
-    fetchCardData();
-  }, []);
+  // We removed the mock data states and fetch function
   
   return (
     <DashboardLayout>
@@ -85,15 +51,15 @@ const VertexCardPage: React.FC = () => {
                         
                         {/* Card Content */}
                         <div className="relative z-10">
-                          {/* Top row: Binance logo and virtual badge */}
+                          {/* Top row: Vertex logo and badge */}
                           <div className="flex justify-between items-center mb-8">
                             <div className="h-6 w-6 rounded-full flex items-center justify-center bg-white">
                               <Info className="h-4 w-4 text-black" />
                             </div>
                             <div className="flex items-center">
-                              <span className="text-sm font-bold mr-2">BINANCE</span>
+                              <span className="text-sm font-bold mr-2">VERTEX</span>
                               <div className="bg-transparent border border-gray-600 rounded px-2 py-0.5">
-                                <span className="text-xs text-gray-300">VIRTUAL</span>
+                                <span className="text-xs text-gray-300">PREMIUM</span>
                               </div>
                             </div>
                           </div>
@@ -162,31 +128,16 @@ const VertexCardPage: React.FC = () => {
                         </Button>
                       </div>
                       
-                      {/* Card stats */}
-                      <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {/* Additional card info */}
+                      <div className="mt-6">
                         <Card className="bg-slate-800 p-4 rounded-lg border-white/10">
-                          <div className="text-sm text-slate-400">Available Balance</div>
-                          {userBalance === null ? (
-                            <div className="text-2xl font-semibold text-white h-7 bg-slate-700 animate-pulse rounded mt-1 w-24"></div>
-                          ) : (
-                            <div className="text-2xl font-semibold text-white">${userBalance.toFixed(2)}</div>
-                          )}
-                        </Card>
-                        <Card className="bg-slate-800 p-4 rounded-lg border-white/10">
-                          <div className="text-sm text-slate-400">Monthly Spending</div>
-                          {monthlySpending === null ? (
-                            <div className="text-2xl font-semibold text-white h-7 bg-slate-700 animate-pulse rounded mt-1 w-24"></div>
-                          ) : (
-                            <div className="text-2xl font-semibold text-white">${monthlySpending.toFixed(2)}</div>
-                          )}
-                        </Card>
-                        <Card className="bg-slate-800 p-4 rounded-lg border-white/10">
-                          <div className="text-sm text-slate-400">Reward Points</div>
-                          {rewardPoints === null ? (
-                            <div className="text-2xl font-semibold text-white h-7 bg-slate-700 animate-pulse rounded mt-1 w-24"></div>
-                          ) : (
-                            <div className="text-2xl font-semibold text-white">{rewardPoints}</div>
-                          )}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <Shield className="h-5 w-5 text-green-400" />
+                              <span className="text-white font-medium">Card Protected</span>
+                            </div>
+                            <Badge className="bg-green-500/20 text-green-400">Active</Badge>
+                          </div>
                         </Card>
                       </div>
                     </div>
