@@ -24,7 +24,8 @@ import DexScreenerPage from "./pages/DexScreenerPage";
 import VertexNewListingsPage from "./pages/BinanceNewListingsPage";
 import HistoryPage from "./pages/HistoryPage";
 import SpotMarketsPage from "@/pages/SpotMarketsPage";
-import FuturesMarketsPage from "@/pages/FuturesMarketsPage"; // Added import
+import FuturesMarketsPage from "@/pages/FuturesMarketsPage";
+import TopMoversPage from "@/pages/TopMoversPage";
 
 
 // Configure query client to not show error toasts
@@ -67,7 +68,8 @@ const App = () => (
               <Route path="/social-trading" element={<ErrorBoundary><SocialTradingPage /></ErrorBoundary>} />
               <Route path="/history" element={<ErrorBoundary><HistoryPage /></ErrorBoundary>} />
               <Route path="/new-listings" element={<ErrorBoundary><VertexNewListingsPage /></ErrorBoundary>} />
-              <Route path="/futures-markets" element={<ErrorBoundary><FuturesMarketsPage /></ErrorBoundary>} /> {/* Added route */}
+              <Route path="/futures-markets" element={<ErrorBoundary><FuturesMarketsPage /></ErrorBoundary>} />
+              <Route path="/top-movers" element={<ErrorBoundary><TopMoversPage /></ErrorBoundary>} />
             </Routes>
           </DashboardProvider>
         </BrowserRouter>

@@ -243,13 +243,3 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
 
 export default DashboardSidebar;
 
-//Minimal FuturesMarkets Component
-const FuturesMarkets = () => {
-    return (
-        <div>
-            <h1>Futures Markets</h1>
-            <p>This is the Futures Markets page.</p>
-        </div>
-    )
-}
-export default FuturesMarkets;
