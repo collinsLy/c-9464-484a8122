@@ -26,7 +26,7 @@ const defaultNavItems: NavItem[] = [
   { icon: BarChart3, label: "Bots & Strategies", id: "bots", path: "/bots" },
   { icon: Bell, label: "Alerts", id: "alerts", path: "/alerts" },
   { icon: Users, label: "Social Trading", id: "social-trading", path: "/social-trading" },
-  { icon: Sparkles, label: "New listing pairs", id: "dexscreener", path: "/dexscreener" },
+  { icon: Sparkles, label: "New listing pairs", id: "newlistings", path: "/new-listings" },
   { icon: Users, label: "Referrals", id: "referrals", path: "/referrals" },
   { icon: PlayCircle, label: "Demo", id: "demo", path: "/demo" },
   { icon: History, label: "History", id: "history", path: "/history" },
@@ -79,7 +79,7 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
     if (pathname === '/settings') return 'settings';
     if (pathname === '/demo') return 'demo';
     if (pathname === '/alerts') return 'alerts';
-    if (pathname === '/dexscreener') return 'dexscreener';
+    if (pathname === '/new-listings') return 'newlistings'; // Added new-listings check
 
     // Log the current pathname for debugging
     console.log("Current active tab:", pathname);
