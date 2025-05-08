@@ -1,11 +1,75 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { auth } from '@/lib/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { getFirestore } from 'firebase/firestore';
 
 const Credit3DCard: React.FC = () => {
   const [rotateX, setRotateX] = useState(0);
   const [rotateY, setRotateY] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [cardNumber, setCardNumber] = useState('');
+  const [expiryDate, setExpiryDate] = useState({ month: '05', year: '29' });
+  const [cvv, setCvv] = useState('');
+  const db = getFirestore();
+  
+  useEffect(() => {
+    // Generate or retrieve a persistent card number for this user
+    const fetchOrGenerateCardData = async () => {
+      if (auth.currentUser) {
+        const userCardRef = doc(db, 'userCards', auth.currentUser.uid);
+        const cardDoc = await getDoc(userCardRef);
+        
+        if (cardDoc.exists()) {
+          // Use existing card number
+          const cardData = cardDoc.data();
+          setCardNumber(cardData.cardNumber || '');
+          setExpiryDate({
+            month: cardData.expiryMonth || '05',
+            year: cardData.expiryYear || '29'
+          });
+          setCvv(cardData.cvv || '');
+        } else {
+          // Generate new card number - format: 4XXX XXXX XXXX XXXX (starts with 4 for Visa-like format)
+          const newCardNumber = '4' + Array(15).fill(0).map(() => Math.floor(Math.random() * 10)).join('');
+          
+          // Calculate expiry date (current month + 4 years)
+          const now = new Date();
+          const expiryMonth = String(now.getMonth() + 1).padStart(2, '0');
+          const expiryYear = String((now.getFullYear() + 4) % 100).padStart(2, '0');
+          
+          // Generate CVV (3 digits)
+          const newCvv = Math.floor(100 + Math.random() * 900).toString();
+          
+          // Save to Firestore
+          await setDoc(userCardRef, {
+            cardNumber: newCardNumber,
+            expiryMonth,
+            expiryYear,
+            cvv: newCvv,
+            createdAt: new Date()
+          });
+          
+          setCardNumber(newCardNumber);
+          setExpiryDate({ month: expiryMonth, year: expiryYear });
+          setCvv(newCvv);
+        }
+      } else {
+        // Demo mode - generate temporary card number
+        const tempCardNumber = '4' + Array(15).fill(0).map(() => Math.floor(Math.random() * 10)).join('');
+        const now = new Date();
+        const expiryMonth = String(now.getMonth() + 1).padStart(2, '0');
+        const expiryYear = String((now.getFullYear() + 4) % 100).padStart(2, '0');
+        const tempCvv = Math.floor(100 + Math.random() * 900).toString();
+        
+        setCardNumber(tempCardNumber);
+        setExpiryDate({ month: expiryMonth, year: expiryYear });
+        setCvv(tempCvv);
+      }
+    };
+    
+    fetchOrGenerateCardData();
+  }, [auth.currentUser]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     const card = e.currentTarget.getBoundingClientRect();
@@ -82,18 +146,21 @@ const Credit3DCard: React.FC = () => {
               
               {/* Card Number */}
               <div className="mt-16 tracking-widest text-lg font-medium">
-                •••• •••• •••• 2587
+                {cardNumber ? 
+                  `•••• •••• •••• ${cardNumber.slice(-4)}` : 
+                  `•••• •••• •••• ${auth?.currentUser?.uid?.slice(-4) || Math.floor(1000 + Math.random() * 9000)}`
+                }
               </div>
               
               {/* Valid Dates */}
               <div className="mt-4 flex space-x-4">
                 <div>
                   <div className="text-xs opacity-70">VALID FROM</div>
-                  <div>05/25</div>
+                  <div>{new Date().getMonth() + 1 < 10 ? `0${new Date().getMonth() + 1}` : new Date().getMonth() + 1}/{new Date().getFullYear().toString().slice(-2)}</div>
                 </div>
                 <div>
                   <div className="text-xs opacity-70">VALID THRU</div>
-                  <div>05/29</div>
+                  <div>{expiryDate.month}/{expiryDate.year}</div>
                 </div>
               </div>
               
@@ -133,7 +200,7 @@ const Credit3DCard: React.FC = () => {
                     {auth?.currentUser?.displayName || "J. Smith"}
                   </div>
                 </div>
-                <div className="text-black font-mono text-xs mr-2">CVV</div>
+                <div className="text-black font-mono text-xs mr-2">{cvv || '•••'}</div>
               </div>
               
               {/* Terms */}
