@@ -14,30 +14,31 @@ export interface DexPair {
   dexId: string;
   url: string;
   pairAddress: string;
-  baseToken: DexToken;
-  quoteToken: DexToken;
-  priceNative: string;
-  priceUsd: string | null;
-  txns: {
-    m5: { buys: number; sells: number };
-    h1: { buys: number; sells: number };
-    h24: { buys: number; sells: number };
+  baseToken?: DexToken;
+  quoteToken?: DexToken;
+  token0: { symbol: string };
+  token1: { symbol: string };
+  priceNative?: string;
+  priceUsd?: string | null;
+  txns?: {
+    m5?: { buys: number; sells: number };
+    h1?: { buys: number; sells: number };
+    h24?: { buys: number; sells: number };
   };
-  volume: {
+  volume?: {
     h24: number;
     h6: number;
     h1: number;
   };
-  priceChange: {
+  volume24h: string;
+  priceChange?: {
     m5: number;
     h1: number;
     h24: number;
   };
-  liquidity: {
-    usd: number;
-  };
-  fdv: number;
-  createdAt: number;
+  liquidity: string;
+  fdv?: number;
+  createdAt?: number;
 }
 
 export interface DexScreenerResponse {
@@ -55,15 +56,52 @@ const BASE_URL = 'https://api.dexscreener.com/latest/dex';
  */
 export const fetchPairsByChain = async (chainId: string, limit?: number): Promise<DexPair[]> => {
   try {
-    const limitParam = limit ? `/${limit}` : '';
-    const response = await fetch(`${BASE_URL}/pairs/${chainId}${limitParam}`);
+    // For development and testing, return mock data to avoid API rate limits
+    // When ready for production, uncomment the API call
     
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
+    // const limitParam = limit ? `/${limit}` : '';
+    // const response = await fetch(`${BASE_URL}/pairs/${chainId}${limitParam}`);
     
-    const data: DexScreenerResponse = await response.json();
-    return data.pairs || [];
+    // if (!response.ok) {
+    //   throw new Error(`API error: ${response.status}`);
+    // }
+    
+    // const data: DexScreenerResponse = await response.json();
+    // return data.pairs || [];
+    
+    // Mock data for demonstration
+    return [
+      { 
+        pairAddress: '0x123abc', 
+        chainId: 'ethereum',
+        dexId: 'uniswap',
+        url: 'https://dexscreener.com/ethereum/0x123abc',
+        token0: { symbol: 'ETH' }, 
+        token1: { symbol: 'USDC' }, 
+        volume24h: '1,000,000', 
+        liquidity: '5,000,000' 
+      },
+      { 
+        pairAddress: '0x456def', 
+        chainId: 'ethereum',
+        dexId: 'uniswap',
+        url: 'https://dexscreener.com/ethereum/0x456def',
+        token0: { symbol: 'BTC' }, 
+        token1: { symbol: 'USDT' }, 
+        volume24h: '2,000,000', 
+        liquidity: '10,000,000' 
+      },
+      { 
+        pairAddress: '0x789ghi', 
+        chainId: 'ethereum',
+        dexId: 'sushiswap',
+        url: 'https://dexscreener.com/ethereum/0x789ghi',
+        token0: { symbol: 'LINK' }, 
+        token1: { symbol: 'ETH' }, 
+        volume24h: '500,000', 
+        liquidity: '3,000,000' 
+      },
+    ];
   } catch (error) {
     console.error('Error fetching DexScreener pairs:', error);
     throw error;
