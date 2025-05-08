@@ -8,7 +8,7 @@ import { supabase } from "@/lib/supabase";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
-import MarketPage from "./pages/MarketPage";
+import MarketPage from "@/pages/MarketPage";
 import SettingsPage from "./pages/SettingsPage";
 import AssetsPage from "./pages/AssetsPage";
 import DemoPage from "./pages/DemoPage";
@@ -23,6 +23,8 @@ import SocialTradingPage from "./pages/SocialTradingPage";
 import DexScreenerPage from "./pages/DexScreenerPage";
 import VertexNewListingsPage from "./pages/BinanceNewListingsPage";
 import HistoryPage from "./pages/HistoryPage"; // Added import
+import SpotMarketsPage from "@/pages/SpotMarketsPage"; // Added import
+
 
 // Configure query client to not show error toasts
 const queryClient = new QueryClient({
@@ -49,6 +51,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<ErrorBoundary><Index /></ErrorBoundary>} />
               <Route path="/dashboard" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
+              <Route path="/spot-markets" element={<ErrorBoundary><SpotMarketsPage /></ErrorBoundary>} /> {/* Added route */}
               <Route path="/market" element={<ErrorBoundary><MarketPage /></ErrorBoundary>} />
               <Route path="/settings" element={<ErrorBoundary><SettingsPage /></ErrorBoundary>} />
               <Route path="/assets" element={<ErrorBoundary><AssetsPage /></ErrorBoundary>} />

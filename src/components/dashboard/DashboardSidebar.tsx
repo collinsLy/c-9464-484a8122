@@ -32,21 +32,48 @@ const defaultNavCategories: NavCategory[] = [
     ]
   },
   {
-    label: "Markets & Trading",
+    label: "Markets",
     items: [
-      { icon: LineChart, label: "Markets", id: "markets", path: "/market" },
-      { icon: TrendingUp, label: "Trading", id: "trading", path: "/dashboard?tab=trading" },
-      { icon: PlayCircle, label: "Bots & Strategies", id: "bots", path: "/bots" },
-      { icon: Bell, label: "Alerts", id: "alerts", path: "/alerts" },
+      { icon: LineChart, label: "Spot Markets", id: "spot-markets", path: "/spot-markets" },
+      { icon: TrendingUp, label: "Futures Markets", id: "futures-markets", path: "/futures-markets" },
+      { icon: Sparkles, label: "New Listings", id: "new-listings", path: "/new-listings" },
+      { icon: BarChart3, label: "Top Movers", id: "top-movers", path: "/top-movers" },
     ]
   },
   {
-    label: "Transfers",
+    label: "Trading",
     items: [
-      { icon: ArrowDownCircle, label: "Deposit", id: "deposit", path: "/deposit" },
-      { icon: ArrowUpCircle, label: "Withdraw", id: "withdraw", path: "/withdraw" },
-      { icon: Users, label: "Social Trading", id: "social", path: "/social-trading" },
-      { icon: Users, label: "Referrals", id: "referrals", path: "/referrals" },
+      { icon: LineChart, label: "Spot Trading", id: "spot-trading", path: "/spot-trading" },
+      { icon: TrendingUp, label: "Margin Trading", id: "margin-trading", path: "/margin-trading" },
+      { icon: PlayCircle, label: "Strategy Trading", id: "strategy-trading", path: "/strategy-trading" },
+      { icon: Users, label: "P2P", id: "p2p", path: "/p2p" },
+    ]
+  },
+  {
+    label: "Derivatives",
+    items: [
+      { icon: LineChart, label: "USDT-M Futures", id: "usdt-futures", path: "/usdt-futures" },
+      { icon: TrendingUp, label: "COIN-M Futures", id: "coin-futures", path: "/coin-futures" },
+      { icon: PlayCircle, label: "Options", id: "options", path: "/options" },
+      { icon: Users, label: "Leaderboard", id: "leaderboard", path: "/leaderboard" },
+    ]
+  },
+  {
+    label: "Earn",
+    items: [
+      { icon: Wallet, label: "Simple Earn", id: "simple-earn", path: "/simple-earn" },
+      { icon: PlayCircle, label: "Auto-Invest", id: "auto-invest", path: "/auto-invest" },
+      { icon: Users, label: "Staking", id: "staking", path: "/staking" },
+      { icon: Users, label: "Liquidity Farming", id: "liquidity-farming", path: "/liquidity-farming" },
+    ]
+  },
+  {
+    label: "Tools & Resources",
+    items: [
+      { icon: CreditCard, label: "Vertex Card", id: "vertex-card", path: "/vertex-card" },
+      { icon: Bell, label: "Alerts", id: "alerts", path: "/alerts" },
+      { icon: Settings, label: "API Management", id: "api", path: "/api-management" },
+      { icon: HelpCircle, label: "Support", id: "support", path: "/support" },
     ]
   },
   {
