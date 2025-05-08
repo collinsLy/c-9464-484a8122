@@ -20,6 +20,7 @@ import WithdrawPage from "./pages/WithdrawPage";
 import ReferralsPage from "./pages/ReferralsPage";
 import AlertsPage from "./pages/AlertsPage";
 import SocialTradingPage from "./pages/SocialTradingPage";
+import DexScreenerPage from "./pages/DexScreenerPage"; // Added import for DexScreenerPage
 
 // Configure query client to not show error toasts
 const queryClient = new QueryClient({
@@ -58,6 +59,7 @@ const App = () => (
               <Route path="/referrals" element={<ErrorBoundary><ReferralsPage /></ErrorBoundary>} />
               <Route path="/alerts" element={<ErrorBoundary><AlertsPage /></ErrorBoundary>} />
               <Route path="/social-trading" element={<ErrorBoundary><SocialTradingPage /></ErrorBoundary>} />
+              <Route path="/dexscreener" element={<ErrorBoundary><DexScreenerPage /></ErrorBoundary>} /> {/* Added route for DexScreenerPage */}
             </Routes>
           </DashboardProvider>
         </BrowserRouter>

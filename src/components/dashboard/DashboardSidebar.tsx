@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { 
   ChevronRight, ChevronLeft, Home, LineChart, BarChart3, 
   Wallet, CreditCard, TrendingUp, History, Settings, PlayCircle, Menu, X,
-  Users, Bell // Added Bell icon import
+  Users, Bell, Sparkles // Added Sparkles icon import
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -30,6 +30,7 @@ const defaultNavItems: NavItem[] = [
   { icon: History, label: "History", id: "history", path: "/history" },
   { icon: Settings, label: "Support", id: "support", path: "/support" },  
   { icon: Settings, label: "Settings", id: "settings", path: "/settings" },
+  { icon: Sparkles, label: "DEX Screener", id: "dexscreener", path: "/dexscreener" }, // Added DexScreener item
 ];
 
 interface SidebarProps {
@@ -77,6 +78,7 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
     if (pathname === '/settings') return 'settings';
     if (pathname === '/demo') return 'demo';
     if (pathname === '/alerts') return 'alerts'; // Added alerts check
+    if (pathname === '/dexscreener') return 'dexscreener'; // Added DexScreener check
 
     // Default to dashboard if no match is found
     return "dashboard";
