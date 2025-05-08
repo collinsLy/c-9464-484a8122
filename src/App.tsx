@@ -26,6 +26,8 @@ import HistoryPage from "./pages/HistoryPage";
 import SpotMarketsPage from "@/pages/SpotMarketsPage";
 import FuturesMarketsPage from "@/pages/FuturesMarketsPage";
 import TopMoversPage from "@/pages/TopMoversPage";
+import SpotTradingPage from "./pages/SpotTradingPage";
+import MarginTradingPage from "./pages/MarginTradingPage";
 
 
 // Configure query client to not show error toasts
