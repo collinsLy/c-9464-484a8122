@@ -1,214 +1,130 @@
-
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toast } from "sonner";
-import { UserService } from '@/lib/user-service';
-import { db } from '@/lib/firebase';
-import { collection, addDoc, doc, onSnapshot, deleteDoc, query, where } from 'firebase/firestore';
+import { AlertService } from "@/lib/alert-service";
+import { Loader2 } from "lucide-react";
 
-type AlertCondition = 'above' | 'below';
-
-interface PriceAlert {
-  id: string;
-  symbol: string;
-  price: number;
-  condition: AlertCondition;
-  createdAt: Date;
+interface PriceAlertFormProps {
+  currentPrices: Record<string, number>;
 }
 
-export function PriceAlertForm() {
-  const [symbol, setSymbol] = useState('BTC');
-  const [price, setPrice] = useState('');
-  const [condition, setCondition] = useState<AlertCondition>('above');
-  const [alerts, setAlerts] = useState<PriceAlert[]>([]);
-  const [loading, setLoading] = useState(false);
+const PriceAlertForm = ({ currentPrices }: PriceAlertFormProps) => {
+  const [symbol, setSymbol] = useState('BTCUSD');
+  const [targetPrice, setTargetPrice] = useState('');
+  const [condition, setCondition] = useState<'above' | 'below'>('above');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Subscribe to user's alerts
-  useEffect(() => {
-    const userId = UserService.getCurrentUserId();
-    if (!userId) return;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-    setLoading(true);
-    const alertsRef = collection(db, 'price_alerts');
-    const q = query(alertsRef, where('userId', '==', userId));
-    
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const alertsData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate() || new Date()
-      })) as PriceAlert[];
-      
-      setAlerts(alertsData);
-      setLoading(false);
-    }, (error) => {
-      console.error("Error fetching alerts:", error);
-      toast({
-        title: "Error loading alerts",
-        description: "Could not load your saved alerts",
-        variant: "destructive"
-      });
-      setLoading(false);
-    });
+    if (!targetPrice) return;
 
-    return () => unsubscribe();
-  }, []);
-
-  const createAlert = async () => {
-    if (!price || parseFloat(price) <= 0) {
-      toast({
-        title: "Invalid price",
-        description: "Please enter a valid price",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const userId = UserService.getCurrentUserId();
-    if (!userId) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to save alerts",
-        variant: "destructive"
-      });
-      return;
-    }
-
+    setIsSubmitting(true);
     try {
-      setLoading(true);
-      
-      const alertData = {
-        userId,
+      await AlertService.createPriceAlert(
         symbol,
-        price: parseFloat(price),
-        condition,
-        createdAt: new Date()
-      };
+        parseFloat(targetPrice),
+        condition
+      );
 
-      await addDoc(collection(db, 'price_alerts'), alertData);
-      
-      setPrice('');
-      toast({
-        title: "Alert created",
-        description: `You will be notified when ${symbol} goes ${condition} $${price}`,
-      });
-    } catch (error) {
-      console.error("Error creating alert:", error);
-      toast({
-        title: "Error creating alert",
-        description: "There was a problem saving your alert",
-        variant: "destructive"
-      });
+      // Reset form
+      setTargetPrice('');
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  const deleteAlert = async (id: string) => {
-    try {
-      setLoading(true);
-      await deleteDoc(doc(db, 'price_alerts', id));
-      
-      toast({
-        title: "Alert deleted",
-      });
-    } catch (error) {
-      console.error("Error deleting alert:", error);
-      toast({
-        title: "Error deleting alert",
-        description: "There was a problem deleting your alert",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
+  const handleSymbolChange = (newSymbol: string) => {
+    setSymbol(newSymbol);
+
+    // Pre-fill with current price for convenience
+    const currentPrice = currentPrices[newSymbol] || 0;
+    setTargetPrice(currentPrice.toFixed(2));
   };
 
   return (
-    <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
+    <Card className="bg-background/40 backdrop-blur-lg border-white/10">
       <CardHeader>
-        <CardTitle>Price Alerts</CardTitle>
+        <CardTitle className="text-white">Create Price Alert</CardTitle>
+        <CardDescription className="text-white/70">
+          Get notified when a cryptocurrency reaches your target price
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Select value={symbol} onValueChange={setSymbol}>
-              <SelectTrigger className="bg-background/40 border-white/10 text-white">
-                <SelectValue placeholder="Select coin" />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="symbol" className="text-white">Cryptocurrency</Label>
+            <Select value={symbol} onValueChange={handleSymbolChange}>
+              <SelectTrigger id="symbol" className="bg-background/40 border-white/20 text-white">
+                <SelectValue placeholder="Select cryptocurrency" />
               </SelectTrigger>
-              <SelectContent className="bg-background border-white/10 text-white">
-                <SelectItem value="BTC">Bitcoin (BTC)</SelectItem>
-                <SelectItem value="ETH">Ethereum (ETH)</SelectItem>
-                <SelectItem value="SOL">Solana (SOL)</SelectItem>
-                <SelectItem value="USDT">Tether (USDT)</SelectItem>
-                <SelectItem value="WLD">Worldcoin (WLD)</SelectItem>
+              <SelectContent className="bg-background/90 backdrop-blur-lg border-white/20 text-white">
+                <SelectItem value="BTCUSD">Bitcoin (BTC)</SelectItem>
+                <SelectItem value="ETHUSD">Ethereum (ETH)</SelectItem>
+                <SelectItem value="SOLUSD">Solana (SOL)</SelectItem>
+                <SelectItem value="USDTUSD">Tether (USDT)</SelectItem>
+                <SelectItem value="WLDUSD">Worldcoin (WLD)</SelectItem>
               </SelectContent>
             </Select>
-
-            <Select value={condition} onValueChange={(val) => setCondition(val as AlertCondition)}>
-              <SelectTrigger className="bg-background/40 border-white/10 text-white">
-                <SelectValue placeholder="Condition" />
-              </SelectTrigger>
-              <SelectContent className="bg-background border-white/10 text-white">
-                <SelectItem value="above">Price Above</SelectItem>
-                <SelectItem value="below">Price Below</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Input
-              type="number"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              placeholder="Enter price"
-              className="bg-background/40 border-white/10 text-white"
-            />
-
-            <Button 
-              onClick={createAlert}
-              className="w-full bg-accent hover:bg-accent/90 text-white"
-              disabled={loading}
-            >
-              {loading ? 'Creating...' : 'Create Alert'}
-            </Button>
+            <div className="text-sm text-white/70 mt-1">
+              Current price: ${currentPrices[symbol]?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "Loading..."}
+            </div>
           </div>
 
-          {alerts.length > 0 ? (
-            <div className="rounded-md border border-white/10 mt-4">
-              <div className="grid grid-cols-4 bg-background/60 p-3 rounded-t-md">
-                <div>Coin</div>
-                <div>Condition</div>
-                <div>Price</div>
-                <div className="text-right">Actions</div>
+          <div className="space-y-2">
+            <Label htmlFor="condition" className="text-white">Alert Condition</Label>
+            <RadioGroup 
+              value={condition} 
+              onValueChange={(value) => setCondition(value as 'above' | 'below')}
+              className="flex items-center space-x-4"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="above" id="above" className="border-white/20 text-white" />
+                <Label htmlFor="above" className="text-white">Price goes above</Label>
               </div>
-              {alerts.map((alert) => (
-                <div key={alert.id} className="grid grid-cols-4 p-3 border-t border-white/10">
-                  <div>{alert.symbol}</div>
-                  <div>{alert.condition === 'above' ? 'Above' : 'Below'}</div>
-                  <div>${alert.price.toFixed(2)}</div>
-                  <div className="text-right">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => deleteAlert(alert.id)}
-                      className="text-red-500 hover:text-red-400 hover:bg-red-500/10"
-                      disabled={loading}
-                    >
-                      Delete
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center text-white/60 py-6">
-              {loading ? 'Loading alerts...' : 'No alerts created yet'}
-            </div>
-          )}
-        </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="below" id="below" className="border-white/20 text-white" />
+                <Label htmlFor="below" className="text-white">Price goes below</Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="targetPrice" className="text-white">Target Price (USD)</Label>
+            <Input
+              id="targetPrice"
+              type="number"
+              step="0.01"
+              value={targetPrice}
+              onChange={(e) => setTargetPrice(e.target.value)}
+              placeholder="Enter target price"
+              className="bg-background/40 border-white/20 text-white"
+              required
+            />
+          </div>
+
+          <Button 
+            type="submit" 
+            className="w-full" 
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              'Create Alert'
+            )}
+          </Button>
+        </form>
       </CardContent>
     </Card>
   );
-}
+};
+
+export default PriceAlertForm;
