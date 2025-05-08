@@ -744,7 +744,17 @@ const SettingsPage = () => {
         </Tabs>
         <Dialog open={isAvatarDialogOpen} onOpenChange={setIsAvatarDialogOpen}>
           <DialogContent>
-              <AvatarCollection onAvatarSelect={setSelectedAvatarId} />
+            <DialogHeader>
+              <DialogTitle>Choose an Avatar</DialogTitle>
+            </DialogHeader>
+              <AvatarCollection 
+                selectedAvatarId={selectedAvatarId} 
+                onSelectAvatar={(avatar) => {
+                  setSelectedAvatarId(avatar.id);
+                  setIsAvatarDialogOpen(false);
+                }}
+                userInitials={initialValues.name ? initialValues.name.slice(0, 2).toUpperCase() : "VT"}
+              />
           </DialogContent>
         </Dialog>
       </div>
