@@ -135,9 +135,11 @@ const VertexCardPage: React.FC = () => {
     }
   };
 
-  return (
-    <DashboardLayout>
-      <div className="container mx-auto p-4">
+  // Wrap the return in a try/catch for development debugging
+  try {
+    return (
+      <DashboardLayout>
+        <div className="container mx-auto p-4">
         <div className="flex flex-col space-y-6">
           <h1 className="text-3xl font-bold text-white">Vertex Card</h1>
           <p className="text-slate-400">
@@ -651,8 +653,16 @@ const VertexCardPage: React.FC = () => {
           </div>
         </div>
       </div>
-    </DashboardLayout>
-  );
+      </DashboardLayout>
+    );
+  } catch (error) {
+    console.error("Error rendering VertexCardPage:", error);
+    return (
+      <div className="text-red-500 p-4">
+        Error loading Vertex Card page. Please check the console for details.
+      </div>
+    );
+  }
 };
 
 export default VertexCardPage;
