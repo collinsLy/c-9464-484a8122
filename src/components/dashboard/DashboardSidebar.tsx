@@ -18,20 +18,43 @@ interface NavItem {
 
 const defaultNavItems: NavItem[] = [
   { icon: Home, label: "Dashboard", id: "dashboard", path: "/dashboard" },
-  { icon: LineChart, label: "Markets", id: "markets", path: "/market" },
-  { icon: TrendingUp, label: "Trading", id: "trading", path: "/trading" },
-  { icon: Wallet, label: "Assets", id: "assets", path: "/assets" },
-  { icon: CreditCard, label: "Deposit", id: "deposit", path: "/deposit" },
-  { icon: CreditCard, label: "Withdraw", id: "withdraw", path: "/withdraw" },
-  { icon: BarChart3, label: "Bots & Strategies", id: "bots", path: "/bots" },
+  
+  // Markets Section
+  { icon: LineChart, label: "Spot Markets", id: "spot-markets", path: "/market/spot" },
+  { icon: TrendingUp, label: "Futures Markets", id: "futures-markets", path: "/market/futures" },
+  { icon: Sparkles, label: "New Listings", id: "new-listings", path: "/new-listings" },
+  { icon: BarChart3, label: "Top Movers", id: "top-movers", path: "/market/movers" },
+  
+  // Trading Section
+  { icon: CreditCard, label: "Convert", id: "convert", path: "/trading/convert" },
+  { icon: TrendingUp, label: "Spot Trading", id: "spot-trading", path: "/trading/spot" },
+  { icon: TrendingUp, label: "Margin Trading", id: "margin-trading", path: "/trading/margin" },
+  { icon: BarChart3, label: "Strategy Trading", id: "strategy", path: "/trading/strategy" },
+  { icon: Users, label: "P2P Trading", id: "p2p", path: "/trading/p2p" },
+  { icon: PlayCircle, label: "Trading Bots", id: "bots", path: "/bots" },
+  
+  // Derivatives Section
+  { icon: LineChart, label: "USDT-M Futures", id: "usdt-futures", path: "/derivatives/usdt-futures" },
+  { icon: LineChart, label: "COIN-M Futures", id: "coin-futures", path: "/derivatives/coin-futures" },
+  { icon: TrendingUp, label: "Options", id: "options", path: "/derivatives/options" },
+  
+  // Earn Section
+  { icon: Wallet, label: "Simple Earn", id: "earn", path: "/earn/simple" },
+  { icon: BarChart3, label: "Auto-Invest", id: "auto-invest", path: "/earn/auto-invest" },
+  { icon: Wallet, label: "Staking", id: "staking", path: "/earn/staking" },
+  { icon: LineChart, label: "Liquidity Farming", id: "farming", path: "/earn/farming" },
+  
+  // Finance Section
+  { icon: CreditCard, label: "Card", id: "card", path: "/finance/card" },
+  { icon: CreditCard, label: "Loans", id: "loans", path: "/finance/loans" },
+  { icon: CreditCard, label: "Pay", id: "pay", path: "/finance/pay" },
+  
+  // Additional Features
   { icon: Bell, label: "Alerts", id: "alerts", path: "/alerts" },
-  { icon: Users, label: "Social Trading", id: "social-trading", path: "/social-trading" },
-  { icon: Sparkles, label: "New Vertex Listings", id: "new-listings", path: "/new-listings" },
-  { icon: Users, label: "Referrals", id: "referrals", path: "/referrals" },
-  { icon: PlayCircle, label: "Demo", id: "demo", path: "/demo" },
   { icon: History, label: "History", id: "history", path: "/history" },
-  { icon: Settings, label: "Support", id: "support", path: "/support" },  
+  { icon: Settings, label: "Support", id: "support", path: "/support" },
   { icon: Settings, label: "Settings", id: "settings", path: "/settings" },
+];
 ];
 
 interface SidebarProps {
