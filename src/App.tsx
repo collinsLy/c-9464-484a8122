@@ -20,7 +20,7 @@ import WithdrawPage from "./pages/WithdrawPage";
 import ReferralsPage from "./pages/ReferralsPage";
 import AlertsPage from "./pages/AlertsPage";
 import SocialTradingPage from "./pages/SocialTradingPage";
-import DexScreenerPage from "./pages/DexScreenerPage"; // Added import for DexScreenerPage
+import DexScreenerPage from "./pages/DexScreenerPage";
 
 // Configure query client to not show error toasts
 const queryClient = new QueryClient({
