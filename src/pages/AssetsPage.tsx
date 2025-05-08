@@ -260,26 +260,46 @@ const AssetsPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
             <CardHeader className="p-4 sm:p-6">
-              <CardTitle className="text-xl sm:text-2xl">Estimated Balance</CardTitle>
+              <CardTitle className="text-xl sm:text-2xl">Portfolio Overview</CardTitle>
             </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0">
-            <div className="space-y-2">
-              <div className="text-2xl sm:text-3xl font-bold">${totalPortfolioValue.toFixed(2)}</div>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
-                <div className="text-sm text-white/60">USDT Balance: {balance.toFixed(2)} USDT</div>
-                <div className="text-sm text-white/60">Other Assets: ~${(totalPortfolioValue - balance).toFixed(2)}</div>
+            <CardContent className="p-4 sm:p-6 pt-0">
+              <div className="grid gap-4">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <div className="text-2xl sm:text-3xl font-bold">${totalPortfolioValue.toFixed(2)}</div>
+                    <div className="text-sm text-white/60">Total Portfolio Value</div>
+                  </div>
+                  <div className="text-right">
+                    <div className={`text-lg font-semibold ${totalPortfolioValue >= previousDayBalance ? 'text-green-400' : 'text-red-400'}`}>
+                      {totalPortfolioValue >= previousDayBalance ? '+' : ''}
+                      ${(totalPortfolioValue - previousDayBalance).toFixed(2)}
+                    </div>
+                    <div className="text-sm text-white/60">24h Change</div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 pt-2">
+                  <div className="bg-white/5 rounded-lg p-3">
+                    <div className="text-lg font-semibold">{balance.toFixed(2)} USDT</div>
+                    <div className="text-sm text-white/60">Available Balance</div>
+                  </div>
+                  <div className="bg-white/5 rounded-lg p-3">
+                    <div className="text-lg font-semibold">${(totalPortfolioValue - balance).toFixed(2)}</div>
+                    <div className="text-sm text-white/60">In Other Assets</div>
+                  </div>
+                </div>
+
+                <div className="bg-white/5 rounded-lg p-3 mt-2">
+                  <div className="flex justify-between items-center">
+                    <div className="text-sm text-white/60">Portfolio Change</div>
+                    <div className={`text-sm ${totalPortfolioValue >= previousDayBalance ? 'text-green-400' : 'text-red-400'}`}>
+                      {previousDayBalance > 0 ? ((totalPortfolioValue - previousDayBalance) / previousDayBalance * 100).toFixed(2) : '0.00'}%
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <span>Today's PnL</span>
-                <span className={`${totalPortfolioValue >= previousDayBalance ? 'text-green-400' : 'text-red-400'}`}>
-                  {totalPortfolioValue >= previousDayBalance ? '+' : ''}
-                  ${(totalPortfolioValue - previousDayBalance).toFixed(2)} 
-                  ({previousDayBalance > 0 ? ((totalPortfolioValue - previousDayBalance) / previousDayBalance * 100).toFixed(2) : '0.00'}%)
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
           
         <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
           <CardHeader className="p-4 sm:p-6">
