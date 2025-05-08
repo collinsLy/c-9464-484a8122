@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Check, Copy } from 'lucide-react';
 import { UserBalanceService } from '@/lib/firebase-service';
 import { UserService } from '@/lib/user-service';
@@ -2068,8 +2068,8 @@ const WithdrawPage = () => {
 
       {/* Show All Coins Dialog */}
       <Dialog open={showAllCoinsDialog} onOpenChange={setShowAllCoinsDialog}>
-        <DialogContent className="bg-background/95 backdrop-blur-lg border-white/10 text-white p-6">
-          <h2 className="text-xl font-medium mb-4">All Cryptocurrencies</h2>
+          <DialogContent className="bg-background/95 backdrop-blur-lg border-white/10 text-white p-6">
+            <DialogTitle className="text-xl font-medium mb-4">All Cryptocurrencies</DialogTitle>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {[
               { symbol: 'BTC', name: 'Bitcoin' },
