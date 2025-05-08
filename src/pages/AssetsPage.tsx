@@ -247,10 +247,11 @@ const AssetsPage = () => {
       <div className="space-y-4 px-2 sm:px-4 pb-20">
         <PortfolioAnalytics />
         
-        <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-xl sm:text-2xl">Estimated Balance</CardTitle>
-          </CardHeader>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="text-xl sm:text-2xl">Estimated Balance</CardTitle>
+            </CardHeader>
           <CardContent className="p-4 sm:p-6 pt-0">
             <div className="space-y-2">
               <div className="text-2xl sm:text-3xl font-bold">${totalPortfolioValue.toFixed(2)}</div>
@@ -267,6 +268,73 @@ const AssetsPage = () => {
             </div>
           </CardContent>
         </Card>
+          
+        <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-xl sm:text-2xl">Asset Distribution</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 sm:p-6">
+            <div className="w-full aspect-square max-w-[300px] mx-auto">
+              <svg viewBox="0 0 100 100" className="transform -rotate-90 w-full h-full">
+                {sortedAssets
+                  .filter(asset => parseFloat(asset.amount) > 0)
+                  .map((asset, index, arr) => {
+                    const total = arr.reduce((sum, a) => sum + a.balance, 0);
+                    let currentAngle = 0;
+                    for (let i = 0; i < index; i++) {
+                      currentAngle += (arr[i].balance / total) * 360;
+                    }
+                    const angle = (asset.balance / total) * 360;
+                    
+                    const x1 = 50 + 40 * Math.cos((currentAngle * Math.PI) / 180);
+                    const y1 = 50 + 40 * Math.sin((currentAngle * Math.PI) / 180);
+                    const x2 = 50 + 40 * Math.cos(((currentAngle + angle) * Math.PI) / 180);
+                    const y2 = 50 + 40 * Math.sin(((currentAngle + angle) * Math.PI) / 180);
+                    
+                    const largeArcFlag = angle > 180 ? 1 : 0;
+                    
+                    const pathData = [
+                      `M 50 50`,
+                      `L ${x1} ${y1}`,
+                      `A 40 40 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+                      `L 50 50`,
+                    ].join(' ');
+
+                    return (
+                      <path
+                        key={asset.symbol}
+                        d={pathData}
+                        fill={`hsl(${index * (360 / arr.length)}, 70%, 50%)`}
+                        className="hover:opacity-80 transition-opacity cursor-pointer"
+                      >
+                        <title>{asset.symbol}: {((asset.balance / total) * 100).toFixed(1)}%</title>
+                      </path>
+                    );
+                  })}
+              </svg>
+            </div>
+            <div className="mt-4 space-y-2">
+              {sortedAssets
+                .filter(asset => parseFloat(asset.amount) > 0)
+                .map((asset, index, arr) => {
+                  const total = arr.reduce((sum, a) => sum + a.balance, 0);
+                  return (
+                    <div key={asset.symbol} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div 
+                          className="w-3 h-3 rounded-full" 
+                          style={{ backgroundColor: `hsl(${index * (360 / arr.length)}, 70%, 50%)` }}
+                        />
+                        <span>{asset.symbol}</span>
+                      </div>
+                      <span>{((asset.balance / total) * 100).toFixed(1)}%</span>
+                    </div>
+                  );
+                })}
+            </div>
+          </CardContent>
+        </Card>
+        </div>
 
         <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
           <CardHeader className="p-4 sm:p-6">
