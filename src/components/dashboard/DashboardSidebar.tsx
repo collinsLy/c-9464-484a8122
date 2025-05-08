@@ -79,7 +79,7 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
     if (pathname === '/demo') return 'demo';
     if (pathname === '/alerts') return 'alerts';
     if (pathname === '/dexscreener') return 'dexscreener';
-    
+
     // Log the current pathname for debugging
     console.log("Current active tab:", pathname);
 
