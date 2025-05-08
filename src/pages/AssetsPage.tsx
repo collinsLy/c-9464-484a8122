@@ -289,11 +289,63 @@ const AssetsPage = () => {
                   </div>
                 </div>
 
-                <div className="bg-white/5 rounded-lg p-3 mt-2">
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm text-white/60">Portfolio Change</div>
-                    <div className={`text-sm ${totalPortfolioValue >= previousDayBalance ? 'text-green-400' : 'text-red-400'}`}>
-                      {previousDayBalance > 0 ? ((totalPortfolioValue - previousDayBalance) / previousDayBalance * 100).toFixed(2) : '0.00'}%
+                {/* Portfolio Performance Metrics */}
+                <div className="grid grid-cols-2 gap-4 mt-2">
+                  <div className="bg-white/5 rounded-lg p-3">
+                    <div className="flex justify-between items-center">
+                      <div className="text-sm text-white/60">Portfolio Change</div>
+                      <div className={`text-sm ${totalPortfolioValue >= previousDayBalance ? 'text-green-400' : 'text-red-400'}`}>
+                        {previousDayBalance > 0 ? ((totalPortfolioValue - previousDayBalance) / previousDayBalance * 100).toFixed(2) : '0.00'}%
+                      </div>
+                    </div>
+                    <div className="mt-2 text-xs text-white/40">
+                      Previous Day Balance: ${previousDayBalance.toFixed(2)}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/5 rounded-lg p-3">
+                    <div className="flex justify-between items-center">
+                      <div className="text-sm text-white/60">ROI</div>
+                      <div className={`text-sm ${(totalPortfolioValue - balance) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        {balance > 0 ? (((totalPortfolioValue - balance) / balance) * 100).toFixed(2) : '0.00'}%
+                      </div>
+                    </div>
+                    <div className="mt-2 text-xs text-white/40">
+                      Initial Investment: ${balance.toFixed(2)}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Portfolio Analytics */}
+                <div className="grid grid-cols-3 gap-4 mt-4">
+                  <div className="bg-white/5 rounded-lg p-3">
+                    <div className="text-sm text-white/60">Most Profitable</div>
+                    <div className="mt-2 text-lg font-semibold">
+                      {sortedAssets.length > 0 ? sortedAssets[0].symbol : '-'}
+                    </div>
+                    <div className="text-xs text-white/40">
+                      ${sortedAssets.length > 0 ? sortedAssets[0].balance.toFixed(2) : '0.00'}
+                    </div>
+                  </div>
+
+                  <div className="bg-white/5 rounded-lg p-3">
+                    <div className="text-sm text-white/60">Portfolio Diversity</div>
+                    <div className="mt-2 text-lg font-semibold">
+                      {sortedAssets.filter(a => parseFloat(a.amount) > 0).length}
+                    </div>
+                    <div className="text-xs text-white/40">
+                      Assets Held
+                    </div>
+                  </div>
+
+                  <div className="bg-white/5 rounded-lg p-3">
+                    <div className="text-sm text-white/60">Risk Level</div>
+                    <div className="mt-2 text-lg font-semibold">
+                      {sortedAssets.filter(a => parseFloat(a.amount) > 0).length < 3 ? 'High' : 
+                       sortedAssets.filter(a => parseFloat(a.amount) > 0).length < 5 ? 'Medium' : 'Low'}
+                    </div>
+                    <div className="text-xs text-white/40">
+                      Based on Diversity
                     </div>
                   </div>
                 </div>
