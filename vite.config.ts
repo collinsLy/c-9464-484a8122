@@ -1,4 +1,3 @@
-
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -28,6 +27,19 @@ export default defineConfig(({ mode }) => ({
         changeOrigin: true,
         secure: true,
         rewrite: (path) => path.replace(/^\/api\/v3/, '/api/v3')
+      },
+      '/api/coingecko': {
+        target: 'https://api.coingecko.com/api/v3',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/coingecko/, ''),
+        configure: (proxy, options) => {
+          // Add CoinGecko API key to all requests
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            const url = new URL(proxyReq.path, 'https://api.coingecko.com');
+            url.searchParams.append('x_cg_api_key', 'CG-vfbBd2nG74YmzzoytroimuaZ');
+            proxyReq.path = `${url.pathname}${url.search}`;
+          });
+        }
       }
     },
     hmr: {

@@ -72,16 +72,16 @@ export interface CoinDetailData {
 // Helper function to fetch data from CoinGecko
 const fetchCoinGeckoData = async <T>(endpoint: string, params: Record<string, string> = {}): Promise<T> => {
   try {
-    const queryParams = new URLSearchParams({
-      ...params,
-      x_cg_api_key: COINGECKO_API_KEY
-    });
+    // Use relative URL to avoid CORS issues (requires setting up a proxy)
+    // This will work with Vite's dev server proxy or a dedicated backend proxy
+    const queryParams = new URLSearchParams(params);
     
-    const url = `${COINGECKO_BASE_URL}${endpoint}?${queryParams.toString()}`;
+    // Create a proxy URL that will be handled by your backend or dev server
+    const url = `/api/coingecko${endpoint}?${queryParams.toString()}`;
+    
     const response = await fetch(url, {
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
       }
     });
     
@@ -91,6 +91,7 @@ const fetchCoinGeckoData = async <T>(endpoint: string, params: Record<string, st
     }
     
     if (!response.ok) {
+      console.error(`API error: ${response.status}`);
       return {} as T;
     }
     

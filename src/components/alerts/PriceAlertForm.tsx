@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertService } from "@/lib/alert-service";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface PriceAlertFormProps {
   currentPrices: Record<string, number>;
@@ -21,18 +23,26 @@ const PriceAlertForm = ({ currentPrices }: PriceAlertFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!targetPrice) return;
+    if (!targetPrice) {
+      toast.error("Please enter a target price");
+      return;
+    }
 
     setIsSubmitting(true);
     try {
-      await AlertService.createPriceAlert(
+      const result = await AlertService.createPriceAlert(
         symbol,
         parseFloat(targetPrice),
         condition
       );
 
-      // Reset form
-      setTargetPrice('');
+      if (result) {
+        // Reset form on success
+        setTargetPrice('');
+      }
+    } catch (error) {
+      console.error("Error creating alert:", error);
+      toast.error("Failed to create alert. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -43,7 +53,9 @@ const PriceAlertForm = ({ currentPrices }: PriceAlertFormProps) => {
 
     // Pre-fill with current price for convenience
     const currentPrice = currentPrices[newSymbol] || 0;
-    setTargetPrice(currentPrice.toFixed(2));
+    if (currentPrice > 0) {
+      setTargetPrice(currentPrice.toFixed(2));
+    }
   };
 
   return (

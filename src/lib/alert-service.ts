@@ -1,6 +1,6 @@
 
 import { getAuth } from 'firebase/auth';
-import { getDatabase, ref, push, onValue, remove, query, orderByChild, equalTo } from 'firebase/database';
+import { getDatabase, ref, push, set, onValue, remove, query, orderByChild, equalTo, update } from 'firebase/database';
 import { toast } from 'sonner';
 import { getCoinPrice, getCoingeckoIdFromSymbol } from './api/coingecko';
 
@@ -12,7 +12,6 @@ const playAlertSound = () => {
 
 class AlertServiceClass {
   private db = getDatabase();
-  private alertsRef = ref(this.db, 'alerts');
   
   // Create a new price alert
   async createPriceAlert(symbol: string, targetPrice: number, condition: 'above' | 'below') {
@@ -34,8 +33,12 @@ class AlertServiceClass {
         triggered: false
       };
       
-      const newAlertRef = push(this.alertsRef);
-      await newAlertRef.set(alertData);
+      // Create reference to alerts collection under the user's ID
+      const alertsRef = ref(this.db, `users/${user.uid}/alerts`);
+      const newAlertRef = push(alertsRef);
+      
+      // Use set() with the key from push()
+      await set(newAlertRef, alertData);
       
       toast.success('Price alert created successfully');
       return newAlertRef.key;
@@ -49,7 +52,16 @@ class AlertServiceClass {
   // Delete a price alert
   async deletePriceAlert(alertId: string) {
     try {
-      await remove(ref(this.db, `alerts/${alertId}`));
+      const auth = getAuth();
+      const user = auth.currentUser;
+      
+      if (!user) {
+        toast.error('You must be logged in to delete alerts');
+        return;
+      }
+      
+      // Reference the specific alert under the user's ID
+      await remove(ref(this.db, `users/${user.uid}/alerts/${alertId}`));
       toast.success('Alert deleted successfully');
     } catch (error) {
       console.error('Error deleting alert:', error);
@@ -67,13 +79,10 @@ class AlertServiceClass {
       return () => {};
     }
     
-    const userAlertsQuery = query(
-      this.alertsRef,
-      orderByChild('userId'),
-      equalTo(user.uid)
-    );
+    // Reference alerts under the user's ID
+    const userAlertsRef = ref(this.db, `users/${user.uid}/alerts`);
     
-    const unsubscribe = onValue(userAlertsQuery, (snapshot) => {
+    const unsubscribe = onValue(userAlertsRef, (snapshot) => {
       const alerts: any[] = [];
       snapshot.forEach((childSnapshot) => {
         alerts.push({
@@ -94,15 +103,10 @@ class AlertServiceClass {
     
     if (!user) return;
     
-    const userAlertsQuery = query(
-      this.alertsRef,
-      orderByChild('userId'),
-      equalTo(user.uid)
-    );
+    // Reference alerts under the user's ID
+    const userAlertsRef = ref(this.db, `users/${user.uid}/alerts`);
     
-    onValue(userAlertsQuery, async (snapshot) => {
-      const alerts: any[] = [];
-      
+    onValue(userAlertsRef, async (snapshot) => {
       // Group alerts by symbol to minimize API calls
       const symbolGroups: {[key: string]: {alert: any, id: string}[]} = {};
       
@@ -116,7 +120,6 @@ class AlertServiceClass {
             symbolGroups[symbol] = [];
           }
           symbolGroups[symbol].push({ alert, id });
-          alerts.push({ id, ...alert });
         }
       });
       
@@ -147,8 +150,8 @@ class AlertServiceClass {
             
             if (isTriggered) {
               // Update the alert to mark it as triggered
-              const alertRef = ref(this.db, `alerts/${id}`);
-              await alertRef.update({ triggered: true });
+              const alertRef = ref(this.db, `users/${user.uid}/alerts/${id}`);
+              await update(alertRef, { triggered: true });
               
               // Notify the user
               toast.success(
