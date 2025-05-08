@@ -43,7 +43,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   // Fetch current prices for assets with increased debounce and memoization
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
-    const FETCH_INTERVAL = 5000; // 5 seconds
+    const FETCH_INTERVAL = 3000; // 3 seconds
     const CHANGE_THRESHOLD = 0.001; // 0.1%
 
     const fetchPrices = async () => {
@@ -51,11 +51,27 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         const symbols = Object.keys(userAssets)
           .filter(symbol => symbol !== 'USDT');
 
-        if (symbols.length === 0) return;
+        if (symbols.length === 0) {
+          calculatePortfolioValue(userAssets, {}, balance);
+          return;
+        }
 
         const symbolsQuery = symbols.map(s => `${s}USDT`);
-        const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
-        const data = await response.json();
+        const controller = new AbortController();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => {
+            controller.abort();
+            reject(new Error('Timeout'));
+          }, 2000)
+        );
+
+        const fetchPromise = fetch(
+          `https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`,
+          { signal: controller.signal }
+        );
+
+        const response = await Promise.race([fetchPromise, timeoutPromise]);
+        const data = await (response as Response).json();
 
         const newPrices: Record<string, number> = {};
         data.forEach((item: any) => {
@@ -202,7 +218,14 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
               {isLoading ? (
                 <span className="text-white/60">Loading...</span>
               ) : (
-                `$${totalBalance.toFixed(2)}`
+                <div className="relative">
+                  <span className={`transition-opacity duration-200 ${Object.keys(assetPrices).length === 0 ? 'opacity-50' : 'opacity-100'}`}>
+                    ${totalBalance.toFixed(2)}
+                  </span>
+                  {Object.keys(assetPrices).length === 0 && (
+                    <span className="absolute top-0 left-0 ml-1 animate-pulse text-white/60">*</span>
+                  )}
+                </div>
               )}
             </div>
             <div className="flex items-center mt-1 text-sm h-5">
