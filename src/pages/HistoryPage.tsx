@@ -1,42 +1,41 @@
-
-import { useState } from "react";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import TransactionHistory from "@/components/dashboard/TransactionHistory";
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
+import { TransactionHistory } from "@/components/dashboard/TransactionHistory";
 
 const HistoryPage = () => {
-  const [activeTab, setActiveTab] = useState("all");
-
   return (
     <DashboardLayout>
-      <div className="space-y-4 p-8 pt-6">
-        <div className="flex items-center justify-between space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight text-white">History</h2>
-        </div>
+      <div className="space-y-4">
+        <h1 className="text-3xl font-bold text-white">Transaction History</h1>
+
         <Card className="bg-background/40 backdrop-blur-lg border-white/10">
           <CardHeader>
-            <CardTitle>Transaction History</CardTitle>
+            <CardTitle>Recent Activity</CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="bg-background/40 backdrop-blur-lg border-white/10">
-                <TabsTrigger value="all">All Transactions</TabsTrigger>
+            <Tabs defaultValue="all" className="w-full">
+              <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
+                <TabsTrigger value="all">All</TabsTrigger>
                 <TabsTrigger value="deposits">Deposits</TabsTrigger>
                 <TabsTrigger value="withdrawals">Withdrawals</TabsTrigger>
                 <TabsTrigger value="trades">Trades</TabsTrigger>
               </TabsList>
-              <TabsContent value="all" className="pt-4">
+
+              <TabsContent value="all" className="mt-4">
                 <TransactionHistory filter="all" />
               </TabsContent>
-              <TabsContent value="deposits" className="pt-4">
-                <TransactionHistory filter="deposit" />
+
+              <TabsContent value="deposits" className="mt-4">
+                <TransactionHistory filter="deposits" />
               </TabsContent>
-              <TabsContent value="withdrawals" className="pt-4">
-                <TransactionHistory filter="withdraw" />
+
+              <TabsContent value="withdrawals" className="mt-4">
+                <TransactionHistory filter="withdrawals" />
               </TabsContent>
-              <TabsContent value="trades" className="pt-4">
-                <TransactionHistory filter="trade" />
+
+              <TabsContent value="trades" className="mt-4">
+                <TransactionHistory filter="trades" />
               </TabsContent>
             </Tabs>
           </CardContent>
