@@ -21,7 +21,8 @@ import ReferralsPage from "./pages/ReferralsPage";
 import AlertsPage from "./pages/AlertsPage";
 import SocialTradingPage from "./pages/SocialTradingPage";
 import DexScreenerPage from "./pages/DexScreenerPage";
-import VertexNewListingsPage from "./pages/BinanceNewListingsPage"; // Added import
+import VertexNewListingsPage from "./pages/BinanceNewListingsPage";
+import HistoryPage from "./pages/HistoryPage"; // Added import
 
 // Configure query client to not show error toasts
 const queryClient = new QueryClient({
@@ -60,6 +61,7 @@ const App = () => (
               <Route path="/referrals" element={<ErrorBoundary><ReferralsPage /></ErrorBoundary>} />
               <Route path="/alerts" element={<ErrorBoundary><AlertsPage /></ErrorBoundary>} />
               <Route path="/social-trading" element={<ErrorBoundary><SocialTradingPage /></ErrorBoundary>} />
+              <Route path="/history" element={<ErrorBoundary><HistoryPage /></ErrorBoundary>} />
               <Route path="/new-listings" element={<ErrorBoundary><VertexNewListingsPage /></ErrorBoundary>} /> {/* Added route */}
             </Routes>
           </DashboardProvider>
