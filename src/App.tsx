@@ -70,6 +70,8 @@ const App = () => (
               <Route path="/new-listings" element={<ErrorBoundary><VertexNewListingsPage /></ErrorBoundary>} />
               <Route path="/futures-markets" element={<ErrorBoundary><FuturesMarketsPage /></ErrorBoundary>} />
               <Route path="/top-movers" element={<ErrorBoundary><TopMoversPage /></ErrorBoundary>} />
+              <Route path="/spot-trading" element={<ErrorBoundary><SpotTradingPage /></ErrorBoundary>} />
+              <Route path="/margin-trading" element={<ErrorBoundary><MarginTradingPage /></ErrorBoundary>} />
             </Routes>
           </DashboardProvider>
         </BrowserRouter>
