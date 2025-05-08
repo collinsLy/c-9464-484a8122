@@ -21,7 +21,7 @@ import ReferralsPage from "./pages/ReferralsPage";
 import AlertsPage from "./pages/AlertsPage";
 import SocialTradingPage from "./pages/SocialTradingPage";
 import DexScreenerPage from "./pages/DexScreenerPage";
-import VertexNewListingsPage from "@/pages/VertexNewListingsPage"; // Added import
+import VertexNewListingsPage from "./pages/BinanceNewListingsPage"; // Added import
 
 // Configure query client to not show error toasts
 const queryClient = new QueryClient({
