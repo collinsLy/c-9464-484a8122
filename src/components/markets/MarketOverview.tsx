@@ -2,55 +2,63 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { Skeleton } from "@/components/ui/skeleton";
+
+interface MarketData {
+  symbol: string;
+  price: number;
+  change24h: number;
+  volume: number;
+}
 
 export const MarketOverview = () => {
-  const [marketData, setMarketData] = useState([]);
+  const [marketData, setMarketData] = useState<MarketData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMarketData = async () => {
       try {
-        const symbols = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT', 'ADAUSDT', 'DOTUSDT', 'XRPUSDT', 'DOGEUSDT'];
-        const response = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbols=' + JSON.stringify(symbols));
-        if (!response.ok) {
-          setMarketData([]);
-          setLoading(false);
-          return;
-        }
-
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,ripple,cardano&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true');
         const data = await response.json();
-        const formattedData = data.map(item => ({
-          name: item.symbol.replace('USDT', ''),
-          price: parseFloat(item.lastPrice),
-          change: parseFloat(item.priceChangePercent),
-          volume: parseFloat(item.volume) * parseFloat(item.lastPrice) / 1e9, // Convert to billions
+        
+        const formattedData = Object.entries(data).map(([key, value]: [string, any]) => ({
+          symbol: key.toUpperCase(),
+          price: value.usd,
+          change24h: value.usd_24h_change,
+          volume: value.usd_24h_vol
         }));
 
         setMarketData(formattedData);
         setLoading(false);
       } catch (err) {
-        setMarketData([]);
+        setError('Failed to fetch market data');
         setLoading(false);
       }
     };
 
     fetchMarketData();
-    const interval = setInterval(fetchMarketData, 10000); // Update every 10 seconds
-
+    const interval = setInterval(fetchMarketData, 30000);
     return () => clearInterval(interval);
   }, []);
 
   if (loading) {
     return (
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
+        <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
+          <CardContent className="p-4">
+            <Skeleton className="h-[200px] w-full" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
       <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
-        <CardHeader>
-          <CardTitle>Market Overview</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center p-6">
-            <div className="text-white/70">Loading market data...</div>
-          </div>
+        <CardContent className="p-4 text-center text-red-400">
+          {error}
         </CardContent>
       </Card>
     );
@@ -63,49 +71,38 @@ export const MarketOverview = () => {
           <CardTitle>Market Overview</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {marketData.map((coin) => (
-              <div key={coin.name} className="flex flex-wrap justify-between items-center gap-2">
-                <span className="font-medium text-sm sm:text-base">{coin.name}/USDT</span>
-                <div className="flex flex-wrap gap-2 sm:gap-4">
-                  <span>${coin.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                  <span className={coin.change >= 0 ? "text-green-500" : "text-red-500"}>
-                    {coin.change >= 0 ? "+" : ""}{coin.change.toFixed(2)}%
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={marketData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
+              <XAxis dataKey="symbol" stroke="#ffffff80" />
+              <YAxis stroke="#ffffff80" />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#000000dd',
+                  border: '1px solid #ffffff20',
+                  borderRadius: '8px'
+                }}
+              />
+              <Bar dataKey="change24h" fill="#0ea5e9" />
+            </BarChart>
+          </ResponsiveContainer>
         </CardContent>
       </Card>
 
       <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
         <CardHeader>
-          <CardTitle>Trading Volume (24h)</CardTitle>
+          <CardTitle>Top Movers</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={marketData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-                <XAxis dataKey="name" stroke="#888" />
-                <YAxis stroke="#888" />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#111', 
-                    borderColor: '#333',
-                    color: '#fff'
-                  }}
-                  labelStyle={{ color: '#fff' }}
-                />
-                <Bar 
-                  dataKey="volume" 
-                  name="Volume (Billion USD)" 
-                  fill="#6366f1" 
-                  radius={[4, 4, 0, 0]} 
-                />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="space-y-4">
+            {marketData.sort((a, b) => Math.abs(b.change24h) - Math.abs(a.change24h)).map((item) => (
+              <div key={item.symbol} className="flex justify-between items-center">
+                <span>{item.symbol}</span>
+                <span className={item.change24h >= 0 ? 'text-green-400' : 'text-red-400'}>
+                  {item.change24h.toFixed(2)}%
+                </span>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
