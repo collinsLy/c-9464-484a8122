@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { UserService } from "@/lib/firebase-service";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PortfolioAnalytics } from "@/components/dashboard/PortfolioAnalytics";
 
@@ -274,44 +275,18 @@ const AssetsPage = () => {
             <CardTitle className="text-xl sm:text-2xl">Asset Distribution</CardTitle>
           </CardHeader>
           <CardContent className="p-4 sm:p-6">
-            <div className="w-full aspect-square max-w-[300px] mx-auto">
-              <svg viewBox="0 0 100 100" className="transform -rotate-90 w-full h-full">
-                {sortedAssets
-                  .filter(asset => parseFloat(asset.amount) > 0)
-                  .map((asset, index, arr) => {
-                    const total = arr.reduce((sum, a) => sum + a.balance, 0);
-                    let currentAngle = 0;
-                    for (let i = 0; i < index; i++) {
-                      currentAngle += (arr[i].balance / total) * 360;
-                    }
-                    const angle = (asset.balance / total) * 360;
-                    
-                    const x1 = 50 + 40 * Math.cos((currentAngle * Math.PI) / 180);
-                    const y1 = 50 + 40 * Math.sin((currentAngle * Math.PI) / 180);
-                    const x2 = 50 + 40 * Math.cos(((currentAngle + angle) * Math.PI) / 180);
-                    const y2 = 50 + 40 * Math.sin(((currentAngle + angle) * Math.PI) / 180);
-                    
-                    const largeArcFlag = angle > 180 ? 1 : 0;
-                    
-                    const pathData = [
-                      `M 50 50`,
-                      `L ${x1} ${y1}`,
-                      `A 40 40 0 ${largeArcFlag} 1 ${x2} ${y2}`,
-                      `L 50 50`,
-                    ].join(' ');
-
-                    return (
-                      <path
-                        key={asset.symbol}
-                        d={pathData}
-                        fill={`hsl(${index * (360 / arr.length)}, 70%, 50%)`}
-                        className="hover:opacity-80 transition-opacity cursor-pointer"
-                      >
-                        <title>{asset.symbol}: {((asset.balance / total) * 100).toFixed(1)}%</title>
-                      </path>
-                    );
-                  })}
-              </svg>
+            <div className="w-full h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart data={sortedAssets}>
+                  <XAxis dataKey="symbol" />
+                  <YAxis yAxisId="left" />
+                  <YAxis yAxisId="right" orientation="right" />
+                  <Tooltip />
+                  <Legend />
+                  <Bar yAxisId="left" dataKey="balance" fill="#8884d8" name="Balance" />
+                  <Line yAxisId="right" type="monotone" dataKey="value" stroke="#82ca9d" name="Value (USD)" />
+                </ComposedChart>
+              </ResponsiveContainer>
             </div>
             <div className="mt-4 space-y-2">
               {sortedAssets
