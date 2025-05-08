@@ -26,7 +26,7 @@ const defaultNavItems: NavItem[] = [
   { icon: BarChart3, label: "Bots & Strategies", id: "bots", path: "/bots" },
   { icon: Bell, label: "Alerts", id: "alerts", path: "/alerts" },
   { icon: Users, label: "Social Trading", id: "social-trading", path: "/social-trading" },
-  { icon: Sparkles, label: "New Listings", id: "new-listings", path: "/new-listings" },
+  { icon: Sparkles, label: "New Vertex Listings", id: "new-listings", path: "/new-listings" },
   { icon: Users, label: "Referrals", id: "referrals", path: "/referrals" },
   { icon: PlayCircle, label: "Demo", id: "demo", path: "/demo" },
   { icon: History, label: "History", id: "history", path: "/history" },

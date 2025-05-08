@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { binanceService } from "@/lib/binance-service";
 
 interface NewListing {
   symbol: string;
@@ -12,7 +11,7 @@ interface NewListing {
   tradingStartTime: number;
 }
 
-export default function BinanceNewListingsPage() {
+export default function VertexNewListingsPage() {
   const [newListings, setNewListings] = useState<NewListing[]>([]);
   const [loading, setLoading] = useState(true);
 
