@@ -1,10 +1,35 @@
 import { useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { 
-  ChevronRight, ChevronLeft, Home, LineChart, BarChart3, 
-  Wallet, CreditCard, TrendingUp, History, Settings, PlayCircle, Menu, X,
-  Users, Bell, Sparkles, ArrowUpCircle, ArrowDownCircle, HelpCircle
+import {
+  ChevronRight,
+  ChevronLeft,
+  Home,
+  LineChart,
+  BarChart3,
+  Wallet,
+  CreditCard,
+  TrendingUp,
+  History,
+  Settings,
+  PlayCircle,
+  Menu,
+  X,
+  Users,
+  Bell,
+  Sparkles,
+  ArrowUpCircle,
+  ArrowDownCircle,
+  HelpCircle,
+  ArrowLeftRight,
+  GitBranch,
+  BrainCircuit,
+  Trophy,
+  Percent,
+  Repeat,
+  Droplets,
+  BadgePercent,
+  KeyRound,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -45,26 +70,26 @@ const defaultNavCategories: NavCategory[] = [
     items: [
       { icon: LineChart, label: "Spot Trading", id: "spot-trading", path: "/spot-trading" },
       { icon: TrendingUp, label: "Margin Trading", id: "margin-trading", path: "/margin-trading" },
-      { icon: PlayCircle, label: "Strategy Trading", id: "strategy-trading", path: "/strategy-trading" },
+      { icon: BrainCircuit, label: "Strategy Trading", id: "strategy-trading", path: "/strategy-trading" },
       { icon: Users, label: "P2P", id: "p2p", path: "/p2p" },
     ]
   },
   {
     label: "Derivatives",
     items: [
-      { icon: LineChart, label: "USDT-M Futures", id: "usdt-futures", path: "/usdt-futures" },
-      { icon: TrendingUp, label: "COIN-M Futures", id: "coin-futures", path: "/coin-futures" },
-      { icon: PlayCircle, label: "Options", id: "options", path: "/options" },
-      { icon: Users, label: "Leaderboard", id: "leaderboard", path: "/leaderboard" },
+      { icon: ArrowLeftRight, label: "USDT-M Futures", id: "usdt-futures", path: "/usdt-futures" },
+      { icon: Wallet, label: "COIN-M Futures", id: "coin-futures", path: "/coin-futures" },
+      { icon: GitBranch, label: "Options", id: "options", path: "/options" },
+      { icon: Trophy, label: "Leaderboard", id: "leaderboard", path: "/leaderboard" },
     ]
   },
   {
     label: "Earn",
     items: [
-      { icon: Wallet, label: "Simple Earn", id: "simple-earn", path: "/simple-earn" },
-      { icon: PlayCircle, label: "Auto-Invest", id: "auto-invest", path: "/auto-invest" },
-      { icon: Users, label: "Staking", id: "staking", path: "/staking" },
-      { icon: Users, label: "Liquidity Farming", id: "liquidity-farming", path: "/liquidity-farming" },
+      { icon: Percent, label: "Simple Earn", id: "simple-earn", path: "/simple-earn" },
+      { icon: Repeat, label: "Auto-Invest", id: "auto-invest", path: "/auto-invest" },
+      { icon: BadgePercent, label: "Staking", id: "staking", path: "/staking" },
+      { icon: Droplets, label: "Liquidity Farming", id: "liquidity-farming", path: "/liquidity-farming" },
     ]
   },
   {
@@ -72,7 +97,7 @@ const defaultNavCategories: NavCategory[] = [
     items: [
       { icon: CreditCard, label: "Vertex Card", id: "vertex-card", path: "/vertex-card" },
       { icon: Bell, label: "Alerts", id: "alerts", path: "/alerts" },
-      { icon: Settings, label: "API Management", id: "api", path: "/api-management" },
+      { icon: KeyRound, label: "API Management", id: "api", path: "/api-management" },
       { icon: HelpCircle, label: "Support", id: "support", path: "/support" },
     ]
   },
@@ -90,7 +115,7 @@ interface SidebarProps {
   navItems?: NavItem[];
 }
 
-const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
+const DashboardSidebar = ({ navItems = defaultNavCategories }: SidebarProps) => {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -152,8 +177,8 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
     <>
       {/* Mobile menu button - fixed at the top left corner */}
       {isMobile && (
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           size="icon"
           onClick={toggleMobileSidebar}
           className="fixed top-4 left-4 z-50 rounded-full bg-background/80 backdrop-blur-sm border border-white/10 text-white/70 hover:text-white hover:bg-white/10 lg:hidden"
@@ -164,7 +189,7 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
 
       <aside className={cn(
         "flex flex-col bg-background/95 backdrop-blur-xl border-r border-white/10 transition-all duration-300 h-screen z-40",
-        collapsed ? "w-64 md:w-48" : "w-[320px] md:w-80", 
+        collapsed ? "w-64 md:w-48" : "w-[320px] md:w-80",
         isMobile ? "fixed left-0 top-0" : "relative",
         isMobile && !mobileOpen ? "-translate-x-full" : "translate-x-0",
         "shadow-xl shadow-black/10"
@@ -179,8 +204,8 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
               {collapsed ? "Vertex" : "Vertex Trading"}
             </div>
           </div>
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="icon"
             onClick={() => setCollapsed(!collapsed)}
             className="text-white/70 hover:text-white hover:bg-white/10"
@@ -232,7 +257,7 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
 
       {/* Overlay when mobile sidebar is open */}
       {isMobile && mobileOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-30 lg:hidden"
           onClick={() => setMobileOpen(false)}
         />
@@ -243,3 +268,16 @@ const DashboardSidebar = ({ navItems = defaultNavItems }: SidebarProps) => {
 
 export default DashboardSidebar;
 
+// Placeholder page components (replace with actual implementations)
+const StrategyTradingPage = () => <div>Strategy Trading Page Content</div>;
+const P2PPage = () => <div>P2P Trading Page Content</div>;
+const USDTFuturesPage = () => <div>USDT Futures Page Content</div>;
+const CoinFuturesPage = () => <div>Coin Futures Page Content</div>;
+const OptionsPage = () => <div>Options Page Content</div>;
+const LeaderboardPage = () => <div>Leaderboard Page Content</div>;
+const SimpleEarnPage = () => <div>Simple Earn Page Content</div>;
+const AutoInvestPage = () => <div>Auto Invest Page Content</div>;
+const LiquidityFarmingPage = () => <div>Liquidity Farming Page Content</div>;
+const StakingPage = () => <div>Staking Page Content</div>;
+const VertexCardPage = () => <div>Vertex Card Page Content</div>;
+const APIManagementPage = () => <div>API Management Page Content</div>;
