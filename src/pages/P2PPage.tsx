@@ -2755,44 +2755,173 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
                            )}
                         </div>
                       ) : (
-                        // Default payment details if none exist
+                        // Payment details should match the details submitted in post ad
                         <div className="bg-background/60 rounded-md p-2">
-                          <div className="space-y-1">
-                            <div className="text-white/70 text-xs">Mobile Number</div>
-                            <div className="font-medium text-xs break-words flex items-center group relative">
-                              <span className="flex-1 pr-2">+254712345678</span>
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
-                                onClick={() => {
-                                  navigator.clipboard.writeText("+254712345678");
-                                  toast.success(`Copied to clipboard`);
-                                }}
-                              >
-                                <Copy className="h-3 w-3 text-white/70" />
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="space-y-1 mt-2">
-                            <div className="text-white/70 text-xs">Account Name</div>
-                            <div className="font-medium text-xs break-words flex items-center group relative">
-                              <span className="flex-1 pr-2">
-                                {userOrders.find(order => order.id === selectedOrderForChat)?.seller || "Vendor"}
-                              </span>
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
-                                onClick={() => {
-                                  navigator.clipboard.writeText(userOrders.find(order => order.id === selectedOrderForChat)?.seller || "Vendor");
-                                  toast.success(`Copied to clipboard`);
-                                }}
-                              >
-                                <Copy className="h-3 w-3 text-white/70" />
-                              </Button>
-                            </div>
-                          </div>
+                          {selectedOrderForChat && 
+                           userOrders.find(o => o.id === selectedOrderForChat)?.paymentMethod?.includes("M-PESA") || 
+                           userOrders.find(o => o.id === selectedOrderForChat)?.paymentMethod?.includes("Mobile Money") ? (
+                            <>
+                              <div className="space-y-1">
+                                <div className="text-white/70 text-xs">Mobile Number</div>
+                                <div className="font-medium text-xs break-words flex items-center group relative">
+                                  <span className="flex-1 pr-2">{paymentDetails.mobileNumber || "+254712345678"}</span>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(paymentDetails.mobileNumber || "+254712345678");
+                                      toast.success(`Mobile number copied`);
+                                    }}
+                                  >
+                                    <Copy className="h-3 w-3 text-white/70" />
+                                  </Button>
+                                </div>
+                              </div>
+                              <div className="space-y-1 mt-2">
+                                <div className="text-white/70 text-xs">Account Name</div>
+                                <div className="font-medium text-xs break-words flex items-center group relative">
+                                  <span className="flex-1 pr-2">
+                                    {paymentDetails.mpesaName || paymentDetails.accountName || sellerName}
+                                  </span>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(paymentDetails.mpesaName || paymentDetails.accountName || sellerName);
+                                      toast.success(`Account name copied`);
+                                    }}
+                                  >
+                                    <Copy className="h-3 w-3 text-white/70" />
+                                  </Button>
+                                </div>
+                              </div>
+                              {paymentDetails.mobileProvider && (
+                                <div className="space-y-1 mt-2">
+                                  <div className="text-white/70 text-xs">Provider</div>
+                                  <div className="font-medium text-xs break-words">
+                                    {paymentDetails.mobileProvider === "other" 
+                                      ? paymentDetails.otherProvider 
+                                      : paymentDetails.mobileProvider}
+                                  </div>
+                                </div>
+                              )}
+                            </>
+                          ) : userOrders.find(o => o.id === selectedOrderForChat)?.paymentMethod?.includes("Bank") ? (
+                            <>
+                              <div className="space-y-1">
+                                <div className="text-white/70 text-xs">Bank Name</div>
+                                <div className="font-medium text-xs break-words flex items-center group relative">
+                                  <span className="flex-1 pr-2">{paymentDetails.bankName || "Bank of Africa"}</span>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(paymentDetails.bankName || "Bank of Africa");
+                                      toast.success(`Bank name copied`);
+                                    }}
+                                  >
+                                    <Copy className="h-3 w-3 text-white/70" />
+                                  </Button>
+                                </div>
+                              </div>
+                              <div className="space-y-1 mt-2">
+                                <div className="text-white/70 text-xs">Account Number</div>
+                                <div className="font-medium text-xs break-words flex items-center group relative">
+                                  <span className="flex-1 pr-2">{paymentDetails.accountNumber || "1234567890"}</span>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(paymentDetails.accountNumber || "1234567890");
+                                      toast.success(`Account number copied`);
+                                    }}
+                                  >
+                                    <Copy className="h-3 w-3 text-white/70" />
+                                  </Button>
+                                </div>
+                              </div>
+                              <div className="space-y-1 mt-2">
+                                <div className="text-white/70 text-xs">Account Holder</div>
+                                <div className="font-medium text-xs break-words flex items-center group relative">
+                                  <span className="flex-1 pr-2">{paymentDetails.accountHolderName || sellerName}</span>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(paymentDetails.accountHolderName || sellerName);
+                                      toast.success(`Account holder name copied`);
+                                    }}
+                                  >
+                                    <Copy className="h-3 w-3 text-white/70" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </>
+                          ) : userOrders.find(o => o.id === selectedOrderForChat)?.paymentMethod?.includes("PayPal") ? (
+                            <>
+                              <div className="space-y-1">
+                                <div className="text-white/70 text-xs">PayPal Email</div>
+                                <div className="font-medium text-xs break-words flex items-center group relative">
+                                  <span className="flex-1 pr-2">{paymentDetails.paypalEmail || `${sellerName.toLowerCase()}@email.com`}</span>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(paymentDetails.paypalEmail || `${sellerName.toLowerCase()}@email.com`);
+                                      toast.success(`PayPal email copied`);
+                                    }}
+                                  >
+                                    <Copy className="h-3 w-3 text-white/70" />
+                                  </Button>
+                                </div>
+                              </div>
+                              <div className="space-y-1 mt-2">
+                                <div className="text-white/70 text-xs">Full Name</div>
+                                <div className="font-medium text-xs break-words flex items-center group relative">
+                                  <span className="flex-1 pr-2">{paymentDetails.paypalName || sellerName}</span>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(paymentDetails.paypalName || sellerName);
+                                      toast.success(`Full name copied`);
+                                    }}
+                                  >
+                                    <Copy className="h-3 w-3 text-white/70" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </>
+                          ) : (
+                            // Generic details as fallback
+                            <>
+                              <div className="space-y-1">
+                                <div className="text-white/70 text-xs">Payment Method</div>
+                                <div className="font-medium text-xs break-words">
+                                  {userOrders.find(order => order.id === selectedOrderForChat)?.paymentMethod || "Default Payment Method"}
+                                </div>
+                              </div>
+                              <div className="space-y-1 mt-2">
+                                <div className="text-white/70 text-xs">Payment Instructions</div>
+                                <div className="font-medium text-xs break-words">
+                                  {paymentDetails.instructions || "Please contact the seller for payment details."}
+                                </div>
+                              </div>
+                              <div className="space-y-1 mt-2">
+                                <div className="text-white/70 text-xs">Seller</div>
+                                <div className="font-medium text-xs break-words">
+                                  {userOrders.find(order => order.id === selectedOrderForChat)?.seller || sellerName}
+                                </div>
+                              </div>
+                            </>
+                          )}
                         </div>
                       )}
 
