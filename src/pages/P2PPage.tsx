@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,33 +13,14 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
-import { Search, Filter, ChevronDown, MessageCircle, ShieldCheck, ArrowUpRight, Star, Clock, CreditCard, Users, DollarSign, ArrowRight, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Search, Filter, ChevronDown, MessageCircle, ShieldCheck, ArrowUpRight, Star, Clock, CreditCard, Users, DollarSign, ArrowRight, AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-
-interface P2POffer {
-  id: string;
-  user: {
-    name: string;
-    avatar: string;
-    rating: number;
-    completedTrades: number;
-  };
-  crypto: string;
-  price: number;
-  fiatCurrency: string;
-  paymentMethods: string[];
-  limits: {
-    min: number;
-    max: number;
-  };
-  availableAmount: number;
-  terms: string;
-}
+import p2pService, { P2POffer, P2POrder } from "@/lib/p2p-service";
 
 const P2PPage = () => {
   const { isDemoMode } = useDashboardContext();
   const [activeTab, setActiveTab] = useState("buy");
-  const [selectedCrypto, setSelectedCrypto] = useState("BTC");
+  const [selectedCrypto, setSelectedCrypto] = useState("all");
   const [selectedFiat, setSelectedFiat] = useState("USD");
   const [selectedPayment, setSelectedPayment] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -47,6 +28,27 @@ const P2PPage = () => {
   const [selectedOffer, setSelectedOffer] = useState<P2POffer | null>(null);
   const [buyAmount, setBuyAmount] = useState("");
   const [buyTotal, setBuyTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [offersLoading, setOffersLoading] = useState(false);
+  const [buyOffers, setBuyOffers] = useState<P2POffer[]>([]);
+  const [sellOffers, setSellOffers] = useState<P2POffer[]>([]);
+  const [userOrders, setUserOrders] = useState<P2POrder[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [processingOrder, setProcessingOrder] = useState(false);
+  
+  // Form states for posting an ad
+  const [adType, setAdType] = useState("buy");
+  const [adCrypto, setAdCrypto] = useState("BTC");
+  const [adFiat, setAdFiat] = useState("USD");
+  const [adPayment, setAdPayment] = useState("bank-transfer");
+  const [adPriceType, setAdPriceType] = useState("fixed");
+  const [adPrice, setAdPrice] = useState("");
+  const [adAmount, setAdAmount] = useState("");
+  const [adWindow, setAdWindow] = useState("15");
+  const [adMinLimit, setAdMinLimit] = useState("");
+  const [adMaxLimit, setAdMaxLimit] = useState("");
+  const [adTerms, setAdTerms] = useState("");
+  const [postingAd, setPostingAd] = useState(false);
 
   const cryptos = ["BTC", "ETH", "USDT", "BNB", "DOGE", "XRP", "SOL"];
   const fiats = ["USD", "EUR", "GBP", "CAD", "AUD", "NGN", "KES", "ZAR", "GHS"];
@@ -61,135 +63,74 @@ const P2PPage = () => {
     { id: "credit-card", name: "Credit/Debit Card" },
   ];
 
-  const buyOffers: P2POffer[] = [
-    {
-      id: "1",
-      user: {
-        name: "CryptoMaster",
-        avatar: "https://github.com/shadcn.png",
-        rating: 4.9,
-        completedTrades: 386
-      },
-      crypto: "BTC",
-      price: 55432.87,
-      fiatCurrency: "USD",
-      paymentMethods: ["Bank Transfer", "PayPal"],
-      limits: {
-        min: 100,
-        max: 10000
-      },
-      availableAmount: 0.85,
-      terms: "Payment must be completed within 15 minutes. Please include transaction reference."
-    },
-    {
-      id: "2",
-      user: {
-        name: "AfricaTrader",
-        avatar: "https://github.com/shadcn.png",
-        rating: 4.7,
-        completedTrades: 125
-      },
-      crypto: "BTC",
-      price: 55510.50,
-      fiatCurrency: "USD",
-      paymentMethods: ["M-PESA", "Mobile Money"],
-      limits: {
-        min: 50,
-        max: 5000
-      },
-      availableAmount: 0.42,
-      terms: "M-PESA transactions will be processed immediately. I'm available 24/7."
-    },
-    {
-      id: "3",
-      user: {
-        name: "CryptoPro",
-        avatar: "https://github.com/shadcn.png",
-        rating: 5.0,
-        completedTrades: 219
-      },
-      crypto: "BTC",
-      price: 55380.20,
-      fiatCurrency: "USD",
-      paymentMethods: ["Bank Transfer", "Credit/Debit Card"],
-      limits: {
-        min: 200,
-        max: 20000
-      },
-      availableAmount: 1.2,
-      terms: "Fast release once payment is verified. No additional fees."
-    },
-    {
-      id: "4",
-      user: {
-        name: "StellarTrader",
-        avatar: "https://github.com/shadcn.png",
-        rating: 4.8,
-        completedTrades: 178
-      },
-      crypto: "ETH",
-      price: 3010.25,
-      fiatCurrency: "USD",
-      paymentMethods: ["Bank Transfer", "PayPal", "M-PESA"],
-      limits: {
-        min: 100,
-        max: 8000
-      },
-      availableAmount: 5.5,
-      terms: "I process payments quickly. Please ensure your payment details are correct."
+  // Load offers and orders
+  useEffect(() => {
+    loadOffers();
+    loadUserOrders();
+  }, []);
+
+  // Filter offers when filters change
+  useEffect(() => {
+    filterOffers();
+  }, [activeTab, selectedCrypto, selectedFiat, selectedPayment, searchQuery]);
+
+  const loadOffers = async () => {
+    setOffersLoading(true);
+    try {
+      const [buyData, sellData] = await Promise.all([
+        p2pService.getBuyOffers(),
+        p2pService.getSellOffers()
+      ]);
+      
+      setBuyOffers(buyData);
+      setSellOffers(sellData);
+    } catch (error) {
+      console.error("Error fetching offers:", error);
+      toast.error("Failed to load offers. Please try again.");
+    } finally {
+      setOffersLoading(false);
     }
-  ];
+  };
 
-  const sellOffers: P2POffer[] = [
-    {
-      id: "5",
-      user: {
-        name: "BlockchainBaron",
-        avatar: "https://github.com/shadcn.png",
-        rating: 4.9,
-        completedTrades: 412
-      },
-      crypto: "BTC",
-      price: 55600.11,
-      fiatCurrency: "USD",
-      paymentMethods: ["Bank Transfer"],
-      limits: {
-        min: 200,
-        max: 15000
-      },
-      availableAmount: 1.5,
-      terms: "Release after payment confirmation. I usually respond within 5 minutes."
-    },
-    {
-      id: "6",
-      user: {
-        name: "NairaTrader",
-        avatar: "https://github.com/shadcn.png",
-        rating: 4.8,
-        completedTrades: 95
-      },
-      crypto: "BTC",
-      price: 55750.80,
-      fiatCurrency: "USD",
-      paymentMethods: ["Mobile Money", "M-PESA"],
-      limits: {
-        min: 50,
-        max: 5000
-      },
-      availableAmount: 0.35,
-      terms: "Fast and reliable service. No hidden fees."
+  const loadUserOrders = async () => {
+    setOrdersLoading(true);
+    try {
+      const orders = await p2pService.getUserOrders();
+      setUserOrders(orders);
+    } catch (error) {
+      console.error("Error fetching user orders:", error);
+      toast.error("Failed to load your orders. Please try again.");
+    } finally {
+      setOrdersLoading(false);
     }
-  ];
+  };
 
-  const filteredOffers = (activeTab === "buy" ? buyOffers : sellOffers).filter(offer => {
-    if (selectedCrypto !== "all" && offer.crypto !== selectedCrypto) return false;
-    if (selectedFiat !== "all" && offer.fiatCurrency !== selectedFiat) return false;
-    if (selectedPayment !== "all" && !offer.paymentMethods.some(method => method.toLowerCase().includes(selectedPayment.toLowerCase()))) return false;
-    if (searchQuery && !offer.user.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    return true;
-  });
+  const filterOffers = async () => {
+    setOffersLoading(true);
+    try {
+      const filteredOffers = await p2pService.filterOffers(
+        activeTab as 'buy' | 'sell',
+        {
+          crypto: selectedCrypto,
+          fiat: selectedFiat,
+          paymentMethod: selectedPayment,
+          searchQuery: searchQuery
+        }
+      );
+      
+      if (activeTab === "buy") {
+        setBuyOffers(filteredOffers);
+      } else {
+        setSellOffers(filteredOffers);
+      }
+    } catch (error) {
+      console.error("Error filtering offers:", error);
+    } finally {
+      setOffersLoading(false);
+    }
+  };
 
-  const handleBuySubmit = () => {
+  const handleOrderSubmit = async () => {
     if (!selectedOffer) return;
     
     const amount = parseFloat(buyAmount);
@@ -203,11 +144,112 @@ const P2PPage = () => {
       return;
     }
     
-    toast.success("Order placed successfully", {
-      description: `Your order to ${activeTab} ${(amount / selectedOffer.price).toFixed(8)} ${selectedOffer.crypto} has been placed.`
-    });
+    setProcessingOrder(true);
     
-    setIsDialogOpen(false);
+    try {
+      await p2pService.placeOrder(
+        selectedOffer.id,
+        amount,
+        activeTab as 'buy' | 'sell'
+      );
+      
+      toast.success("Order placed successfully", {
+        description: `Your order to ${activeTab} ${(amount / selectedOffer.price).toFixed(8)} ${selectedOffer.crypto} has been placed.`
+      });
+      
+      // Reload orders and offers
+      loadOffers();
+      loadUserOrders();
+      
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error("Error placing order:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to place order. Please try again.");
+    } finally {
+      setProcessingOrder(false);
+    }
+  };
+
+  const handlePostAd = async () => {
+    // Validate inputs
+    if (!adPrice || !adAmount || !adMinLimit || !adMaxLimit) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+    
+    const price = parseFloat(adPrice);
+    const amount = parseFloat(adAmount);
+    const minLimit = parseFloat(adMinLimit);
+    const maxLimit = parseFloat(adMaxLimit);
+    
+    if (isNaN(price) || isNaN(amount) || isNaN(minLimit) || isNaN(maxLimit)) {
+      toast.error("Please enter valid numbers");
+      return;
+    }
+    
+    if (minLimit > maxLimit) {
+      toast.error("Minimum limit cannot be greater than maximum limit");
+      return;
+    }
+    
+    setPostingAd(true);
+    
+    try {
+      // Convert payment method ID to name
+      const paymentMethodName = paymentMethods.find(m => m.id === adPayment)?.name || adPayment;
+      
+      const newOffer: Omit<P2POffer, 'id' | 'createdAt'> = {
+        user: {
+          name: "You", // Would be fetched from user profile in a real app
+          avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=You",
+          rating: 5.0,
+          completedTrades: 10
+        },
+        crypto: adCrypto,
+        price: price,
+        fiatCurrency: adFiat,
+        paymentMethods: [paymentMethodName],
+        limits: {
+          min: minLimit,
+          max: maxLimit
+        },
+        availableAmount: amount,
+        terms: adTerms || "Standard terms apply."
+      };
+      
+      await p2pService.createP2POffer(newOffer);
+      
+      toast.success("Advertisement posted successfully");
+      
+      // Reset form
+      setAdPrice("");
+      setAdAmount("");
+      setAdMinLimit("");
+      setAdMaxLimit("");
+      setAdTerms("");
+      
+      // Reload offers
+      loadOffers();
+      
+      // Switch to appropriate tab
+      setActiveTab(adType);
+    } catch (error) {
+      console.error("Error posting ad:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to post advertisement. Please try again.");
+    } finally {
+      setPostingAd(false);
+    }
+  };
+
+  const handleCancelOrder = async (orderId: string) => {
+    try {
+      await p2pService.cancelOrder(orderId);
+      toast.success("Order cancelled successfully");
+      loadUserOrders();
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      toast.error("Failed to cancel order. Please try again.");
+    }
   };
 
   const calculateTotal = (amount: string, price: number) => {
@@ -215,6 +257,8 @@ const P2PPage = () => {
     if (isNaN(numAmount)) return 0;
     return numAmount / price;
   };
+
+  const filteredOffers = activeTab === "buy" ? buyOffers : sellOffers;
 
   return (
     <DashboardLayout>
@@ -251,154 +295,389 @@ const P2PPage = () => {
                 </TabsTrigger>
               </TabsList>
 
-              <div className="flex flex-col space-y-4">
-                <div className="flex flex-col md:flex-row gap-4">
-                  <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Select value={selectedCrypto} onValueChange={setSelectedCrypto}>
-                      <SelectTrigger className="bg-background/40 border-white/10">
-                        <SelectValue placeholder="Select Crypto" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Cryptocurrencies</SelectItem>
-                        {cryptos.map(crypto => (
-                          <SelectItem key={crypto} value={crypto}>{crypto}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+              <TabsContent value="buy" className="mt-0">
+                <div className="flex flex-col space-y-4">
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <Select value={selectedCrypto} onValueChange={setSelectedCrypto}>
+                        <SelectTrigger className="bg-background/40 border-white/10">
+                          <SelectValue placeholder="Select Crypto" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Cryptocurrencies</SelectItem>
+                          {cryptos.map(crypto => (
+                            <SelectItem key={crypto} value={crypto}>{crypto}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      
+                      <Select value={selectedFiat} onValueChange={setSelectedFiat}>
+                        <SelectTrigger className="bg-background/40 border-white/10">
+                          <SelectValue placeholder="Select Fiat" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Fiat Currencies</SelectItem>
+                          {fiats.map(fiat => (
+                            <SelectItem key={fiat} value={fiat}>{fiat}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      
+                      <Select value={selectedPayment} onValueChange={setSelectedPayment}>
+                        <SelectTrigger className="bg-background/40 border-white/10">
+                          <SelectValue placeholder="Payment Method" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {paymentMethods.map(method => (
+                            <SelectItem key={method.id} value={method.id}>{method.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                     
-                    <Select value={selectedFiat} onValueChange={setSelectedFiat}>
-                      <SelectTrigger className="bg-background/40 border-white/10">
-                        <SelectValue placeholder="Select Fiat" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Fiat Currencies</SelectItem>
-                        {fiats.map(fiat => (
-                          <SelectItem key={fiat} value={fiat}>{fiat}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    
-                    <Select value={selectedPayment} onValueChange={setSelectedPayment}>
-                      <SelectTrigger className="bg-background/40 border-white/10">
-                        <SelectValue placeholder="Payment Method" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {paymentMethods.map(method => (
-                          <SelectItem key={method.id} value={method.id}>{method.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="relative w-full md:w-64">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search merchants..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-9 bg-background/40 border-white/10"
+                      />
+                    </div>
                   </div>
-                  
-                  <div className="relative w-full md:w-64">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search merchants..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-9 bg-background/40 border-white/10"
-                    />
-                  </div>
-                </div>
 
-                <div className="bg-background/20 backdrop-blur-lg border border-white/10 rounded-md overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="hover:bg-background/40">
-                        <TableHead className="text-white">Advertiser</TableHead>
-                        <TableHead className="text-white">Price</TableHead>
-                        <TableHead className="text-white">Limits</TableHead>
-                        <TableHead className="text-white">Payment</TableHead>
-                        <TableHead className="text-white">Available</TableHead>
-                        <TableHead className="text-white"></TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredOffers.length > 0 ? (
-                        filteredOffers.map((offer) => (
-                          <TableRow key={offer.id} className="hover:bg-background/40">
-                            <TableCell className="font-medium">
-                              <div className="flex items-center gap-2">
-                                <Avatar className="h-8 w-8">
-                                  <AvatarImage src={offer.user.avatar} />
-                                  <AvatarFallback>{offer.user.name.slice(0, 2)}</AvatarFallback>
-                                </Avatar>
-                                <div>
-                                  <div className="flex items-center gap-1">
-                                    {offer.user.name}
-                                    <Badge variant="outline" className="ml-1 text-xs py-0 px-1 bg-green-900/20 text-green-400 border-green-800">
-                                      {offer.user.rating}
-                                      <Star className="h-3 w-3 ml-0.5 fill-current" />
-                                    </Badge>
-                                  </div>
-                                  <div className="text-xs text-white/60">
-                                    {offer.user.completedTrades}+ trades
-                                  </div>
-                                </div>
+                  <div className="bg-background/20 backdrop-blur-lg border border-white/10 rounded-md overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="hover:bg-background/40">
+                          <TableHead className="text-white">Advertiser</TableHead>
+                          <TableHead className="text-white">Price</TableHead>
+                          <TableHead className="text-white">Limits</TableHead>
+                          <TableHead className="text-white">Payment</TableHead>
+                          <TableHead className="text-white">Available</TableHead>
+                          <TableHead className="text-white"></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {offersLoading ? (
+                          <TableRow>
+                            <TableCell colSpan={6} className="text-center py-8 text-white/60">
+                              <div className="flex justify-center items-center">
+                                <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                                Loading offers...
                               </div>
-                            </TableCell>
-                            <TableCell className="font-medium">
-                              {offer.price.toLocaleString()} {offer.fiatCurrency}
-                            </TableCell>
-                            <TableCell>
-                              <div className="text-sm">
-                                {offer.limits.min.toLocaleString()} - {offer.limits.max.toLocaleString()} {offer.fiatCurrency}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex flex-wrap gap-1">
-                                {offer.paymentMethods.map((method, index) => (
-                                  <Badge key={index} variant="outline" className="bg-background/40 border-white/10 text-white">
-                                    {method}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="font-medium">
-                                {offer.availableAmount.toFixed(6)} {offer.crypto}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Button 
-                                variant="default" 
-                                className="bg-[#F2FF44] text-black hover:bg-[#E2EF34]"
-                                onClick={() => {
-                                  setSelectedOffer(offer);
-                                  setIsDialogOpen(true);
-                                }}
-                              >
-                                {activeTab === "buy" ? "Buy" : "Sell"}
-                              </Button>
                             </TableCell>
                           </TableRow>
-                        ))
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={6} className="text-center py-8 text-white/60">
-                            No offers found matching your criteria
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-
-              <TabsContent value="orders" className="mt-4">
-                <div className="bg-background/20 backdrop-blur-lg border border-white/10 rounded-md p-8 text-center">
-                  <div className="flex flex-col items-center justify-center">
-                    <Clock className="h-12 w-12 mb-4 text-white/40" />
-                    <h3 className="text-lg font-medium text-white mb-2">No Orders Yet</h3>
-                    <p className="text-white/60 max-w-md mx-auto">
-                      You haven't placed any P2P orders yet. Buy or sell crypto with other users to see your orders here.
-                    </p>
-                    <Button className="mt-4">Start Trading</Button>
+                        ) : filteredOffers.length > 0 ? (
+                          filteredOffers.map((offer) => (
+                            <TableRow key={offer.id} className="hover:bg-background/40">
+                              <TableCell className="font-medium">
+                                <div className="flex items-center gap-2">
+                                  <Avatar className="h-8 w-8">
+                                    <AvatarImage src={offer.user.avatar} />
+                                    <AvatarFallback>{offer.user.name.slice(0, 2)}</AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                    <div className="flex items-center gap-1">
+                                      {offer.user.name}
+                                      <Badge variant="outline" className="ml-1 text-xs py-0 px-1 bg-green-900/20 text-green-400 border-green-800">
+                                        {offer.user.rating}
+                                        <Star className="h-3 w-3 ml-0.5 fill-current" />
+                                      </Badge>
+                                    </div>
+                                    <div className="text-xs text-white/60">
+                                      {offer.user.completedTrades}+ trades
+                                    </div>
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell className="font-medium">
+                                {offer.price.toLocaleString()} {offer.fiatCurrency}
+                              </TableCell>
+                              <TableCell>
+                                <div className="text-sm">
+                                  {offer.limits.min.toLocaleString()} - {offer.limits.max.toLocaleString()} {offer.fiatCurrency}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex flex-wrap gap-1">
+                                  {offer.paymentMethods.map((method, index) => (
+                                    <Badge key={index} variant="outline" className="bg-background/40 border-white/10 text-white">
+                                      {method}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="font-medium">
+                                  {offer.availableAmount.toFixed(6)} {offer.crypto}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Button 
+                                  variant="default" 
+                                  className="bg-[#F2FF44] text-black hover:bg-[#E2EF34]"
+                                  onClick={() => {
+                                    setSelectedOffer(offer);
+                                    setBuyAmount("");
+                                    setBuyTotal(0);
+                                    setIsDialogOpen(true);
+                                  }}
+                                >
+                                  {activeTab === "buy" ? "Buy" : "Sell"}
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        ) : (
+                          <TableRow>
+                            <TableCell colSpan={6} className="text-center py-8 text-white/60">
+                              No offers found matching your criteria
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
                   </div>
                 </div>
               </TabsContent>
 
-              <TabsContent value="post" className="mt-4">
+              <TabsContent value="sell" className="mt-0">
+                <div className="flex flex-col space-y-4">
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <Select value={selectedCrypto} onValueChange={setSelectedCrypto}>
+                        <SelectTrigger className="bg-background/40 border-white/10">
+                          <SelectValue placeholder="Select Crypto" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Cryptocurrencies</SelectItem>
+                          {cryptos.map(crypto => (
+                            <SelectItem key={crypto} value={crypto}>{crypto}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      
+                      <Select value={selectedFiat} onValueChange={setSelectedFiat}>
+                        <SelectTrigger className="bg-background/40 border-white/10">
+                          <SelectValue placeholder="Select Fiat" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Fiat Currencies</SelectItem>
+                          {fiats.map(fiat => (
+                            <SelectItem key={fiat} value={fiat}>{fiat}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      
+                      <Select value={selectedPayment} onValueChange={setSelectedPayment}>
+                        <SelectTrigger className="bg-background/40 border-white/10">
+                          <SelectValue placeholder="Payment Method" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {paymentMethods.map(method => (
+                            <SelectItem key={method.id} value={method.id}>{method.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="relative w-full md:w-64">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search merchants..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-9 bg-background/40 border-white/10"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="bg-background/20 backdrop-blur-lg border border-white/10 rounded-md overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="hover:bg-background/40">
+                          <TableHead className="text-white">Advertiser</TableHead>
+                          <TableHead className="text-white">Price</TableHead>
+                          <TableHead className="text-white">Limits</TableHead>
+                          <TableHead className="text-white">Payment</TableHead>
+                          <TableHead className="text-white">Available</TableHead>
+                          <TableHead className="text-white"></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {offersLoading ? (
+                          <TableRow>
+                            <TableCell colSpan={6} className="text-center py-8 text-white/60">
+                              <div className="flex justify-center items-center">
+                                <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                                Loading offers...
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ) : filteredOffers.length > 0 ? (
+                          filteredOffers.map((offer) => (
+                            <TableRow key={offer.id} className="hover:bg-background/40">
+                              <TableCell className="font-medium">
+                                <div className="flex items-center gap-2">
+                                  <Avatar className="h-8 w-8">
+                                    <AvatarImage src={offer.user.avatar} />
+                                    <AvatarFallback>{offer.user.name.slice(0, 2)}</AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                    <div className="flex items-center gap-1">
+                                      {offer.user.name}
+                                      <Badge variant="outline" className="ml-1 text-xs py-0 px-1 bg-green-900/20 text-green-400 border-green-800">
+                                        {offer.user.rating}
+                                        <Star className="h-3 w-3 ml-0.5 fill-current" />
+                                      </Badge>
+                                    </div>
+                                    <div className="text-xs text-white/60">
+                                      {offer.user.completedTrades}+ trades
+                                    </div>
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell className="font-medium">
+                                {offer.price.toLocaleString()} {offer.fiatCurrency}
+                              </TableCell>
+                              <TableCell>
+                                <div className="text-sm">
+                                  {offer.limits.min.toLocaleString()} - {offer.limits.max.toLocaleString()} {offer.fiatCurrency}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex flex-wrap gap-1">
+                                  {offer.paymentMethods.map((method, index) => (
+                                    <Badge key={index} variant="outline" className="bg-background/40 border-white/10 text-white">
+                                      {method}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="font-medium">
+                                  {offer.availableAmount.toFixed(6)} {offer.crypto}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Button 
+                                  variant="default" 
+                                  className="bg-[#F2FF44] text-black hover:bg-[#E2EF34]"
+                                  onClick={() => {
+                                    setSelectedOffer(offer);
+                                    setBuyAmount("");
+                                    setBuyTotal(0);
+                                    setIsDialogOpen(true);
+                                  }}
+                                >
+                                  {activeTab === "buy" ? "Buy" : "Sell"}
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))
+                        ) : (
+                          <TableRow>
+                            <TableCell colSpan={6} className="text-center py-8 text-white/60">
+                              No offers found matching your criteria
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="orders" className="mt-0">
+                {ordersLoading ? (
+                  <div className="bg-background/20 backdrop-blur-lg border border-white/10 rounded-md p-8 flex justify-center items-center">
+                    <Loader2 className="h-8 w-8 animate-spin mr-2" />
+                    <span>Loading your orders...</span>
+                  </div>
+                ) : userOrders.length > 0 ? (
+                  <div className="bg-background/20 backdrop-blur-lg border border-white/10 rounded-md overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="hover:bg-background/40">
+                          <TableHead className="text-white">Order ID</TableHead>
+                          <TableHead className="text-white">Type</TableHead>
+                          <TableHead className="text-white">Amount</TableHead>
+                          <TableHead className="text-white">Total</TableHead>
+                          <TableHead className="text-white">Status</TableHead>
+                          <TableHead className="text-white">Date</TableHead>
+                          <TableHead className="text-white">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {userOrders.map((order) => (
+                          <TableRow key={order.id} className="hover:bg-background/40">
+                            <TableCell className="font-medium">
+                              {order.id.substring(0, 8)}...
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={order.type === 'buy' ? 'default' : 'secondary'}>
+                                {order.type === 'buy' ? 'Buy' : 'Sell'}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {order.amount.toLocaleString()} {order.fiatCurrency}
+                            </TableCell>
+                            <TableCell>
+                              {order.total.toFixed(8)} {order.crypto}
+                            </TableCell>
+                            <TableCell>
+                              <Badge 
+                                variant="outline" 
+                                className={
+                                  order.status === 'completed' ? 'bg-green-900/20 text-green-400 border-green-800' :
+                                  order.status === 'pending' ? 'bg-yellow-900/20 text-yellow-400 border-yellow-800' :
+                                  order.status === 'cancelled' ? 'bg-red-900/20 text-red-400 border-red-800' :
+                                  'bg-blue-900/20 text-blue-400 border-blue-800'
+                                }
+                              >
+                                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {new Date(order.createdAt).toLocaleString()}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-2">
+                                {order.status === 'pending' && (
+                                  <Button 
+                                    variant="destructive" 
+                                    size="sm"
+                                    onClick={() => handleCancelOrder(order.id)}
+                                  >
+                                    Cancel
+                                  </Button>
+                                )}
+                                <Button variant="outline" size="sm">
+                                  Details
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                ) : (
+                  <div className="bg-background/20 backdrop-blur-lg border border-white/10 rounded-md p-8 text-center">
+                    <div className="flex flex-col items-center justify-center">
+                      <Clock className="h-12 w-12 mb-4 text-white/40" />
+                      <h3 className="text-lg font-medium text-white mb-2">No Orders Yet</h3>
+                      <p className="text-white/60 max-w-md mx-auto">
+                        You haven't placed any P2P orders yet. Buy or sell crypto with other users to see your orders here.
+                      </p>
+                      <Button className="mt-4" onClick={() => setActiveTab("buy")}>Start Trading</Button>
+                    </div>
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="post" className="mt-0">
                 <Card className="bg-background/20 backdrop-blur-lg border-white/10">
                   <CardHeader>
                     <CardTitle>Post a New Advertisement</CardTitle>
@@ -411,7 +690,7 @@ const P2PPage = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label>I want to</Label>
-                          <Select defaultValue="buy">
+                          <Select value={adType} onValueChange={setAdType}>
                             <SelectTrigger className="bg-background/40 border-white/10">
                               <SelectValue placeholder="Select type" />
                             </SelectTrigger>
@@ -424,7 +703,7 @@ const P2PPage = () => {
                         
                         <div className="space-y-2">
                           <Label>Cryptocurrency</Label>
-                          <Select defaultValue="BTC">
+                          <Select value={adCrypto} onValueChange={setAdCrypto}>
                             <SelectTrigger className="bg-background/40 border-white/10">
                               <SelectValue placeholder="Select crypto" />
                             </SelectTrigger>
@@ -438,7 +717,7 @@ const P2PPage = () => {
 
                         <div className="space-y-2">
                           <Label>Payment Currency</Label>
-                          <Select defaultValue="USD">
+                          <Select value={adFiat} onValueChange={setAdFiat}>
                             <SelectTrigger className="bg-background/40 border-white/10">
                               <SelectValue placeholder="Select fiat" />
                             </SelectTrigger>
@@ -452,7 +731,7 @@ const P2PPage = () => {
 
                         <div className="space-y-2">
                           <Label>Payment Method</Label>
-                          <Select defaultValue="bank-transfer">
+                          <Select value={adPayment} onValueChange={setAdPayment}>
                             <SelectTrigger className="bg-background/40 border-white/10">
                               <SelectValue placeholder="Select payment method" />
                             </SelectTrigger>
@@ -466,7 +745,7 @@ const P2PPage = () => {
 
                         <div className="space-y-2">
                           <Label>Price Type</Label>
-                          <Select defaultValue="floating">
+                          <Select value={adPriceType} onValueChange={setAdPriceType}>
                             <SelectTrigger className="bg-background/40 border-white/10">
                               <SelectValue placeholder="Select price type" />
                             </SelectTrigger>
@@ -478,11 +757,13 @@ const P2PPage = () => {
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Price (USD)</Label>
+                          <Label>Price ({adFiat})</Label>
                           <Input 
                             type="number" 
                             placeholder="Enter price" 
                             className="bg-background/40 border-white/10"
+                            value={adPrice}
+                            onChange={(e) => setAdPrice(e.target.value)}
                           />
                         </div>
 
@@ -492,6 +773,8 @@ const P2PPage = () => {
                             type="number" 
                             placeholder="Enter amount" 
                             className="bg-background/40 border-white/10"
+                            value={adAmount}
+                            onChange={(e) => setAdAmount(e.target.value)}
                           />
                         </div>
 
@@ -501,6 +784,8 @@ const P2PPage = () => {
                             type="number" 
                             placeholder="15" 
                             className="bg-background/40 border-white/10"
+                            value={adWindow}
+                            onChange={(e) => setAdWindow(e.target.value)}
                           />
                         </div>
 
@@ -510,6 +795,8 @@ const P2PPage = () => {
                             type="number" 
                             placeholder="Enter minimum amount" 
                             className="bg-background/40 border-white/10"
+                            value={adMinLimit}
+                            onChange={(e) => setAdMinLimit(e.target.value)}
                           />
                         </div>
 
@@ -519,6 +806,8 @@ const P2PPage = () => {
                             type="number" 
                             placeholder="Enter maximum amount" 
                             className="bg-background/40 border-white/10"
+                            value={adMaxLimit}
+                            onChange={(e) => setAdMaxLimit(e.target.value)}
                           />
                         </div>
                       </div>
@@ -528,14 +817,36 @@ const P2PPage = () => {
                         <Input 
                           placeholder="Add your terms and instructions for the buyer/seller" 
                           className="bg-background/40 border-white/10"
+                          value={adTerms}
+                          onChange={(e) => setAdTerms(e.target.value)}
                         />
                       </div>
                     </div>
                   </CardContent>
                   <CardFooter className="flex justify-end space-x-4">
-                    <Button variant="outline">Cancel</Button>
-                    <Button className="bg-[#F2FF44] text-black hover:bg-[#E2EF34]">
-                      Post Advertisement
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setAdPrice("");
+                        setAdAmount("");
+                        setAdMinLimit("");
+                        setAdMaxLimit("");
+                        setAdTerms("");
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      className="bg-[#F2FF44] text-black hover:bg-[#E2EF34]"
+                      onClick={handlePostAd}
+                      disabled={postingAd}
+                    >
+                      {postingAd ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Posting...
+                        </>
+                      ) : "Post Advertisement"}
                     </Button>
                   </CardFooter>
                 </Card>
@@ -618,9 +929,15 @@ const P2PPage = () => {
                 </Button>
                 <Button 
                   className="bg-[#F2FF44] text-black hover:bg-[#E2EF34] flex-1"
-                  onClick={handleBuySubmit}
+                  onClick={handleOrderSubmit}
+                  disabled={processingOrder || !buyAmount}
                 >
-                  Confirm {activeTab === "buy" ? "Purchase" : "Sale"}
+                  {processingOrder ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Processing...
+                    </>
+                  ) : `Confirm ${activeTab === "buy" ? "Purchase" : "Sale"}`}
                 </Button>
               </div>
             </div>
