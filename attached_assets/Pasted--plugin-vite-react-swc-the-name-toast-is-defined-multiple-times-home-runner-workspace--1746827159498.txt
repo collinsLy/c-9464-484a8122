@@ -1,0 +1,1368 @@
+[plugin:vite:react-swc] × the name `toast` is defined multiple times
+    ╭─[/home/runner/workspace/src/lib/p2p-service.ts:1:1]
+  1 │ import { toast } from "sonner";
+    ·          ──┬──
+    ·            ╰── previous definition of `toast` here
+  2 │ import { db } from "./firebase";
+  3 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
+  4 │ import { auth } from './firebase';
+  5 │ 
+  6 │ export interface P2POffer {
+  7 │   id: string;
+  8 │   user: {
+  9 │     name: string;
+ 10 │     avatar: string;
+ 11 │     rating: number;
+ 12 │     completedTrades: number;
+ 13 │     orderCount?: number;
+ 14 │     completionRate?: number;
+ 15 │     responseTime?: number; // in minutes
+ 16 │   };
+ 17 │   crypto: string;
+ 18 │   price: number;
+ 19 │   fiatCurrency: string;
+ 20 │   paymentMethods: string[];
+ 21 │   limits: {
+ 22 │     min: number;
+ 23 │     max: number;
+ 24 │   };
+ 25 │   availableAmount: number;
+ 26 │   terms: string;
+ 27 │   createdAt: Date;
+ 28 │   paymentDetails?: {
+ 29 │     bankName?: string;
+ 30 │     accountNumber?: string;
+ 31 │     accountHolderName?: string;
+ 32 │     swiftCode?: string;
+ 33 │     branchCode?: string;
+ 34 │     paypalEmail?: string;
+ 35 │     paypalName?: string;
+ 36 │     mobileNumber?: string;
+ 37 │     mpesaName?: string;
+ 38 │     mobileProvider?: string;
+ 39 │     otherProvider?: string;
+ 40 │     accountName?: string;
+ 41 │     meetingLocation?: string;
+ 42 │     contactNumber?: string;
+ 43 │     preferredTime?: string;
+ 44 │     instructions?: string;
+ 45 │     [key: string]: any;
+ 46 │   };
+ 47 │   type?: 'buy' | 'sell'; // To track if it's a buy or sell offer
+ 48 │   advertisersTerms?: string; // Additional terms specifically from advertiser
+ 49 │   userId?: string; // Firebase user ID of the offer creator
+ 50 │ }
+ 51 │ 
+ 52 │ export interface P2POrder {
+ 53 │   id: string;
+ 54 │   referenceNumber?: string; // Reference number for payment
+ 55 │   offerId: string;
+ 56 │   type: 'buy' | 'sell';
+ 57 │   status: 'pending' | 'awaiting_release' | 'completed' | 'cancelled' | 'dispute_opened' | 'refunded';
+ 58 │   amount: number;
+ 59 │   total: number;
+ 60 │   crypto: string;
+ 61 │   fiatCurrency: string;
+ 62 │   createdAt: Date;
+ 63 │   updatedAt?: Date; // Track status change times
+ 64 │   seller: string;
+ 65 │   buyer: string;
+ 66 │   paymentMethod: string;
+ 67 │   paymentWindow?: number; // Time in minutes to complete payment
+ 68 │   paymentDeadline?: Date; // Calculated deadline for payment
+ 69 │   paymentDetails?: {
+ 70 │     bankName?: string;
+ 71 │     accountNumber?: string;
+ 72 │     accountHolderName?: string;
+ 73 │     swiftCode?: string;
+ 74 │     branchCode?: string;
+ 75 │     paypalEmail?: string;
+ 76 │     paypalName?: string;
+ 77 │     mobileNumber?: string;
+ 78 │     mpesaName?: string;
+ 79 │     mobileProvider?: string;
+ 80 │     otherProvider?: string;
+ 81 │     accountName?: string;
+ 82 │     meetingLocation?: string;
+ 83 │     contactNumber?: string;
+ 84 │     preferredTime?: string;
+ 85 │     instructions?: string;
+ 86 │   };
+ 87 │ }
+ 88 │ 
+ 89 │ // API endpoint for crypto prices
+ 90 │ const CRYPTO_PRICE_API = "https://api.coingecko.com/api/v3/simple/price";
+ 91 │ 
+ 92 │ import { toast } from "sonner";
+    ·          ──┬──
+    ·            ╰── `toast` redefined here
+ 93 │ import { db } from "./firebase";
+ 94 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc, orderBy, onSnapshot } from "firebase/firestore";
+ 95 │ import { auth } from './firebase';
+    ╰────
+  × the name `db` is defined multiple times
+    ╭─[/home/runner/workspace/src/lib/p2p-service.ts:2:1]
+  1 │ import { toast } from "sonner";
+  2 │ import { db } from "./firebase";
+    ·          ─┬
+    ·           ╰── previous definition of `db` here
+  3 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
+  4 │ import { auth } from './firebase';
+  5 │ 
+  6 │ export interface P2POffer {
+  7 │   id: string;
+  8 │   user: {
+  9 │     name: string;
+ 10 │     avatar: string;
+ 11 │     rating: number;
+ 12 │     completedTrades: number;
+ 13 │     orderCount?: number;
+ 14 │     completionRate?: number;
+ 15 │     responseTime?: number; // in minutes
+ 16 │   };
+ 17 │   crypto: string;
+ 18 │   price: number;
+ 19 │   fiatCurrency: string;
+ 20 │   paymentMethods: string[];
+ 21 │   limits: {
+ 22 │     min: number;
+ 23 │     max: number;
+ 24 │   };
+ 25 │   availableAmount: number;
+ 26 │   terms: string;
+ 27 │   createdAt: Date;
+ 28 │   paymentDetails?: {
+ 29 │     bankName?: string;
+ 30 │     accountNumber?: string;
+ 31 │     accountHolderName?: string;
+ 32 │     swiftCode?: string;
+ 33 │     branchCode?: string;
+ 34 │     paypalEmail?: string;
+ 35 │     paypalName?: string;
+ 36 │     mobileNumber?: string;
+ 37 │     mpesaName?: string;
+ 38 │     mobileProvider?: string;
+ 39 │     otherProvider?: string;
+ 40 │     accountName?: string;
+ 41 │     meetingLocation?: string;
+ 42 │     contactNumber?: string;
+ 43 │     preferredTime?: string;
+ 44 │     instructions?: string;
+ 45 │     [key: string]: any;
+ 46 │   };
+ 47 │   type?: 'buy' | 'sell'; // To track if it's a buy or sell offer
+ 48 │   advertisersTerms?: string; // Additional terms specifically from advertiser
+ 49 │   userId?: string; // Firebase user ID of the offer creator
+ 50 │ }
+ 51 │ 
+ 52 │ export interface P2POrder {
+ 53 │   id: string;
+ 54 │   referenceNumber?: string; // Reference number for payment
+ 55 │   offerId: string;
+ 56 │   type: 'buy' | 'sell';
+ 57 │   status: 'pending' | 'awaiting_release' | 'completed' | 'cancelled' | 'dispute_opened' | 'refunded';
+ 58 │   amount: number;
+ 59 │   total: number;
+ 60 │   crypto: string;
+ 61 │   fiatCurrency: string;
+ 62 │   createdAt: Date;
+ 63 │   updatedAt?: Date; // Track status change times
+ 64 │   seller: string;
+ 65 │   buyer: string;
+ 66 │   paymentMethod: string;
+ 67 │   paymentWindow?: number; // Time in minutes to complete payment
+ 68 │   paymentDeadline?: Date; // Calculated deadline for payment
+ 69 │   paymentDetails?: {
+ 70 │     bankName?: string;
+ 71 │     accountNumber?: string;
+ 72 │     accountHolderName?: string;
+ 73 │     swiftCode?: string;
+ 74 │     branchCode?: string;
+ 75 │     paypalEmail?: string;
+ 76 │     paypalName?: string;
+ 77 │     mobileNumber?: string;
+ 78 │     mpesaName?: string;
+ 79 │     mobileProvider?: string;
+ 80 │     otherProvider?: string;
+ 81 │     accountName?: string;
+ 82 │     meetingLocation?: string;
+ 83 │     contactNumber?: string;
+ 84 │     preferredTime?: string;
+ 85 │     instructions?: string;
+ 86 │   };
+ 87 │ }
+ 88 │ 
+ 89 │ // API endpoint for crypto prices
+ 90 │ const CRYPTO_PRICE_API = "https://api.coingecko.com/api/v3/simple/price";
+ 91 │ 
+ 92 │ import { toast } from "sonner";
+ 93 │ import { db } from "./firebase";
+    ·          ─┬
+    ·           ╰── `db` redefined here
+ 94 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc, orderBy, onSnapshot } from "firebase/firestore";
+ 95 │ import { auth } from './firebase';
+ 96 │ import { NotificationService } from './notification-service';
+    ╰────
+  × the name `collection` is defined multiple times
+    ╭─[/home/runner/workspace/src/lib/p2p-service.ts:3:1]
+  1 │ import { toast } from "sonner";
+  2 │ import { db } from "./firebase";
+  3 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
+    ·          ─────┬────
+    ·               ╰── previous definition of `collection` here
+  4 │ import { auth } from './firebase';
+  5 │ 
+  6 │ export interface P2POffer {
+  7 │   id: string;
+  8 │   user: {
+  9 │     name: string;
+ 10 │     avatar: string;
+ 11 │     rating: number;
+ 12 │     completedTrades: number;
+ 13 │     orderCount?: number;
+ 14 │     completionRate?: number;
+ 15 │     responseTime?: number; // in minutes
+ 16 │   };
+ 17 │   crypto: string;
+ 18 │   price: number;
+ 19 │   fiatCurrency: string;
+ 20 │   paymentMethods: string[];
+ 21 │   limits: {
+ 22 │     min: number;
+ 23 │     max: number;
+ 24 │   };
+ 25 │   availableAmount: number;
+ 26 │   terms: string;
+ 27 │   createdAt: Date;
+ 28 │   paymentDetails?: {
+ 29 │     bankName?: string;
+ 30 │     accountNumber?: string;
+ 31 │     accountHolderName?: string;
+ 32 │     swiftCode?: string;
+ 33 │     branchCode?: string;
+ 34 │     paypalEmail?: string;
+ 35 │     paypalName?: string;
+ 36 │     mobileNumber?: string;
+ 37 │     mpesaName?: string;
+ 38 │     mobileProvider?: string;
+ 39 │     otherProvider?: string;
+ 40 │     accountName?: string;
+ 41 │     meetingLocation?: string;
+ 42 │     contactNumber?: string;
+ 43 │     preferredTime?: string;
+ 44 │     instructions?: string;
+ 45 │     [key: string]: any;
+ 46 │   };
+ 47 │   type?: 'buy' | 'sell'; // To track if it's a buy or sell offer
+ 48 │   advertisersTerms?: string; // Additional terms specifically from advertiser
+ 49 │   userId?: string; // Firebase user ID of the offer creator
+ 50 │ }
+ 51 │ 
+ 52 │ export interface P2POrder {
+ 53 │   id: string;
+ 54 │   referenceNumber?: string; // Reference number for payment
+ 55 │   offerId: string;
+ 56 │   type: 'buy' | 'sell';
+ 57 │   status: 'pending' | 'awaiting_release' | 'completed' | 'cancelled' | 'dispute_opened' | 'refunded';
+ 58 │   amount: number;
+ 59 │   total: number;
+ 60 │   crypto: string;
+ 61 │   fiatCurrency: string;
+ 62 │   createdAt: Date;
+ 63 │   updatedAt?: Date; // Track status change times
+ 64 │   seller: string;
+ 65 │   buyer: string;
+ 66 │   paymentMethod: string;
+ 67 │   paymentWindow?: number; // Time in minutes to complete payment
+ 68 │   paymentDeadline?: Date; // Calculated deadline for payment
+ 69 │   paymentDetails?: {
+ 70 │     bankName?: string;
+ 71 │     accountNumber?: string;
+ 72 │     accountHolderName?: string;
+ 73 │     swiftCode?: string;
+ 74 │     branchCode?: string;
+ 75 │     paypalEmail?: string;
+ 76 │     paypalName?: string;
+ 77 │     mobileNumber?: string;
+ 78 │     mpesaName?: string;
+ 79 │     mobileProvider?: string;
+ 80 │     otherProvider?: string;
+ 81 │     accountName?: string;
+ 82 │     meetingLocation?: string;
+ 83 │     contactNumber?: string;
+ 84 │     preferredTime?: string;
+ 85 │     instructions?: string;
+ 86 │   };
+ 87 │ }
+ 88 │ 
+ 89 │ // API endpoint for crypto prices
+ 90 │ const CRYPTO_PRICE_API = "https://api.coingecko.com/api/v3/simple/price";
+ 91 │ 
+ 92 │ import { toast } from "sonner";
+ 93 │ import { db } from "./firebase";
+ 94 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc, orderBy, onSnapshot } from "firebase/firestore";
+    ·          ─────┬────
+    ·               ╰── `collection` redefined here
+ 95 │ import { auth } from './firebase';
+ 96 │ import { NotificationService } from './notification-service';
+    ╰────
+  × the name `addDoc` is defined multiple times
+    ╭─[/home/runner/workspace/src/lib/p2p-service.ts:3:1]
+  1 │ import { toast } from "sonner";
+  2 │ import { db } from "./firebase";
+  3 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
+    ·                      ───┬──
+    ·                         ╰── previous definition of `addDoc` here
+  4 │ import { auth } from './firebase';
+  5 │ 
+  6 │ export interface P2POffer {
+  7 │   id: string;
+  8 │   user: {
+  9 │     name: string;
+ 10 │     avatar: string;
+ 11 │     rating: number;
+ 12 │     completedTrades: number;
+ 13 │     orderCount?: number;
+ 14 │     completionRate?: number;
+ 15 │     responseTime?: number; // in minutes
+ 16 │   };
+ 17 │   crypto: string;
+ 18 │   price: number;
+ 19 │   fiatCurrency: string;
+ 20 │   paymentMethods: string[];
+ 21 │   limits: {
+ 22 │     min: number;
+ 23 │     max: number;
+ 24 │   };
+ 25 │   availableAmount: number;
+ 26 │   terms: string;
+ 27 │   createdAt: Date;
+ 28 │   paymentDetails?: {
+ 29 │     bankName?: string;
+ 30 │     accountNumber?: string;
+ 31 │     accountHolderName?: string;
+ 32 │     swiftCode?: string;
+ 33 │     branchCode?: string;
+ 34 │     paypalEmail?: string;
+ 35 │     paypalName?: string;
+ 36 │     mobileNumber?: string;
+ 37 │     mpesaName?: string;
+ 38 │     mobileProvider?: string;
+ 39 │     otherProvider?: string;
+ 40 │     accountName?: string;
+ 41 │     meetingLocation?: string;
+ 42 │     contactNumber?: string;
+ 43 │     preferredTime?: string;
+ 44 │     instructions?: string;
+ 45 │     [key: string]: any;
+ 46 │   };
+ 47 │   type?: 'buy' | 'sell'; // To track if it's a buy or sell offer
+ 48 │   advertisersTerms?: string; // Additional terms specifically from advertiser
+ 49 │   userId?: string; // Firebase user ID of the offer creator
+ 50 │ }
+ 51 │ 
+ 52 │ export interface P2POrder {
+ 53 │   id: string;
+ 54 │   referenceNumber?: string; // Reference number for payment
+ 55 │   offerId: string;
+ 56 │   type: 'buy' | 'sell';
+ 57 │   status: 'pending' | 'awaiting_release' | 'completed' | 'cancelled' | 'dispute_opened' | 'refunded';
+ 58 │   amount: number;
+ 59 │   total: number;
+ 60 │   crypto: string;
+ 61 │   fiatCurrency: string;
+ 62 │   createdAt: Date;
+ 63 │   updatedAt?: Date; // Track status change times
+ 64 │   seller: string;
+ 65 │   buyer: string;
+ 66 │   paymentMethod: string;
+ 67 │   paymentWindow?: number; // Time in minutes to complete payment
+ 68 │   paymentDeadline?: Date; // Calculated deadline for payment
+ 69 │   paymentDetails?: {
+ 70 │     bankName?: string;
+ 71 │     accountNumber?: string;
+ 72 │     accountHolderName?: string;
+ 73 │     swiftCode?: string;
+ 74 │     branchCode?: string;
+ 75 │     paypalEmail?: string;
+ 76 │     paypalName?: string;
+ 77 │     mobileNumber?: string;
+ 78 │     mpesaName?: string;
+ 79 │     mobileProvider?: string;
+ 80 │     otherProvider?: string;
+ 81 │     accountName?: string;
+ 82 │     meetingLocation?: string;
+ 83 │     contactNumber?: string;
+ 84 │     preferredTime?: string;
+ 85 │     instructions?: string;
+ 86 │   };
+ 87 │ }
+ 88 │ 
+ 89 │ // API endpoint for crypto prices
+ 90 │ const CRYPTO_PRICE_API = "https://api.coingecko.com/api/v3/simple/price";
+ 91 │ 
+ 92 │ import { toast } from "sonner";
+ 93 │ import { db } from "./firebase";
+ 94 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc, orderBy, onSnapshot } from "firebase/firestore";
+    ·                      ───┬──
+    ·                         ╰── `addDoc` redefined here
+ 95 │ import { auth } from './firebase';
+ 96 │ import { NotificationService } from './notification-service';
+    ╰────
+  × the name `getDocs` is defined multiple times
+    ╭─[/home/runner/workspace/src/lib/p2p-service.ts:3:1]
+  1 │ import { toast } from "sonner";
+  2 │ import { db } from "./firebase";
+  3 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
+    ·                              ───┬───
+    ·                                 ╰── previous definition of `getDocs` here
+  4 │ import { auth } from './firebase';
+  5 │ 
+  6 │ export interface P2POffer {
+  7 │   id: string;
+  8 │   user: {
+  9 │     name: string;
+ 10 │     avatar: string;
+ 11 │     rating: number;
+ 12 │     completedTrades: number;
+ 13 │     orderCount?: number;
+ 14 │     completionRate?: number;
+ 15 │     responseTime?: number; // in minutes
+ 16 │   };
+ 17 │   crypto: string;
+ 18 │   price: number;
+ 19 │   fiatCurrency: string;
+ 20 │   paymentMethods: string[];
+ 21 │   limits: {
+ 22 │     min: number;
+ 23 │     max: number;
+ 24 │   };
+ 25 │   availableAmount: number;
+ 26 │   terms: string;
+ 27 │   createdAt: Date;
+ 28 │   paymentDetails?: {
+ 29 │     bankName?: string;
+ 30 │     accountNumber?: string;
+ 31 │     accountHolderName?: string;
+ 32 │     swiftCode?: string;
+ 33 │     branchCode?: string;
+ 34 │     paypalEmail?: string;
+ 35 │     paypalName?: string;
+ 36 │     mobileNumber?: string;
+ 37 │     mpesaName?: string;
+ 38 │     mobileProvider?: string;
+ 39 │     otherProvider?: string;
+ 40 │     accountName?: string;
+ 41 │     meetingLocation?: string;
+ 42 │     contactNumber?: string;
+ 43 │     preferredTime?: string;
+ 44 │     instructions?: string;
+ 45 │     [key: string]: any;
+ 46 │   };
+ 47 │   type?: 'buy' | 'sell'; // To track if it's a buy or sell offer
+ 48 │   advertisersTerms?: string; // Additional terms specifically from advertiser
+ 49 │   userId?: string; // Firebase user ID of the offer creator
+ 50 │ }
+ 51 │ 
+ 52 │ export interface P2POrder {
+ 53 │   id: string;
+ 54 │   referenceNumber?: string; // Reference number for payment
+ 55 │   offerId: string;
+ 56 │   type: 'buy' | 'sell';
+ 57 │   status: 'pending' | 'awaiting_release' | 'completed' | 'cancelled' | 'dispute_opened' | 'refunded';
+ 58 │   amount: number;
+ 59 │   total: number;
+ 60 │   crypto: string;
+ 61 │   fiatCurrency: string;
+ 62 │   createdAt: Date;
+ 63 │   updatedAt?: Date; // Track status change times
+ 64 │   seller: string;
+ 65 │   buyer: string;
+ 66 │   paymentMethod: string;
+ 67 │   paymentWindow?: number; // Time in minutes to complete payment
+ 68 │   paymentDeadline?: Date; // Calculated deadline for payment
+ 69 │   paymentDetails?: {
+ 70 │     bankName?: string;
+ 71 │     accountNumber?: string;
+ 72 │     accountHolderName?: string;
+ 73 │     swiftCode?: string;
+ 74 │     branchCode?: string;
+ 75 │     paypalEmail?: string;
+ 76 │     paypalName?: string;
+ 77 │     mobileNumber?: string;
+ 78 │     mpesaName?: string;
+ 79 │     mobileProvider?: string;
+ 80 │     otherProvider?: string;
+ 81 │     accountName?: string;
+ 82 │     meetingLocation?: string;
+ 83 │     contactNumber?: string;
+ 84 │     preferredTime?: string;
+ 85 │     instructions?: string;
+ 86 │   };
+ 87 │ }
+ 88 │ 
+ 89 │ // API endpoint for crypto prices
+ 90 │ const CRYPTO_PRICE_API = "https://api.coingecko.com/api/v3/simple/price";
+ 91 │ 
+ 92 │ import { toast } from "sonner";
+ 93 │ import { db } from "./firebase";
+ 94 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc, orderBy, onSnapshot } from "firebase/firestore";
+    ·                              ───┬───
+    ·                                 ╰── `getDocs` redefined here
+ 95 │ import { auth } from './firebase';
+ 96 │ import { NotificationService } from './notification-service';
+    ╰────
+  × the name `query` is defined multiple times
+    ╭─[/home/runner/workspace/src/lib/p2p-service.ts:3:1]
+  1 │ import { toast } from "sonner";
+  2 │ import { db } from "./firebase";
+  3 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
+    ·                                       ──┬──
+    ·                                         ╰── previous definition of `query` here
+  4 │ import { auth } from './firebase';
+  5 │ 
+  6 │ export interface P2POffer {
+  7 │   id: string;
+  8 │   user: {
+  9 │     name: string;
+ 10 │     avatar: string;
+ 11 │     rating: number;
+ 12 │     completedTrades: number;
+ 13 │     orderCount?: number;
+ 14 │     completionRate?: number;
+ 15 │     responseTime?: number; // in minutes
+ 16 │   };
+ 17 │   crypto: string;
+ 18 │   price: number;
+ 19 │   fiatCurrency: string;
+ 20 │   paymentMethods: string[];
+ 21 │   limits: {
+ 22 │     min: number;
+ 23 │     max: number;
+ 24 │   };
+ 25 │   availableAmount: number;
+ 26 │   terms: string;
+ 27 │   createdAt: Date;
+ 28 │   paymentDetails?: {
+ 29 │     bankName?: string;
+ 30 │     accountNumber?: string;
+ 31 │     accountHolderName?: string;
+ 32 │     swiftCode?: string;
+ 33 │     branchCode?: string;
+ 34 │     paypalEmail?: string;
+ 35 │     paypalName?: string;
+ 36 │     mobileNumber?: string;
+ 37 │     mpesaName?: string;
+ 38 │     mobileProvider?: string;
+ 39 │     otherProvider?: string;
+ 40 │     accountName?: string;
+ 41 │     meetingLocation?: string;
+ 42 │     contactNumber?: string;
+ 43 │     preferredTime?: string;
+ 44 │     instructions?: string;
+ 45 │     [key: string]: any;
+ 46 │   };
+ 47 │   type?: 'buy' | 'sell'; // To track if it's a buy or sell offer
+ 48 │   advertisersTerms?: string; // Additional terms specifically from advertiser
+ 49 │   userId?: string; // Firebase user ID of the offer creator
+ 50 │ }
+ 51 │ 
+ 52 │ export interface P2POrder {
+ 53 │   id: string;
+ 54 │   referenceNumber?: string; // Reference number for payment
+ 55 │   offerId: string;
+ 56 │   type: 'buy' | 'sell';
+ 57 │   status: 'pending' | 'awaiting_release' | 'completed' | 'cancelled' | 'dispute_opened' | 'refunded';
+ 58 │   amount: number;
+ 59 │   total: number;
+ 60 │   crypto: string;
+ 61 │   fiatCurrency: string;
+ 62 │   createdAt: Date;
+ 63 │   updatedAt?: Date; // Track status change times
+ 64 │   seller: string;
+ 65 │   buyer: string;
+ 66 │   paymentMethod: string;
+ 67 │   paymentWindow?: number; // Time in minutes to complete payment
+ 68 │   paymentDeadline?: Date; // Calculated deadline for payment
+ 69 │   paymentDetails?: {
+ 70 │     bankName?: string;
+ 71 │     accountNumber?: string;
+ 72 │     accountHolderName?: string;
+ 73 │     swiftCode?: string;
+ 74 │     branchCode?: string;
+ 75 │     paypalEmail?: string;
+ 76 │     paypalName?: string;
+ 77 │     mobileNumber?: string;
+ 78 │     mpesaName?: string;
+ 79 │     mobileProvider?: string;
+ 80 │     otherProvider?: string;
+ 81 │     accountName?: string;
+ 82 │     meetingLocation?: string;
+ 83 │     contactNumber?: string;
+ 84 │     preferredTime?: string;
+ 85 │     instructions?: string;
+ 86 │   };
+ 87 │ }
+ 88 │ 
+ 89 │ // API endpoint for crypto prices
+ 90 │ const CRYPTO_PRICE_API = "https://api.coingecko.com/api/v3/simple/price";
+ 91 │ 
+ 92 │ import { toast } from "sonner";
+ 93 │ import { db } from "./firebase";
+ 94 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc, orderBy, onSnapshot } from "firebase/firestore";
+    ·                                       ──┬──
+    ·                                         ╰── `query` redefined here
+ 95 │ import { auth } from './firebase';
+ 96 │ import { NotificationService } from './notification-service';
+    ╰────
+  × the name `where` is defined multiple times
+    ╭─[/home/runner/workspace/src/lib/p2p-service.ts:3:1]
+  1 │ import { toast } from "sonner";
+  2 │ import { db } from "./firebase";
+  3 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
+    ·                                              ──┬──
+    ·                                                ╰── previous definition of `where` here
+  4 │ import { auth } from './firebase';
+  5 │ 
+  6 │ export interface P2POffer {
+  7 │   id: string;
+  8 │   user: {
+  9 │     name: string;
+ 10 │     avatar: string;
+ 11 │     rating: number;
+ 12 │     completedTrades: number;
+ 13 │     orderCount?: number;
+ 14 │     completionRate?: number;
+ 15 │     responseTime?: number; // in minutes
+ 16 │   };
+ 17 │   crypto: string;
+ 18 │   price: number;
+ 19 │   fiatCurrency: string;
+ 20 │   paymentMethods: string[];
+ 21 │   limits: {
+ 22 │     min: number;
+ 23 │     max: number;
+ 24 │   };
+ 25 │   availableAmount: number;
+ 26 │   terms: string;
+ 27 │   createdAt: Date;
+ 28 │   paymentDetails?: {
+ 29 │     bankName?: string;
+ 30 │     accountNumber?: string;
+ 31 │     accountHolderName?: string;
+ 32 │     swiftCode?: string;
+ 33 │     branchCode?: string;
+ 34 │     paypalEmail?: string;
+ 35 │     paypalName?: string;
+ 36 │     mobileNumber?: string;
+ 37 │     mpesaName?: string;
+ 38 │     mobileProvider?: string;
+ 39 │     otherProvider?: string;
+ 40 │     accountName?: string;
+ 41 │     meetingLocation?: string;
+ 42 │     contactNumber?: string;
+ 43 │     preferredTime?: string;
+ 44 │     instructions?: string;
+ 45 │     [key: string]: any;
+ 46 │   };
+ 47 │   type?: 'buy' | 'sell'; // To track if it's a buy or sell offer
+ 48 │   advertisersTerms?: string; // Additional terms specifically from advertiser
+ 49 │   userId?: string; // Firebase user ID of the offer creator
+ 50 │ }
+ 51 │ 
+ 52 │ export interface P2POrder {
+ 53 │   id: string;
+ 54 │   referenceNumber?: string; // Reference number for payment
+ 55 │   offerId: string;
+ 56 │   type: 'buy' | 'sell';
+ 57 │   status: 'pending' | 'awaiting_release' | 'completed' | 'cancelled' | 'dispute_opened' | 'refunded';
+ 58 │   amount: number;
+ 59 │   total: number;
+ 60 │   crypto: string;
+ 61 │   fiatCurrency: string;
+ 62 │   createdAt: Date;
+ 63 │   updatedAt?: Date; // Track status change times
+ 64 │   seller: string;
+ 65 │   buyer: string;
+ 66 │   paymentMethod: string;
+ 67 │   paymentWindow?: number; // Time in minutes to complete payment
+ 68 │   paymentDeadline?: Date; // Calculated deadline for payment
+ 69 │   paymentDetails?: {
+ 70 │     bankName?: string;
+ 71 │     accountNumber?: string;
+ 72 │     accountHolderName?: string;
+ 73 │     swiftCode?: string;
+ 74 │     branchCode?: string;
+ 75 │     paypalEmail?: string;
+ 76 │     paypalName?: string;
+ 77 │     mobileNumber?: string;
+ 78 │     mpesaName?: string;
+ 79 │     mobileProvider?: string;
+ 80 │     otherProvider?: string;
+ 81 │     accountName?: string;
+ 82 │     meetingLocation?: string;
+ 83 │     contactNumber?: string;
+ 84 │     preferredTime?: string;
+ 85 │     instructions?: string;
+ 86 │   };
+ 87 │ }
+ 88 │ 
+ 89 │ // API endpoint for crypto prices
+ 90 │ const CRYPTO_PRICE_API = "https://api.coingecko.com/api/v3/simple/price";
+ 91 │ 
+ 92 │ import { toast } from "sonner";
+ 93 │ import { db } from "./firebase";
+ 94 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc, orderBy, onSnapshot } from "firebase/firestore";
+    ·                                              ──┬──
+    ·                                                ╰── `where` redefined here
+ 95 │ import { auth } from './firebase';
+ 96 │ import { NotificationService } from './notification-service';
+    ╰────
+  × the name `updateDoc` is defined multiple times
+    ╭─[/home/runner/workspace/src/lib/p2p-service.ts:3:1]
+  1 │ import { toast } from "sonner";
+  2 │ import { db } from "./firebase";
+  3 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
+    ·                                                     ────┬────
+    ·                                                         ╰── previous definition of `updateDoc` here
+  4 │ import { auth } from './firebase';
+  5 │ 
+  6 │ export interface P2POffer {
+  7 │   id: string;
+  8 │   user: {
+  9 │     name: string;
+ 10 │     avatar: string;
+ 11 │     rating: number;
+ 12 │     completedTrades: number;
+ 13 │     orderCount?: number;
+ 14 │     completionRate?: number;
+ 15 │     responseTime?: number; // in minutes
+ 16 │   };
+ 17 │   crypto: string;
+ 18 │   price: number;
+ 19 │   fiatCurrency: string;
+ 20 │   paymentMethods: string[];
+ 21 │   limits: {
+ 22 │     min: number;
+ 23 │     max: number;
+ 24 │   };
+ 25 │   availableAmount: number;
+ 26 │   terms: string;
+ 27 │   createdAt: Date;
+ 28 │   paymentDetails?: {
+ 29 │     bankName?: string;
+ 30 │     accountNumber?: string;
+ 31 │     accountHolderName?: string;
+ 32 │     swiftCode?: string;
+ 33 │     branchCode?: string;
+ 34 │     paypalEmail?: string;
+ 35 │     paypalName?: string;
+ 36 │     mobileNumber?: string;
+ 37 │     mpesaName?: string;
+ 38 │     mobileProvider?: string;
+ 39 │     otherProvider?: string;
+ 40 │     accountName?: string;
+ 41 │     meetingLocation?: string;
+ 42 │     contactNumber?: string;
+ 43 │     preferredTime?: string;
+ 44 │     instructions?: string;
+ 45 │     [key: string]: any;
+ 46 │   };
+ 47 │   type?: 'buy' | 'sell'; // To track if it's a buy or sell offer
+ 48 │   advertisersTerms?: string; // Additional terms specifically from advertiser
+ 49 │   userId?: string; // Firebase user ID of the offer creator
+ 50 │ }
+ 51 │ 
+ 52 │ export interface P2POrder {
+ 53 │   id: string;
+ 54 │   referenceNumber?: string; // Reference number for payment
+ 55 │   offerId: string;
+ 56 │   type: 'buy' | 'sell';
+ 57 │   status: 'pending' | 'awaiting_release' | 'completed' | 'cancelled' | 'dispute_opened' | 'refunded';
+ 58 │   amount: number;
+ 59 │   total: number;
+ 60 │   crypto: string;
+ 61 │   fiatCurrency: string;
+ 62 │   createdAt: Date;
+ 63 │   updatedAt?: Date; // Track status change times
+ 64 │   seller: string;
+ 65 │   buyer: string;
+ 66 │   paymentMethod: string;
+ 67 │   paymentWindow?: number; // Time in minutes to complete payment
+ 68 │   paymentDeadline?: Date; // Calculated deadline for payment
+ 69 │   paymentDetails?: {
+ 70 │     bankName?: string;
+ 71 │     accountNumber?: string;
+ 72 │     accountHolderName?: string;
+ 73 │     swiftCode?: string;
+ 74 │     branchCode?: string;
+ 75 │     paypalEmail?: string;
+ 76 │     paypalName?: string;
+ 77 │     mobileNumber?: string;
+ 78 │     mpesaName?: string;
+ 79 │     mobileProvider?: string;
+ 80 │     otherProvider?: string;
+ 81 │     accountName?: string;
+ 82 │     meetingLocation?: string;
+ 83 │     contactNumber?: string;
+ 84 │     preferredTime?: string;
+ 85 │     instructions?: string;
+ 86 │   };
+ 87 │ }
+ 88 │ 
+ 89 │ // API endpoint for crypto prices
+ 90 │ const CRYPTO_PRICE_API = "https://api.coingecko.com/api/v3/simple/price";
+ 91 │ 
+ 92 │ import { toast } from "sonner";
+ 93 │ import { db } from "./firebase";
+ 94 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc, orderBy, onSnapshot } from "firebase/firestore";
+    ·                                                     ────┬────
+    ·                                                         ╰── `updateDoc` redefined here
+ 95 │ import { auth } from './firebase';
+ 96 │ import { NotificationService } from './notification-service';
+    ╰────
+  × the name `doc` is defined multiple times
+    ╭─[/home/runner/workspace/src/lib/p2p-service.ts:3:1]
+  1 │ import { toast } from "sonner";
+  2 │ import { db } from "./firebase";
+  3 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
+    ·                                                                ─┬─
+    ·                                                                 ╰── previous definition of `doc` here
+  4 │ import { auth } from './firebase';
+  5 │ 
+  6 │ export interface P2POffer {
+  7 │   id: string;
+  8 │   user: {
+  9 │     name: string;
+ 10 │     avatar: string;
+ 11 │     rating: number;
+ 12 │     completedTrades: number;
+ 13 │     orderCount?: number;
+ 14 │     completionRate?: number;
+ 15 │     responseTime?: number; // in minutes
+ 16 │   };
+ 17 │   crypto: string;
+ 18 │   price: number;
+ 19 │   fiatCurrency: string;
+ 20 │   paymentMethods: string[];
+ 21 │   limits: {
+ 22 │     min: number;
+ 23 │     max: number;
+ 24 │   };
+ 25 │   availableAmount: number;
+ 26 │   terms: string;
+ 27 │   createdAt: Date;
+ 28 │   paymentDetails?: {
+ 29 │     bankName?: string;
+ 30 │     accountNumber?: string;
+ 31 │     accountHolderName?: string;
+ 32 │     swiftCode?: string;
+ 33 │     branchCode?: string;
+ 34 │     paypalEmail?: string;
+ 35 │     paypalName?: string;
+ 36 │     mobileNumber?: string;
+ 37 │     mpesaName?: string;
+ 38 │     mobileProvider?: string;
+ 39 │     otherProvider?: string;
+ 40 │     accountName?: string;
+ 41 │     meetingLocation?: string;
+ 42 │     contactNumber?: string;
+ 43 │     preferredTime?: string;
+ 44 │     instructions?: string;
+ 45 │     [key: string]: any;
+ 46 │   };
+ 47 │   type?: 'buy' | 'sell'; // To track if it's a buy or sell offer
+ 48 │   advertisersTerms?: string; // Additional terms specifically from advertiser
+ 49 │   userId?: string; // Firebase user ID of the offer creator
+ 50 │ }
+ 51 │ 
+ 52 │ export interface P2POrder {
+ 53 │   id: string;
+ 54 │   referenceNumber?: string; // Reference number for payment
+ 55 │   offerId: string;
+ 56 │   type: 'buy' | 'sell';
+ 57 │   status: 'pending' | 'awaiting_release' | 'completed' | 'cancelled' | 'dispute_opened' | 'refunded';
+ 58 │   amount: number;
+ 59 │   total: number;
+ 60 │   crypto: string;
+ 61 │   fiatCurrency: string;
+ 62 │   createdAt: Date;
+ 63 │   updatedAt?: Date; // Track status change times
+ 64 │   seller: string;
+ 65 │   buyer: string;
+ 66 │   paymentMethod: string;
+ 67 │   paymentWindow?: number; // Time in minutes to complete payment
+ 68 │   paymentDeadline?: Date; // Calculated deadline for payment
+ 69 │   paymentDetails?: {
+ 70 │     bankName?: string;
+ 71 │     accountNumber?: string;
+ 72 │     accountHolderName?: string;
+ 73 │     swiftCode?: string;
+ 74 │     branchCode?: string;
+ 75 │     paypalEmail?: string;
+ 76 │     paypalName?: string;
+ 77 │     mobileNumber?: string;
+ 78 │     mpesaName?: string;
+ 79 │     mobileProvider?: string;
+ 80 │     otherProvider?: string;
+ 81 │     accountName?: string;
+ 82 │     meetingLocation?: string;
+ 83 │     contactNumber?: string;
+ 84 │     preferredTime?: string;
+ 85 │     instructions?: string;
+ 86 │   };
+ 87 │ }
+ 88 │ 
+ 89 │ // API endpoint for crypto prices
+ 90 │ const CRYPTO_PRICE_API = "https://api.coingecko.com/api/v3/simple/price";
+ 91 │ 
+ 92 │ import { toast } from "sonner";
+ 93 │ import { db } from "./firebase";
+ 94 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc, orderBy, onSnapshot } from "firebase/firestore";
+    ·                                                                ─┬─
+    ·                                                                 ╰── `doc` redefined here
+ 95 │ import { auth } from './firebase';
+ 96 │ import { NotificationService } from './notification-service';
+    ╰────
+  × the name `getDoc` is defined multiple times
+    ╭─[/home/runner/workspace/src/lib/p2p-service.ts:3:1]
+  1 │ import { toast } from "sonner";
+  2 │ import { db } from "./firebase";
+  3 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
+    ·                                                                     ───┬──
+    ·                                                                        ╰── previous definition of `getDoc` here
+  4 │ import { auth } from './firebase';
+  5 │ 
+  6 │ export interface P2POffer {
+  7 │   id: string;
+  8 │   user: {
+  9 │     name: string;
+ 10 │     avatar: string;
+ 11 │     rating: number;
+ 12 │     completedTrades: number;
+ 13 │     orderCount?: number;
+ 14 │     completionRate?: number;
+ 15 │     responseTime?: number; // in minutes
+ 16 │   };
+ 17 │   crypto: string;
+ 18 │   price: number;
+ 19 │   fiatCurrency: string;
+ 20 │   paymentMethods: string[];
+ 21 │   limits: {
+ 22 │     min: number;
+ 23 │     max: number;
+ 24 │   };
+ 25 │   availableAmount: number;
+ 26 │   terms: string;
+ 27 │   createdAt: Date;
+ 28 │   paymentDetails?: {
+ 29 │     bankName?: string;
+ 30 │     accountNumber?: string;
+ 31 │     accountHolderName?: string;
+ 32 │     swiftCode?: string;
+ 33 │     branchCode?: string;
+ 34 │     paypalEmail?: string;
+ 35 │     paypalName?: string;
+ 36 │     mobileNumber?: string;
+ 37 │     mpesaName?: string;
+ 38 │     mobileProvider?: string;
+ 39 │     otherProvider?: string;
+ 40 │     accountName?: string;
+ 41 │     meetingLocation?: string;
+ 42 │     contactNumber?: string;
+ 43 │     preferredTime?: string;
+ 44 │     instructions?: string;
+ 45 │     [key: string]: any;
+ 46 │   };
+ 47 │   type?: 'buy' | 'sell'; // To track if it's a buy or sell offer
+ 48 │   advertisersTerms?: string; // Additional terms specifically from advertiser
+ 49 │   userId?: string; // Firebase user ID of the offer creator
+ 50 │ }
+ 51 │ 
+ 52 │ export interface P2POrder {
+ 53 │   id: string;
+ 54 │   referenceNumber?: string; // Reference number for payment
+ 55 │   offerId: string;
+ 56 │   type: 'buy' | 'sell';
+ 57 │   status: 'pending' | 'awaiting_release' | 'completed' | 'cancelled' | 'dispute_opened' | 'refunded';
+ 58 │   amount: number;
+ 59 │   total: number;
+ 60 │   crypto: string;
+ 61 │   fiatCurrency: string;
+ 62 │   createdAt: Date;
+ 63 │   updatedAt?: Date; // Track status change times
+ 64 │   seller: string;
+ 65 │   buyer: string;
+ 66 │   paymentMethod: string;
+ 67 │   paymentWindow?: number; // Time in minutes to complete payment
+ 68 │   paymentDeadline?: Date; // Calculated deadline for payment
+ 69 │   paymentDetails?: {
+ 70 │     bankName?: string;
+ 71 │     accountNumber?: string;
+ 72 │     accountHolderName?: string;
+ 73 │     swiftCode?: string;
+ 74 │     branchCode?: string;
+ 75 │     paypalEmail?: string;
+ 76 │     paypalName?: string;
+ 77 │     mobileNumber?: string;
+ 78 │     mpesaName?: string;
+ 79 │     mobileProvider?: string;
+ 80 │     otherProvider?: string;
+ 81 │     accountName?: string;
+ 82 │     meetingLocation?: string;
+ 83 │     contactNumber?: string;
+ 84 │     preferredTime?: string;
+ 85 │     instructions?: string;
+ 86 │   };
+ 87 │ }
+ 88 │ 
+ 89 │ // API endpoint for crypto prices
+ 90 │ const CRYPTO_PRICE_API = "https://api.coingecko.com/api/v3/simple/price";
+ 91 │ 
+ 92 │ import { toast } from "sonner";
+ 93 │ import { db } from "./firebase";
+ 94 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc, orderBy, onSnapshot } from "firebase/firestore";
+    ·                                                                     ───┬──
+    ·                                                                        ╰── `getDoc` redefined here
+ 95 │ import { auth } from './firebase';
+ 96 │ import { NotificationService } from './notification-service';
+    ╰────
+  × the name `setDoc` is defined multiple times
+    ╭─[/home/runner/workspace/src/lib/p2p-service.ts:3:1]
+  1 │ import { toast } from "sonner";
+  2 │ import { db } from "./firebase";
+  3 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
+    ·                                                                             ───┬──
+    ·                                                                                ╰── previous definition of `setDoc` here
+  4 │ import { auth } from './firebase';
+  5 │ 
+  6 │ export interface P2POffer {
+  7 │   id: string;
+  8 │   user: {
+  9 │     name: string;
+ 10 │     avatar: string;
+ 11 │     rating: number;
+ 12 │     completedTrades: number;
+ 13 │     orderCount?: number;
+ 14 │     completionRate?: number;
+ 15 │     responseTime?: number; // in minutes
+ 16 │   };
+ 17 │   crypto: string;
+ 18 │   price: number;
+ 19 │   fiatCurrency: string;
+ 20 │   paymentMethods: string[];
+ 21 │   limits: {
+ 22 │     min: number;
+ 23 │     max: number;
+ 24 │   };
+ 25 │   availableAmount: number;
+ 26 │   terms: string;
+ 27 │   createdAt: Date;
+ 28 │   paymentDetails?: {
+ 29 │     bankName?: string;
+ 30 │     accountNumber?: string;
+ 31 │     accountHolderName?: string;
+ 32 │     swiftCode?: string;
+ 33 │     branchCode?: string;
+ 34 │     paypalEmail?: string;
+ 35 │     paypalName?: string;
+ 36 │     mobileNumber?: string;
+ 37 │     mpesaName?: string;
+ 38 │     mobileProvider?: string;
+ 39 │     otherProvider?: string;
+ 40 │     accountName?: string;
+ 41 │     meetingLocation?: string;
+ 42 │     contactNumber?: string;
+ 43 │     preferredTime?: string;
+ 44 │     instructions?: string;
+ 45 │     [key: string]: any;
+ 46 │   };
+ 47 │   type?: 'buy' | 'sell'; // To track if it's a buy or sell offer
+ 48 │   advertisersTerms?: string; // Additional terms specifically from advertiser
+ 49 │   userId?: string; // Firebase user ID of the offer creator
+ 50 │ }
+ 51 │ 
+ 52 │ export interface P2POrder {
+ 53 │   id: string;
+ 54 │   referenceNumber?: string; // Reference number for payment
+ 55 │   offerId: string;
+ 56 │   type: 'buy' | 'sell';
+ 57 │   status: 'pending' | 'awaiting_release' | 'completed' | 'cancelled' | 'dispute_opened' | 'refunded';
+ 58 │   amount: number;
+ 59 │   total: number;
+ 60 │   crypto: string;
+ 61 │   fiatCurrency: string;
+ 62 │   createdAt: Date;
+ 63 │   updatedAt?: Date; // Track status change times
+ 64 │   seller: string;
+ 65 │   buyer: string;
+ 66 │   paymentMethod: string;
+ 67 │   paymentWindow?: number; // Time in minutes to complete payment
+ 68 │   paymentDeadline?: Date; // Calculated deadline for payment
+ 69 │   paymentDetails?: {
+ 70 │     bankName?: string;
+ 71 │     accountNumber?: string;
+ 72 │     accountHolderName?: string;
+ 73 │     swiftCode?: string;
+ 74 │     branchCode?: string;
+ 75 │     paypalEmail?: string;
+ 76 │     paypalName?: string;
+ 77 │     mobileNumber?: string;
+ 78 │     mpesaName?: string;
+ 79 │     mobileProvider?: string;
+ 80 │     otherProvider?: string;
+ 81 │     accountName?: string;
+ 82 │     meetingLocation?: string;
+ 83 │     contactNumber?: string;
+ 84 │     preferredTime?: string;
+ 85 │     instructions?: string;
+ 86 │   };
+ 87 │ }
+ 88 │ 
+ 89 │ // API endpoint for crypto prices
+ 90 │ const CRYPTO_PRICE_API = "https://api.coingecko.com/api/v3/simple/price";
+ 91 │ 
+ 92 │ import { toast } from "sonner";
+ 93 │ import { db } from "./firebase";
+ 94 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc, orderBy, onSnapshot } from "firebase/firestore";
+    ·                                                                             ───┬──
+    ·                                                                                ╰── `setDoc` redefined here
+ 95 │ import { auth } from './firebase';
+ 96 │ import { NotificationService } from './notification-service';
+    ╰────
+  × the name `deleteDoc` is defined multiple times
+    ╭─[/home/runner/workspace/src/lib/p2p-service.ts:3:1]
+  1 │ import { toast } from "sonner";
+  2 │ import { db } from "./firebase";
+  3 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
+    ·                                                                                     ────┬────
+    ·                                                                                         ╰── previous definition of `deleteDoc` here
+  4 │ import { auth } from './firebase';
+  5 │ 
+  6 │ export interface P2POffer {
+  7 │   id: string;
+  8 │   user: {
+  9 │     name: string;
+ 10 │     avatar: string;
+ 11 │     rating: number;
+ 12 │     completedTrades: number;
+ 13 │     orderCount?: number;
+ 14 │     completionRate?: number;
+ 15 │     responseTime?: number; // in minutes
+ 16 │   };
+ 17 │   crypto: string;
+ 18 │   price: number;
+ 19 │   fiatCurrency: string;
+ 20 │   paymentMethods: string[];
+ 21 │   limits: {
+ 22 │     min: number;
+ 23 │     max: number;
+ 24 │   };
+ 25 │   availableAmount: number;
+ 26 │   terms: string;
+ 27 │   createdAt: Date;
+ 28 │   paymentDetails?: {
+ 29 │     bankName?: string;
+ 30 │     accountNumber?: string;
+ 31 │     accountHolderName?: string;
+ 32 │     swiftCode?: string;
+ 33 │     branchCode?: string;
+ 34 │     paypalEmail?: string;
+ 35 │     paypalName?: string;
+ 36 │     mobileNumber?: string;
+ 37 │     mpesaName?: string;
+ 38 │     mobileProvider?: string;
+ 39 │     otherProvider?: string;
+ 40 │     accountName?: string;
+ 41 │     meetingLocation?: string;
+ 42 │     contactNumber?: string;
+ 43 │     preferredTime?: string;
+ 44 │     instructions?: string;
+ 45 │     [key: string]: any;
+ 46 │   };
+ 47 │   type?: 'buy' | 'sell'; // To track if it's a buy or sell offer
+ 48 │   advertisersTerms?: string; // Additional terms specifically from advertiser
+ 49 │   userId?: string; // Firebase user ID of the offer creator
+ 50 │ }
+ 51 │ 
+ 52 │ export interface P2POrder {
+ 53 │   id: string;
+ 54 │   referenceNumber?: string; // Reference number for payment
+ 55 │   offerId: string;
+ 56 │   type: 'buy' | 'sell';
+ 57 │   status: 'pending' | 'awaiting_release' | 'completed' | 'cancelled' | 'dispute_opened' | 'refunded';
+ 58 │   amount: number;
+ 59 │   total: number;
+ 60 │   crypto: string;
+ 61 │   fiatCurrency: string;
+ 62 │   createdAt: Date;
+ 63 │   updatedAt?: Date; // Track status change times
+ 64 │   seller: string;
+ 65 │   buyer: string;
+ 66 │   paymentMethod: string;
+ 67 │   paymentWindow?: number; // Time in minutes to complete payment
+ 68 │   paymentDeadline?: Date; // Calculated deadline for payment
+ 69 │   paymentDetails?: {
+ 70 │     bankName?: string;
+ 71 │     accountNumber?: string;
+ 72 │     accountHolderName?: string;
+ 73 │     swiftCode?: string;
+ 74 │     branchCode?: string;
+ 75 │     paypalEmail?: string;
+ 76 │     paypalName?: string;
+ 77 │     mobileNumber?: string;
+ 78 │     mpesaName?: string;
+ 79 │     mobileProvider?: string;
+ 80 │     otherProvider?: string;
+ 81 │     accountName?: string;
+ 82 │     meetingLocation?: string;
+ 83 │     contactNumber?: string;
+ 84 │     preferredTime?: string;
+ 85 │     instructions?: string;
+ 86 │   };
+ 87 │ }
+ 88 │ 
+ 89 │ // API endpoint for crypto prices
+ 90 │ const CRYPTO_PRICE_API = "https://api.coingecko.com/api/v3/simple/price";
+ 91 │ 
+ 92 │ import { toast } from "sonner";
+ 93 │ import { db } from "./firebase";
+ 94 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc, orderBy, onSnapshot } from "firebase/firestore";
+    ·                                                                                     ────┬────
+    ·                                                                                         ╰── `deleteDoc` redefined here
+ 95 │ import { auth } from './firebase';
+ 96 │ import { NotificationService } from './notification-service';
+    ╰────
+  × the name `auth` is defined multiple times
+    ╭─[/home/runner/workspace/src/lib/p2p-service.ts:4:1]
+  1 │ import { toast } from "sonner";
+  2 │ import { db } from "./firebase";
+  3 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
+  4 │ import { auth } from './firebase';
+    ·          ──┬─
+    ·            ╰── previous definition of `auth` here
+  5 │ 
+  6 │ export interface P2POffer {
+  7 │   id: string;
+  8 │   user: {
+  9 │     name: string;
+ 10 │     avatar: string;
+ 11 │     rating: number;
+ 12 │     completedTrades: number;
+ 13 │     orderCount?: number;
+ 14 │     completionRate?: number;
+ 15 │     responseTime?: number; // in minutes
+ 16 │   };
+ 17 │   crypto: string;
+ 18 │   price: number;
+ 19 │   fiatCurrency: string;
+ 20 │   paymentMethods: string[];
+ 21 │   limits: {
+ 22 │     min: number;
+ 23 │     max: number;
+ 24 │   };
+ 25 │   availableAmount: number;
+ 26 │   terms: string;
+ 27 │   createdAt: Date;
+ 28 │   paymentDetails?: {
+ 29 │     bankName?: string;
+ 30 │     accountNumber?: string;
+ 31 │     accountHolderName?: string;
+ 32 │     swiftCode?: string;
+ 33 │     branchCode?: string;
+ 34 │     paypalEmail?: string;
+ 35 │     paypalName?: string;
+ 36 │     mobileNumber?: string;
+ 37 │     mpesaName?: string;
+ 38 │     mobileProvider?: string;
+ 39 │     otherProvider?: string;
+ 40 │     accountName?: string;
+ 41 │     meetingLocation?: string;
+ 42 │     contactNumber?: string;
+ 43 │     preferredTime?: string;
+ 44 │     instructions?: string;
+ 45 │     [key: string]: any;
+ 46 │   };
+ 47 │   type?: 'buy' | 'sell'; // To track if it's a buy or sell offer
+ 48 │   advertisersTerms?: string; // Additional terms specifically from advertiser
+ 49 │   userId?: string; // Firebase user ID of the offer creator
+ 50 │ }
+ 51 │ 
+ 52 │ export interface P2POrder {
+ 53 │   id: string;
+ 54 │   referenceNumber?: string; // Reference number for payment
+ 55 │   offerId: string;
+ 56 │   type: 'buy' | 'sell';
+ 57 │   status: 'pending' | 'awaiting_release' | 'completed' | 'cancelled' | 'dispute_opened' | 'refunded';
+ 58 │   amount: number;
+ 59 │   total: number;
+ 60 │   crypto: string;
+ 61 │   fiatCurrency: string;
+ 62 │   createdAt: Date;
+ 63 │   updatedAt?: Date; // Track status change times
+ 64 │   seller: string;
+ 65 │   buyer: string;
+ 66 │   paymentMethod: string;
+ 67 │   paymentWindow?: number; // Time in minutes to complete payment
+ 68 │   paymentDeadline?: Date; // Calculated deadline for payment
+ 69 │   paymentDetails?: {
+ 70 │     bankName?: string;
+ 71 │     accountNumber?: string;
+ 72 │     accountHolderName?: string;
+ 73 │     swiftCode?: string;
+ 74 │     branchCode?: string;
+ 75 │     paypalEmail?: string;
+ 76 │     paypalName?: string;
+ 77 │     mobileNumber?: string;
+ 78 │     mpesaName?: string;
+ 79 │     mobileProvider?: string;
+ 80 │     otherProvider?: string;
+ 81 │     accountName?: string;
+ 82 │     meetingLocation?: string;
+ 83 │     contactNumber?: string;
+ 84 │     preferredTime?: string;
+ 85 │     instructions?: string;
+ 86 │   };
+ 87 │ }
+ 88 │ 
+ 89 │ // API endpoint for crypto prices
+ 90 │ const CRYPTO_PRICE_API = "https://api.coingecko.com/api/v3/simple/price";
+ 91 │ 
+ 92 │ import { toast } from "sonner";
+ 93 │ import { db } from "./firebase";
+ 94 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc, orderBy, onSnapshot } from "firebase/firestore";
+ 95 │ import { auth } from './firebase';
+    ·          ──┬─
+    ·            ╰── `auth` redefined here
+ 96 │ import { NotificationService } from './notification-service';
+ 97 │ 
+ 98 │ // API endpoint for crypto prices
+    ╰────
+  × the name `CRYPTO_PRICE_API` is defined multiple times
+     ╭─[/home/runner/workspace/src/lib/p2p-service.ts:90:1]
+  87 │ }
+  88 │ 
+  89 │ // API endpoint for crypto prices
+  90 │ const CRYPTO_PRICE_API = "https://api.coingecko.com/api/v3/simple/price";
+     ·       ────────┬───────
+     ·               ╰── previous definition of `CRYPTO_PRICE_API` here
+  91 │ 
+  92 │ import { toast } from "sonner";
+  93 │ import { db } from "./firebase";
+  94 │ import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc, orderBy, onSnapshot } from "firebase/firestore";
+  95 │ import { auth } from './firebase';
+  96 │ import { NotificationService } from './notification-service';
+  97 │ 
+  98 │ // API endpoint for crypto prices
+  99 │ const CRYPTO_PRICE_API = "https://api.coingecko.com/api/v3/simple/price";
+     ·       ────────┬───────
+     ·               ╰── `CRYPTO_PRICE_API` redefined here
+ 100 │ 
+ 101 │ export interface P2POffer {
+ 102 │   id: string;
+     ╰────
+/home/runner/workspace/src/lib/p2p-service.ts:1:1
+1  |  import { toast } from "sonner";
+   |   ^
+2  |  import { db } from "./firebase";
+3  |  import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc } from "firebase
