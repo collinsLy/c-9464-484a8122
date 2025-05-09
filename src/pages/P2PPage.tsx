@@ -1520,31 +1520,29 @@ const P2PPage = () => {
                         />
                       </div>
 
-                      {/* Payment Details Section - Only show for sell orders */}
-                      {adType === "sell" && (
-                        <div className="space-y-2 mt-4">
-                          <div className="flex items-center gap-2">
-                            <CreditCard className="h-5 w-5 text-white/70" />
-                            <Label className="text-white text-lg">Payment Details</Label>
-                          </div>
-                          <p className="text-sm text-white/70 mb-3">
-                            Add your payment details for this {adPayment.replace('-', ' ')}. This information will be shown to buyers when they place an order.
-                          </p>
-                          
-                          {/* Payment Instructions field */}
-                          <div className="space-y-2">
-                            <Label className="text-white text-sm">Payment Instructions</Label>
-                            <Input 
-                              placeholder="Enter payment instructions" 
-                              className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
-                              value={paymentDetails.instructions}
-                              onChange={(e) => setPaymentDetails({...paymentDetails, instructions: e.target.value})}
-                            />
-                          </div>
-                          
-                          {renderPaymentDetailsFields()}
+                      {/* Payment Details Section */}
+                      <div className="space-y-2 mt-4">
+                        <div className="flex items-center gap-2">
+                          <CreditCard className="h-5 w-5 text-white/70" />
+                          <Label className="text-white text-lg">Payment Details</Label>
                         </div>
-                      )}
+                        <p className="text-sm text-white/70 mb-3">
+                          Add your payment details for this {adPayment.replace('-', ' ')}. This information will be shown to buyers when they place an order.
+                        </p>
+                        
+                        {/* Payment Instructions field */}
+                        <div className="space-y-2">
+                          <Label className="text-white text-sm">Payment Instructions</Label>
+                          <Input 
+                            placeholder="Enter payment instructions" 
+                            className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
+                            value={paymentDetails.instructions}
+                            onChange={(e) => setPaymentDetails({...paymentDetails, instructions: e.target.value})}
+                          />
+                        </div>
+                        
+                        {renderPaymentDetailsFields()}
+                      </div>
 
                       {buyOffers.length === 0 && sellOffers.length === 0 && (
                         <div className="mt-4 p-3 rounded-md bg-yellow-400/10 border border-yellow-400/20 flex items-start space-x-2">
