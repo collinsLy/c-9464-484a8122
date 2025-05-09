@@ -460,12 +460,8 @@ const P2PPage = () => {
   // State for edit dialog visibility
   const [showEditDialog, setShowEditDialog] = useState(false);
 
-  // Assuming you have access to the current user's authentication state
-  const auth = {
-    currentUser: {
-      uid: 'user123' // Replace with the actual user ID
-    }
-  };
+  // Use the actual Firebase authentication
+  import { auth } from "@/lib/firebase";
 
   return (
     <DashboardLayout>
@@ -666,7 +662,7 @@ const P2PPage = () => {
                                     {activeTab === "buy" ? "Buy" : "Sell"}
                                   </Button>
 
-                                  {auth.currentUser && offer.userId === auth.currentUser.uid && (
+                                  {auth.currentUser && offer.userId === auth.currentUser?.uid && (
                                     <Button 
                                       variant="outline" 
                                       onClick={() => openEditDialog(offer)}
