@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -39,7 +38,7 @@ const P2PPage = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [cryptoPrices, setCryptoPrices] = useState<Record<string, number>>({});
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
-  
+
   // Form states for posting an ad
   const [adType, setAdType] = useState("buy");
   const [adCrypto, setAdCrypto] = useState("BTC");
@@ -54,9 +53,13 @@ const P2PPage = () => {
   const [adTerms, setAdTerms] = useState("");
   const [postingAd, setPostingAd] = useState(false);
 
+  // User Profile Customization
+  const [sellerName, setSellerName] = useState("You");
+  const [sellerAvatar, setSellerAvatar] = useState("https://api.dicebear.com/7.x/avataaars/svg?seed=You");
+
   const cryptos = ["BTC", "ETH", "USDT", "BNB", "DOGE", "XRP", "SOL"];
   const fiats = ["USD", "EUR", "GBP", "CAD", "AUD", "NGN", "KES", "ZAR", "GHS"];
-  
+
   const paymentMethods = [
     { id: "all", name: "All Payment Methods" },
     { id: "bank-transfer", name: "Bank Transfer" },
@@ -85,14 +88,14 @@ const P2PPage = () => {
         setOffersLoading(false);
       }
     };
-    
+
     loadInitialData();
-    
+
     // Set up interval to refresh prices every minute
     const priceInterval = setInterval(() => {
       loadCurrentPrices();
     }, 60000); // 1 minute
-    
+
     return () => clearInterval(priceInterval);
   }, []);
 
@@ -126,7 +129,7 @@ const P2PPage = () => {
       setRefreshing(false);
     }
   };
-  
+
   const loadOffers = async () => {
     setOffersLoading(true);
     try {
@@ -134,7 +137,7 @@ const P2PPage = () => {
         p2pService.getBuyOffers(),
         p2pService.getSellOffers()
       ]);
-      
+
       setBuyOffers(buyData);
       setSellOffers(sellData);
       setLastUpdated(new Date());
@@ -171,7 +174,7 @@ const P2PPage = () => {
           searchQuery: searchQuery
         }
       );
-      
+
       if (activeTab === "buy") {
         setBuyOffers(filteredOffers);
       } else {
@@ -189,38 +192,42 @@ const P2PPage = () => {
   const [chatMessage, setChatMessage] = useState("");
   const [selectedOrderForChat, setSelectedOrderForChat] = useState<string | null>(null);
   const [showChatDialog, setShowChatDialog] = useState(false);
-  
+
+  // Edit Offer State
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editingOffer, setEditingOffer] = useState<P2POffer | null>(null);
+
   const handleOrderSubmit = async () => {
     if (!selectedOffer) return;
-    
+
     const amount = parseFloat(buyAmount);
     if (isNaN(amount)) {
       toast.error("Please enter a valid amount");
       return;
     }
-    
+
     if (amount < selectedOffer.limits.min || amount > selectedOffer.limits.max) {
       toast.error(`Amount must be between ${selectedOffer.limits.min} and ${selectedOffer.limits.max} ${selectedOffer.fiatCurrency}`);
       return;
     }
-    
+
     setProcessingOrder(true);
-    
+
     try {
       await p2pService.placeOrder(
         selectedOffer.id,
         amount,
         activeTab as 'buy' | 'sell'
       );
-      
+
       toast.success("Order placed successfully", {
         description: `Your order to ${activeTab} ${(amount / selectedOffer.price).toFixed(8)} ${selectedOffer.crypto} has been placed.`
       });
-      
+
       // Reload orders and offers
       loadOffers();
       loadUserOrders();
-      
+
       setIsDialogOpen(false);
     } catch (error) {
       console.error("Error placing order:", error);
@@ -229,10 +236,10 @@ const P2PPage = () => {
       setProcessingOrder(false);
     }
   };
-  
+
   const openChat = (orderId: string) => {
     setSelectedOrderForChat(orderId);
-    
+
     // Initialize chat if it doesn't exist
     if (!chatMessages[orderId]) {
       setChatMessages({
@@ -246,13 +253,13 @@ const P2PPage = () => {
         ]
       });
     }
-    
+
     setShowChatDialog(true);
   };
-  
+
   const sendChatMessage = () => {
     if (!chatMessage.trim() || !selectedOrderForChat) return;
-    
+
     const newMessages = {
       ...chatMessages,
       [selectedOrderForChat]: [
@@ -272,7 +279,7 @@ const P2PPage = () => {
         }
       ]
     };
-    
+
     setChatMessages(newMessages);
     setChatMessage('');
   };
@@ -283,32 +290,32 @@ const P2PPage = () => {
       toast.error("Please fill in all required fields");
       return;
     }
-    
+
     const price = parseFloat(adPrice);
     const amount = parseFloat(adAmount);
     const minLimit = parseFloat(adMinLimit);
     const maxLimit = parseFloat(adMaxLimit);
-    
+
     if (isNaN(price) || isNaN(amount) || isNaN(minLimit) || isNaN(maxLimit)) {
       toast.error("Please enter valid numbers");
       return;
     }
-    
+
     if (minLimit > maxLimit) {
       toast.error("Minimum limit cannot be greater than maximum limit");
       return;
     }
-    
+
     setPostingAd(true);
-    
+
     try {
       // Convert payment method ID to name
       const paymentMethodName = paymentMethods.find(m => m.id === adPayment)?.name || adPayment;
-      
+
       const newOffer: Omit<P2POffer, 'id' | 'createdAt'> = {
         user: {
-          name: "You", // Would be fetched from user profile in a real app
-          avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=You",
+          name: sellerName, // Changed to dynamic value
+          avatar: sellerAvatar, // Changed to dynamic value
           rating: 5.0,
           completedTrades: 10
         },
@@ -323,24 +330,24 @@ const P2PPage = () => {
         availableAmount: amount,
         terms: adTerms || "Standard terms apply."
       };
-      
+
       await p2pService.createP2POffer(newOffer);
-      
+
       toast.success("Advertisement posted successfully");
-      
+
       // Reset form
       setAdPrice("");
       setAdAmount("");
       setAdMinLimit("");
       setAdMaxLimit("");
       setAdTerms("");
-      
+
       // Reload offers - important to get the latest data
       await loadOffers();
-      
+
       // Filter offers based on current filters to ensure the new ad shows up
       await filterOffers();
-      
+
       // Switch to appropriate tab
       setActiveTab(adType);
     } catch (error) {
@@ -370,6 +377,90 @@ const P2PPage = () => {
 
   const filteredOffers = activeTab === "buy" ? buyOffers : sellOffers;
 
+  // Edit offer handler
+  const handleEditOffer = async () => {
+    if (!editingOffer) return;
+
+    // Validate inputs
+    if (!adPrice || !adAmount || !adMinLimit || !adMaxLimit) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    const price = parseFloat(adPrice);
+    const amount = parseFloat(adAmount);
+    const minLimit = parseFloat(adMinLimit);
+    const maxLimit = parseFloat(adMaxLimit);
+
+    if (isNaN(price) || isNaN(amount) || isNaN(minLimit) || isNaN(maxLimit)) {
+      toast.error("Please enter valid numbers");
+      return;
+    }
+
+    if (minLimit > maxLimit) {
+      toast.error("Minimum limit cannot be greater than maximum limit");
+      return;
+    }
+
+    try {
+      // Convert payment method ID to name
+      const paymentMethodName = paymentMethods.find(m => m.id === adPayment)?.name || adPayment;
+
+      const updatedOffer: P2POffer = {
+        ...editingOffer,
+        user: {
+          name: sellerName, // Changed to dynamic value
+          avatar: sellerAvatar, // Changed to dynamic value
+          rating: 5.0,
+          completedTrades: 10
+        },
+        crypto: adCrypto,
+        price: price,
+        fiatCurrency: adFiat,
+        paymentMethods: [paymentMethodName],
+        limits: {
+          min: minLimit,
+          max: maxLimit
+        },
+        availableAmount: amount,
+        terms: adTerms || "Standard terms apply."
+      };
+
+      await p2pService.updateP2POffer(updatedOffer.id, updatedOffer);
+
+      toast.success("Advertisement updated successfully");
+
+      // Reload offers
+      await loadOffers();
+      await filterOffers();
+
+      setShowEditDialog(false);
+      setEditingOffer(null);
+    } catch (error) {
+      console.error("Error updating ad:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to update advertisement. Please try again.");
+    }
+  };
+
+  // Function to open the edit dialog and pre-populate the form
+  const openEditDialog = (offer: P2POffer) => {
+    setEditingOffer(offer);
+    setAdCrypto(offer.crypto);
+    setAdFiat(offer.fiatCurrency);
+    setAdPayment(offer.paymentMethods[0]); // Assuming single payment method for simplicity
+    setAdPrice(offer.price.toString());
+    setAdAmount(offer.availableAmount.toString());
+    setAdMinLimit(offer.limits.min.toString());
+    setAdMaxLimit(offer.limits.max.toString());
+    setAdTerms(offer.terms || "");
+    setSellerName(offer.user.name);
+    setSellerAvatar(offer.user.avatar);
+    setShowEditDialog(true);
+  };
+
+  // State for edit dialog visibility
+  const [showEditDialog, setShowEditDialog] = useState(false);
+
   return (
     <DashboardLayout>
       <div className="space-y-4">
@@ -392,7 +483,7 @@ const P2PPage = () => {
             {isDemoMode && <div className="text-sm text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-md">Demo Mode</div>}
           </div>
         </div>
-        
+
         {/* Current Prices */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
           {Object.entries(cryptoPrices).map(([crypto, price]) => (
@@ -451,7 +542,7 @@ const P2PPage = () => {
                           ))}
                         </SelectContent>
                       </Select>
-                      
+
                       <Select value={selectedFiat} onValueChange={setSelectedFiat}>
                         <SelectTrigger className="bg-background/40 border-white/10">
                           <SelectValue placeholder="Select Fiat" />
@@ -463,7 +554,7 @@ const P2PPage = () => {
                           ))}
                         </SelectContent>
                       </Select>
-                      
+
                       <Select value={selectedPayment} onValueChange={setSelectedPayment}>
                         <SelectTrigger className="bg-background/40 border-white/10">
                           <SelectValue placeholder="Payment Method" />
@@ -475,7 +566,7 @@ const P2PPage = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="relative w-full md:w-64">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
@@ -598,7 +689,7 @@ const P2PPage = () => {
                           ))}
                         </SelectContent>
                       </Select>
-                      
+
                       <Select value={selectedFiat} onValueChange={setSelectedFiat}>
                         <SelectTrigger className="bg-background/40 border-white/10">
                           <SelectValue placeholder="Select Fiat" />
@@ -610,7 +701,7 @@ const P2PPage = () => {
                           ))}
                         </SelectContent>
                       </Select>
-                      
+
                       <Select value={selectedPayment} onValueChange={setSelectedPayment}>
                         <SelectTrigger className="bg-background/40 border-white/10">
                           <SelectValue placeholder="Payment Method" />
@@ -622,7 +713,7 @@ const P2PPage = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="relative w-full md:w-64">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
@@ -849,7 +940,7 @@ const P2PPage = () => {
                             </SelectContent>
                           </Select>
                         </div>
-                        
+
                         <div className="space-y-2">
                           <Label className="text-white">Cryptocurrency</Label>
                           <Select value={adCrypto} onValueChange={setAdCrypto}>
@@ -970,7 +1061,7 @@ const P2PPage = () => {
                           onChange={(e) => setAdTerms(e.target.value)}
                         />
                       </div>
-                      
+
                       {buyOffers.length === 0 && sellOffers.length === 0 && (
                         <div className="mt-4 p-3 rounded-md bg-yellow-400/10 border border-yellow-400/20 flex items-start space-x-2">
                           <AlertTriangle className="h-5 w-5 text-yellow-400 shrink-0 mt-0.5" />
@@ -1024,7 +1115,7 @@ const P2PPage = () => {
                 Trading with {selectedOffer?.user.name} ({selectedOffer?.user.rating} <Star className="h-3 w-3 inline fill-current" />)
               </DialogDescription>
             </DialogHeader>
-            
+
             <div className="space-y-4">
               <div className="bg-background/40 p-4 rounded-md">
                 <div className="flex justify-between mb-2">
@@ -1102,7 +1193,7 @@ const P2PPage = () => {
             </div>
           </DialogContent>
         </Dialog>
-        
+
         {/* Chat Dialog */}
         <Dialog open={showChatDialog} onOpenChange={setShowChatDialog}>
           <DialogContent className="bg-background/95 backdrop-blur-xl border-white/10 text-white max-w-2xl">
@@ -1117,7 +1208,7 @@ const P2PPage = () => {
                 )}
               </DialogDescription>
             </DialogHeader>
-            
+
             <div className="h-[400px] flex flex-col">
               <ScrollArea className="flex-1 pr-4 mb-4">
                 <div className="space-y-4 p-2">
@@ -1144,7 +1235,7 @@ const P2PPage = () => {
                   ))}
                 </div>
               </ScrollArea>
-              
+
               <div className="flex gap-2 mt-auto">
                 <Input 
                   placeholder="Type your message..." 
@@ -1160,6 +1251,158 @@ const P2PPage = () => {
                   Send
                 </Button>
               </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Offer Dialog */}
+        <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+          <DialogContent className="bg-background/95 backdrop-blur-xl border-white/10 text-white">
+            <DialogHeader>
+              <DialogTitle>
+                Edit Advertisement
+              </DialogTitle>
+              <DialogDescription className="text-white/70">
+                Update your existing offer details
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-white">Cryptocurrency</Label>
+                  <Select value={adCrypto} onValueChange={setAdCrypto}>
+                    <SelectTrigger className="bg-background/40 border-white/10 text-white">
+                      <SelectValue placeholder="Select crypto" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cryptos.map(crypto => (
+                        <SelectItem key={crypto} value={crypto}>{crypto}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-white">Payment Currency</Label>
+                  <Select value={adFiat} onValueChange={setAdFiat}>
+                    <SelectTrigger className="bg-background/40 border-white/10 text-white">
+                      <SelectValue placeholder="Select fiat" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {fiats.map(fiat => (
+                        <SelectItem key={fiat} value={fiat}>{fiat}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-white">Payment Method</Label>
+                  <Select value={adPayment} onValueChange={setAdPayment}>
+                    <SelectTrigger className="bg-background/40 border-white/10 text-white">
+                      <SelectValue placeholder="Select payment method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {paymentMethods.filter(m => m.id !== "all").map(method => (
+                        <SelectItem key={method.id} value={method.id}>{method.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-white">Price ({adFiat})</Label>
+                  <Input 
+                    type="number" 
+                    placeholder="Enter price" 
+                    className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
+                    value={adPrice}
+                    onChange={(e) => setAdPrice(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-white">Available Amount</Label>
+                  <Input 
+                    type="number" 
+                    placeholder="Enter amount" 
+                    className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
+                    value={adAmount}
+                    onChange={(e) => setAdAmount(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-white">Minimum Limit</Label>
+                  <Input 
+                    type="number" 
+                    placeholder="Enter minimum amount" 
+                    className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
+                    value={adMinLimit}
+                    onChange={(e) => setAdMinLimit(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-white">Maximum Limit</Label>
+                  <Input 
+                    type="number" 
+                    placeholder="Enter maximum amount" 
+                    className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
+                    value={adMaxLimit}
+                    onChange={(e) => setAdMaxLimit(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-white">Terms and Conditions</Label>
+                <Input 
+                  placeholder="Add your terms and instructions for the buyer/seller" 
+                  className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
+                  value={adTerms}
+                  onChange={(e) => setAdTerms(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-white">Display Name</Label>
+                <Input 
+                  placeholder="Your display name"
+                  className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
+                  value={sellerName}
+                  onChange={(e) => setSellerName(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-white">Avatar URL (Optional)</Label>
+                <Input 
+                  placeholder="URL to your avatar image"
+                  className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
+                  value={sellerAvatar}
+                  onChange={(e) => setSellerAvatar(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-between gap-4 mt-4">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setShowEditDialog(false);
+                  setEditingOffer(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                className="bg-[#F2FF44] text-black hover:bg-[#E2EF34]"
+                onClick={handleEditOffer}
+              >
+                Save Changes
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
