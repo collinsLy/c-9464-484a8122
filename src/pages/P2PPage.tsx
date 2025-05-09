@@ -421,15 +421,43 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
     setProcessingOrder(true);
 
     try {
+      console.log("Placing order for offer ID:", selectedOffer.id, "User ID:", selectedOffer.userId);
+      
       const order = await p2pService.placeOrder(
         selectedOffer.id,
         amount,
         activeTab as 'buy' | 'sell'
       );
 
+      // Play notification sound to indicate order was placed
+      const audio = new Audio('/sounds/payment_success.mp3');
+      audio.volume = 0.5;
+      await audio.play().catch(e => console.error("Error playing sound:", e));
+
       toast.success("Order placed successfully", {
         description: `Your order to ${activeTab} ${(amount / selectedOffer.price).toFixed(8)} ${selectedOffer.crypto} has been placed.`
       });
+
+      // Ensure notification is sent to offer owner
+      if (selectedOffer.userId && selectedOffer.userId !== auth.currentUser?.uid) {
+        try {
+          console.log("Sending direct notification to user:", selectedOffer.userId);
+          await p2pService.createOfferNotification(
+            selectedOffer.userId,
+            selectedOffer.id,
+            order?.id || `order-${Date.now()}`,
+            activeTab as 'buy' | 'sell',
+            amount,
+            selectedOffer.crypto,
+            selectedOffer.fiatCurrency
+          );
+          console.log("Notification sent successfully");
+        } catch (notifyError) {
+          console.error("Error sending notification:", notifyError);
+        }
+      } else {
+        console.log("Not sending notification - same user or missing user ID");
+      }
 
       // Reload orders and offers
       await loadOffers();
@@ -1292,6 +1320,42 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
               <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
               {refreshing ? 'Refreshing...' : 'Refresh'}
             </Button>
+            
+            {/* Notification indicator */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="relative"
+              onClick={async () => {
+                // Fetch latest notifications
+                try {
+                  const notifications = await p2pService.getUserNotifications();
+                  if (notifications.length > 0) {
+                    toast({
+                      title: "Notifications",
+                      description: `You have ${notifications.length} P2P trade notifications`,
+                    });
+                    
+                    // Play notification sound
+                    const audio = new Audio('/sounds/alert.mp3');
+                    audio.volume = 0.3;
+                    audio.play().catch(e => console.error("Error playing sound:", e));
+                  } else {
+                    toast({
+                      title: "No Notifications",
+                      description: "You don't have any pending notifications",
+                    });
+                  }
+                } catch (error) {
+                  console.error("Error fetching notifications:", error);
+                }
+              }}
+            >
+              <MessageCircle className="h-5 w-5 text-white/70" />
+              <span className="sr-only">Check notifications</span>
+              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] font-bold flex items-center justify-center animate-pulse">!</span>
+            </Button>
+            
             {isDemoMode && <div className="text-sm text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-md">Demo Mode</div>}
           </div>
         </div>

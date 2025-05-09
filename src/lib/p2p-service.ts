@@ -525,9 +525,9 @@ class P2PService {
   }
   
   // Add a method to create notifications for offer owners
-  private readonly NOTIFICATIONS_COLLECTION = "p2pNotifications";
+  public readonly NOTIFICATIONS_COLLECTION = "p2pNotifications";
   
-  private async createOfferNotification(
+  public async createOfferNotification(
     userId: string,
     offerId: string,
     orderId: string,
@@ -535,8 +535,15 @@ class P2PService {
     amount: number,
     crypto: string,
     fiatCurrency: string
-  ): Promise<void> {
+  ): Promise<boolean> {
     try {
+      if (!userId) {
+        console.error("Cannot create notification: Missing user ID");
+        return false;
+      }
+      
+      console.log(`Creating notification for user ${userId} about order ${orderId}`);
+      
       // Create a notification document in Firestore
       const notification = {
         userId,
@@ -548,11 +555,21 @@ class P2PService {
         createdAt: new Date().toISOString()
       };
       
-      await addDoc(collection(db, this.NOTIFICATIONS_COLLECTION), notification);
-      console.log(`Notification created for user ${userId} about order ${orderId}`);
+      const docRef = await addDoc(collection(db, this.NOTIFICATIONS_COLLECTION), notification);
+      console.log(`Notification created for user ${userId} about order ${orderId}, doc ID: ${docRef.id}`);
       
+      // Try to play a notification sound
+      try {
+        const { NotificationService } = await import('./notification-service');
+        NotificationService.playSound('alert');
+      } catch (soundError) {
+        console.error("Error playing notification sound:", soundError);
+      }
+      
+      return true;
     } catch (error) {
       console.error("Error creating offer notification:", error);
+      return false;
     }
   }
   
