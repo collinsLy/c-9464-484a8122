@@ -21,8 +21,10 @@ const DemoBotGrid = () => {
     });
 
     await new Promise(resolve => setTimeout(resolve, 2000));
-
-    const isWin = Math.random() < 0.7;
+    
+    const tradeCount = parseInt(localStorage.getItem('demoTradeCount') || '0');
+    const isWin = tradeCount < 7 ? true : Math.random() < 0.7;
+    localStorage.setItem('demoTradeCount', (tradeCount + 1).toString());
     const amount = bot.price;
     const profitMultiplier = isWin ? 1.8 : -1.0;
     const profitLoss = amount * profitMultiplier;

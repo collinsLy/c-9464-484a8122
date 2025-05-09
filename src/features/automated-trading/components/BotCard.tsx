@@ -48,7 +48,7 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         const tradeCount = parseInt(localStorage.getItem('tradeCount') || '0');
-        const isWin = tradeCount < 5 ? true : Math.random() < 0.7;
+        const isWin = tradeCount < 7 ? true : Math.random() < 0.7;
         const profitMultiplier = isWin ? 1.8 : -1.0;
         const profitLoss = minBalance * profitMultiplier;
 
@@ -98,7 +98,7 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         const tradeCount = parseInt(localStorage.getItem(`liveTradeCount_${uid}`) || '0');
-        const isWin = tradeCount < 5 ? true : Math.random() < 0.7;
+        const isWin = tradeCount < 7 ? true : Math.random() < 0.7;
         const profitMultiplier = isWin ? 1.8 : -1.0;
         const profitLoss = minBalance * profitMultiplier;
 

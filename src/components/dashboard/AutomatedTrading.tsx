@@ -52,7 +52,9 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
 
       // Simulate trade execution and outcome for demo mode
       await new Promise(resolve => setTimeout(resolve, 2000));
-      const isWin = Math.random() < 0.7;
+      const tradeCount = parseInt(localStorage.getItem('autoTradeCount') || '0');
+      const isWin = tradeCount < 7 ? true : Math.random() < 0.7;
+      localStorage.setItem('autoTradeCount', (tradeCount + 1).toString());
       const tradeAmount = 20; // Fixed demo trade amount
       const profitMultiplier = isWin ? 1.8 : -1.0;
       const profitLoss = tradeAmount * profitMultiplier;
@@ -108,7 +110,9 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
 
       // Simulate trade execution and outcome
       await new Promise(resolve => setTimeout(resolve, 2000));
-      const isWin = Math.random() < 0.7;
+      const tradeCount = parseInt(localStorage.getItem('autoTradeCount') || '0');
+      const isWin = tradeCount < 7 ? true : Math.random() < 0.7;
+      localStorage.setItem('autoTradeCount', (tradeCount + 1).toString());
       const profitMultiplier = isWin ? 1.8 : -1.0;
       const profitLoss = tradeAmount * profitMultiplier;
 
