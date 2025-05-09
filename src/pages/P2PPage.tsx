@@ -13,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
-import { Search, Filter, ChevronDown, MessageCircle, ShieldCheck, ArrowUpRight, Star, Clock, CreditCard, Users, DollarSign, ArrowRight, AlertTriangle, CheckCircle2, Loader2, RefreshCw } from "lucide-react";
+import { Search, Filter, ChevronDown, MessageCircle, ShieldCheck, ArrowUpRight, Star, Clock, CreditCard, Users, DollarSign, ArrowRight, AlertTriangle, CheckCircle2, Loader2, RefreshCw, Copy, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import p2pService, { P2POffer, P2POrder } from "@/lib/p2p-service";
 import { auth } from "@/lib/firebase";
@@ -247,7 +247,7 @@ const P2PPage = () => {
     setProcessingOrder(true);
 
     try {
-      await p2pService.placeOrder(
+      const order = await p2pService.placeOrder(
         selectedOffer.id,
         amount,
         activeTab as 'buy' | 'sell'
@@ -258,14 +258,18 @@ const P2PPage = () => {
       });
 
       // Reload orders and offers
-      loadOffers();
-      loadUserOrders();
+      await loadOffers();
+      await loadUserOrders();
 
       // Open chat automatically for new order
       setTimeout(() => {
-        const newOrder = userOrders[0]; // Most recent order should be at the top
-        if (newOrder) {
-          openChat(newOrder.id);
+        if (order) {
+          openChat(order.id);
+        } else {
+          const newOrder = userOrders[0]; // Most recent order should be at the top
+          if (newOrder) {
+            openChat(newOrder.id);
+          }
         }
       }, 1000);
 
@@ -301,6 +305,21 @@ const P2PPage = () => {
           text: `Please send ${order.amount} ${order.fiatCurrency} using the payment method shown in the details panel. After payment, click the "I've Paid" button.`,
           timestamp: new Date(Date.now() + 1000)
         });
+        
+        // Add a second message about payment details
+        if (order.paymentDetails && Object.keys(order.paymentDetails).some(key => order.paymentDetails?.[key])) {
+          initialMessages.push({
+            sender: order.seller,
+            text: `I've provided my payment details in the panel on the right. Please use them exactly as shown.`,
+            timestamp: new Date(Date.now() + 2000)
+          });
+        } else {
+          initialMessages.push({
+            sender: order.seller,
+            text: `I'll share my payment details shortly.`,
+            timestamp: new Date(Date.now() + 2000)
+          });
+        }
       }
 
       // Add release funds instruction if it's a sell order
@@ -1678,20 +1697,88 @@ const P2PPage = () => {
                   </div>
                 </ScrollArea>
 
-                <div className="flex gap-2 mt-auto">
-                  <Input 
-                    placeholder="Type your message..." 
-                    className="flex-1 bg-background/40 border-white/10 text-white placeholder:text-white/50"
-                    value={chatMessage}
-                    onChange={(e) => setChatMessage(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && sendChatMessage()}
-                  />
-                  <Button 
-                    onClick={sendChatMessage}
-                    className="bg-[#F2FF44] text-black hover:bg-[#E2EF34]"
-                  >
-                    Send
-                  </Button>
+                <div className="space-y-2 mt-auto">
+                  {selectedOrderForChat && 
+                   userOrders.find(o => o.id === selectedOrderForChat)?.status === 'pending' && 
+                   userOrders.find(o => o.id === selectedOrderForChat)?.type === 'buy' && (
+                    <Button 
+                      variant="outline" 
+                      className="w-full bg-green-500/20 border-green-500/30 text-green-400 hover:bg-green-500/30 hover:text-green-300"
+                      onClick={() => {
+                        // Simulate confirming payment
+                        const newMessages = {
+                          ...chatMessages,
+                          [selectedOrderForChat]: [
+                            ...(chatMessages[selectedOrderForChat] || []),
+                            {
+                              sender: 'System',
+                              text: 'You have marked this payment as completed. Please wait for the seller to verify and release the crypto.',
+                              timestamp: new Date()
+                            },
+                            {
+                              sender: userOrders.find(o => o.id === selectedOrderForChat)?.seller || 'Seller',
+                              text: 'I\'ll verify your payment and release the crypto shortly. Thank you for your patience.',
+                              timestamp: new Date(Date.now() + 1000)
+                            }
+                          ]
+                        };
+                        setChatMessages(newMessages);
+                        toast.success("Payment marked as completed");
+                      }}
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      I've Paid
+                    </Button>
+                  )}
+
+                  {selectedOrderForChat && 
+                   userOrders.find(o => o.id === selectedOrderForChat)?.status === 'pending' && 
+                   userOrders.find(o => o.id === selectedOrderForChat)?.type === 'sell' && (
+                    <Button 
+                      variant="outline" 
+                      className="w-full bg-green-500/20 border-green-500/30 text-green-400 hover:bg-green-500/30 hover:text-green-300"
+                      onClick={() => {
+                        // Simulate releasing crypto
+                        const newMessages = {
+                          ...chatMessages,
+                          [selectedOrderForChat]: [
+                            ...(chatMessages[selectedOrderForChat] || []),
+                            {
+                              sender: 'System',
+                              text: 'You have released the crypto. The transaction is now complete.',
+                              timestamp: new Date()
+                            },
+                            {
+                              sender: userOrders.find(o => o.id === selectedOrderForChat)?.buyer || 'Buyer',
+                              text: 'Thank you for the smooth transaction!',
+                              timestamp: new Date(Date.now() + 1000)
+                            }
+                          ]
+                        };
+                        setChatMessages(newMessages);
+                        toast.success("Crypto released successfully");
+                      }}
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      Release Crypto
+                    </Button>
+                  )}
+
+                  <div className="flex gap-2">
+                    <Input 
+                      placeholder="Type your message..." 
+                      className="flex-1 bg-background/40 border-white/10 text-white placeholder:text-white/50"
+                      value={chatMessage}
+                      onChange={(e) => setChatMessage(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && sendChatMessage()}
+                    />
+                    <Button 
+                      onClick={sendChatMessage}
+                      className="bg-[#F2FF44] text-black hover:bg-[#E2EF34]"
+                    >
+                      Send
+                    </Button>
+                  </div>
                 </div>
               </div>
 
@@ -1702,6 +1789,15 @@ const P2PPage = () => {
                   {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails && 
                    Object.keys(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails || {}).length > 0 ? (
                     <div className="space-y-3 text-sm">
+                      {/* Display payment method */}
+                      <div className="bg-background/60 rounded-md p-2 mb-2 flex items-center">
+                        <CreditCard className="h-4 w-4 mr-2 text-white/70" />
+                        <span className="font-medium">
+                          {userOrders.find(order => order.id === selectedOrderForChat)?.paymentMethod}
+                        </span>
+                      </div>
+                      
+                      {/* Payment details */}
                       {Object.entries(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails || {}).map(([key, value]) => (
                         value && (
                           <div key={key} className="space-y-1">
@@ -1710,14 +1806,68 @@ const P2PPage = () => {
                                 .replace(/^./, str => str.toUpperCase())
                                 .replace(/([a-z])([A-Z])/g, '$1 $2')}
                             </div>
-                            <div className="font-medium break-words">{value as string}</div>
+                            <div className="font-medium break-words flex items-center group relative">
+                              <span className="flex-1 pr-2">{value as string}</span>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(value as string);
+                                  toast.success(`Copied to clipboard`);
+                                }}
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/70">
+                                  <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                                  <path d="M4 16V4a2 2 0 0 1 2-2h10" />
+                                </svg>
+                              </Button>
+                            </div>
                           </div>
                         )
                       ))}
+                      
+                      {/* Reference number */}
+                      {userOrders.find(order => order.id === selectedOrderForChat)?.referenceNumber && (
+                        <div className="space-y-1 mt-4">
+                          <div className="text-white/70">Reference Number</div>
+                          <div className="font-medium break-words bg-yellow-400/10 p-1.5 rounded text-yellow-300 flex items-center group">
+                            <span className="flex-1 pr-2">{userOrders.find(order => order.id === selectedOrderForChat)?.referenceNumber}</span>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => {
+                                const refNum = userOrders.find(order => order.id === selectedOrderForChat)?.referenceNumber;
+                                if (refNum) {
+                                  navigator.clipboard.writeText(refNum);
+                                  toast.success("Reference number copied");
+                                }
+                              }}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/70">
+                                <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                                <path d="M4 16V4a2 2 0 0 1 2-2h10" />
+                              </svg>
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                      
                       <div className="p-2 mt-4 bg-background/60 rounded-md">
                         <div className="text-xs text-white/70 mb-1">Copy these details exactly as shown.</div>
                         <div className="text-xs text-white/70">Always verify the payment has been received before releasing crypto.</div>
                       </div>
+                      
+                      {/* Payment deadline */}
+                      {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDeadline && (
+                        <div className="p-2 mt-1 bg-yellow-400/10 border border-yellow-400/20 rounded-md flex items-start space-x-2">
+                          <Clock className="h-4 w-4 text-yellow-400 shrink-0 mt-0.5" />
+                          <div className="text-xs text-white/80">
+                            <p>Payment deadline: {new Date(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDeadline || Date.now()).toLocaleTimeString()}</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="text-sm text-white/70">

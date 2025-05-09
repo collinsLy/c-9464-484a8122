@@ -54,6 +54,24 @@ export interface P2POrder {
   paymentMethod: string;
   paymentWindow?: number; // Time in minutes to complete payment
   paymentDeadline?: Date; // Calculated deadline for payment
+  paymentDetails?: {
+    bankName?: string;
+    accountNumber?: string;
+    accountHolderName?: string;
+    swiftCode?: string;
+    branchCode?: string;
+    paypalEmail?: string;
+    paypalName?: string;
+    mobileNumber?: string;
+    mpesaName?: string;
+    mobileProvider?: string;
+    otherProvider?: string;
+    accountName?: string;
+    meetingLocation?: string;
+    contactNumber?: string;
+    preferredTime?: string;
+    instructions?: string;
+  };
 }
 
 // API endpoint for crypto prices
@@ -398,7 +416,8 @@ class P2PService {
         buyer: type === 'buy' ? 'You' : offer.user.name,
         paymentMethod: offer.paymentMethods[0],
         paymentWindow,
-        paymentDeadline
+        paymentDeadline,
+        paymentDetails: offer.paymentDetails // Include payment details from the offer
       };
 
       // Update available amount in the offer
