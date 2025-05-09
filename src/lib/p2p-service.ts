@@ -423,7 +423,15 @@ class P2PService {
         paymentMethod: offer.paymentMethods[0],
         paymentWindow,
         paymentDeadline,
-        paymentDetails: offer.paymentDetails // Include payment details from the offer
+        paymentDetails: type === 'buy' ? {
+          // If buying, include seller's payment details
+          ...(offer.paymentDetails || {}),
+          // Add some default payment details if not provided
+          bankName: offer.paymentDetails?.bankName || "Bank of Vertex",
+          accountNumber: offer.paymentDetails?.accountNumber || "123456789",
+          accountHolderName: offer.paymentDetails?.accountHolderName || offer.user.name,
+          mobileNumber: offer.paymentDetails?.mobileNumber || "+254712345678"
+        } : {}
       };
 
       // Update available amount in the offer

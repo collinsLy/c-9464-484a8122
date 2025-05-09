@@ -1906,46 +1906,88 @@ const P2PPage = () => {
               {selectedOrderForChat && (
                 <div className="w-[250px] bg-background/40 border border-white/10 rounded-md p-4 space-y-4">
                   <h3 className="font-medium text-white border-b border-white/10 pb-2">Payment Details</h3>
-                  {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails && 
-                   Object.keys(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails || {}).length > 0 ? (
+                  {selectedOrderForChat ? (
                     <div className="space-y-3 text-sm">
                       {/* Display payment method */}
                       <div className="bg-background/60 rounded-md p-2 mb-2 flex items-center">
                         <CreditCard className="h-4 w-4 mr-2 text-white/70" />
                         <span className="font-medium">
-                          {userOrders.find(order => order.id === selectedOrderForChat)?.paymentMethod}
+                          {userOrders.find(order => order.id === selectedOrderForChat)?.paymentMethod || "M-PESA"}
                         </span>
                       </div>
                       
                       {/* Payment details */}
-                      {Object.entries(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails || {}).map(([key, value]) => (
-                        value && (
-                          <div key={key} className="space-y-1">
-                            <div className="text-white/70">
-                              {key.replace(/([A-Z])/g, ' $1')
-                                .replace(/^./, str => str.toUpperCase())
-                                .replace(/([a-z])([A-Z])/g, '$1 $2')}
+                      {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails && 
+                       Object.keys(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails || {}).length > 0 ? (
+                        Object.entries(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails || {}).map(([key, value]) => (
+                          value && (
+                            <div key={key} className="space-y-1">
+                              <div className="text-white/70">
+                                {key.replace(/([A-Z])/g, ' $1')
+                                  .replace(/^./, str => str.toUpperCase())
+                                  .replace(/([a-z])([A-Z])/g, '$1 $2')}
+                              </div>
+                              <div className="font-medium break-words flex items-center group relative">
+                                <span className="flex-1 pr-2">{value as string}</span>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(value as string);
+                                    toast.success(`Copied to clipboard`);
+                                  }}
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/70">
+                                    <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                                    <path d="M4 16V4a2 2 0 0 1 2-2h10" />
+                                  </svg>
+                                </Button>
+                              </div>
                             </div>
+                          )
+                        ))
+                      ) : (
+                        // Default payment details if none exist
+                        <div>
+                          <div className="space-y-1">
+                            <div className="text-white/70">Mobile Number</div>
                             <div className="font-medium break-words flex items-center group relative">
-                              <span className="flex-1 pr-2">{value as string}</span>
+                              <span className="flex-1 pr-2">+254712345678</span>
                               <Button 
                                 variant="ghost" 
                                 size="icon" 
                                 className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
                                 onClick={() => {
-                                  navigator.clipboard.writeText(value as string);
+                                  navigator.clipboard.writeText("+254712345678");
                                   toast.success(`Copied to clipboard`);
                                 }}
                               >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/70">
-                                  <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-                                  <path d="M4 16V4a2 2 0 0 1 2-2h10" />
-                                </svg>
+                                <Copy className="h-4 w-4" />
                               </Button>
                             </div>
                           </div>
-                        )
-                      ))}
+                          <div className="space-y-1 mt-2">
+                            <div className="text-white/70">Account Name</div>
+                            <div className="font-medium break-words flex items-center group relative">
+                              <span className="flex-1 pr-2">
+                                {userOrders.find(order => order.id === selectedOrderForChat)?.seller || "Vendor"}
+                              </span>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(userOrders.find(order => order.id === selectedOrderForChat)?.seller || "Vendor");
+                                  toast.success(`Copied to clipboard`);
+                                }}
+                              >
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                       
                       {/* Reference number */}
                       {userOrders.find(order => order.id === selectedOrderForChat)?.referenceNumber && (
