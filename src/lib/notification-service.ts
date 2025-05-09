@@ -5,7 +5,7 @@ import { toast } from "@/components/ui/use-toast";
 export interface NotificationOptions {
   showToast?: boolean;
   playSound?: boolean;
-  soundType?: 'transfer' | 'deposit' | 'success' | 'warning' | 'error';
+  soundType?: 'transfer' | 'deposit' | 'success' | 'warning' | 'error' | 'payment_success';
 }
 
 // Sound effects
@@ -15,6 +15,7 @@ const SOUND_EFFECTS = {
   success: new Audio('/sounds/success.mp3'),
   warning: new Audio('/sounds/warning.mp3'),
   error: new Audio('/sounds/error.mp3'),
+  payment_success: new Audio('/sounds/payment_success.mp3'),
 };
 
 // Preload sounds
@@ -46,8 +47,8 @@ export class NotificationService {
   // Send a withdrawal notification
   static async sendWithdrawalNotification(userId: string, transaction: any): Promise<void> {
     try {
-      // Play success sound
-      this.playSound('success');
+      // Play payment success sound
+      this.playSound('payment_success');
       
       // Show toast notification
       toast({
@@ -84,7 +85,7 @@ export class NotificationService {
     amount: number,
     currency: string, 
     senderName: string, 
-    options: NotificationOptions = { showToast: true, playSound: true, soundType: 'transfer' }
+    options: NotificationOptions = { showToast: true, playSound: true, soundType: 'payment_success' }
   ) {
     // Show toast notification
     if (options.showToast) {
