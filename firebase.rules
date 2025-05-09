@@ -139,6 +139,7 @@ service cloud.firestore {
       allow delete: if isOwner(userId);
     }
 
+    // Default deny rule - deny access to any collection not explicitly allowed above
     match /{document=**} {
       allow read, write: if false;
     }
