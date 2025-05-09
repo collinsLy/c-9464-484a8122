@@ -1530,6 +1530,18 @@ const P2PPage = () => {
                           <p className="text-sm text-white/70 mb-3">
                             Add your payment details for this {adPayment.replace('-', ' ')}. This information will be shown to buyers when they place an order.
                           </p>
+                          
+                          {/* Payment Instructions field */}
+                          <div className="space-y-2">
+                            <Label className="text-white text-sm">Payment Instructions</Label>
+                            <Input 
+                              placeholder="Enter payment instructions" 
+                              className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
+                              value={paymentDetails.instructions}
+                              onChange={(e) => setPaymentDetails({...paymentDetails, instructions: e.target.value})}
+                            />
+                          </div>
+                          
                           {renderPaymentDetailsFields()}
                         </div>
                       )}
@@ -1916,11 +1928,21 @@ const P2PPage = () => {
                         </span>
                       </div>
                       
+                      {/* Payment instructions if available */}
+                      {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.instructions && (
+                        <div className="space-y-1 bg-background/60 rounded-md p-2 mb-2">
+                          <div className="text-white/70">Payment Instructions</div>
+                          <div className="font-medium text-xs break-words">
+                            {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.instructions}
+                          </div>
+                        </div>
+                      )}
+                      
                       {/* Payment details */}
                       {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails && 
                        Object.keys(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails || {}).length > 0 ? (
                         Object.entries(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails || {}).map(([key, value]) => (
-                          value && (
+                          value && key !== 'instructions' && (
                             <div key={key} className="space-y-1">
                               <div className="text-white/70">
                                 {key.replace(/([A-Z])/g, ' $1')
