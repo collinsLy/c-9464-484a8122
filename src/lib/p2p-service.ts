@@ -1040,9 +1040,23 @@ class P2PService {
         throw new Error("Order not found");
       }
       
+      // Get the order data
+      const orderData = orderSnapshot.docs[0].data();
+      
       // Add the chat message
       await addDoc(collection(db, this.CHAT_MESSAGES_COLLECTION), {
-        orderId,
+        orderId: orderId,
+        sender: sender,
+        text: text,
+        timestamp: timestamp.toISOString(),
+        read: false,
+        // Store both buyer and seller IDs to notify the other party
+        buyerId: orderData.buyer || '',
+        sellerId: orderData.seller || ''
+      });
+      
+      // Return success
+      return true;rId,
         sender,
         text,
         timestamp: timestamp.toISOString(),
