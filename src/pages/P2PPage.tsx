@@ -20,6 +20,7 @@ import p2pService, { P2POffer, P2POrder } from "@/lib/p2p-service";
 import { auth } from "@/lib/firebase";
 import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { NotificationService } from "@/lib/notification-service";
 import { PaymentDetails, formatPaymentDetails } from '@/components/p2p/P2PHelpers';
 
 const P2PPage = () => {
@@ -426,8 +427,7 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
         if (newOrders.length > currentOrderCount) {
           setUserOrders(newOrders);
           // Play notification sound for new orders
-          const audio = new Audio('/sounds/alert.mp3');
-          audio.play().catch(e => console.error("Error playing sound:", e));
+          NotificationService.playSound('alert');
 
           toast.success("New order received", {
             description: "You have a new P2P trading order"

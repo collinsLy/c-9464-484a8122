@@ -1,11 +1,12 @@
-
 import { toast } from "@/components/ui/use-toast";
 
 // Types for notifications
 export interface NotificationOptions {
   showToast?: boolean;
   playSound?: boolean;
-  soundType?: 'transfer' | 'deposit' | 'success' | 'warning' | 'error' | 'payment_success';
+  soundType?: 'transfer' | 'deposit' | 'success' | 'warning' | 'error' | 'payment_success' | 'alert' | 'notification' | 'withdraw';
+  body?: string;
+  icon?: string;
 }
 
 // Sound effects
@@ -16,6 +17,9 @@ const SOUND_EFFECTS = {
   warning: new Audio('/sounds/warning.mp3'),
   error: new Audio('/sounds/error.mp3'),
   payment_success: new Audio('/sounds/payment_success.mp3'),
+  alert: new Audio('/sounds/alert.mp3'),
+  notification: new Audio('/sounds/alert.mp3'),
+  withdraw: new Audio('/sounds/warning.mp3'),
 };
 
 // Preload sounds
@@ -43,13 +47,13 @@ export class NotificationService {
     const permission = await Notification.requestPermission();
     return permission === 'granted';
   }
-  
+
   // Send a withdrawal notification
   static async sendWithdrawalNotification(userId: string, transaction: any): Promise<void> {
     try {
       // Play payment success sound
       this.playSound('payment_success');
-      
+
       // Show toast notification
       toast({
         title: "Withdrawal Processing",
@@ -57,12 +61,12 @@ export class NotificationService {
         variant: "success",
         className: "notification-toast",
       });
-      
+
       // Show browser notification if permission granted
       if (Notification.permission === 'granted') {
         const cryptoAmount = transaction.cryptoAmount || null;
         const cryptoType = transaction.crypto || null;
-        
+
         if (cryptoAmount && cryptoType) {
           new Notification('Withdrawal Processing', {
             body: `Your withdrawal of ${cryptoAmount} ${cryptoType} is being processed`,
@@ -139,12 +143,12 @@ export class NotificationService {
       audio.volume = normalizedVolume;
     });
   }
-  
+
   // Test all sound effects (for development)
   static testSounds(): void {
     console.log('Testing notification sounds...');
     const soundTypes: (keyof typeof SOUND_EFFECTS)[] = ['transfer', 'deposit', 'success', 'warning', 'error'];
-    
+
     let index = 0;
     const playNext = () => {
       if (index < soundTypes.length) {
@@ -155,37 +159,8 @@ export class NotificationService {
         setTimeout(playNext, 1500); // Play each sound with 1.5 second delay
       }
     };
-    
+
     playNext();
-  }
-}
-/**
- * Notification Service for handling sounds and alerts
- */
-
-// Map of available sound effects
-const SOUND_EFFECTS = {
-  success: '/sounds/success.mp3',
-  error: '/sounds/error.mp3',
-  alert: '/sounds/alert.mp3',
-  deposit: '/sounds/deposit.mp3',
-  withdraw: '/sounds/warning.mp3',
-  transfer: '/sounds/transfer.mp3',
-  payment_success: '/sounds/payment_success.mp3',
-  notification: '/sounds/alert.mp3',
-};
-
-export class NotificationService {
-  // Play a sound effect
-  static async playSound(soundName: keyof typeof SOUND_EFFECTS, volume = 0.3): Promise<void> {
-    try {
-      const soundPath = SOUND_EFFECTS[soundName] || SOUND_EFFECTS.alert;
-      const audio = new Audio(soundPath);
-      audio.volume = volume;
-      await audio.play().catch(e => console.error("Browser audio API error:", e));
-    } catch (error) {
-      console.error(`Error playing ${soundName} sound:`, error);
-    }
   }
 
   // Show desktop notification if supported
