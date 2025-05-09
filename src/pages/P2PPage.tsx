@@ -1371,7 +1371,7 @@ const P2PPage = () => {
         </Card>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="bg-background/95 backdrop-blur-xl border-white/10 text-white">
+          <DialogContent className="bg-background/95 backdrop-blur-xl border-white/10 text-white max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {activeTab === "buy" ? "Buy" : "Sell"} {selectedOffer?.crypto}
@@ -1382,27 +1382,27 @@ const P2PPage = () => {
             </DialogHeader>
 
             <div className="space-y-4">
-                <div className="bg-background/40 p-4 rounded-md">
-                  <div className="flex justify-between mb-2">
-                    <span className="text-white/70">Price</span>
-                    <span className="font-medium">{selectedOffer?.price.toLocaleString()} {selectedOffer?.fiatCurrency}</span>
+                <div className="bg-background/40 p-3 rounded-md">
+                  <div className="flex justify-between mb-1">
+                    <span className="text-white/70 text-sm">Price</span>
+                    <span className="font-medium text-sm">{selectedOffer?.price.toLocaleString()} {selectedOffer?.fiatCurrency}</span>
                   </div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-white/70">Payment Method</span>
-                    <span className="font-medium">{selectedOffer?.paymentMethods.join(', ')}</span>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-white/70 text-sm">Payment Method</span>
+                    <span className="font-medium text-sm">{selectedOffer?.paymentMethods.join(', ')}</span>
                   </div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-white/70">Available</span>
-                    <span className="font-medium">{selectedOffer?.availableAmount.toFixed(6)} {selectedOffer?.crypto}</span>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-white/70 text-sm">Available</span>
+                    <span className="font-medium text-sm">{selectedOffer?.availableAmount.toFixed(6)} {selectedOffer?.crypto}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/70">Limit</span>
-                    <span className="font-medium">{selectedOffer?.limits.min.toLocaleString()} - {selectedOffer?.limits.max.toLocaleString()} {selectedOffer?.fiatCurrency}</span>
+                    <span className="text-white/70 text-sm">Limit</span>
+                    <span className="font-medium text-sm">{selectedOffer?.limits.min.toLocaleString()} - {selectedOffer?.limits.max.toLocaleString()} {selectedOffer?.fiatCurrency}</span>
                   </div>
                 </div>
 
-                <div className="bg-background/40 p-4 rounded-md">
-                  <h4 className="text-sm font-medium mb-2">Advertiser's Terms</h4>
+                <div className="bg-background/40 p-3 rounded-md">
+                  <h4 className="text-sm font-medium mb-1">Advertiser's Terms</h4>
                   <div className="text-xs text-white/80">
                     {selectedOffer?.advertisersTerms || (
                       <>
@@ -1416,9 +1416,9 @@ const P2PPage = () => {
                   </div>
                 </div>
 
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label className="text-white">
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <Label className="text-white text-sm">
                     I want to pay ({selectedOffer?.fiatCurrency})
                   </Label>
                   <Input 
@@ -1433,43 +1433,38 @@ const P2PPage = () => {
                   />
                 </div>
 
-                <div className="p-3 rounded-md bg-accent/20 flex justify-between items-center">
-                  <span className="text-white/70">You will receive</span>
-                  <span className="font-medium">
+                <div className="p-2 rounded-md bg-accent/20 flex justify-between items-center">
+                  <span className="text-white/70 text-sm">You will receive</span>
+                  <span className="font-medium text-sm">
                     {buyTotal.toFixed(8)} {selectedOffer?.crypto}
                   </span>
                 </div>
 
-                <div className="space-y-2 bg-background/40 p-4 rounded-md">
-                  <h4 className="font-medium mb-2">Terms and Conditions</h4>
-                  <p className="text-sm text-white/80">{selectedOffer?.terms}</p>
-                </div>
-
-                <div className="p-3 rounded-md bg-yellow-400/10 border border-yellow-400/20 flex items-start space-x-2">
-                  <AlertTriangle className="h-5 w-5 text-yellow-400 shrink-0 mt-0.5" />
-                  <p className="text-sm text-white/80">
-                    For your security, keep all communication and transactions within the platform. Never share your payment details outside the escrow system.
+                <div className="p-2 rounded-md bg-yellow-400/10 border border-yellow-400/20 flex items-start space-x-2">
+                  <AlertTriangle className="h-4 w-4 text-yellow-400 shrink-0 mt-0.5" />
+                  <p className="text-xs text-white/80">
+                    For your security, keep all communication and transactions within the platform.
                   </p>
                 </div>
               </div>
+            </div>
 
-              <div className="flex justify-between gap-4">
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1">
-                  Cancel
-                </Button>
-                <Button 
-                  className="bg-[#F2FF44] text-black hover:bg-[#E2EF34] flex-1"
-                  onClick={handleOrderSubmit}
-                  disabled={processingOrder || !buyAmount}
-                >
-                  {processingOrder ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Processing...
-                    </>
-                  ) : `Confirm ${activeTab === "buy" ? "Purchase" : "Sale"}`}
-                </Button>
-              </div>
+            <div className="flex justify-between gap-4 pt-4 mt-2 sticky bottom-0 bg-background/95">
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1">
+                Cancel
+              </Button>
+              <Button 
+                className="bg-[#F2FF44] text-black hover:bg-[#E2EF34] flex-1"
+                onClick={handleOrderSubmit}
+                disabled={processingOrder || !buyAmount}
+              >
+                {processingOrder ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Processing...
+                  </>
+                ) : `Confirm ${activeTab === "buy" ? "Purchase" : "Sale"}`}
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
