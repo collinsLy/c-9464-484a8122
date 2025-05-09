@@ -1,3 +1,6 @@
+` tags.
+
+```
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -460,6 +463,13 @@ const P2PPage = () => {
   // State for edit dialog visibility
   const [showEditDialog, setShowEditDialog] = useState(false);
 
+  // Assuming you have access to the current user's authentication state
+  const auth = {
+    currentUser: {
+      uid: 'user123' // Replace with the actual user ID
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-4">
@@ -659,7 +669,7 @@ const P2PPage = () => {
                                     {activeTab === "buy" ? "Buy" : "Sell"}
                                   </Button>
 
-                                  {offer.user.name === sellerName && (
+                                  {auth.currentUser && offer.userId === auth.currentUser.uid && (
                                     <Button 
                                       variant="outline" 
                                       onClick={() => openEditDialog(offer)}
@@ -817,12 +827,12 @@ const P2PPage = () => {
                                     {activeTab === "buy" ? "Buy" : "Sell"}
                                   </Button>
 
-                                  {offer.user.name === sellerName && (
+                                  {auth.currentUser && offer.userId === auth.currentUser.uid && (
                                     <Button 
                                       variant="outline" 
                                       onClick={() => openEditDialog(offer)}
                                     >
-                                      Edit
+                               Edit
                                     </Button>
                                   )}
                                 </div>

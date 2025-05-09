@@ -166,7 +166,7 @@ class P2PService {
       if (!auth.currentUser) {
         throw new Error("You must be logged in to create an offer. Please sign in and try again.");
       }
-      
+
       // Generate ID and add creation date
       const newOffer: P2POffer = {
         ...offer,
@@ -176,12 +176,12 @@ class P2PService {
 
       // Get current price for reference
       const currentPrice = this.cryptoPrices[offer.crypto] || 0;
-      
+
       console.log(`Creating offer: ${offer.user.name} wants to trade ${offer.crypto} at price ${offer.price}, current market price: ${currentPrice}`);
-      
+
       // Determine if it's a buy or sell offer
       const offerType = offer.price > currentPrice ? 'buy' : 'sell';
-      
+
       // Add to memory for immediate use
       if (offerType === 'buy') {
         this.buyOffers.push(newOffer);
@@ -196,7 +196,7 @@ class P2PService {
         createdAt: newOffer.createdAt.toISOString(), // Convert Date to string for Firestore
         userId: auth.currentUser.uid // Track who created the offer
       };
-      
+
       try {
         await addDoc(collection(db, this.OFFERS_COLLECTION), offerData);
         console.log(`Offer saved to Firebase: ${newOffer.id}`);
@@ -210,7 +210,7 @@ class P2PService {
         }
         throw error;
       }
-      
+
       return newOffer;
     } catch (error) {
       console.error("Error creating P2P offer:", error);
@@ -230,9 +230,9 @@ class P2PService {
         collection(db, this.OFFERS_COLLECTION), 
         where("type", "==", "buy")
       );
-      
+
       const snapshot = await getDocs(offersQuery);
-      
+
       // Convert Firestore documents to P2POffer objects
       const offers: P2POffer[] = snapshot.docs.map(doc => {
         const data = doc.data();
@@ -240,13 +240,14 @@ class P2PService {
           ...data,
           id: data.id || doc.id,
           createdAt: new Date(data.createdAt), // Convert string back to Date
-          user: data.user || { name: "Anonymous", avatar: "", rating: 0, completedTrades: 0 }
+          user: data.user || { name: "Anonymous", avatar: "", rating: 0, completedTrades: 0 },
+          userId: data.userId // Include the userId of who created the offer
         } as P2POffer;
       });
-      
+
       // Update the local cache
       this.buyOffers = offers;
-      
+
       return offers;
     } catch (error) {
       console.error("Error fetching buy offers:", error);
@@ -267,9 +268,9 @@ class P2PService {
         collection(db, this.OFFERS_COLLECTION), 
         where("type", "==", "sell")
       );
-      
+
       const snapshot = await getDocs(offersQuery);
-      
+
       // Convert Firestore documents to P2POffer objects
       const offers: P2POffer[] = snapshot.docs.map(doc => {
         const data = doc.data();
@@ -277,13 +278,14 @@ class P2PService {
           ...data,
           id: data.id || doc.id,
           createdAt: new Date(data.createdAt), // Convert string back to Date
-          user: data.user || { name: "Anonymous", avatar: "", rating: 0, completedTrades: 0 }
+          user: data.user || { name: "Anonymous", avatar: "", rating: 0, completedTrades: 0 },
+          userId: data.userId // Include the userId of who created the offer
         } as P2POffer;
       });
-      
+
       // Update the local cache
       this.sellOffers = offers;
-      
+
       return offers;
     } catch (error) {
       console.error("Error fetching sell offers:", error);
@@ -295,15 +297,15 @@ class P2PService {
   public async getUserOrders(): Promise<P2POrder[]> {
     try {
       const userId = auth.currentUser?.uid || 'anonymous';
-      
+
       // Query Firebase for user's orders
       const ordersQuery = query(
         collection(db, this.ORDERS_COLLECTION),
         where("userId", "==", userId)
       );
-      
+
       const snapshot = await getDocs(ordersQuery);
-      
+
       // Convert Firestore documents to P2POrder objects
       const orders: P2POrder[] = snapshot.docs.map(doc => {
         const data = doc.data();
@@ -313,10 +315,10 @@ class P2PService {
           createdAt: new Date(data.createdAt) // Convert string back to Date
         } as P2POrder;
       });
-      
+
       // Update local cache
       this.userOrders = orders;
-      
+
       return orders;
     } catch (error) {
       console.error("Error fetching user orders:", error);
@@ -371,23 +373,23 @@ class P2PService {
 
       // Add to user orders
       this.userOrders.push(newOrder);
-      
+
       // Save order to Firebase
       const orderData = {
         ...newOrder,
         createdAt: newOrder.createdAt.toISOString(),
         userId: auth.currentUser?.uid || 'anonymous'
       };
-      
+
       await addDoc(collection(db, this.ORDERS_COLLECTION), orderData);
-      
+
       // Update the offer's available amount in Firebase
       // First find the offer document
       const offersQuery = query(
         collection(db, this.OFFERS_COLLECTION),
         where("id", "==", offerId)
       );
-      
+
       const snapshot = await getDocs(offersQuery);
       if (!snapshot.empty) {
         const offerDoc = snapshot.docs[0];
@@ -395,7 +397,7 @@ class P2PService {
           availableAmount: offer.availableAmount
         });
       }
-      
+
       return newOrder;
     } catch (error) {
       console.error("Error placing P2P order:", error);
@@ -417,7 +419,7 @@ class P2PService {
       if (Date.now() - this.lastPriceUpdate > this.priceUpdateInterval) {
         await this.updateCryptoPrices();
       }
-      
+
       // First, get all offers of the requested type
       let offers: P2POffer[];
       if (type === 'buy') {
@@ -425,7 +427,7 @@ class P2PService {
       } else {
         offers = await this.getSellOffers();
       }
-      
+
       // Then apply filters in memory
       const filtered = offers.filter(offer => {
         if (filters.crypto && filters.crypto !== 'all' && offer.crypto !== filters.crypto) return false;
@@ -435,7 +437,7 @@ class P2PService {
         if (filters.searchQuery && !offer.user.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
         return true;
       });
-      
+
       return filtered;
     } catch (error) {
       console.error("Error filtering offers:", error);
@@ -450,46 +452,46 @@ class P2PService {
         collection(db, this.ORDERS_COLLECTION),
         where("id", "==", orderId)
       );
-      
+
       const snapshot = await getDocs(ordersQuery);
-      
+
       if (snapshot.empty) {
         return false;
       }
-      
+
       // Update the order status in Firebase
       const orderDoc = snapshot.docs[0];
       await updateDoc(doc(db, this.ORDERS_COLLECTION, orderDoc.id), {
         status: 'cancelled'
       });
-      
+
       // Update the order in local cache
       const orderIndex = this.userOrders.findIndex(o => o.id === orderId);
       if (orderIndex >= 0) {
         this.userOrders[orderIndex].status = 'cancelled';
       }
-      
+
       return true;
     } catch (error) {
       console.error("Error cancelling order:", error);
       return false;
     }
   }
-  
+
   public async getUserOffers(): Promise<P2POffer[]> {
     try {
       if (!auth.currentUser) {
         throw new Error("You must be logged in to view your offers");
       }
-      
+
       // Query Firebase for user's offers
       const offersQuery = query(
         collection(db, this.OFFERS_COLLECTION),
         where("userId", "==", auth.currentUser.uid)
       );
-      
+
       const snapshot = await getDocs(offersQuery);
-      
+
       // Convert Firestore documents to P2POffer objects
       const offers: P2POffer[] = snapshot.docs.map(doc => {
         const data = doc.data();
@@ -500,52 +502,52 @@ class P2PService {
           user: data.user || { name: "Anonymous", avatar: "", rating: 0, completedTrades: 0 }
         } as P2POffer;
       });
-      
+
       return offers;
     } catch (error) {
       console.error("Error fetching user offers:", error);
       return [];
     }
   }
-  
+
   public async updateP2POffer(offerId: string, updatedData: P2POffer): Promise<boolean> {
     try {
       if (!auth.currentUser) {
         throw new Error("You must be logged in to edit an offer");
       }
-      
+
       // Find the offer in Firebase
       const offersQuery = query(
         collection(db, this.OFFERS_COLLECTION),
         where("id", "==", offerId)
       );
-      
+
       const snapshot = await getDocs(offersQuery);
-      
+
       if (snapshot.empty) {
         throw new Error("Offer not found");
       }
-      
+
       // Check if user is the owner of the offer
       const offerDoc = snapshot.docs[0];
       const offerData = offerDoc.data();
-      
+
       if (offerData.userId !== auth.currentUser.uid) {
         throw new Error("You can only edit your own offers");
       }
-      
+
       // Convert Date object to string for Firestore
       const firestoreData = {
         ...updatedData,
         createdAt: updatedData.createdAt.toISOString()
       };
-      
+
       // Update the offer in Firebase
       await updateDoc(doc(db, this.OFFERS_COLLECTION, offerDoc.id), firestoreData);
-      
+
       // Update the offers in memory
       const offerType = offerData.type || 'buy';
-      
+
       if (offerType === 'buy') {
         const index = this.buyOffers.findIndex(o => o.id === offerId);
         if (index >= 0) {
@@ -557,49 +559,49 @@ class P2PService {
           this.sellOffers[index] = updatedData;
         }
       }
-      
+
       return true;
     } catch (error) {
       console.error("Error updating P2P offer:", error);
       throw error;
     }
   }
-  
+
   public async editP2POffer(offerId: string, updatedData: Partial<P2POffer>): Promise<boolean> {
     try {
       if (!auth.currentUser) {
         throw new Error("You must be logged in to edit an offer");
       }
-      
+
       // Find the offer in Firebase
       const offersQuery = query(
         collection(db, this.OFFERS_COLLECTION),
         where("id", "==", offerId)
       );
-      
+
       const snapshot = await getDocs(offersQuery);
-      
+
       if (snapshot.empty) {
         throw new Error("Offer not found");
       }
-      
+
       // Check if user is the owner of the offer
       const offerDoc = snapshot.docs[0];
       const offerData = offerDoc.data();
-      
+
       if (offerData.userId !== auth.currentUser.uid) {
         throw new Error("You can only edit your own offers");
       }
-      
+
       // Update the offer in Firebase
       await updateDoc(doc(db, this.OFFERS_COLLECTION, offerDoc.id), {
         ...updatedData,
         user: updatedData.user || offerData.user
       });
-      
+
       // Update the offers in memory
       const offerType = offerData.type || 'buy';
-      
+
       if (offerType === 'buy') {
         const index = this.buyOffers.findIndex(o => o.id === offerId);
         if (index >= 0) {
@@ -611,47 +613,47 @@ class P2PService {
           this.sellOffers[index] = { ...this.sellOffers[index], ...updatedData };
         }
       }
-      
+
       return true;
     } catch (error) {
       console.error("Error editing P2P offer:", error);
       throw error;
     }
   }
-  
+
   public async deleteP2POffer(offerId: string): Promise<boolean> {
     try {
       if (!auth.currentUser) {
         throw new Error("You must be logged in to delete an offer");
       }
-      
+
       // Find the offer in Firebase
       const offersQuery = query(
         collection(db, this.OFFERS_COLLECTION),
         where("id", "==", offerId)
       );
-      
+
       const snapshot = await getDocs(offersQuery);
-      
+
       if (snapshot.empty) {
         throw new Error("Offer not found");
       }
-      
+
       // Check if user is the owner of the offer
       const offerDoc = snapshot.docs[0];
       const offerData = offerDoc.data();
-      
+
       if (offerData.userId !== auth.currentUser.uid) {
         throw new Error("You can only delete your own offers");
       }
-      
+
       // Delete the offer from Firebase
       await deleteDoc(doc(db, this.OFFERS_COLLECTION, offerDoc.id));
-      
+
       // Remove from memory
       this.buyOffers = this.buyOffers.filter(o => o.id !== offerId);
       this.sellOffers = this.sellOffers.filter(o => o.id !== offerId);
-      
+
       return true;
     } catch (error) {
       console.error("Error deleting P2P offer:", error);
