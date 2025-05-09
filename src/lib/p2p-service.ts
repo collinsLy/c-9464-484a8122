@@ -416,14 +416,20 @@ class P2PService {
       // Calculate crypto amount
       const cryptoAmount = amount / offer.price;
 
-      if (cryptoAmount > offer.availableAmount) {
+      // Add a small tolerance (0.1%) to handle floating point precision issues
+      const tolerance = 1.001; // Allow 0.1% tolerance
+      if (cryptoAmount * tolerance > offer.availableAmount) {
         // Format the available amount to a fixed number of decimal places for better readability
         const formattedAvailable = offer.availableAmount.toFixed(6);
-        throw new Error(`Not enough crypto available. Maximum: ${formattedAvailable} ${offer.crypto}`);
+        
+        // Calculate max fiat amount user can input based on available crypto
+        const maxFiatAmount = (offer.availableAmount * offer.price).toFixed(2);
+        
+        throw new Error(`Not enough crypto available. Maximum: ${formattedAvailable} ${offer.crypto} (approximately ${maxFiatAmount} ${offer.fiatCurrency})`);
       }
       
-      // Add a safety buffer (0.1% less) to avoid rounding errors
-      const safeCryptoAmount = cryptoAmount * 0.999;
+      // Use a slightly smaller amount to avoid rounding errors
+      const safeCryptoAmount = Math.min(cryptoAmount * 0.999, offer.availableAmount);
 
       // Generate a random reference number for payment
       const referenceNumber = Math.floor(Math.random() * 10000000000000000000).toString().padStart(20, '0');
