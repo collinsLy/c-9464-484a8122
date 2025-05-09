@@ -34,6 +34,8 @@ const P2PPage = () => {
   const [buyOffers, setBuyOffers] = useState<P2POffer[]>([]);
   const [sellOffers, setSellOffers] = useState<P2POffer[]>([]);
   const [userOrders, setUserOrders] = useState<P2POrder[]>([]);
+  
+  // Ensure P2POrder type includes paymentMethod in p2p-service.ts if it doesn't already
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [processingOrder, setProcessingOrder] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -242,15 +244,38 @@ const P2PPage = () => {
 
     // Initialize chat if it doesn't exist
     if (!chatMessages[orderId]) {
+      const order = userOrders.find(o => o.id === orderId);
+      
+      // Create initial messages including payment instructions
+      const initialMessages = [
+        {
+          sender: 'System',
+          text: 'Chat started. Please be respectful and keep all transaction details within the platform.',
+          timestamp: new Date()
+        }
+      ];
+      
+      // Add payment instructions if it's a buy order
+      if (order && order.type === 'buy') {
+        initialMessages.push({
+          sender: order.seller,
+          text: `Please send ${order.amount} ${order.fiatCurrency} using the payment method shown in the details panel. After payment, click the "I've Paid" button.`,
+          timestamp: new Date(Date.now() + 1000)
+        });
+      }
+      
+      // Add release funds instruction if it's a sell order
+      if (order && order.type === 'sell') {
+        initialMessages.push({
+          sender: 'System',
+          text: `Wait for buyer to confirm payment. Once confirmed, verify the payment in your account and release the funds.`,
+          timestamp: new Date(Date.now() + 1000)
+        });
+      }
+
       setChatMessages({
         ...chatMessages,
-        [orderId]: [
-          {
-            sender: 'System',
-            text: 'Chat started. Please be respectful and keep all transaction details within the platform.',
-            timestamp: new Date()
-          }
-        ]
+        [orderId]: initialMessages
       });
     }
 
@@ -1231,55 +1256,208 @@ const P2PPage = () => {
               </DialogDescription>
             </DialogHeader>
 
-            <div className="h-[400px] flex flex-col">
-              <ScrollArea className="flex-1 pr-4 mb-4">
-                <div className="space-y-4 p-2">
-                  {selectedOrderForChat && chatMessages[selectedOrderForChat]?.map((msg, index) => (
-                    <div 
-                      key={index} 
-                      className={`flex ${msg.sender === 'You' ? 'justify-end' : 'justify-start'}`}
-                    >
+            <div className="flex gap-4">
+              <div className="h-[400px] flex flex-col flex-1">
+                <ScrollArea className="flex-1 pr-4 mb-4">
+                  <div className="space-y-4 p-2">
+                    {selectedOrderForChat && chatMessages[selectedOrderForChat]?.map((msg, index) => (
                       <div 
-                        className={`rounded-lg px-4 py-2 max-w-[80%] ${
-                          msg.sender === 'System' 
-                          ? 'bg-yellow-500/10 text-yellow-300 border border-yellow-500/20' 
-                          : msg.sender === 'You' 
-                            ? 'bg-[#F2FF44]/10 border border-[#F2FF44]/20' 
-                            : 'bg-background/40 border border-white/10'
-                        }`}
+                        key={index} 
+                        className={`flex ${msg.sender === 'You' ? 'justify-end' : 'justify-start'}`}
                       >
-                        <div className="text-xs text-white/50 mb-1">
-                          {msg.sender === 'You' ? 'You' : msg.sender} • {new Date(msg.timestamp).toLocaleTimeString()}
+                        <div 
+                          className={`rounded-lg px-4 py-2 max-w-[80%] ${
+                            msg.sender === 'System' 
+                            ? 'bg-yellow-500/10 text-yellow-300 border border-yellow-500/20' 
+                            : msg.sender === 'You' 
+                              ? 'bg-[#F2FF44]/10 border border-[#F2FF44]/20' 
+                              : 'bg-background/40 border border-white/10'
+                          }`}
+                        >
+                          <div className="text-xs text-white/50 mb-1">
+                            {msg.sender === 'You' ? 'You' : msg.sender} • {new Date(msg.timestamp).toLocaleTimeString()}
+                          </div>
+                          <div>{msg.text}</div>
                         </div>
-                        <div>{msg.text}</div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
+                    ))}
+                  </div>
+                </ScrollArea>
 
-              <div className="flex gap-2 mt-auto">
-                <Input 
-                  placeholder="Type your message..." 
-                  className="flex-1 bg-background/40 border-white/10 text-white placeholder:text-white/50"
-                  value={chatMessage}
-                  onChange={(e) => setChatMessage(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && sendChatMessage()}
-                />
-                <Button 
-                  onClick={sendChatMessage}
-                  className="bg-[#F2FF44] text-black hover:bg-[#E2EF34]"
-                >
-                  Send
-                </Button>
+                <div className="flex gap-2 mt-auto">
+                  <Input 
+                    placeholder="Type your message..." 
+                    className="flex-1 bg-background/40 border-white/10 text-white placeholder:text-white/50"
+                    value={chatMessage}
+                    onChange={(e) => setChatMessage(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && sendChatMessage()}
+                  />
+                  <Button 
+                    onClick={sendChatMessage}
+                    className="bg-[#F2FF44] text-black hover:bg-[#E2EF34]"
+                  >
+                    Send
+                  </Button>
+                </div>
               </div>
+
+              {/* Payment Details Panel */}
+              {selectedOrderForChat && (
+                <div className="w-[250px] bg-background/40 border border-white/10 rounded-md p-4 space-y-4">
+                  <h3 className="font-medium text-white border-b border-white/10 pb-2">Payment Details</h3>
+                  
+                  {(() => {
+                    const order = userOrders.find(o => o.id === selectedOrderForChat);
+                    if (!order) return <p className="text-sm text-white/70">No order details available</p>;
+                    
+                    const paymentMethod = order.paymentMethod || "bank-transfer";
+                    
+                    switch(paymentMethod) {
+                      case "bank-transfer":
+                        return (
+                          <div className="space-y-3">
+                            <div>
+                              <p className="text-xs text-white/50">Bank Name</p>
+                              <p className="text-sm font-medium">National Bank Ltd</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-white/50">Account Number</p>
+                              <p className="text-sm font-medium">0012345678901</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-white/50">Account Holder</p>
+                              <p className="text-sm font-medium">{order.seller}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-white/50">Reference</p>
+                              <p className="text-sm font-medium">{selectedOrderForChat?.substring(0, 8)}</p>
+                            </div>
+                          </div>
+                        );
+                      case "mpesa":
+                        return (
+                          <div className="space-y-3">
+                            <div>
+                              <p className="text-xs text-white/50">M-PESA Number</p>
+                              <p className="text-sm font-medium">+254712345678</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-white/50">Account Name</p>
+                              <p className="text-sm font-medium">{order.seller}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-white/50">Amount</p>
+                              <p className="text-sm font-medium">{order.amount} {order.fiatCurrency}</p>
+                            </div>
+                          </div>
+                        );
+                      case "paypal":
+                        return (
+                          <div className="space-y-3">
+                            <div>
+                              <p className="text-xs text-white/50">PayPal Email</p>
+                              <p className="text-sm font-medium">payment@example.com</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-white/50">Amount</p>
+                              <p className="text-sm font-medium">{order.amount} {order.fiatCurrency}</p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-white/50">Note</p>
+                              <p className="text-sm font-medium">Include order ID: {selectedOrderForChat?.substring(0, 8)}</p>
+                            </div>
+                          </div>
+                        );
+                      default:
+                        return (
+                          <div className="space-y-3">
+                            <p className="text-sm text-white/70">Contact the seller for detailed payment instructions.</p>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="w-full"
+                              onClick={() => {
+                                // Auto-send a message requesting payment details
+                                const newMessage = "Please provide the payment details for this transaction.";
+                                setChatMessage(newMessage);
+                                sendChatMessage();
+                              }}
+                            >
+                              Request Details
+                            </Button>
+                          </div>
+                        );
+                    }
+                  })()}
+
+                  <div className="mt-4 pt-2 border-t border-white/10">
+                    <h4 className="text-sm font-medium mb-2">Transaction Status</h4>
+                    <div className="flex items-center space-x-2">
+                      {(() => {
+                        const order = userOrders.find(o => o.id === selectedOrderForChat);
+                        const status = order?.status || "pending";
+                        
+                        switch(status) {
+                          case "completed":
+                            return <CheckCircle2 className="h-4 w-4 text-green-400" />;
+                          case "pending":
+                            return <Clock className="h-4 w-4 text-yellow-400" />;
+                          case "cancelled":
+                            return <AlertTriangle className="h-4 w-4 text-red-400" />;
+                          default:
+                            return <AlertTriangle className="h-4 w-4 text-yellow-400" />;
+                        }
+                      })()}
+                      <span className="text-sm">
+                        {(() => {
+                          const order = userOrders.find(o => o.id === selectedOrderForChat);
+                          return order?.status?.charAt(0).toUpperCase() + (order?.status?.slice(1) || "Pending");
+                        })()}
+                      </span>
+                    </div>
+
+                    {(() => {
+                      const order = userOrders.find(o => o.id === selectedOrderForChat);
+                      if (order?.status === "pending" && order?.type === "buy") {
+                        return (
+                          <Button 
+                            className="mt-3 w-full bg-green-500 hover:bg-green-600 text-white"
+                            size="sm"
+                            onClick={() => {
+                              toast.success("Payment confirmed! Waiting for seller to release funds.");
+                              // Update order status in a real app
+                            }}
+                          >
+                            I've Paid
+                          </Button>
+                        );
+                      }
+                      if (order?.status === "pending" && order?.type === "sell") {
+                        return (
+                          <Button 
+                            className="mt-3 w-full bg-green-500 hover:bg-green-600 text-white"
+                            size="sm"
+                            onClick={() => {
+                              toast.success("Funds released to buyer!");
+                              // Update order status in a real app
+                            }}
+                          >
+                            Release Funds
+                          </Button>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
+                </div>
+              )}
             </div>
           </DialogContent>
         </Dialog>
 
         {/* Edit Offer Dialog */}
         <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-          <DialogContent className="bg-background/95 backdrop-blur-xl border-white/10 text-white">
+          <DialogContent className="bg-background/95 backdrop-blur-xl border-white/10 text-white max-w-3xl">
             <DialogHeader>
               <DialogTitle>
                 Edit Advertisement
@@ -1290,11 +1468,11 @@ const P2PPage = () => {
             </DialogHeader>
 
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-white">Cryptocurrency</Label>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-white text-sm">Cryptocurrency</Label>
                   <Select value={adCrypto} onValueChange={setAdCrypto}>
-                    <SelectTrigger className="bg-background/40 border-white/10 text-white">
+                    <SelectTrigger className="bg-background/40 border-white/10 text-white h-9">
                       <SelectValue placeholder="Select crypto" />
                     </SelectTrigger>
                     <SelectContent>
@@ -1305,10 +1483,10 @@ const P2PPage = () => {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-white">Payment Currency</Label>
+                <div className="space-y-1">
+                  <Label className="text-white text-sm">Payment Currency</Label>
                   <Select value={adFiat} onValueChange={setAdFiat}>
-                    <SelectTrigger className="bg-background/40 border-white/10 text-white">
+                    <SelectTrigger className="bg-background/40 border-white/10 text-white h-9">
                       <SelectValue placeholder="Select fiat" />
                     </SelectTrigger>
                     <SelectContent>
@@ -1319,11 +1497,11 @@ const P2PPage = () => {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-white">Payment Method</Label>
+                <div className="space-y-1">
+                  <Label className="text-white text-sm">Payment Method</Label>
                   <Select value={adPayment} onValueChange={setAdPayment}>
-                    <SelectTrigger className="bg-background/40 border-white/10 text-white">
-                      <SelectValue placeholder="Select payment method" />
+                    <SelectTrigger className="bg-background/40 border-white/10 text-white h-9">
+                      <SelectValue placeholder="Select payment" />
                     </SelectTrigger>
                     <SelectContent>
                       {paymentMethods.filter(m => m.id !== "all").map(method => (
@@ -1333,53 +1511,73 @@ const P2PPage = () => {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-white">Price ({adFiat})</Label>
+                <div className="space-y-1">
+                  <Label className="text-white text-sm">Price ({adFiat})</Label>
                   <Input 
                     type="number" 
                     placeholder="Enter price" 
-                    className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
+                    className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
                     value={adPrice}
                     onChange={(e) => setAdPrice(e.target.value)}
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-white">Available Amount</Label>
+                <div className="space-y-1">
+                  <Label className="text-white text-sm">Available Amount</Label>
                   <Input 
                     type="number" 
                     placeholder="Enter amount" 
-                    className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
+                    className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
                     value={adAmount}
                     onChange={(e) => setAdAmount(e.target.value)}
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-white">Minimum Limit</Label>
+                <div className="space-y-1">
+                  <Label className="text-white text-sm">Minimum Limit</Label>
                   <Input 
                     type="number" 
-                    placeholder="Enter minimum amount" 
-                    className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
+                    placeholder="Min amount" 
+                    className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
                     value={adMinLimit}
                     onChange={(e) => setAdMinLimit(e.target.value)}
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-white">Maximum Limit</Label>
+                <div className="space-y-1">
+                  <Label className="text-white text-sm">Maximum Limit</Label>
                   <Input 
                     type="number" 
-                    placeholder="Enter maximum amount" 
-                    className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
+                    placeholder="Max amount" 
+                    className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
                     value={adMaxLimit}
                     onChange={(e) => setAdMaxLimit(e.target.value)}
                   />
                 </div>
+
+                <div className="space-y-1">
+                  <Label className="text-white text-sm">Display Name</Label>
+                  <Input 
+                    placeholder="Your display name"
+                    className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
+                    value={sellerName}
+                    onChange={(e) => setSellerName(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <Label className="text-white text-sm">Avatar URL</Label>
+                  <Input 
+                    placeholder="URL to avatar"
+                    className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
+                    value={sellerAvatar}
+                    onChange={(e) => setSellerAvatar(e.target.value)}
+                  />
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-white">Terms and Conditions</Label>
+              <div className="space-y-1">
+                <Label className="text-white text-sm">Terms and Conditions</Label>
                 <Input 
                   placeholder="Add your terms and instructions for the buyer/seller" 
                   className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
@@ -1387,29 +1585,9 @@ const P2PPage = () => {
                   onChange={(e) => setAdTerms(e.target.value)}
                 />
               </div>
-
-              <div className="space-y-2">
-                <Label className="text-white">Display Name</Label>
-                <Input 
-                  placeholder="Your display name"
-                  className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
-                  value={sellerName}
-                  onChange={(e) => setSellerName(e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-white">Avatar URL (Optional)</Label>
-                <Input 
-                  placeholder="URL to your avatar image"
-                  className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
-                  value={sellerAvatar}
-                  onChange={(e) => setSellerAvatar(e.target.value)}
-                />
-              </div>
             </div>
 
-            <div className="flex justify-between gap-4 mt-4">
+            <div className="flex justify-between gap-4 mt-2">
               <Button 
                 variant="outline" 
                 onClick={() => {
