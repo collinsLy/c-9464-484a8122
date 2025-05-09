@@ -168,6 +168,12 @@ const P2PPage = () => {
     }
   };
 
+  // Chat messages state for P2P orders
+  const [chatMessages, setChatMessages] = useState<{[orderId: string]: {sender: string, text: string, timestamp: Date}[]}>({});
+  const [chatMessage, setChatMessage] = useState("");
+  const [selectedOrderForChat, setSelectedOrderForChat] = useState<string | null>(null);
+  const [showChatDialog, setShowChatDialog] = useState(false);
+  
   const handleOrderSubmit = async () => {
     if (!selectedOffer) return;
     
@@ -206,6 +212,53 @@ const P2PPage = () => {
     } finally {
       setProcessingOrder(false);
     }
+  };
+  
+  const openChat = (orderId: string) => {
+    setSelectedOrderForChat(orderId);
+    
+    // Initialize chat if it doesn't exist
+    if (!chatMessages[orderId]) {
+      setChatMessages({
+        ...chatMessages,
+        [orderId]: [
+          {
+            sender: 'System',
+            text: 'Chat started. Please be respectful and keep all transaction details within the platform.',
+            timestamp: new Date()
+          }
+        ]
+      });
+    }
+    
+    setShowChatDialog(true);
+  };
+  
+  const sendChatMessage = () => {
+    if (!chatMessage.trim() || !selectedOrderForChat) return;
+    
+    const newMessages = {
+      ...chatMessages,
+      [selectedOrderForChat]: [
+        ...(chatMessages[selectedOrderForChat] || []),
+        {
+          sender: 'You',
+          text: chatMessage,
+          timestamp: new Date()
+        },
+        // Simulate response from the other party
+        {
+          sender: userOrders.find(o => o.id === selectedOrderForChat)?.seller === 'You' 
+            ? userOrders.find(o => o.id === selectedOrderForChat)?.buyer || 'Counterparty' 
+            : userOrders.find(o => o.id === selectedOrderForChat)?.seller || 'Counterparty',
+          text: 'I\'ve received your message. Let me check and get back to you shortly.',
+          timestamp: new Date(Date.now() + 30000) // 30 seconds later
+        }
+      ]
+    };
+    
+    setChatMessages(newMessages);
+    setChatMessage('');
   };
 
   const handlePostAd = async () => {
@@ -722,6 +775,14 @@ const P2PPage = () => {
                                     Cancel
                                   </Button>
                                 )}
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => openChat(order.id)}
+                                >
+                                  <MessageCircle className="h-4 w-4 mr-1" />
+                                  Chat
+                                </Button>
                                 <Button variant="outline" size="sm">
                                   Details
                                 </Button>
@@ -758,9 +819,9 @@ const P2PPage = () => {
                     <div className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label>I want to</Label>
+                          <Label className="text-white">I want to</Label>
                           <Select value={adType} onValueChange={setAdType}>
-                            <SelectTrigger className="bg-background/40 border-white/10">
+                            <SelectTrigger className="bg-background/40 border-white/10 text-white">
                               <SelectValue placeholder="Select type" />
                             </SelectTrigger>
                             <SelectContent>
@@ -771,9 +832,9 @@ const P2PPage = () => {
                         </div>
                         
                         <div className="space-y-2">
-                          <Label>Cryptocurrency</Label>
+                          <Label className="text-white">Cryptocurrency</Label>
                           <Select value={adCrypto} onValueChange={setAdCrypto}>
-                            <SelectTrigger className="bg-background/40 border-white/10">
+                            <SelectTrigger className="bg-background/40 border-white/10 text-white">
                               <SelectValue placeholder="Select crypto" />
                             </SelectTrigger>
                             <SelectContent>
@@ -785,9 +846,9 @@ const P2PPage = () => {
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Payment Currency</Label>
+                          <Label className="text-white">Payment Currency</Label>
                           <Select value={adFiat} onValueChange={setAdFiat}>
-                            <SelectTrigger className="bg-background/40 border-white/10">
+                            <SelectTrigger className="bg-background/40 border-white/10 text-white">
                               <SelectValue placeholder="Select fiat" />
                             </SelectTrigger>
                             <SelectContent>
@@ -799,9 +860,9 @@ const P2PPage = () => {
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Payment Method</Label>
+                          <Label className="text-white">Payment Method</Label>
                           <Select value={adPayment} onValueChange={setAdPayment}>
-                            <SelectTrigger className="bg-background/40 border-white/10">
+                            <SelectTrigger className="bg-background/40 border-white/10 text-white">
                               <SelectValue placeholder="Select payment method" />
                             </SelectTrigger>
                             <SelectContent>
@@ -813,9 +874,9 @@ const P2PPage = () => {
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Price Type</Label>
+                          <Label className="text-white">Price Type</Label>
                           <Select value={adPriceType} onValueChange={setAdPriceType}>
-                            <SelectTrigger className="bg-background/40 border-white/10">
+                            <SelectTrigger className="bg-background/40 border-white/10 text-white">
                               <SelectValue placeholder="Select price type" />
                             </SelectTrigger>
                             <SelectContent>
@@ -826,55 +887,55 @@ const P2PPage = () => {
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Price ({adFiat})</Label>
+                          <Label className="text-white">Price ({adFiat})</Label>
                           <Input 
                             type="number" 
                             placeholder="Enter price" 
-                            className="bg-background/40 border-white/10"
+                            className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
                             value={adPrice}
                             onChange={(e) => setAdPrice(e.target.value)}
                           />
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Available Amount</Label>
+                          <Label className="text-white">Available Amount</Label>
                           <Input 
                             type="number" 
                             placeholder="Enter amount" 
-                            className="bg-background/40 border-white/10"
+                            className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
                             value={adAmount}
                             onChange={(e) => setAdAmount(e.target.value)}
                           />
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Payment Window (minutes)</Label>
+                          <Label className="text-white">Payment Window (minutes)</Label>
                           <Input 
                             type="number" 
                             placeholder="15" 
-                            className="bg-background/40 border-white/10"
+                            className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
                             value={adWindow}
                             onChange={(e) => setAdWindow(e.target.value)}
                           />
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Minimum Limit</Label>
+                          <Label className="text-white">Minimum Limit</Label>
                           <Input 
                             type="number" 
                             placeholder="Enter minimum amount" 
-                            className="bg-background/40 border-white/10"
+                            className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
                             value={adMinLimit}
                             onChange={(e) => setAdMinLimit(e.target.value)}
                           />
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Maximum Limit</Label>
+                          <Label className="text-white">Maximum Limit</Label>
                           <Input 
                             type="number" 
                             placeholder="Enter maximum amount" 
-                            className="bg-background/40 border-white/10"
+                            className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
                             value={adMaxLimit}
                             onChange={(e) => setAdMaxLimit(e.target.value)}
                           />
@@ -882,10 +943,10 @@ const P2PPage = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Terms and Conditions</Label>
+                        <Label className="text-white">Terms and Conditions</Label>
                         <Input 
                           placeholder="Add your terms and instructions for the buyer/seller" 
-                          className="bg-background/40 border-white/10"
+                          className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
                           value={adTerms}
                           onChange={(e) => setAdTerms(e.target.value)}
                         />
@@ -957,13 +1018,13 @@ const P2PPage = () => {
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label>
+                  <Label className="text-white">
                     I want to pay ({selectedOffer?.fiatCurrency})
                   </Label>
                   <Input 
                     type="number" 
                     placeholder={`${selectedOffer?.limits.min.toLocaleString()} - ${selectedOffer?.limits.max.toLocaleString()}`} 
-                    className="bg-background/40 border-white/10"
+                    className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
                     value={buyAmount}
                     onChange={(e) => {
                       setBuyAmount(e.target.value);
@@ -1007,6 +1068,67 @@ const P2PPage = () => {
                       Processing...
                     </>
                   ) : `Confirm ${activeTab === "buy" ? "Purchase" : "Sale"}`}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+        
+        {/* Chat Dialog */}
+        <Dialog open={showChatDialog} onOpenChange={setShowChatDialog}>
+          <DialogContent className="bg-background/95 backdrop-blur-xl border-white/10 text-white max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center">
+                <MessageCircle className="mr-2 h-5 w-5" />
+                Trade Chat
+              </DialogTitle>
+              <DialogDescription className="text-white/70">
+                {selectedOrderForChat && (
+                  <>Order ID: {selectedOrderForChat.substring(0, 8)}...</>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="h-[400px] flex flex-col">
+              <ScrollArea className="flex-1 pr-4 mb-4">
+                <div className="space-y-4 p-2">
+                  {selectedOrderForChat && chatMessages[selectedOrderForChat]?.map((msg, index) => (
+                    <div 
+                      key={index} 
+                      className={`flex ${msg.sender === 'You' ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div 
+                        className={`rounded-lg px-4 py-2 max-w-[80%] ${
+                          msg.sender === 'System' 
+                          ? 'bg-yellow-500/10 text-yellow-300 border border-yellow-500/20' 
+                          : msg.sender === 'You' 
+                            ? 'bg-[#F2FF44]/10 border border-[#F2FF44]/20' 
+                            : 'bg-background/40 border border-white/10'
+                        }`}
+                      >
+                        <div className="text-xs text-white/50 mb-1">
+                          {msg.sender === 'You' ? 'You' : msg.sender} • {new Date(msg.timestamp).toLocaleTimeString()}
+                        </div>
+                        <div>{msg.text}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+              
+              <div className="flex gap-2 mt-auto">
+                <Input 
+                  placeholder="Type your message..." 
+                  className="flex-1 bg-background/40 border-white/10 text-white placeholder:text-white/50"
+                  value={chatMessage}
+                  onChange={(e) => setChatMessage(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && sendChatMessage()}
+                />
+                <Button 
+                  onClick={sendChatMessage}
+                  className="bg-[#F2FF44] text-black hover:bg-[#E2EF34]"
+                >
+                  Send
                 </Button>
               </div>
             </div>
