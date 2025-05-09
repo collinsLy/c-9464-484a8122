@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -1052,7 +1053,7 @@ const P2PPage = () => {
                                       variant="outline" 
                                       onClick={() => openEditDialog(offer)}
                                     >
-                               Edit
+                                      Edit
                                     </Button>
                                   )}
                                 </div>
@@ -1533,3 +1534,185 @@ const P2PPage = () => {
               {selectedOrderForChat && (
                 <div className="w-[250px] bg-background/40 border border-white/10 rounded-md p-4 space-y-4">
                   <h3 className="font-medium text-white border-b border-white/10 pb-2">Payment Details</h3>
+                  {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails ? (
+                    <div className="space-y-3 text-sm">
+                      {Object.entries(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails || {}).map(([key, value]) => (
+                        <div key={key} className="space-y-1">
+                          <div className="text-white/70">
+                            {key.replace(/([A-Z])/g, ' $1')
+                              .replace(/^./, str => str.toUpperCase())
+                              .replace(/([a-z])([A-Z])/g, '$1 $2')}
+                          </div>
+                          <div className="font-medium break-words">{value as string}</div>
+                        </div>
+                      ))}
+                      <div className="p-2 mt-4 bg-background/60 rounded-md">
+                        <div className="text-xs text-white/70 mb-1">Copy these details exactly as shown.</div>
+                        <div className="text-xs text-white/70">Always verify the payment has been received before releasing crypto.</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-white/70">
+                      No payment details available for this order. Please ask the seller to provide payment information in the chat.
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Dialog */}
+        <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+          <DialogContent className="bg-background/95 backdrop-blur-xl border-white/10 text-white max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Advertisement</DialogTitle>
+              <DialogDescription className="text-white/70">
+                Update your {editingOffer?.type === 'buy' ? 'buy' : 'sell'} offer for {editingOffer?.crypto}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-white">Cryptocurrency</Label>
+                  <Select value={adCrypto} onValueChange={setAdCrypto}>
+                    <SelectTrigger className="bg-background/40 border-white/10 text-white">
+                      <SelectValue placeholder="Select crypto" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cryptos.map(crypto => (
+                        <SelectItem key={crypto} value={crypto}>{crypto}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-white">Payment Currency</Label>
+                  <Select value={adFiat} onValueChange={setAdFiat}>
+                    <SelectTrigger className="bg-background/40 border-white/10 text-white">
+                      <SelectValue placeholder="Select fiat" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {fiats.map(fiat => (
+                        <SelectItem key={fiat} value={fiat}>{fiat}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-white">Payment Method</Label>
+                  <Select value={adPayment} onValueChange={setAdPayment}>
+                    <SelectTrigger className="bg-background/40 border-white/10 text-white">
+                      <SelectValue placeholder="Select payment method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {paymentMethods.filter(m => m.id !== "all").map(method => (
+                        <SelectItem key={method.id} value={method.id}>{method.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-white">Price ({adFiat})</Label>
+                  <Input 
+                    type="number" 
+                    placeholder="Enter price" 
+                    className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
+                    value={adPrice}
+                    onChange={(e) => setAdPrice(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-white">Available Amount</Label>
+                  <Input 
+                    type="number" 
+                    placeholder="Enter amount" 
+                    className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
+                    value={adAmount}
+                    onChange={(e) => setAdAmount(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-white">Payment Window (minutes)</Label>
+                  <Input 
+                    type="number" 
+                    placeholder="15" 
+                    className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
+                    value={adWindow}
+                    onChange={(e) => setAdWindow(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-white">Minimum Limit</Label>
+                  <Input 
+                    type="number" 
+                    placeholder="Enter minimum amount" 
+                    className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
+                    value={adMinLimit}
+                    onChange={(e) => setAdMinLimit(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-white">Maximum Limit</Label>
+                  <Input 
+                    type="number" 
+                    placeholder="Enter maximum amount" 
+                    className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
+                    value={adMaxLimit}
+                    onChange={(e) => setAdMaxLimit(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-white">Terms and Conditions</Label>
+                <Input 
+                  placeholder="Add your terms and instructions for the buyer/seller" 
+                  className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
+                  value={adTerms}
+                  onChange={(e) => setAdTerms(e.target.value)}
+                />
+              </div>
+
+              {/* Payment Details Section - Only show for sell orders */}
+              {editingOffer?.type === "sell" && (
+                <div className="space-y-2 mt-4">
+                  <div className="flex items-center gap-2">
+                    <CreditCard className="h-5 w-5 text-white/70" />
+                    <Label className="text-white text-lg">Payment Details</Label>
+                  </div>
+                  <p className="text-sm text-white/70 mb-3">
+                    Update your payment details for this {adPayment.replace('-', ' ')}. This information will be shown to buyers when they place an order.
+                  </p>
+                  {renderPaymentDetailsFields()}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-4 pt-4 mt-2">
+              <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+                Cancel
+              </Button>
+              <Button 
+                className="bg-[#F2FF44] text-black hover:bg-[#E2EF34]"
+                onClick={handleEditOffer}
+              >
+                Update Advertisement
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </DashboardLayout>
+  );
+};
+
+export default P2PPage;
