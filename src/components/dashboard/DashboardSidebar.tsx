@@ -72,6 +72,7 @@ const defaultNavCategories: NavCategory[] = [
       { icon: TrendingUp, label: "Margin Trading", id: "margin-trading", path: "/margin-trading" },
       { icon: BrainCircuit, label: "Strategy Trading", id: "strategy-trading", path: "/strategy-trading" },
       { icon: Users, label: "P2P", id: "p2p", path: "/p2p" },
+      { icon: PlayCircle, label: "Trading Bots", id: "bots", path: "/bots" },
     ]
   },
   {
