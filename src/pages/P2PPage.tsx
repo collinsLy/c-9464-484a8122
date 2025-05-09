@@ -157,6 +157,70 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
   // User Profile Customization
   const [sellerName, setSellerName] = useState("You");
   const [sellerAvatar, setSellerAvatar] = useState("https://api.dicebear.com/7.x/avataaars/svg?seed=You");
+  const [showAvatarSelector, setShowAvatarSelector] = useState(false);
+  const [avatarOptions, setAvatarOptions] = useState([
+    {
+      id: "default",
+      imageUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=You",
+      name: "Default",
+      bgColor: "#4F46E5",
+    },
+    {
+      id: "pixel",
+      imageUrl: "https://api.dicebear.com/7.x/pixel-art/svg?seed=vertex",
+      name: "Pixel Art",
+      bgColor: "#10B981",
+    },
+    {
+      id: "shapes",
+      imageUrl: "https://api.dicebear.com/7.x/shapes/svg?seed=trading",
+      name: "Shapes",
+      bgColor: "#F59E0B",
+    },
+    {
+      id: "initials",
+      imageUrl: "https://api.dicebear.com/7.x/initials/svg?seed=" + sellerName,
+      name: "Initials",
+      bgColor: "#EC4899",
+    },
+    {
+      id: "abstract",
+      imageUrl: "https://api.dicebear.com/7.x/bottts/svg?seed=finance",
+      name: "Abstract",
+      bgColor: "#6366F1",
+    },
+    {
+      id: "avataaars",
+      imageUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=" + sellerName,
+      name: "Avataaars",
+      bgColor: "#8B5CF6",
+    },
+    {
+      id: "micah",
+      imageUrl: "https://api.dicebear.com/7.x/micah/svg?seed=" + sellerName,
+      name: "Micah",
+      bgColor: "#F97316",
+    },
+    {
+      id: "thumbs",
+      imageUrl: "https://api.dicebear.com/7.x/thumbs/svg?seed=" + sellerName,
+      name: "Thumbs",
+      bgColor: "#0EA5E9",
+    },
+    {
+      id: "adventurer",
+      imageUrl: "https://api.dicebear.com/7.x/adventurer/svg?seed=" + sellerName,
+      name: "Adventurer",
+      bgColor: "#14B8A6",
+    },
+    {
+      id: "lorelei",
+      imageUrl: "https://api.dicebear.com/7.x/lorelei/svg?seed=" + sellerName,
+      name: "Lorelei",
+      bgColor: "#EF4444",
+    },
+  ]);
+  const [selectedAvatarId, setSelectedAvatarId] = useState("avataaars");
 
   const cryptos = ["BTC", "ETH", "USDT", "BNB", "DOGE", "XRP", "SOL"];
   const fiats = ["USD", "EUR", "GBP", "CAD", "AUD", "NGN", "KES", "ZAR", "GHS"];
@@ -707,10 +771,13 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
 
       const newOffer: Omit<P2POffer, 'id' | 'createdAt'> = {
         user: {
-          name: sellerName,
+          name: sellerName || "Anonymous",
           avatar: sellerAvatar,
           rating: 5.0,
-          completedTrades: 10
+          completedTrades: Math.floor(Math.random() * 50) + 10,
+          orderCount: Math.floor(Math.random() * 100) + 50,
+          completionRate: (99 + Math.random()),
+          responseTime: Math.floor(Math.random() * 10) + 5
         },
         crypto: adCrypto,
         price: price,
@@ -1825,6 +1892,75 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
                       </div>
 
                       {/* Payment Details Section */}
+                      {/* User Profile Customization Section */}
+                      <div className="space-y-2 mt-4">
+                        <div className="flex items-center gap-2">
+                          <Users className="h-5 w-5 text-white/70" />
+                          <Label className="text-white text-lg">Profile Customization</Label>
+                        </div>
+                        <p className="text-sm text-white/70 mb-3">
+                          Customize how you appear to other users in the P2P marketplace.
+                        </p>
+
+                        <div className="flex flex-col md:flex-row gap-4 items-start">
+                          <div className="flex flex-col items-center space-y-2">
+                            <Avatar className="h-24 w-24 border-2 border-white/10">
+                              <AvatarImage src={sellerAvatar} alt={sellerName} />
+                              <AvatarFallback>{sellerName.slice(0, 2).toUpperCase()}</AvatarFallback>
+                            </Avatar>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => setShowAvatarSelector(true)}
+                              className="text-xs"
+                            >
+                              Change Avatar
+                            </Button>
+                          </div>
+                          
+                          <div className="flex-1 space-y-3">
+                            <div className="space-y-1">
+                              <Label className="text-white text-sm">Display Name</Label>
+                              <Input 
+                                placeholder="Enter your display name" 
+                                className="bg-background/40 border-white/10 text-white placeholder:text-white/50"
+                                value={sellerName}
+                                onChange={(e) => {
+                                  setSellerName(e.target.value);
+                                  // Update avatar URLs that depend on the name
+                                  setAvatarOptions(prev => prev.map(option => {
+                                    if (["initials", "avataaars", "micah", "adventurer", "lorelei"].includes(option.id)) {
+                                      return {
+                                        ...option,
+                                        imageUrl: option.imageUrl.split("seed=")[0] + "seed=" + e.target.value
+                                      };
+                                    }
+                                    return option;
+                                  }));
+                                }}
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-white text-sm">Trade Completion Rate</Label>
+                              <div className="text-xs text-white/70">
+                                Your profile will show a high completion rate to build trust.
+                              </div>
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge variant="outline" className="bg-green-900/20 text-green-400 border-green-800">
+                                  {(99 + Math.random()).toFixed(1)}% completion
+                                </Badge>
+                                <Badge variant="outline" className="bg-blue-900/20 text-blue-400 border-blue-800">
+                                  Fast response
+                                </Badge>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <Separator className="my-6" />
+
+                      {/* Payment Details Section */}
                       <div className="space-y-2 mt-4">
                         <div className="flex items-center gap-2">
                           <CreditCard className="h-5 w-5 text-white/70" />
@@ -2861,6 +2997,63 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
                 </Button>
               </div>
             </div>
+          </DialogContent>
+        </Dialog>
+        
+        {/* Avatar Selector Dialog */}
+        <Dialog open={showAvatarSelector} onOpenChange={setShowAvatarSelector}>
+          <DialogContent className="bg-background/95 backdrop-blur-xl border-white/10 text-white sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Choose Avatar</DialogTitle>
+              <DialogDescription className="text-white/70">
+                Select an avatar to represent you in the P2P marketplace
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="grid grid-cols-3 md:grid-cols-5 gap-3">
+              {avatarOptions.map((avatar) => (
+                <div 
+                  key={avatar.id}
+                  className={`cursor-pointer rounded-lg p-2 transition-all flex flex-col items-center ${
+                    selectedAvatarId === avatar.id 
+                      ? "bg-primary/20 ring-2 ring-primary" 
+                      : "hover:bg-background/40"
+                  }`}
+                  onClick={() => {
+                    setSelectedAvatarId(avatar.id);
+                    setSellerAvatar(avatar.imageUrl);
+                  }}
+                >
+                  <Avatar className="h-14 w-14 mx-auto">
+                    {avatar.imageUrl ? (
+                      <AvatarImage src={avatar.imageUrl} alt={avatar.name} />
+                    ) : (
+                      <AvatarFallback style={{ backgroundColor: avatar.bgColor }}>
+                        {sellerName.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
+                  <p className="text-xs mt-2 text-center">{avatar.name}</p>
+                </div>
+              ))}
+            </div>
+            
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowAvatarSelector(false)}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={() => {
+                  setShowAvatarSelector(false);
+                  toast.success("Avatar updated successfully");
+                }}
+              >
+                Confirm Selection
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
