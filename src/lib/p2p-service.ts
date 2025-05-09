@@ -220,6 +220,9 @@ class P2PService {
       const currentPrice = this.cryptoPrices[offer.crypto] || 0;
 
       console.log(`Creating offer: ${offer.user.name} wants to trade ${offer.crypto} at price ${offer.price}, current market price: ${currentPrice}`);
+      
+      // Log payment details for debugging
+      console.log("Payment details being saved:", offer.paymentDetails);
 
       // Determine if it's a buy or sell offer
       const offerType = offer.price > currentPrice ? 'buy' : 'sell';
@@ -236,7 +239,9 @@ class P2PService {
         ...newOffer,
         type: offerType,
         createdAt: newOffer.createdAt.toISOString(), // Convert Date to string for Firestore
-        userId: auth.currentUser.uid // Track who created the offer
+        userId: auth.currentUser.uid, // Track who created the offer
+        // Ensure payment details are explicitly included
+        paymentDetails: newOffer.paymentDetails || {}
       };
 
       try {
@@ -406,6 +411,9 @@ class P2PService {
       const paymentWindow = 15;
       const paymentDeadline = new Date(Date.now() + (paymentWindow * 60 * 1000));
 
+      // Log payment details before creating order
+      console.log("Original offer payment details:", offer.paymentDetails);
+
       // Create new order
       const newOrder: P2POrder = {
         id: `order-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
@@ -423,15 +431,8 @@ class P2PService {
         paymentMethod: offer.paymentMethods[0],
         paymentWindow,
         paymentDeadline,
-        paymentDetails: type === 'buy' ? {
-          // If buying, include seller's payment details
-          ...(offer.paymentDetails || {}),
-          // Add some default payment details if not provided
-          bankName: offer.paymentDetails?.bankName || "Bank of Vertex",
-          accountNumber: offer.paymentDetails?.accountNumber || "123456789",
-          accountHolderName: offer.paymentDetails?.accountHolderName || offer.user.name,
-          mobileNumber: offer.paymentDetails?.mobileNumber || "+254712345678"
-        } : {}
+        // Use exactly the payment details from the offer
+        paymentDetails: type === 'buy' ? { ...offer.paymentDetails } : {}
       };
 
       // Update available amount in the offer
@@ -440,11 +441,16 @@ class P2PService {
       // Add to user orders
       this.userOrders.push(newOrder);
 
+      // Log order before saving to Firebase
+      console.log("Saving order with payment details:", newOrder.paymentDetails);
+
       // Save order to Firebase
       const orderData = {
         ...newOrder,
         createdAt: newOrder.createdAt.toISOString(),
-        userId: auth.currentUser?.uid || 'anonymous'
+        userId: auth.currentUser?.uid || 'anonymous',
+        // Ensure payment details are explicitly included
+        paymentDetails: newOrder.paymentDetails
       };
 
       await addDoc(collection(db, this.ORDERS_COLLECTION), orderData);
