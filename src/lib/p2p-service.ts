@@ -10,6 +10,9 @@ export interface P2POffer {
     avatar: string;
     rating: number;
     completedTrades: number;
+    orderCount?: number;
+    completionRate?: number;
+    responseTime?: number; // in minutes
   };
   crypto: string;
   price: number;
@@ -32,10 +35,12 @@ export interface P2POffer {
     [key: string]: any;
   };
   type?: 'buy' | 'sell'; // To track if it's a buy or sell offer
+  advertisersTerms?: string; // Additional terms specifically from advertiser
 }
 
 export interface P2POrder {
   id: string;
+  referenceNumber?: string; // Reference number for payment
   offerId: string;
   type: 'buy' | 'sell';
   status: 'pending' | 'completed' | 'cancelled' | 'disputed';
@@ -47,6 +52,8 @@ export interface P2POrder {
   seller: string;
   buyer: string;
   paymentMethod: string;
+  paymentWindow?: number; // Time in minutes to complete payment
+  paymentDeadline?: Date; // Calculated deadline for payment
 }
 
 // API endpoint for crypto prices
@@ -181,7 +188,13 @@ class P2PService {
       const newOffer: P2POffer = {
         ...offer,
         id: `offer-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-        createdAt: new Date()
+        createdAt: new Date(),
+        user: {
+          ...offer.user,
+          orderCount: offer.user.orderCount || Math.floor(Math.random() * 2000) + 100,
+          completionRate: offer.user.completionRate || (99 + Math.random()),
+          responseTime: offer.user.responseTime || 15
+        }
       };
 
       // Get current price for reference
@@ -362,9 +375,17 @@ class P2PService {
         throw new Error(`Not enough crypto available. Maximum: ${offer.availableAmount} ${offer.crypto}`);
       }
 
+      // Generate a random reference number for payment
+      const referenceNumber = Math.floor(Math.random() * 10000000000000000000).toString().padStart(20, '0');
+      
+      // Default payment window (15 min)
+      const paymentWindow = 15;
+      const paymentDeadline = new Date(Date.now() + (paymentWindow * 60 * 1000));
+
       // Create new order
       const newOrder: P2POrder = {
         id: `order-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        referenceNumber,
         offerId: offer.id,
         type,
         status: 'pending',
@@ -375,7 +396,9 @@ class P2PService {
         createdAt: new Date(),
         seller: type === 'buy' ? offer.user.name : 'You',
         buyer: type === 'buy' ? 'You' : offer.user.name,
-        paymentMethod: offer.paymentMethods[0]
+        paymentMethod: offer.paymentMethods[0],
+        paymentWindow,
+        paymentDeadline
       };
 
       // Update available amount in the offer

@@ -34,7 +34,7 @@ const P2PPage = () => {
   const [buyOffers, setBuyOffers] = useState<P2POffer[]>([]);
   const [sellOffers, setSellOffers] = useState<P2POffer[]>([]);
   const [userOrders, setUserOrders] = useState<P2POrder[]>([]);
-  
+
   // Ensure P2POrder type includes paymentMethod in p2p-service.ts if it doesn't already
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [processingOrder, setProcessingOrder] = useState(false);
@@ -55,7 +55,7 @@ const P2PPage = () => {
   const [adMaxLimit, setAdMaxLimit] = useState("");
   const [adTerms, setAdTerms] = useState("");
   const [postingAd, setPostingAd] = useState(false);
-  
+
   // Payment details for the ad
   const [paymentDetails, setPaymentDetails] = useState({
     bankName: "",
@@ -255,7 +255,7 @@ const P2PPage = () => {
     // Initialize chat if it doesn't exist
     if (!chatMessages[orderId]) {
       const order = userOrders.find(o => o.id === orderId);
-      
+
       // Create initial messages including payment instructions
       const initialMessages = [
         {
@@ -264,7 +264,7 @@ const P2PPage = () => {
           timestamp: new Date()
         }
       ];
-      
+
       // Add payment instructions if it's a buy order
       if (order && order.type === 'buy') {
         initialMessages.push({
@@ -273,7 +273,7 @@ const P2PPage = () => {
           timestamp: new Date(Date.now() + 1000)
         });
       }
-      
+
       // Add release funds instruction if it's a sell order
       if (order && order.type === 'sell') {
         initialMessages.push({
@@ -654,7 +654,7 @@ const P2PPage = () => {
     setAdTerms(offer.terms || "");
     setSellerName(offer.user.name);
     setSellerAvatar(offer.user.avatar);
-    
+
     // Set payment details if available
     if (offer.paymentDetails) {
       const details = offer.paymentDetails as any;
@@ -667,13 +667,13 @@ const P2PPage = () => {
         mobileNumber: details.mobileNumber || ""
       });
     }
-    
+
     setShowEditDialog(true);
   };
 
   // State for edit dialog visibility
   const [showEditDialog, setShowEditDialog] = useState(false);
-  
+
   return (
     <DashboardLayout>
       <div className="space-y-4">
@@ -831,8 +831,16 @@ const P2PPage = () => {
                                       </Badge>
                                     </div>
                                     <div className="text-xs text-white/60">
-                                      {offer.user.completedTrades}+ trades
+                                      {offer.user.orderCount || Math.floor(Math.random() * 1000) + 100} orders
                                     </div>
+                                    <div className="text-xs text-white/60">
+                                      {offer.user.completionRate?.toFixed(2) || (99 + Math.random()).toFixed(2)}% completion
+                                    </div>
+                                    {offer.user.responseTime && (
+                                      <div className="text-xs text-white/60">
+                                        {offer.user.responseTime} min response
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                               </TableCell>
@@ -989,8 +997,16 @@ const P2PPage = () => {
                                       </Badge>
                                     </div>
                                     <div className="text-xs text-white/60">
-                                      {offer.user.completedTrades}+ trades
+                                      {offer.user.orderCount || Math.floor(Math.random() * 1000) + 100} orders
                                     </div>
+                                    <div className="text-xs text-white/60">
+                                      {offer.user.completionRate?.toFixed(2) || (99 + Math.random()).toFixed(2)}% completion
+                                    </div>
+                                    {offer.user.responseTime && (
+                                      <div className="text-xs text-white/60">
+                                        {offer.user.responseTime} min response
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                               </TableCell>
@@ -1366,24 +1382,39 @@ const P2PPage = () => {
             </DialogHeader>
 
             <div className="space-y-4">
-              <div className="bg-background/40 p-4 rounded-md">
-                <div className="flex justify-between mb-2">
-                  <span className="text-white/70">Price</span>
-                  <span className="font-medium">{selectedOffer?.price.toLocaleString()} {selectedOffer?.fiatCurrency}</span>
+                <div className="bg-background/40 p-4 rounded-md">
+                  <div className="flex justify-between mb-2">
+                    <span className="text-white/70">Price</span>
+                    <span className="font-medium">{selectedOffer?.price.toLocaleString()} {selectedOffer?.fiatCurrency}</span>
+                  </div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-white/70">Payment Method</span>
+                    <span className="font-medium">{selectedOffer?.paymentMethods.join(', ')}</span>
+                  </div>
+                  <div className="flex justify-between mb-2">
+                    <span className="text-white/70">Available</span>
+                    <span className="font-medium">{selectedOffer?.availableAmount.toFixed(6)} {selectedOffer?.crypto}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-white/70">Limit</span>
+                    <span className="font-medium">{selectedOffer?.limits.min.toLocaleString()} - {selectedOffer?.limits.max.toLocaleString()} {selectedOffer?.fiatCurrency}</span>
+                  </div>
                 </div>
-                <div className="flex justify-between mb-2">
-                  <span className="text-white/70">Payment Method</span>
-                  <span className="font-medium">{selectedOffer?.paymentMethods.join(', ')}</span>
+
+                <div className="bg-background/40 p-4 rounded-md">
+                  <h4 className="text-sm font-medium mb-2">Advertiser's Terms</h4>
+                  <div className="text-xs text-white/80">
+                    {selectedOffer?.advertisersTerms || (
+                      <>
+                        <p>No Third party.</p>
+                        <p>{selectedOffer?.paymentMethods[0] === "M-PESA" ? "Mpesa to mpesa" : "Direct bank transfer only."}</p>
+                        <p>Neteller, Skrill, remitly accept</p>
+                        <p>BANK TRANSFER and PAYBILL available in chat on request.</p>
+                        <p>Welcome</p>
+                      </>
+                    )}
+                  </div>
                 </div>
-                <div className="flex justify-between mb-2">
-                  <span className="text-white/70">Available</span>
-                  <span className="font-medium">{selectedOffer?.availableAmount.toFixed(6)} {selectedOffer?.crypto}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/70">Limit</span>
-                  <span className="font-medium">{selectedOffer?.limits.min.toLocaleString()} - {selectedOffer?.limits.max.toLocaleString()} {selectedOffer?.fiatCurrency}</span>
-                </div>
-              </div>
 
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -1507,17 +1538,17 @@ const P2PPage = () => {
               {selectedOrderForChat && (
                 <div className="w-[250px] bg-background/40 border border-white/10 rounded-md p-4 space-y-4">
                   <h3 className="font-medium text-white border-b border-white/10 pb-2">Payment Details</h3>
-                  
+
                   {(() => {
                     const order = userOrders.find(o => o.id === selectedOrderForChat);
                     if (!order) return <p className="text-sm text-white/70">No order details available</p>;
-                    
+
                     // Find the original offer to get payment details
                     const offerList = order.type === 'buy' ? sellOffers : buyOffers;
                     const relatedOffer = offerList.find(o => o.id === order.offerId);
                     const paymentDetails = relatedOffer?.paymentDetails;
                     const paymentMethod = order.paymentMethod || "bank-transfer";
-                    
+
                     switch(paymentMethod) {
                       case "bank-transfer":
                       case "Bank Transfer":
@@ -1621,7 +1652,7 @@ const P2PPage = () => {
                       {(() => {
                         const order = userOrders.find(o => o.id === selectedOrderForChat);
                         const status = order?.status || "pending";
-                        
+
                         switch(status) {
                           case "completed":
                             return <CheckCircle2 className="h-4 w-4 text-green-400" />;
@@ -1810,7 +1841,7 @@ const P2PPage = () => {
                   onChange={(e) => setAdTerms(e.target.value)}
                 />
               </div>
-              
+
               {/* Payment Details Section in Edit Dialog */}
               {editingOffer && editingOffer.type === "sell" && (
                 <div className="space-y-2 mt-4 border-t border-white/10 pt-4">
