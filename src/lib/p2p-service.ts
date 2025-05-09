@@ -508,6 +508,63 @@ class P2PService {
     }
   }
   
+  public async updateP2POffer(offerId: string, updatedData: P2POffer): Promise<boolean> {
+    try {
+      if (!auth.currentUser) {
+        throw new Error("You must be logged in to edit an offer");
+      }
+      
+      // Find the offer in Firebase
+      const offersQuery = query(
+        collection(db, this.OFFERS_COLLECTION),
+        where("id", "==", offerId)
+      );
+      
+      const snapshot = await getDocs(offersQuery);
+      
+      if (snapshot.empty) {
+        throw new Error("Offer not found");
+      }
+      
+      // Check if user is the owner of the offer
+      const offerDoc = snapshot.docs[0];
+      const offerData = offerDoc.data();
+      
+      if (offerData.userId !== auth.currentUser.uid) {
+        throw new Error("You can only edit your own offers");
+      }
+      
+      // Convert Date object to string for Firestore
+      const firestoreData = {
+        ...updatedData,
+        createdAt: updatedData.createdAt.toISOString()
+      };
+      
+      // Update the offer in Firebase
+      await updateDoc(doc(db, this.OFFERS_COLLECTION, offerDoc.id), firestoreData);
+      
+      // Update the offers in memory
+      const offerType = offerData.type || 'buy';
+      
+      if (offerType === 'buy') {
+        const index = this.buyOffers.findIndex(o => o.id === offerId);
+        if (index >= 0) {
+          this.buyOffers[index] = updatedData;
+        }
+      } else {
+        const index = this.sellOffers.findIndex(o => o.id === offerId);
+        if (index >= 0) {
+          this.sellOffers[index] = updatedData;
+        }
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Error updating P2P offer:", error);
+      throw error;
+    }
+  }
+  
   public async editP2POffer(offerId: string, updatedData: Partial<P2POffer>): Promise<boolean> {
     try {
       if (!auth.currentUser) {

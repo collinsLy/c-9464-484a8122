@@ -194,7 +194,6 @@ const P2PPage = () => {
   const [showChatDialog, setShowChatDialog] = useState(false);
 
   // Edit Offer State
-  const [showEditDialog, setShowEditDialog] = useState(false);
   const [editingOffer, setEditingOffer] = useState<P2POffer | null>(null);
 
   const handleOrderSubmit = async () => {
@@ -646,18 +645,29 @@ const P2PPage = () => {
                                 </div>
                               </TableCell>
                               <TableCell>
-                                <Button 
-                                  variant="default" 
-                                  className="bg-[#F2FF44] text-black hover:bg-[#E2EF34]"
-                                  onClick={() => {
-                                    setSelectedOffer(offer);
-                                    setBuyAmount("");
-                                    setBuyTotal(0);
-                                    setIsDialogOpen(true);
-                                  }}
-                                >
-                                  {activeTab === "buy" ? "Buy" : "Sell"}
-                                </Button>
+                                <div className="flex gap-2">
+                                  <Button 
+                                    variant="default" 
+                                    className="bg-[#F2FF44] text-black hover:bg-[#E2EF34]"
+                                    onClick={() => {
+                                      setSelectedOffer(offer);
+                                      setBuyAmount("");
+                                      setBuyTotal(0);
+                                      setIsDialogOpen(true);
+                                    }}
+                                  >
+                                    {activeTab === "buy" ? "Buy" : "Sell"}
+                                  </Button>
+
+                                  {offer.user.name === sellerName && (
+                                    <Button 
+                                      variant="outline" 
+                                      onClick={() => openEditDialog(offer)}
+                                    >
+                                      Edit
+                                    </Button>
+                                  )}
+                                </div>
                               </TableCell>
                             </TableRow>
                           ))
@@ -793,18 +803,29 @@ const P2PPage = () => {
                                 </div>
                               </TableCell>
                               <TableCell>
-                                <Button 
-                                  variant="default" 
-                                  className="bg-[#F2FF44] text-black hover:bg-[#E2EF34]"
-                                  onClick={() => {
-                                    setSelectedOffer(offer);
-                                    setBuyAmount("");
-                                    setBuyTotal(0);
-                                    setIsDialogOpen(true);
-                                  }}
-                                >
-                                  {activeTab === "buy" ? "Buy" : "Sell"}
-                                </Button>
+                                <div className="flex gap-2">
+                                  <Button 
+                                    variant="default" 
+                                    className="bg-[#F2FF44] text-black hover:bg-[#E2EF34]"
+                                    onClick={() => {
+                                      setSelectedOffer(offer);
+                                      setBuyAmount("");
+                                      setBuyTotal(0);
+                                      setIsDialogOpen(true);
+                                    }}
+                                  >
+                                    {activeTab === "buy" ? "Buy" : "Sell"}
+                                  </Button>
+
+                                  {offer.user.name === sellerName && (
+                                    <Button 
+                                      variant="outline" 
+                                      onClick={() => openEditDialog(offer)}
+                                    >
+                                      Edit
+                                    </Button>
+                                  )}
+                                </div>
                               </TableCell>
                             </TableRow>
                           ))
