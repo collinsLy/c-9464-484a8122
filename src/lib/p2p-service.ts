@@ -165,18 +165,26 @@ class P2PService {
           createdAt: new Date()
         };
 
-        // Add to appropriate list
+        // Get current price for reference
+        const currentPrice = this.cryptoPrices[offer.crypto] || 0;
+        
+        console.log(`Creating offer: ${offer.user.name} wants to trade ${offer.crypto} at price ${offer.price}, current market price: ${currentPrice}`);
+        
+        // Always add user's offers to the appropriate list
         if (offer.user.name === "You") {
-          // If current user is posting
-          if (offer.price > (this.cryptoPrices[offer.crypto] || 0)) {
+          // For user ads, determine if it's a buy or sell based on price comparison
+          // Higher than market price = buy offer (user wants to buy at premium)
+          // Lower than market price = sell offer (user wants to sell at discount)
+          if (offer.price > currentPrice) {
+            console.log(`Adding to buy offers: ${offer.user.name} wants to buy ${offer.crypto}`);
             this.buyOffers.push(newOffer);
           } else {
+            console.log(`Adding to sell offers: ${offer.user.name} wants to sell ${offer.crypto}`);
             this.sellOffers.push(newOffer);
           }
         } else {
-          // If vendor is posting
-          // For simplicity, we'll add vendor offers based on the price
-          if (offer.price > (this.cryptoPrices[offer.crypto] || 0)) {
+          // For vendor offers, follow the same logic
+          if (offer.price > currentPrice) {
             this.buyOffers.push(newOffer);
           } else {
             this.sellOffers.push(newOffer);

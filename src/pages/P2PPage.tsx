@@ -69,9 +69,24 @@ const P2PPage = () => {
 
   // Load offers, orders, and prices
   useEffect(() => {
-    // Only load current prices initially - offers will need to be created
-    loadCurrentPrices();
-    loadUserOrders();
+    // Load all data on component mount
+    const loadInitialData = async () => {
+      setOffersLoading(true);
+      try {
+        await Promise.all([
+          loadCurrentPrices(),
+          loadOffers(),
+          loadUserOrders()
+        ]);
+      } catch (error) {
+        console.error("Error loading initial data:", error);
+        toast.error("Failed to load marketplace data. Please try refreshing.");
+      } finally {
+        setOffersLoading(false);
+      }
+    };
+    
+    loadInitialData();
     
     // Set up interval to refresh prices every minute
     const priceInterval = setInterval(() => {
@@ -320,8 +335,11 @@ const P2PPage = () => {
       setAdMaxLimit("");
       setAdTerms("");
       
-      // Reload offers
-      loadOffers();
+      // Reload offers - important to get the latest data
+      await loadOffers();
+      
+      // Filter offers based on current filters to ensure the new ad shows up
+      await filterOffers();
       
       // Switch to appropriate tab
       setActiveTab(adType);
