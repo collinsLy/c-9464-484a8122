@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
-import { Search, Filter, ChevronDown, MessageCircle, ShieldCheck, ArrowUpRight, Star, Clock, CreditCard, Users, DollarSign, ArrowRight, AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
+import { Search, Filter, ChevronDown, MessageCircle, ShieldCheck, ArrowUpRight, Star, Clock, CreditCard, Users, DollarSign, ArrowRight, AlertTriangle, CheckCircle2, Loader2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import p2pService, { P2POffer, P2POrder } from "@/lib/p2p-service";
 
@@ -35,6 +35,9 @@ const P2PPage = () => {
   const [userOrders, setUserOrders] = useState<P2POrder[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [processingOrder, setProcessingOrder] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [cryptoPrices, setCryptoPrices] = useState<Record<string, number>>({});
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   
   // Form states for posting an ad
   const [adType, setAdType] = useState("buy");
@@ -63,10 +66,18 @@ const P2PPage = () => {
     { id: "credit-card", name: "Credit/Debit Card" },
   ];
 
-  // Load offers and orders
+  // Load offers, orders, and prices
   useEffect(() => {
     loadOffers();
     loadUserOrders();
+    loadCurrentPrices();
+    
+    // Set up interval to refresh prices every minute
+    const priceInterval = setInterval(() => {
+      loadCurrentPrices();
+    }, 60000); // 1 minute
+    
+    return () => clearInterval(priceInterval);
   }, []);
 
   // Filter offers when filters change
@@ -74,6 +85,32 @@ const P2PPage = () => {
     filterOffers();
   }, [activeTab, selectedCrypto, selectedFiat, selectedPayment, searchQuery]);
 
+  const loadCurrentPrices = async () => {
+    try {
+      const prices = await p2pService.getCurrentPrices();
+      setCryptoPrices(prices);
+      setLastUpdated(new Date());
+    } catch (error) {
+      console.error("Error fetching current prices:", error);
+    }
+  };
+
+  const refreshData = async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        loadOffers(),
+        loadCurrentPrices()
+      ]);
+      toast.success("Data refreshed successfully");
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+      toast.error("Failed to refresh data. Please try again.");
+    } finally {
+      setRefreshing(false);
+    }
+  };
+  
   const loadOffers = async () => {
     setOffersLoading(true);
     try {
@@ -84,6 +121,7 @@ const P2PPage = () => {
       
       setBuyOffers(buyData);
       setSellOffers(sellData);
+      setLastUpdated(new Date());
     } catch (error) {
       console.error("Error fetching offers:", error);
       toast.error("Failed to load offers. Please try again.");
@@ -268,15 +306,46 @@ const P2PPage = () => {
             <h1 className="text-3xl font-bold text-white">P2P Trading</h1>
             <p className="text-sm text-white/70 mt-1">Buy and sell crypto directly with other users</p>
           </div>
-          {isDemoMode && <div className="text-sm text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-md">Demo Mode</div>}
+          <div className="flex items-center gap-3">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-1" 
+              onClick={refreshData}
+              disabled={refreshing}
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+              {refreshing ? 'Refreshing...' : 'Refresh'}
+            </Button>
+            {isDemoMode && <div className="text-sm text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-md">Demo Mode</div>}
+          </div>
+        </div>
+        
+        {/* Current Prices */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
+          {Object.entries(cryptoPrices).map(([crypto, price]) => (
+            <Card key={crypto} className="bg-background/40 backdrop-blur-lg border-white/10 shadow-none">
+              <CardContent className="p-3 flex justify-between items-center">
+                <div className="font-medium text-white">{crypto}</div>
+                <div className="text-sm text-white/90">${price.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 8})}</div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
           <CardHeader>
-            <CardTitle>P2P Market</CardTitle>
-            <CardDescription className="text-white/70">
-              Trade cryptocurrencies directly with other users using your preferred payment methods
-            </CardDescription>
+            <div className="flex justify-between">
+              <div>
+                <CardTitle>P2P Market</CardTitle>
+                <CardDescription className="text-white/70">
+                  Trade cryptocurrencies directly with other users using your preferred payment methods
+                </CardDescription>
+              </div>
+              <div className="text-xs text-white/50 text-right">
+                Last updated: {lastUpdated.toLocaleTimeString()}
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="buy" className="w-full" onValueChange={setActiveTab}>
