@@ -69,9 +69,9 @@ const P2PPage = () => {
 
   // Load offers, orders, and prices
   useEffect(() => {
-    loadOffers();
-    loadUserOrders();
+    // Only load current prices initially - offers will need to be created
     loadCurrentPrices();
+    loadUserOrders();
     
     // Set up interval to refresh prices every minute
     const priceInterval = setInterval(() => {
@@ -952,6 +952,16 @@ const P2PPage = () => {
                           onChange={(e) => setAdTerms(e.target.value)}
                         />
                       </div>
+                      
+                      {buyOffers.length === 0 && sellOffers.length === 0 && (
+                        <div className="mt-4 p-3 rounded-md bg-yellow-400/10 border border-yellow-400/20 flex items-start space-x-2">
+                          <AlertTriangle className="h-5 w-5 text-yellow-400 shrink-0 mt-0.5" />
+                          <div className="text-sm text-white/80">
+                            <p className="font-medium mb-1">No vendors available yet</p>
+                            <p>Start creating real vendors by posting advertisements. You can create buy and sell offers that will appear in the marketplace.</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                   <CardFooter className="flex justify-end space-x-4">
