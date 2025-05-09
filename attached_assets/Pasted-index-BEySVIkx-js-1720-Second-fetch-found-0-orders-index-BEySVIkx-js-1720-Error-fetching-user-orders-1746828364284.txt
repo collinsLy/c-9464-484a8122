@@ -1,0 +1,376 @@
+index-BEySVIkx.js:1720 Second fetch found 0 orders
+index-BEySVIkx.js:1720 Error fetching user orders: FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+getUserOrders @ index-BEySVIkx.js:1720
+await in getUserOrders
+Za @ index-BEySVIkx.js:1720
+await in Za
+(anonymous) @ index-BEySVIkx.js:1720
+await in (anonymous)
+(anonymous) @ index-BEySVIkx.js:1720
+gl @ react-vendor-BcXWvKjC.js:32
+en @ react-vendor-BcXWvKjC.js:32
+es @ react-vendor-BcXWvKjC.js:32
+yt @ react-vendor-BcXWvKjC.js:30
+Kd @ react-vendor-BcXWvKjC.js:32
+kt @ react-vendor-BcXWvKjC.js:32
+fc @ react-vendor-BcXWvKjC.js:32
+k @ react-vendor-BcXWvKjC.js:17
+pn @ react-vendor-BcXWvKjC.js:17Understand this error
+index-BEySVIkx.js:1720 Error details: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+getUserOrders @ index-BEySVIkx.js:1720
+await in getUserOrders
+Za @ index-BEySVIkx.js:1720
+await in Za
+(anonymous) @ index-BEySVIkx.js:1720
+await in (anonymous)
+(anonymous) @ index-BEySVIkx.js:1720
+gl @ react-vendor-BcXWvKjC.js:32
+en @ react-vendor-BcXWvKjC.js:32
+es @ react-vendor-BcXWvKjC.js:32
+yt @ react-vendor-BcXWvKjC.js:30
+Kd @ react-vendor-BcXWvKjC.js:32
+kt @ react-vendor-BcXWvKjC.js:32
+fc @ react-vendor-BcXWvKjC.js:32
+k @ react-vendor-BcXWvKjC.js:17
+pn @ react-vendor-BcXWvKjC.js:17Understand this error
+index-BEySVIkx.js:1720 Second fetch found 0 orders
+index-BEySVIkx.js:498 Current active tab: /p2p
+index-BEySVIkx.js:1720 Fetching notifications for user: wCyXInTiEtUOwSeMliUNX6WqMYV2
+index-BEySVIkx.js:1720 Found 2 notifications
+index-BEySVIkx.js:1720 Found unread notifications, refreshing orders
+index-BEySVIkx.js:1720 Fetching orders for user: wCyXInTiEtUOwSeMliUNX6WqMYV2
+index-BEySVIkx.js:1720 Found 2 notifications
+index-BEySVIkx.js:1720 Found unread notifications, refreshing orders
+index-BEySVIkx.js:1720 Fetching orders for user: wCyXInTiEtUOwSeMliUNX6WqMYV2
+index-BEySVIkx.js:498 Current active tab: /p2p
+index-BEySVIkx.js:1720 Fetching notifications for user: wCyXInTiEtUOwSeMliUNX6WqMYV2
+index-BEySVIkx.js:1720 Error fetching user orders: FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+getUserOrders @ index-BEySVIkx.js:1720
+await in getUserOrders
+Za @ index-BEySVIkx.js:1720
+(anonymous) @ index-BEySVIkx.js:1720
+await in (anonymous)
+(anonymous) @ index-BEySVIkx.js:1720
+gl @ react-vendor-BcXWvKjC.js:32
+en @ react-vendor-BcXWvKjC.js:32
+es @ react-vendor-BcXWvKjC.js:32
+yt @ react-vendor-BcXWvKjC.js:30
+Kd @ react-vendor-BcXWvKjC.js:32
+kt @ react-vendor-BcXWvKjC.js:32
+fc @ react-vendor-BcXWvKjC.js:32
+k @ react-vendor-BcXWvKjC.js:17
+pn @ react-vendor-BcXWvKjC.js:17Understand this error
+index-BEySVIkx.js:1720 Error details: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+getUserOrders @ index-BEySVIkx.js:1720
+await in getUserOrders
+Za @ index-BEySVIkx.js:1720
+(anonymous) @ index-BEySVIkx.js:1720
+await in (anonymous)
+(anonymous) @ index-BEySVIkx.js:1720
+gl @ react-vendor-BcXWvKjC.js:32
+en @ react-vendor-BcXWvKjC.js:32
+es @ react-vendor-BcXWvKjC.js:32
+yt @ react-vendor-BcXWvKjC.js:30
+Kd @ react-vendor-BcXWvKjC.js:32
+kt @ react-vendor-BcXWvKjC.js:32
+fc @ react-vendor-BcXWvKjC.js:32
+k @ react-vendor-BcXWvKjC.js:17
+pn @ react-vendor-BcXWvKjC.js:17Understand this error
+index-BEySVIkx.js:1720 No orders found on first try, attempting second fetch after delay
+index-BEySVIkx.js:1720 Error fetching user orders: FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+getUserOrders @ index-BEySVIkx.js:1720
+await in getUserOrders
+Za @ index-BEySVIkx.js:1720
+(anonymous) @ index-BEySVIkx.js:1720
+await in (anonymous)
+(anonymous) @ index-BEySVIkx.js:1720
+gl @ react-vendor-BcXWvKjC.js:32
+en @ react-vendor-BcXWvKjC.js:32
+es @ react-vendor-BcXWvKjC.js:32
+yt @ react-vendor-BcXWvKjC.js:30
+Kd @ react-vendor-BcXWvKjC.js:32
+kt @ react-vendor-BcXWvKjC.js:32
+fc @ react-vendor-BcXWvKjC.js:32
+k @ react-vendor-BcXWvKjC.js:17
+pn @ react-vendor-BcXWvKjC.js:17Understand this error
+index-BEySVIkx.js:1720 Error details: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+getUserOrders @ index-BEySVIkx.js:1720
+await in getUserOrders
+Za @ index-BEySVIkx.js:1720
+(anonymous) @ index-BEySVIkx.js:1720
+await in (anonymous)
+(anonymous) @ index-BEySVIkx.js:1720
+gl @ react-vendor-BcXWvKjC.js:32
+en @ react-vendor-BcXWvKjC.js:32
+es @ react-vendor-BcXWvKjC.js:32
+yt @ react-vendor-BcXWvKjC.js:30
+Kd @ react-vendor-BcXWvKjC.js:32
+kt @ react-vendor-BcXWvKjC.js:32
+fc @ react-vendor-BcXWvKjC.js:32
+k @ react-vendor-BcXWvKjC.js:17
+pn @ react-vendor-BcXWvKjC.js:17Understand this error
+index-BEySVIkx.js:1720 No orders found on first try, attempting second fetch after delay
+2index-BEySVIkx.js:1720 Fetching orders for user: wCyXInTiEtUOwSeMliUNX6WqMYV2
+index-BEySVIkx.js:1720 Found 2 notifications
+index-BEySVIkx.js:1720 Found unread notifications, refreshing orders
+index-BEySVIkx.js:1720 Fetching orders for user: wCyXInTiEtUOwSeMliUNX6WqMYV2
+index-BEySVIkx.js:1720 Error fetching user orders: FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+getUserOrders @ index-BEySVIkx.js:1720
+await in getUserOrders
+Za @ index-BEySVIkx.js:1720
+await in Za
+(anonymous) @ index-BEySVIkx.js:1720
+await in (anonymous)
+(anonymous) @ index-BEySVIkx.js:1720
+gl @ react-vendor-BcXWvKjC.js:32
+en @ react-vendor-BcXWvKjC.js:32
+es @ react-vendor-BcXWvKjC.js:32
+yt @ react-vendor-BcXWvKjC.js:30
+Kd @ react-vendor-BcXWvKjC.js:32
+kt @ react-vendor-BcXWvKjC.js:32
+fc @ react-vendor-BcXWvKjC.js:32
+k @ react-vendor-BcXWvKjC.js:17
+pn @ react-vendor-BcXWvKjC.js:17Understand this error
+index-BEySVIkx.js:1720 Error details: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+getUserOrders @ index-BEySVIkx.js:1720
+await in getUserOrders
+Za @ index-BEySVIkx.js:1720
+await in Za
+(anonymous) @ index-BEySVIkx.js:1720
+await in (anonymous)
+(anonymous) @ index-BEySVIkx.js:1720
+gl @ react-vendor-BcXWvKjC.js:32
+en @ react-vendor-BcXWvKjC.js:32
+es @ react-vendor-BcXWvKjC.js:32
+yt @ react-vendor-BcXWvKjC.js:30
+Kd @ react-vendor-BcXWvKjC.js:32
+kt @ react-vendor-BcXWvKjC.js:32
+fc @ react-vendor-BcXWvKjC.js:32
+k @ react-vendor-BcXWvKjC.js:17
+pn @ react-vendor-BcXWvKjC.js:17Understand this error
+index-BEySVIkx.js:1720 Second fetch found 0 orders
+index-BEySVIkx.js:1720 Error fetching user orders: FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+getUserOrders @ index-BEySVIkx.js:1720
+await in getUserOrders
+Za @ index-BEySVIkx.js:1720
+await in Za
+(anonymous) @ index-BEySVIkx.js:1720
+await in (anonymous)
+(anonymous) @ index-BEySVIkx.js:1720
+gl @ react-vendor-BcXWvKjC.js:32
+en @ react-vendor-BcXWvKjC.js:32
+es @ react-vendor-BcXWvKjC.js:32
+yt @ react-vendor-BcXWvKjC.js:30
+Kd @ react-vendor-BcXWvKjC.js:32
+kt @ react-vendor-BcXWvKjC.js:32
+fc @ react-vendor-BcXWvKjC.js:32
+k @ react-vendor-BcXWvKjC.js:17
+pn @ react-vendor-BcXWvKjC.js:17Understand this error
+index-BEySVIkx.js:1720 Error details: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+getUserOrders @ index-BEySVIkx.js:1720
+await in getUserOrders
+Za @ index-BEySVIkx.js:1720
+await in Za
+(anonymous) @ index-BEySVIkx.js:1720
+await in (anonymous)
+(anonymous) @ index-BEySVIkx.js:1720
+gl @ react-vendor-BcXWvKjC.js:32
+en @ react-vendor-BcXWvKjC.js:32
+es @ react-vendor-BcXWvKjC.js:32
+yt @ react-vendor-BcXWvKjC.js:30
+Kd @ react-vendor-BcXWvKjC.js:32
+kt @ react-vendor-BcXWvKjC.js:32
+fc @ react-vendor-BcXWvKjC.js:32
+k @ react-vendor-BcXWvKjC.js:17
+pn @ react-vendor-BcXWvKjC.js:17Understand this error
+index-BEySVIkx.js:1720 Second fetch found 0 orders
+index-BEySVIkx.js:1720 Error fetching user orders: FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+getUserOrders @ index-BEySVIkx.js:1720
+await in getUserOrders
+Za @ index-BEySVIkx.js:1720
+(anonymous) @ index-BEySVIkx.js:1720
+await in (anonymous)
+(anonymous) @ index-BEySVIkx.js:1720
+gl @ react-vendor-BcXWvKjC.js:32
+en @ react-vendor-BcXWvKjC.js:32
+es @ react-vendor-BcXWvKjC.js:32
+yt @ react-vendor-BcXWvKjC.js:30
+Kd @ react-vendor-BcXWvKjC.js:32
+kt @ react-vendor-BcXWvKjC.js:32
+fc @ react-vendor-BcXWvKjC.js:32
+k @ react-vendor-BcXWvKjC.js:17
+pn @ react-vendor-BcXWvKjC.js:17Understand this error
+index-BEySVIkx.js:1720 Error details: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+getUserOrders @ index-BEySVIkx.js:1720
+await in getUserOrders
+Za @ index-BEySVIkx.js:1720
+(anonymous) @ index-BEySVIkx.js:1720
+await in (anonymous)
+(anonymous) @ index-BEySVIkx.js:1720
+gl @ react-vendor-BcXWvKjC.js:32
+en @ react-vendor-BcXWvKjC.js:32
+es @ react-vendor-BcXWvKjC.js:32
+yt @ react-vendor-BcXWvKjC.js:30
+Kd @ react-vendor-BcXWvKjC.js:32
+kt @ react-vendor-BcXWvKjC.js:32
+fc @ react-vendor-BcXWvKjC.js:32
+k @ react-vendor-BcXWvKjC.js:17
+pn @ react-vendor-BcXWvKjC.js:17Understand this error
+index-BEySVIkx.js:1720 No orders found on first try, attempting second fetch after delay
+index-BEySVIkx.js:498 Current active tab: /p2p
+index-BEySVIkx.js:1720 Fetching notifications for user: wCyXInTiEtUOwSeMliUNX6WqMYV2
+2index-BEySVIkx.js:1720 Fetching orders for user: wCyXInTiEtUOwSeMliUNX6WqMYV2
+index-BEySVIkx.js:1720 Found 2 notifications
+index-BEySVIkx.js:1720 Found unread notifications, refreshing orders
+index-BEySVIkx.js:1720 Fetching orders for user: wCyXInTiEtUOwSeMliUNX6WqMYV2
+index-BEySVIkx.js:498 Current active tab: /p2p
+index-BEySVIkx.js:1720 Fetching notifications for user: wCyXInTiEtUOwSeMliUNX6WqMYV2
+index-BEySVIkx.js:1720 Fetching orders for user: wCyXInTiEtUOwSeMliUNX6WqMYV2
+index-BEySVIkx.js:1720 Error fetching user orders: FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+getUserOrders @ index-BEySVIkx.js:1720
+await in getUserOrders
+Za @ index-BEySVIkx.js:1720
+await in Za
+(anonymous) @ index-BEySVIkx.js:1720
+await in (anonymous)
+(anonymous) @ index-BEySVIkx.js:1720
+gl @ react-vendor-BcXWvKjC.js:32
+en @ react-vendor-BcXWvKjC.js:32
+es @ react-vendor-BcXWvKjC.js:32
+yt @ react-vendor-BcXWvKjC.js:30
+Kd @ react-vendor-BcXWvKjC.js:32
+kt @ react-vendor-BcXWvKjC.js:32
+fc @ react-vendor-BcXWvKjC.js:32
+k @ react-vendor-BcXWvKjC.js:17
+pn @ react-vendor-BcXWvKjC.js:17Understand this error
+index-BEySVIkx.js:1720 Error details: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+getUserOrders @ index-BEySVIkx.js:1720
+await in getUserOrders
+Za @ index-BEySVIkx.js:1720
+await in Za
+(anonymous) @ index-BEySVIkx.js:1720
+await in (anonymous)
+(anonymous) @ index-BEySVIkx.js:1720
+gl @ react-vendor-BcXWvKjC.js:32
+en @ react-vendor-BcXWvKjC.js:32
+es @ react-vendor-BcXWvKjC.js:32
+yt @ react-vendor-BcXWvKjC.js:30
+Kd @ react-vendor-BcXWvKjC.js:32
+kt @ react-vendor-BcXWvKjC.js:32
+fc @ react-vendor-BcXWvKjC.js:32
+k @ react-vendor-BcXWvKjC.js:17
+pn @ react-vendor-BcXWvKjC.js:17Understand this error
+index-BEySVIkx.js:1720 Second fetch found 0 orders
+index-BEySVIkx.js:1720 Error fetching user orders: FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+getUserOrders @ index-BEySVIkx.js:1720
+await in getUserOrders
+Za @ index-BEySVIkx.js:1720
+await in Za
+(anonymous) @ index-BEySVIkx.js:1720
+await in (anonymous)
+(anonymous) @ index-BEySVIkx.js:1720
+gl @ react-vendor-BcXWvKjC.js:32
+en @ react-vendor-BcXWvKjC.js:32
+es @ react-vendor-BcXWvKjC.js:32
+yt @ react-vendor-BcXWvKjC.js:30
+Kd @ react-vendor-BcXWvKjC.js:32
+kt @ react-vendor-BcXWvKjC.js:32
+fc @ react-vendor-BcXWvKjC.js:32
+k @ react-vendor-BcXWvKjC.js:17
+pn @ react-vendor-BcXWvKjC.js:17Understand this error
+index-BEySVIkx.js:1720 Error details: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+getUserOrders @ index-BEySVIkx.js:1720
+await in getUserOrders
+Za @ index-BEySVIkx.js:1720
+await in Za
+(anonymous) @ index-BEySVIkx.js:1720
+await in (anonymous)
+(anonymous) @ index-BEySVIkx.js:1720
+gl @ react-vendor-BcXWvKjC.js:32
+en @ react-vendor-BcXWvKjC.js:32
+es @ react-vendor-BcXWvKjC.js:32
+yt @ react-vendor-BcXWvKjC.js:30
+Kd @ react-vendor-BcXWvKjC.js:32
+kt @ react-vendor-BcXWvKjC.js:32
+fc @ react-vendor-BcXWvKjC.js:32
+k @ react-vendor-BcXWvKjC.js:17
+pn @ react-vendor-BcXWvKjC.js:17Understand this error
+index-BEySVIkx.js:1720 Second fetch found 0 orders
+index-BEySVIkx.js:1720 Error fetching user orders: FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+getUserOrders @ index-BEySVIkx.js:1720
+await in getUserOrders
+Za @ index-BEySVIkx.js:1720
+(anonymous) @ index-BEySVIkx.js:1720
+await in (anonymous)
+(anonymous) @ index-BEySVIkx.js:1720
+gl @ react-vendor-BcXWvKjC.js:32
+en @ react-vendor-BcXWvKjC.js:32
+es @ react-vendor-BcXWvKjC.js:32
+yt @ react-vendor-BcXWvKjC.js:30
+Kd @ react-vendor-BcXWvKjC.js:32
+kt @ react-vendor-BcXWvKjC.js:32
+fc @ react-vendor-BcXWvKjC.js:32
+k @ react-vendor-BcXWvKjC.js:17
+pn @ react-vendor-BcXWvKjC.js:17Understand this error
+index-BEySVIkx.js:1720 Error details: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+getUserOrders @ index-BEySVIkx.js:1720
+await in getUserOrders
+Za @ index-BEySVIkx.js:1720
+(anonymous) @ index-BEySVIkx.js:1720
+await in (anonymous)
+(anonymous) @ index-BEySVIkx.js:1720
+gl @ react-vendor-BcXWvKjC.js:32
+en @ react-vendor-BcXWvKjC.js:32
+es @ react-vendor-BcXWvKjC.js:32
+yt @ react-vendor-BcXWvKjC.js:30
+Kd @ react-vendor-BcXWvKjC.js:32
+kt @ react-vendor-BcXWvKjC.js:32
+fc @ react-vendor-BcXWvKjC.js:32
+k @ react-vendor-BcXWvKjC.js:17
+pn @ react-vendor-BcXWvKjC.js:17Understand this error
+index-BEySVIkx.js:1720 No orders found on first try, attempting second fetch after delay
+index-BEySVIkx.js:1720 Error fetching user orders: FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+getUserOrders @ index-BEySVIkx.js:1720
+await in getUserOrders
+Za @ index-BEySVIkx.js:1720
+await in Za
+(anonymous) @ index-BEySVIkx.js:1720
+await in (anonymous)
+(anonymous) @ index-BEySVIkx.js:1720
+gl @ react-vendor-BcXWvKjC.js:32
+en @ react-vendor-BcXWvKjC.js:32
+es @ react-vendor-BcXWvKjC.js:32
+yt @ react-vendor-BcXWvKjC.js:30
+Kd @ react-vendor-BcXWvKjC.js:32
+kt @ react-vendor-BcXWvKjC.js:32
+fc @ react-vendor-BcXWvKjC.js:32
+k @ react-vendor-BcXWvKjC.js:17
+pn @ react-vendor-BcXWvKjC.js:17Understand this error
+index-BEySVIkx.js:1720 Error details: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClFwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL3AycE9yZGVycy9pbmRleGVzL18QARoKCgZ1c2VySWQQARoNCgljcmVhdGVkQXQQAhoMCghfX25hbWVfXxAC
+getUserOrders @ index-BEySVIkx.js:1720
+await in getUserOrders
+Za @ index-BEySVIkx.js:1720
+await in Za
+(anonymous) @ index-BEySVIkx.js:1720
+await in (anonymous)
+(anonymous) @ index-BEySVIkx.js:1720
+gl @ react-vendor-BcXWvKjC.js:32
+en @ react-vendor-BcXWvKjC.js:32
+es @ react-vendor-BcXWvKjC.js:32
+yt @ react-vendor-BcXWvKjC.js:30
+Kd @ react-vendor-BcXWvKjC.js:32
+kt @ react-vendor-BcXWvKjC.js:32
+fc @ react-vendor-BcXWvKjC.js:32
+k @ react-vendor-BcXWvKjC.js:17
+pn @ react-vendor-BcXWvKjC.js:17Understand this error
+index-BEySVIkx.js:1720 Second fetch found 0 orders
+index-BEySVIkx.js:498 Current active tab: /p2p
+index-BEySVIkx.js:1720 Fetching notifications for user: wCyXInTiEtUOwSeMliUNX6WqMYV2
+index-BEySVIkx.js:1720 Found 2 notifications
+index-BEySVIkx.js:1720 Found unread notifications, refreshing orders
+index-BEySVIkx.js:1720 Fetching orders for user: wCyXInTiEtUOwSeMliUNX6WqMYV2
+index-BEySVIkx.js:1720 Found 2 notifications
+index-BEySVIkx.js:1720 Found unread notifications, refreshing orders
+index-BEySVIkx.js:1720 Fetching orders for user: wCyXInTiEtUOwSeMliUNX6WqMYV2
+index-BEySVIkx.js:498 Current active tab: /p2p
+index-BEySVIkx.js:1720 Fetching notifications for user: wCyXInTiEtUOwSeMliUNX6WqMYV2
