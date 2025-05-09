@@ -544,7 +544,7 @@ class P2PService {
       
       console.log(`Creating notification for user ${userId} about order ${orderId}`);
       
-      // Create a notification document in Firestore
+      // Create a notification document in Firestore with detailed information
       const notification = {
         userId,
         offerId,
@@ -552,14 +552,44 @@ class P2PService {
         type: 'new_order',
         message: `Someone is interested in your ${orderType === 'buy' ? 'sell' : 'buy'} offer! New order for ${amount} ${fiatCurrency} (${(amount / this.cryptoPrices[crypto] || 1).toFixed(6)} ${crypto})`,
         read: false,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        senderId: auth.currentUser?.uid || 'anonymous',
+        cryptoAmount: (amount / this.cryptoPrices[crypto] || 1).toFixed(8),
+        cryptoSymbol: crypto,
+        fiatAmount: amount,
+        fiatCurrency: fiatCurrency
       };
       
-      const docRef = await addDoc(collection(db, this.NOTIFICATIONS_COLLECTION), notification);
-      console.log(`Notification created for user ${userId} about order ${orderId}, doc ID: ${docRef.id}`);
+      // Log the notification data being saved
+      console.log("Saving notification with data:", JSON.stringify(notification));
+      
+      // Add the notification to the Firestore collection
+      try {
+        const docRef = await addDoc(collection(db, this.NOTIFICATIONS_COLLECTION), notification);
+        console.log(`Notification created for user ${userId} about order ${orderId}, doc ID: ${docRef.id}`);
+      } catch (dbError) {
+        console.error("Firestore error creating notification:", dbError);
+        // Try without detailed data if it's causing an issue
+        const simpleNotification = {
+          userId,
+          type: 'new_order',
+          message: `New P2P order notification`,
+          read: false,
+          createdAt: new Date().toISOString()
+        };
+        
+        await addDoc(collection(db, this.NOTIFICATIONS_COLLECTION), simpleNotification);
+        console.log("Created simplified notification as fallback");
+      }
       
       // Try to play a notification sound
       try {
+        // Try to use browser Audio API directly for immediate feedback
+        const audio = new Audio('/sounds/alert.mp3');
+        audio.volume = 0.3;
+        await audio.play().catch(e => console.error("Browser audio API error:", e));
+        
+        // Also try the notification service for completeness
         const { NotificationService } = await import('./notification-service');
         NotificationService.playSound('alert');
       } catch (soundError) {
@@ -569,6 +599,10 @@ class P2PService {
       return true;
     } catch (error) {
       console.error("Error creating offer notification:", error);
+      // Log more details about the error for debugging
+      if (error instanceof Error) {
+        console.error("Error details:", error.message, error.stack);
+      }
       return false;
     }
   }
@@ -576,22 +610,60 @@ class P2PService {
   // Method to get user's notifications
   public async getUserNotifications(): Promise<any[]> {
     try {
-      if (!auth.currentUser?.uid) return [];
+      if (!auth.currentUser?.uid) {
+        console.log("No authenticated user found for notifications");
+        return [];
+      }
       
+      console.log("Fetching notifications for user:", auth.currentUser.uid);
+      
+      // Create a query to get all notifications for the current user
       const notificationsQuery = query(
         collection(db, this.NOTIFICATIONS_COLLECTION),
-        where("userId", "==", auth.currentUser.uid),
-        orderBy("createdAt", "desc")
+        where("userId", "==", auth.currentUser.uid)
       );
       
       const snapshot = await getDocs(notificationsQuery);
+      console.log(`Found ${snapshot.docs.length} notifications`);
       
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      // Convert documents to notification objects
+      const notifications = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          // Ensure createdAt is properly formatted
+          createdAt: data.createdAt || new Date().toISOString()
+        };
+      });
+      
+      // Sort notifications by creation date (newest first)
+      notifications.sort((a, b) => {
+        const dateA = new Date(a.createdAt);
+        const dateB = new Date(b.createdAt);
+        return dateB.getTime() - dateA.getTime();
+      });
+      
+      // Play a sound if there are unread notifications
+      const hasUnread = notifications.some(notification => !notification.read);
+      if (hasUnread) {
+        try {
+          const audio = new Audio('/sounds/alert.mp3');
+          audio.volume = 0.2;
+          audio.play().catch(e => console.error("Error playing notification sound:", e));
+        } catch (soundError) {
+          console.error("Error playing notification sound:", soundError);
+        }
+      }
+      
+      return notifications;
     } catch (error) {
       console.error("Error fetching user notifications:", error);
+      // Log detailed error for debugging
+      if (error instanceof Error) {
+        console.error("Error details:", error.message, error.stack);
+      }
+      
       return [];
     }
   }

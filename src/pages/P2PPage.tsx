@@ -43,6 +43,127 @@ const P2PPage = () => {
   const [processingOrder, setProcessingOrder] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
+// Notifications List Component
+const NotificationsList = () => {
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadNotifications = async () => {
+      try {
+        setLoading(true);
+        const data = await p2pService.getUserNotifications();
+        setNotifications(data);
+      } catch (error) {
+        console.error("Error loading notifications:", error);
+        toast.error("Failed to load notifications");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadNotifications();
+  }, []);
+
+  const markAsRead = async (notificationId: string) => {
+    try {
+      await p2pService.markNotificationAsRead(notificationId);
+      setNotifications(prev => 
+        prev.map(notif => 
+          notif.id === notificationId 
+            ? {...notif, read: true} 
+            : notif
+        )
+      );
+      toast.success("Notification marked as read");
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  };
+
+  const handleNotificationAction = async (notification: any) => {
+    if (notification.orderId) {
+      // Find the corresponding order
+      try {
+        const orders = await p2pService.getUserOrders();
+        const order = orders.find(o => o.id === notification.orderId);
+        
+        if (order) {
+          // Open the chat for this order
+          openChat(order.id);
+        } else {
+          toast.error("Order not found");
+        }
+      } catch (error) {
+        console.error("Error loading order details:", error);
+        toast.error("Failed to load order details");
+      }
+    }
+
+    // Mark notification as read
+    markAsRead(notification.id);
+  };
+
+  return (
+    <div className="max-h-[400px] overflow-y-auto pr-1">
+      {loading ? (
+        <div className="flex justify-center items-center h-20">
+          <Loader2 className="h-6 w-6 animate-spin text-white/50" />
+        </div>
+      ) : notifications.length > 0 ? (
+        <div className="space-y-3">
+          {notifications.map(notification => (
+            <div 
+              key={notification.id} 
+              className={`p-3 rounded-md border ${
+                notification.read 
+                  ? 'bg-background/30 border-white/10' 
+                  : 'bg-blue-900/20 border-blue-500/30'
+              } hover:bg-background/40 transition-colors cursor-pointer`}
+              onClick={() => handleNotificationAction(notification)}
+            >
+              <div className="flex justify-between items-start">
+                <div className="font-medium text-sm flex items-center">
+                  {notification.type === 'new_order' && (
+                    <MessageCircle className="h-4 w-4 mr-2 text-blue-400" />
+                  )}
+                  {notification.read ? null : (
+                    <span className="h-2 w-2 rounded-full bg-blue-500 mr-2" />
+                  )}
+                  New P2P Order
+                </div>
+                <div className="text-xs text-white/50">
+                  {new Date(notification.createdAt).toLocaleDateString()} {new Date(notification.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                </div>
+              </div>
+              <div className="text-sm mt-1">{notification.message}</div>
+              <div className="flex justify-end mt-2">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-xs text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    markAsRead(notification.id);
+                  }}
+                >
+                  {notification.read ? 'Already Read' : 'Mark as Read'}
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-8 text-white/50">
+          <MessageCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+          <p>No notifications yet</p>
+          <p className="text-xs mt-1">When someone interacts with your P2P offers, you'll see notifications here</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // Payment Timer Component
 const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => void }) => {
   const [timeLeft, setTimeLeft] = useState<{ minutes: number, seconds: number }>({ minutes: 0, seconds: 0 });
@@ -423,6 +544,11 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
     try {
       console.log("Placing order for offer ID:", selectedOffer.id, "User ID:", selectedOffer.userId);
       
+      // Important logging for debugging notification issues
+      console.log("Current user ID:", auth.currentUser?.uid);
+      console.log("Offer owner ID:", selectedOffer.userId);
+      console.log("Is same user?", selectedOffer.userId === auth.currentUser?.uid);
+      
       const order = await p2pService.placeOrder(
         selectedOffer.id,
         amount,
@@ -442,7 +568,9 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
       if (selectedOffer.userId && selectedOffer.userId !== auth.currentUser?.uid) {
         try {
           console.log("Sending direct notification to user:", selectedOffer.userId);
-          await p2pService.createOfferNotification(
+          
+          // Create notification with explicit parameters
+          const notificationCreated = await p2pService.createOfferNotification(
             selectedOffer.userId,
             selectedOffer.id,
             order?.id || `order-${Date.now()}`,
@@ -451,7 +579,13 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
             selectedOffer.crypto,
             selectedOffer.fiatCurrency
           );
-          console.log("Notification sent successfully");
+          
+          console.log("Notification created successfully:", notificationCreated);
+          
+          // Force a sound alert to indicate notification was sent
+          const notifyAudio = new Audio('/sounds/alert.mp3');
+          notifyAudio.volume = 0.3;
+          await notifyAudio.play().catch(e => console.error("Error playing notification sound:", e));
         } catch (notifyError) {
           console.error("Error sending notification:", notifyError);
         }
@@ -468,9 +602,13 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
         if (order) {
           openChat(order.id);
         } else {
-          const newOrder = userOrders[0]; // Most recent order should be at the top
-          if (newOrder) {
-            openChat(newOrder.id);
+          // Find the most recent order by checking creation date
+          const sortedOrders = [...userOrders].sort((a, b) => 
+            b.createdAt.getTime() - a.createdAt.getTime()
+          );
+          
+          if (sortedOrders.length > 0) {
+            openChat(sortedOrders[0].id);
           }
         }
       }, 1000);
@@ -1322,39 +1460,36 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
             </Button>
             
             {/* Notification indicator */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="relative"
-              onClick={async () => {
-                // Fetch latest notifications
-                try {
-                  const notifications = await p2pService.getUserNotifications();
-                  if (notifications.length > 0) {
-                    toast({
-                      title: "Notifications",
-                      description: `You have ${notifications.length} P2P trade notifications`,
-                    });
-                    
-                    // Play notification sound
-                    const audio = new Audio('/sounds/alert.mp3');
-                    audio.volume = 0.3;
-                    audio.play().catch(e => console.error("Error playing sound:", e));
-                  } else {
-                    toast({
-                      title: "No Notifications",
-                      description: "You don't have any pending notifications",
-                    });
-                  }
-                } catch (error) {
-                  console.error("Error fetching notifications:", error);
-                }
-              }}
-            >
-              <MessageCircle className="h-5 w-5 text-white/70" />
-              <span className="sr-only">Check notifications</span>
-              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] font-bold flex items-center justify-center animate-pulse">!</span>
-            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="relative"
+                  onClick={async () => {
+                    // Pre-fetch notifications when clicking the button
+                    try {
+                      await p2pService.getUserNotifications();
+                    } catch (error) {
+                      console.error("Error pre-fetching notifications:", error);
+                    }
+                  }}
+                >
+                  <MessageCircle className="h-5 w-5 text-white/70" />
+                  <span className="sr-only">Check notifications</span>
+                  <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] font-bold flex items-center justify-center animate-pulse">!</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-background/95 backdrop-blur-xl border-white/10 text-white">
+                <DialogHeader>
+                  <DialogTitle>Notifications</DialogTitle>
+                  <DialogDescription className="text-white/70">
+                    Your P2P trade notifications and alerts
+                  </DialogDescription>
+                </DialogHeader>
+                <NotificationsList />
+              </DialogContent>
+            </Dialog>
             
             {isDemoMode && <div className="text-sm text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-md">Demo Mode</div>}
           </div>
