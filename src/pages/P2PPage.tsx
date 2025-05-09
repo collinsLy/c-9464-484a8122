@@ -243,6 +243,13 @@ const P2PPage = () => {
       toast.error(`Amount must be between ${selectedOffer.limits.min} and ${selectedOffer.limits.max} ${selectedOffer.fiatCurrency}`);
       return;
     }
+    
+    // Calculate crypto amount before placing order to validate
+    const cryptoAmount = amount / selectedOffer.price;
+    if (cryptoAmount > selectedOffer.availableAmount) {
+      toast.error(`Not enough crypto available. Maximum: ${selectedOffer.availableAmount.toFixed(6)} ${selectedOffer.crypto}`);
+      return;
+    }
 
     setProcessingOrder(true);
 
