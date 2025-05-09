@@ -884,9 +884,7 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
           );
           
           // Play received message sound
-          const receiveAudio = new Audio('/sounds/alert.mp3');
-          receiveAudio.volume = 0.3;
-          receiveAudio.play().catch(e => console.error("Error playing sound:", e));
+          NotificationService.playSound('alert', 0.3);
           
           // Update local state with the response
           setChatMessages(prevMessages => ({
