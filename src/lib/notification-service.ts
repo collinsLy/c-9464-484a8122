@@ -159,3 +159,57 @@ export class NotificationService {
     playNext();
   }
 }
+/**
+ * Notification Service for handling sounds and alerts
+ */
+
+// Map of available sound effects
+const SOUND_EFFECTS = {
+  success: '/sounds/success.mp3',
+  error: '/sounds/error.mp3',
+  alert: '/sounds/alert.mp3',
+  deposit: '/sounds/deposit.mp3',
+  withdraw: '/sounds/warning.mp3',
+  transfer: '/sounds/transfer.mp3',
+  payment_success: '/sounds/payment_success.mp3',
+  notification: '/sounds/alert.mp3',
+};
+
+export class NotificationService {
+  // Play a sound effect
+  static async playSound(soundName: keyof typeof SOUND_EFFECTS, volume = 0.3): Promise<void> {
+    try {
+      const soundPath = SOUND_EFFECTS[soundName] || SOUND_EFFECTS.alert;
+      const audio = new Audio(soundPath);
+      audio.volume = volume;
+      await audio.play().catch(e => console.error("Browser audio API error:", e));
+    } catch (error) {
+      console.error(`Error playing ${soundName} sound:`, error);
+    }
+  }
+
+  // Show desktop notification if supported
+  static async showNotification(title: string, options?: NotificationOptions): Promise<void> {
+    try {
+      // Check if browser supports notifications
+      if (!("Notification" in window)) {
+        console.warn("This browser does not support desktop notifications");
+        return;
+      }
+
+      // Check if permission is granted
+      if (Notification.permission === "granted") {
+        new Notification(title, options);
+      } else if (Notification.permission !== "denied") {
+        const permission = await Notification.requestPermission();
+        if (permission === "granted") {
+          new Notification(title, options);
+        }
+      }
+    } catch (error) {
+      console.error("Error showing notification:", error);
+    }
+  }
+}
+
+export default NotificationService;

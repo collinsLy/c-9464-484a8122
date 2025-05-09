@@ -89,6 +89,98 @@ export interface P2POrder {
 // API endpoint for crypto prices
 const CRYPTO_PRICE_API = "https://api.coingecko.com/api/v3/simple/price";
 
+import { toast } from "sonner";
+import { db } from "./firebase";
+import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc, orderBy, onSnapshot } from "firebase/firestore";
+import { auth } from './firebase';
+import { NotificationService } from './notification-service';
+
+// API endpoint for crypto prices
+const CRYPTO_PRICE_API = "https://api.coingecko.com/api/v3/simple/price";
+
+export interface P2POffer {
+  id: string;
+  user: {
+    name: string;
+    avatar: string;
+    rating: number;
+    completedTrades: number;
+    orderCount?: number;
+    completionRate?: number;
+    responseTime?: number; // in minutes
+  };
+  crypto: string;
+  price: number;
+  fiatCurrency: string;
+  paymentMethods: string[];
+  limits: {
+    min: number;
+    max: number;
+  };
+  availableAmount: number;
+  terms: string;
+  createdAt: Date;
+  paymentDetails?: {
+    bankName?: string;
+    accountNumber?: string;
+    accountHolderName?: string;
+    swiftCode?: string;
+    branchCode?: string;
+    paypalEmail?: string;
+    paypalName?: string;
+    mobileNumber?: string;
+    mpesaName?: string;
+    mobileProvider?: string;
+    otherProvider?: string;
+    accountName?: string;
+    meetingLocation?: string;
+    contactNumber?: string;
+    preferredTime?: string;
+    instructions?: string;
+    [key: string]: any;
+  };
+  type?: 'buy' | 'sell'; // To track if it's a buy or sell offer
+  advertisersTerms?: string; // Additional terms specifically from advertiser
+  userId?: string; // Firebase user ID of the offer creator
+}
+
+export interface P2POrder {
+  id: string;
+  referenceNumber?: string; // Reference number for payment
+  offerId: string;
+  type: 'buy' | 'sell';
+  status: 'pending' | 'awaiting_release' | 'completed' | 'cancelled' | 'dispute_opened' | 'refunded';
+  amount: number;
+  total: number;
+  crypto: string;
+  fiatCurrency: string;
+  createdAt: Date;
+  updatedAt?: Date; // Track status change times
+  seller: string;
+  buyer: string;
+  paymentMethod: string;
+  paymentWindow?: number; // Time in minutes to complete payment
+  paymentDeadline?: Date; // Calculated deadline for payment
+  paymentDetails?: {
+    bankName?: string;
+    accountNumber?: string;
+    accountHolderName?: string;
+    swiftCode?: string;
+    branchCode?: string;
+    paypalEmail?: string;
+    paypalName?: string;
+    mobileNumber?: string;
+    mpesaName?: string;
+    mobileProvider?: string;
+    otherProvider?: string;
+    accountName?: string;
+    meetingLocation?: string;
+    contactNumber?: string;
+    preferredTime?: string;
+    instructions?: string;
+  };
+}
+
 class P2PService {
   private buyOffers: P2POffer[] = [];
   private sellOffers: P2POffer[] = [];
@@ -358,20 +450,34 @@ class P2PService {
     }
   }
 
-  public async getUserOrders(): Promise<P2POrder[]> {
+  public async getUserOrders(forceRefresh = false): Promise<P2POrder[]> {
     try {
-      const userId = auth.currentUser?.uid || 'anonymous';
+      // If no user is logged in, return empty array
+      if (!auth.currentUser) {
+        return [];
+      }
+      
+      const userId = auth.currentUser.uid;
+      
+      // If we have cached orders and not forcing refresh, return them
+      if (this.userOrders.length > 0 && !forceRefresh) {
+        return [...this.userOrders];
+      }
+
+      console.log(`Fetching orders for user: ${userId}`);
 
       // Query Firebase for orders where user is the direct creator
       const buyerOrdersQuery = query(
         collection(db, this.ORDERS_COLLECTION),
-        where("userId", "==", userId)
+        where("userId", "==", userId),
+        orderBy("createdAt", "desc") // Order by creation date, newest first
       );
 
       // Query Firebase for orders where user is the offer owner
       const sellerOrdersQuery = query(
         collection(db, this.ORDERS_COLLECTION),
-        where("offerOwnerId", "==", userId)
+        where("offerOwnerId", "==", userId),
+        orderBy("createdAt", "desc") // Order by creation date, newest first
       );
 
       // Get both sets of orders
@@ -387,7 +493,10 @@ class P2PService {
           ...data,
           id: data.id || doc.id,
           createdAt: new Date(data.createdAt),
-          paymentDeadline: data.paymentDeadline ? new Date(data.paymentDeadline) : undefined
+          updatedAt: data.updatedAt ? new Date(data.updatedAt) : undefined,
+          paymentDeadline: data.paymentDeadline ? new Date(data.paymentDeadline) : undefined,
+          // Ensure payment details exists
+          paymentDetails: data.paymentDetails || {}
         } as P2POrder;
       });
 
@@ -398,25 +507,37 @@ class P2PService {
           ...data,
           id: data.id || doc.id,
           createdAt: new Date(data.createdAt),
-          paymentDeadline: data.paymentDeadline ? new Date(data.paymentDeadline) : undefined
+          updatedAt: data.updatedAt ? new Date(data.updatedAt) : undefined,
+          paymentDeadline: data.paymentDeadline ? new Date(data.paymentDeadline) : undefined,
+          // Ensure payment details exists
+          paymentDetails: data.paymentDetails || {}
         } as P2POrder;
       });
 
+      console.log(`Found ${buyerOrders.length} buyer orders and ${sellerOrders.length} seller orders`);
+
       // Combine and deduplicate orders
-      const combinedOrders = [...buyerOrders];
+      const combinedOrders: P2POrder[] = [];
+      const orderIds = new Set<string>();
       
-      // Add seller orders that aren't already in the buyer orders
-      sellerOrders.forEach(sellerOrder => {
-        if (!combinedOrders.some(order => order.id === sellerOrder.id)) {
-          combinedOrders.push(sellerOrder);
+      // Add buyer orders
+      for (const order of buyerOrders) {
+        if (!orderIds.has(order.id)) {
+          combinedOrders.push(order);
+          orderIds.add(order.id);
         }
-      });
+      }
+      
+      // Add seller orders that aren't already in the combined orders
+      for (const order of sellerOrders) {
+        if (!orderIds.has(order.id)) {
+          combinedOrders.push(order);
+          orderIds.add(order.id);
+        }
+      }
 
       // Sort orders by creation date (newest first)
       combinedOrders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-
-      // Log for debugging
-      console.log(`Found ${buyerOrders.length} buyer orders and ${sellerOrders.length} seller orders for user ${userId}`);
 
       // Update local cache
       this.userOrders = combinedOrders;
@@ -424,7 +545,13 @@ class P2PService {
       return combinedOrders;
     } catch (error) {
       console.error("Error fetching user orders:", error);
-      // Fall back to local cache if Firebase query fails
+      
+      // Log more detailed error information
+      if (error instanceof Error) {
+        console.error("Error details:", error.message, error.stack);
+      }
+      
+      // Return cached orders if available, or empty array
       return [...this.userOrders];
     }
   }
@@ -435,12 +562,33 @@ class P2PService {
     type: 'buy' | 'sell'
   ): Promise<P2POrder> {
     try {
+      if (!auth.currentUser) {
+        throw new Error("You need to be signed in to place an order");
+      }
+
       // Find the offer
       const offerList = type === 'buy' ? this.buyOffers : this.sellOffers;
-      const offer = offerList.find(o => o.id === offerId);
-
+      let offer = offerList.find(o => o.id === offerId);
+      
+      // If not found in memory, try to fetch from Firebase
       if (!offer) {
-        throw new Error("Offer not found");
+        const offersQuery = query(
+          collection(db, this.OFFERS_COLLECTION),
+          where("id", "==", offerId)
+        );
+        
+        const snapshot = await getDocs(offersQuery);
+        if (snapshot.empty) {
+          throw new Error("Offer not found");
+        }
+        
+        const offerData = snapshot.docs[0].data();
+        offer = {
+          ...offerData,
+          id: offerData.id,
+          createdAt: new Date(offerData.createdAt),
+          user: offerData.user || { name: "Anonymous", avatar: "", rating: 0, completedTrades: 0 }
+        } as P2POffer;
       }
 
       if (amount < offer.limits.min || amount > offer.limits.max) {
@@ -472,9 +620,6 @@ class P2PService {
       const paymentWindow = 15;
       const paymentDeadline = new Date(Date.now() + (paymentWindow * 60 * 1000));
 
-      // Log payment details before creating order
-      console.log("Original offer payment details:", offer.paymentDetails);
-
       // Create new order
       const newOrder: P2POrder = {
         id: `order-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
@@ -502,59 +647,66 @@ class P2PService {
       // Add to user orders
       this.userOrders.push(newOrder);
 
-      // Log order before saving to Firebase
-      console.log("Saving order with payment details:", newOrder.paymentDetails);
-
       // Save order to Firebase
       const orderData = {
         ...newOrder,
         createdAt: newOrder.createdAt.toISOString(),
         paymentDeadline: paymentDeadline.toISOString(),
-        userId: auth.currentUser?.uid || 'anonymous',
+        userId: auth.currentUser.uid,
         // Store the offer owner's ID to send them notifications
         offerOwnerId: offer.userId,
         // Ensure payment details are explicitly included
         paymentDetails: newOrder.paymentDetails || {}
       };
 
-      const orderRef = await addDoc(collection(db, this.ORDERS_COLLECTION), orderData);
+      try {
+        const orderRef = await addDoc(collection(db, this.ORDERS_COLLECTION), orderData);
+        console.log(`Order saved to Firebase with ID: ${orderRef.id}`);
+      } catch (firebaseError) {
+        console.error("Firebase error saving order:", firebaseError);
+        throw new Error("Failed to save order. Please try again.");
+      }
 
       // Update the offer's available amount in Firebase
-      // First find the offer document
-      const offersQuery = query(
-        collection(db, this.OFFERS_COLLECTION),
-        where("id", "==", offerId)
-      );
+      try {
+        // Find the offer document
+        const offersQuery = query(
+          collection(db, this.OFFERS_COLLECTION),
+          where("id", "==", offerId)
+        );
 
-      const snapshot = await getDocs(offersQuery);
-      if (!snapshot.empty) {
-        const offerDoc = snapshot.docs[0];
-        await updateDoc(doc(db, this.OFFERS_COLLECTION, offerDoc.id), {
-          availableAmount: offer.availableAmount
-        });
-        
-        // Send notification to offer owner if they're not the current user
-        if (offer.userId && offer.userId !== auth.currentUser?.uid) {
-          // Create a notification in the database
-          await this.createOfferNotification(
-            offer.userId, 
-            offer.id, 
-            newOrder.id, 
-            type, 
-            amount, 
-            offer.crypto,
-            offer.fiatCurrency
-          );
+        const snapshot = await getDocs(offersQuery);
+        if (!snapshot.empty) {
+          const offerDoc = snapshot.docs[0];
+          await updateDoc(doc(db, this.OFFERS_COLLECTION, offerDoc.id), {
+            availableAmount: offer.availableAmount
+          });
           
-          // Play notification sound to indicate new order
-          try {
-            // Import dynamically to avoid circular dependency
-            const { NotificationService } = await import('./notification-service');
-            NotificationService.playSound('payment_success');
-          } catch (error) {
-            console.error("Error playing notification sound:", error);
+          // Send notification to offer owner if they're not the current user
+          if (offer.userId && offer.userId !== auth.currentUser.uid) {
+            // Create a notification in the database
+            await this.createOfferNotification(
+              offer.userId, 
+              offer.id, 
+              newOrder.id, 
+              type, 
+              amount, 
+              offer.crypto,
+              offer.fiatCurrency
+            );
+            
+            // Play notification sound
+            try {
+              NotificationService.playSound('payment_success', 0.5);
+            } catch (soundError) {
+              console.error("Error playing notification sound:", soundError);
+            }
           }
         }
+      } catch (updateError) {
+        console.error("Error updating offer amount:", updateError);
+        // Continue with the order even if offer update fails
+        // We'll handle this case in the UI by refreshing data
       }
 
       return newOrder;
@@ -582,7 +734,12 @@ class P2PService {
         return false;
       }
       
-      console.log(`Creating notification for user ${userId} about order ${orderId}`);
+      // Ensure we have the latest crypto prices
+      await this.updateCryptoPrices();
+      
+      // Calculate crypto amount using current price
+      const cryptoPrice = this.cryptoPrices[crypto] || 1;
+      const estimatedCryptoAmount = amount / cryptoPrice;
       
       // Create a notification document in Firestore with detailed information
       const notification = {
@@ -590,59 +747,47 @@ class P2PService {
         offerId,
         orderId,
         type: 'new_order',
-        message: `Someone is interested in your ${orderType === 'buy' ? 'sell' : 'buy'} offer! New order for ${amount} ${fiatCurrency} (${(amount / this.cryptoPrices[crypto] || 1).toFixed(6)} ${crypto})`,
+        message: `Someone is interested in your ${orderType === 'buy' ? 'sell' : 'buy'} offer! New order for ${amount} ${fiatCurrency} (${estimatedCryptoAmount.toFixed(6)} ${crypto})`,
         read: false,
         createdAt: new Date().toISOString(),
         senderId: auth.currentUser?.uid || 'anonymous',
-        cryptoAmount: (amount / this.cryptoPrices[crypto] || 1).toFixed(8),
+        cryptoAmount: estimatedCryptoAmount.toFixed(8),
         cryptoSymbol: crypto,
         fiatAmount: amount,
         fiatCurrency: fiatCurrency
       };
       
-      // Log the notification data being saved
-      console.log("Saving notification with data:", JSON.stringify(notification));
-      
-      // Add the notification to the Firestore collection
       try {
+        // Add the notification to the Firestore collection
         const docRef = await addDoc(collection(db, this.NOTIFICATIONS_COLLECTION), notification);
-        console.log(`Notification created for user ${userId} about order ${orderId}, doc ID: ${docRef.id}`);
+        
+        // Try to play a notification sound using NotificationService
+        NotificationService.playSound('alert', 0.3);
+        
+        // Try to show a desktop notification if supported
+        NotificationService.showNotification("New P2P Order", {
+          body: `New order for ${amount} ${fiatCurrency}`,
+          icon: "/favicon.svg"
+        });
+        
+        return true;
       } catch (dbError) {
         console.error("Firestore error creating notification:", dbError);
+        
         // Try without detailed data if it's causing an issue
         const simpleNotification = {
           userId,
           type: 'new_order',
-          message: `New P2P order notification`,
+          message: `New P2P order notification for ${amount} ${fiatCurrency}`,
           read: false,
           createdAt: new Date().toISOString()
         };
         
         await addDoc(collection(db, this.NOTIFICATIONS_COLLECTION), simpleNotification);
-        console.log("Created simplified notification as fallback");
+        return true;
       }
-      
-      // Try to play a notification sound
-      try {
-        // Try to use browser Audio API directly for immediate feedback
-        const audio = new Audio('/sounds/alert.mp3');
-        audio.volume = 0.3;
-        await audio.play().catch(e => console.error("Browser audio API error:", e));
-        
-        // Also try the notification service for completeness
-        const { NotificationService } = await import('./notification-service');
-        NotificationService.playSound('alert');
-      } catch (soundError) {
-        console.error("Error playing notification sound:", soundError);
-      }
-      
-      return true;
     } catch (error) {
       console.error("Error creating offer notification:", error);
-      // Log more details about the error for debugging
-      if (error instanceof Error) {
-        console.error("Error details:", error.message, error.stack);
-      }
       return false;
     }
   }

@@ -18,7 +18,7 @@ import { Search, Filter, ChevronDown, MessageCircle, ShieldCheck, ArrowUpRight, 
 import { toast } from "sonner";
 import p2pService, { P2POffer, P2POrder } from "@/lib/p2p-service";
 import { auth } from "@/lib/firebase";
-import { onSnapshot, collection, query, where, orderBy } from "firebase/firestore";
+import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 const P2PPage = () => {
@@ -42,6 +42,9 @@ const P2PPage = () => {
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [processingOrder, setProcessingOrder] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+// Import our helper components
+import { PaymentDetails, formatPaymentDetails } from '@/components/p2p/P2PHelpers';
 
 // Notifications List Component
 const NotificationsList = () => {
