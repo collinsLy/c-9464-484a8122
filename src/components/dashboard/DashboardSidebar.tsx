@@ -73,6 +73,7 @@ const defaultNavCategories: NavCategory[] = [
       { icon: BrainCircuit, label: "Strategy Trading", id: "strategy-trading", path: "/strategy-trading" },
       { icon: Users, label: "P2P", id: "p2p", path: "/p2p" },
       { icon: PlayCircle, label: "Trading Bots", id: "bots", path: "/bots" },
+      { icon: ArrowLeftRight, label: "Crypto Converter", id: "crypto-converter", path: "/crypto-converter" },
     ]
   },
   {

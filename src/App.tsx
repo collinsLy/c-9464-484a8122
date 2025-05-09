@@ -42,7 +42,7 @@ import LiquidityFarmingPage from "./pages/LiquidityFarmingPage";
 import ApiManagementPage from "./pages/ApiManagementPage";
 import RiskAnalysisPage from "./pages/RiskAnalysisPage"; // Added
 import AITradingAssistantPage from "./pages/AITradingAssistantPage"; // Added
-
+import CryptoConverterPage from "./pages/CryptoConverterPage";
 
 // Configure query client to not show error toasts
 const queryClient = new QueryClient({
@@ -102,6 +102,7 @@ const App = () => (
               <Route path="/api-management" element={<ErrorBoundary><ApiManagementPage /></ErrorBoundary>} />
               <Route path="/risk-analysis" element={<ErrorBoundary><RiskAnalysisPage /></ErrorBoundary>} /> {/* Added */}
               <Route path="/ai-assistant" element={<ErrorBoundary><AITradingAssistantPage /></ErrorBoundary>} /> {/* Added */}
+              <Route path="/crypto-converter" element={<ErrorBoundary><CryptoConverterPage /></ErrorBoundary>} />
             </Routes>
           </DashboardProvider>
         </BrowserRouter>
