@@ -1,4 +1,7 @@
 import { toast } from "sonner";
+import { db } from "./firebase";
+import { collection, addDoc, getDocs, query, where, updateDoc, doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
+import { auth } from './firebase';
 
 export interface P2POffer {
   id: string;
@@ -46,6 +49,8 @@ class P2PService {
   private cryptoPrices: Record<string, number> = {};
   private lastPriceUpdate: number = 0;
   private priceUpdateInterval: number = 60000; // 1 minute
+  private readonly OFFERS_COLLECTION = "p2pOffers";
+  private readonly ORDERS_COLLECTION = "p2pOrders";
 
   constructor() {
     // Initialize with dynamic data based on current prices
@@ -156,81 +161,152 @@ class P2PService {
 
   // Method to create an offer
   public async createP2POffer(offer: Omit<P2POffer, 'id' | 'createdAt'>): Promise<P2POffer> {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Generate ID and add creation date
-        const newOffer: P2POffer = {
-          ...offer,
-          id: `offer-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-          createdAt: new Date()
-        };
+    try {
+      // Generate ID and add creation date
+      const newOffer: P2POffer = {
+        ...offer,
+        id: `offer-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        createdAt: new Date()
+      };
 
-        // Get current price for reference
-        const currentPrice = this.cryptoPrices[offer.crypto] || 0;
-        
-        console.log(`Creating offer: ${offer.user.name} wants to trade ${offer.crypto} at price ${offer.price}, current market price: ${currentPrice}`);
-        
-        // Always add user's offers to the appropriate list
-        if (offer.user.name === "You") {
-          // For user ads, determine if it's a buy or sell based on price comparison
-          // Higher than market price = buy offer (user wants to buy at premium)
-          // Lower than market price = sell offer (user wants to sell at discount)
-          if (offer.price > currentPrice) {
-            console.log(`Adding to buy offers: ${offer.user.name} wants to buy ${offer.crypto}`);
-            this.buyOffers.push(newOffer);
-          } else {
-            console.log(`Adding to sell offers: ${offer.user.name} wants to sell ${offer.crypto}`);
-            this.sellOffers.push(newOffer);
-          }
-        } else {
-          // For vendor offers, follow the same logic
-          if (offer.price > currentPrice) {
-            this.buyOffers.push(newOffer);
-          } else {
-            this.sellOffers.push(newOffer);
-          }
-        }
-
-        resolve(newOffer);
-      }, 300);
-    });
+      // Get current price for reference
+      const currentPrice = this.cryptoPrices[offer.crypto] || 0;
+      
+      console.log(`Creating offer: ${offer.user.name} wants to trade ${offer.crypto} at price ${offer.price}, current market price: ${currentPrice}`);
+      
+      // Determine if it's a buy or sell offer
+      const offerType = offer.price > currentPrice ? 'buy' : 'sell';
+      
+      // Add to memory for immediate use
+      if (offerType === 'buy') {
+        this.buyOffers.push(newOffer);
+      } else {
+        this.sellOffers.push(newOffer);
+      }
+      
+      // Save to Firebase
+      const offerData = {
+        ...newOffer,
+        type: offerType,
+        createdAt: newOffer.createdAt.toISOString(), // Convert Date to string for Firestore
+        userId: auth.currentUser?.uid || 'anonymous' // Track who created the offer
+      };
+      
+      await addDoc(collection(db, this.OFFERS_COLLECTION), offerData);
+      console.log(`Offer saved to Firebase: ${newOffer.id}`);
+      
+      return newOffer;
+    } catch (error) {
+      console.error("Error creating P2P offer:", error);
+      throw error;
+    }
   }
 
-  public getBuyOffers(): Promise<P2POffer[]> {
+  public async getBuyOffers(): Promise<P2POffer[]> {
     // If prices haven't been updated recently, update them
     if (Date.now() - this.lastPriceUpdate > this.priceUpdateInterval) {
-      this.updateCryptoPrices();
+      await this.updateCryptoPrices();
     }
 
-    // Simulate API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve([...this.buyOffers]);
-      }, 500);
-    });
+    try {
+      // Query Firebase for buy offers
+      const offersQuery = query(
+        collection(db, this.OFFERS_COLLECTION), 
+        where("type", "==", "buy")
+      );
+      
+      const snapshot = await getDocs(offersQuery);
+      
+      // Convert Firestore documents to P2POffer objects
+      const offers: P2POffer[] = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          ...data,
+          id: data.id || doc.id,
+          createdAt: new Date(data.createdAt), // Convert string back to Date
+          user: data.user || { name: "Anonymous", avatar: "", rating: 0, completedTrades: 0 }
+        } as P2POffer;
+      });
+      
+      // Update the local cache
+      this.buyOffers = offers;
+      
+      return offers;
+    } catch (error) {
+      console.error("Error fetching buy offers:", error);
+      // Fall back to local cache if Firebase query fails
+      return [...this.buyOffers];
+    }
   }
 
-  public getSellOffers(): Promise<P2POffer[]> {
+  public async getSellOffers(): Promise<P2POffer[]> {
     // If prices haven't been updated recently, update them
     if (Date.now() - this.lastPriceUpdate > this.priceUpdateInterval) {
-      this.updateCryptoPrices();
+      await this.updateCryptoPrices();
     }
 
-    // Simulate API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve([...this.sellOffers]);
-      }, 500);
-    });
+    try {
+      // Query Firebase for sell offers
+      const offersQuery = query(
+        collection(db, this.OFFERS_COLLECTION), 
+        where("type", "==", "sell")
+      );
+      
+      const snapshot = await getDocs(offersQuery);
+      
+      // Convert Firestore documents to P2POffer objects
+      const offers: P2POffer[] = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          ...data,
+          id: data.id || doc.id,
+          createdAt: new Date(data.createdAt), // Convert string back to Date
+          user: data.user || { name: "Anonymous", avatar: "", rating: 0, completedTrades: 0 }
+        } as P2POffer;
+      });
+      
+      // Update the local cache
+      this.sellOffers = offers;
+      
+      return offers;
+    } catch (error) {
+      console.error("Error fetching sell offers:", error);
+      // Fall back to local cache if Firebase query fails
+      return [...this.sellOffers];
+    }
   }
 
-  public getUserOrders(): Promise<P2POrder[]> {
-    // Simulate API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve([...this.userOrders]);
-      }, 500);
-    });
+  public async getUserOrders(): Promise<P2POrder[]> {
+    try {
+      const userId = auth.currentUser?.uid || 'anonymous';
+      
+      // Query Firebase for user's orders
+      const ordersQuery = query(
+        collection(db, this.ORDERS_COLLECTION),
+        where("userId", "==", userId)
+      );
+      
+      const snapshot = await getDocs(ordersQuery);
+      
+      // Convert Firestore documents to P2POrder objects
+      const orders: P2POrder[] = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          ...data,
+          id: data.id || doc.id,
+          createdAt: new Date(data.createdAt) // Convert string back to Date
+        } as P2POrder;
+      });
+      
+      // Update local cache
+      this.userOrders = orders;
+      
+      return orders;
+    } catch (error) {
+      console.error("Error fetching user orders:", error);
+      // Fall back to local cache if Firebase query fails
+      return [...this.userOrders];
+    }
   }
 
   public async placeOrder(
@@ -238,54 +314,77 @@ class P2PService {
     amount: number, 
     type: 'buy' | 'sell'
   ): Promise<P2POrder> {
-    // Find the offer
-    const offerList = type === 'buy' ? this.buyOffers : this.sellOffers;
-    const offer = offerList.find(o => o.id === offerId);
+    try {
+      // Find the offer
+      const offerList = type === 'buy' ? this.buyOffers : this.sellOffers;
+      const offer = offerList.find(o => o.id === offerId);
 
-    if (!offer) {
-      throw new Error("Offer not found");
+      if (!offer) {
+        throw new Error("Offer not found");
+      }
+
+      if (amount < offer.limits.min || amount > offer.limits.max) {
+        throw new Error(`Amount must be between ${offer.limits.min} and ${offer.limits.max} ${offer.fiatCurrency}`);
+      }
+
+      // Calculate crypto amount
+      const cryptoAmount = amount / offer.price;
+
+      if (cryptoAmount > offer.availableAmount) {
+        throw new Error(`Not enough crypto available. Maximum: ${offer.availableAmount} ${offer.crypto}`);
+      }
+
+      // Create new order
+      const newOrder: P2POrder = {
+        id: `order-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        offerId: offer.id,
+        type,
+        status: 'pending',
+        amount,
+        total: cryptoAmount,
+        crypto: offer.crypto,
+        fiatCurrency: offer.fiatCurrency,
+        createdAt: new Date(),
+        seller: type === 'buy' ? offer.user.name : 'You',
+        buyer: type === 'buy' ? 'You' : offer.user.name,
+        paymentMethod: offer.paymentMethods[0]
+      };
+
+      // Update available amount in the offer
+      offer.availableAmount -= cryptoAmount;
+
+      // Add to user orders
+      this.userOrders.push(newOrder);
+      
+      // Save order to Firebase
+      const orderData = {
+        ...newOrder,
+        createdAt: newOrder.createdAt.toISOString(),
+        userId: auth.currentUser?.uid || 'anonymous'
+      };
+      
+      await addDoc(collection(db, this.ORDERS_COLLECTION), orderData);
+      
+      // Update the offer's available amount in Firebase
+      // First find the offer document
+      const offersQuery = query(
+        collection(db, this.OFFERS_COLLECTION),
+        where("id", "==", offerId)
+      );
+      
+      const snapshot = await getDocs(offersQuery);
+      if (!snapshot.empty) {
+        const offerDoc = snapshot.docs[0];
+        await updateDoc(doc(db, this.OFFERS_COLLECTION, offerDoc.id), {
+          availableAmount: offer.availableAmount
+        });
+      }
+      
+      return newOrder;
+    } catch (error) {
+      console.error("Error placing P2P order:", error);
+      throw error;
     }
-
-    if (amount < offer.limits.min || amount > offer.limits.max) {
-      throw new Error(`Amount must be between ${offer.limits.min} and ${offer.limits.max} ${offer.fiatCurrency}`);
-    }
-
-    // Calculate crypto amount
-    const cryptoAmount = amount / offer.price;
-
-    if (cryptoAmount > offer.availableAmount) {
-      throw new Error(`Not enough crypto available. Maximum: ${offer.availableAmount} ${offer.crypto}`);
-    }
-
-    // Create new order
-    const newOrder: P2POrder = {
-      id: `order-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-      offerId: offer.id,
-      type,
-      status: 'pending',
-      amount,
-      total: cryptoAmount,
-      crypto: offer.crypto,
-      fiatCurrency: offer.fiatCurrency,
-      createdAt: new Date(),
-      seller: type === 'buy' ? offer.user.name : 'You',
-      buyer: type === 'buy' ? 'You' : offer.user.name,
-      paymentMethod: offer.paymentMethods[0]
-    };
-
-    // In a real app, you would send this to your backend
-    // Simulate API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Update available amount
-        offer.availableAmount -= cryptoAmount;
-
-        // Add to user orders
-        this.userOrders.push(newOrder);
-
-        resolve(newOrder);
-      }, 1000);
-    });
   }
 
   public async filterOffers(
@@ -297,43 +396,68 @@ class P2PService {
       searchQuery?: string;
     }
   ): Promise<P2POffer[]> {
-    const offers = type === 'buy' ? this.buyOffers : this.sellOffers;
-
-    // If prices haven't been updated recently, update them
-    if (Date.now() - this.lastPriceUpdate > this.priceUpdateInterval) {
-      await this.updateCryptoPrices();
+    try {
+      // If prices haven't been updated recently, update them
+      if (Date.now() - this.lastPriceUpdate > this.priceUpdateInterval) {
+        await this.updateCryptoPrices();
+      }
+      
+      // First, get all offers of the requested type
+      let offers: P2POffer[];
+      if (type === 'buy') {
+        offers = await this.getBuyOffers();
+      } else {
+        offers = await this.getSellOffers();
+      }
+      
+      // Then apply filters in memory
+      const filtered = offers.filter(offer => {
+        if (filters.crypto && filters.crypto !== 'all' && offer.crypto !== filters.crypto) return false;
+        if (filters.fiat && filters.fiat !== 'all' && offer.fiatCurrency !== filters.fiat) return false;
+        if (filters.paymentMethod && filters.paymentMethod !== 'all' && 
+            !offer.paymentMethods.some(method => method.toLowerCase().includes(filters.paymentMethod!.toLowerCase()))) return false;
+        if (filters.searchQuery && !offer.user.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
+        return true;
+      });
+      
+      return filtered;
+    } catch (error) {
+      console.error("Error filtering offers:", error);
+      throw error;
     }
-
-    // Simulate API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const filtered = offers.filter(offer => {
-          if (filters.crypto && filters.crypto !== 'all' && offer.crypto !== filters.crypto) return false;
-          if (filters.fiat && filters.fiat !== 'all' && offer.fiatCurrency !== filters.fiat) return false;
-          if (filters.paymentMethod && filters.paymentMethod !== 'all' && 
-              !offer.paymentMethods.some(method => method.toLowerCase().includes(filters.paymentMethod!.toLowerCase()))) return false;
-          if (filters.searchQuery && !offer.user.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
-          return true;
-        });
-
-        resolve(filtered);
-      }, 300);
-    });
   }
 
   public async cancelOrder(orderId: string): Promise<boolean> {
-    // Simulate API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const orderIndex = this.userOrders.findIndex(o => o.id === orderId);
-        if (orderIndex >= 0) {
-          this.userOrders[orderIndex].status = 'cancelled';
-          resolve(true);
-        } else {
-          resolve(false);
-        }
-      }, 800);
-    });
+    try {
+      // Find the order in Firebase
+      const ordersQuery = query(
+        collection(db, this.ORDERS_COLLECTION),
+        where("id", "==", orderId)
+      );
+      
+      const snapshot = await getDocs(ordersQuery);
+      
+      if (snapshot.empty) {
+        return false;
+      }
+      
+      // Update the order status in Firebase
+      const orderDoc = snapshot.docs[0];
+      await updateDoc(doc(db, this.ORDERS_COLLECTION, orderDoc.id), {
+        status: 'cancelled'
+      });
+      
+      // Update the order in local cache
+      const orderIndex = this.userOrders.findIndex(o => o.id === orderId);
+      if (orderIndex >= 0) {
+        this.userOrders[orderIndex].status = 'cancelled';
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      return false;
+    }
   }
 
   public async getCurrentPrices(): Promise<Record<string, number>> {
