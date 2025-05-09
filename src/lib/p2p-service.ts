@@ -471,11 +471,13 @@ class P2PService {
         createdAt: newOrder.createdAt.toISOString(),
         paymentDeadline: paymentDeadline.toISOString(),
         userId: auth.currentUser?.uid || 'anonymous',
+        // Store the offer owner's ID to send them notifications
+        offerOwnerId: offer.userId,
         // Ensure payment details are explicitly included
         paymentDetails: newOrder.paymentDetails || {}
       };
 
-      await addDoc(collection(db, this.ORDERS_COLLECTION), orderData);
+      const orderRef = await addDoc(collection(db, this.ORDERS_COLLECTION), orderData);
 
       // Update the offer's available amount in Firebase
       // First find the offer document
@@ -490,12 +492,104 @@ class P2PService {
         await updateDoc(doc(db, this.OFFERS_COLLECTION, offerDoc.id), {
           availableAmount: offer.availableAmount
         });
+        
+        // Send notification to offer owner if they're not the current user
+        if (offer.userId && offer.userId !== auth.currentUser?.uid) {
+          // Create a notification in the database
+          await this.createOfferNotification(
+            offer.userId, 
+            offer.id, 
+            newOrder.id, 
+            type, 
+            amount, 
+            offer.crypto,
+            offer.fiatCurrency
+          );
+          
+          // Play notification sound to indicate new order
+          try {
+            // Import dynamically to avoid circular dependency
+            const { NotificationService } = await import('./notification-service');
+            NotificationService.playSound('payment_success');
+          } catch (error) {
+            console.error("Error playing notification sound:", error);
+          }
+        }
       }
 
       return newOrder;
     } catch (error) {
       console.error("Error placing P2P order:", error);
       throw error;
+    }
+  }
+  
+  // Add a method to create notifications for offer owners
+  private readonly NOTIFICATIONS_COLLECTION = "p2pNotifications";
+  
+  private async createOfferNotification(
+    userId: string,
+    offerId: string,
+    orderId: string,
+    orderType: 'buy' | 'sell',
+    amount: number,
+    crypto: string,
+    fiatCurrency: string
+  ): Promise<void> {
+    try {
+      // Create a notification document in Firestore
+      const notification = {
+        userId,
+        offerId,
+        orderId,
+        type: 'new_order',
+        message: `Someone is interested in your ${orderType === 'buy' ? 'sell' : 'buy'} offer! New order for ${amount} ${fiatCurrency} (${(amount / this.cryptoPrices[crypto] || 1).toFixed(6)} ${crypto})`,
+        read: false,
+        createdAt: new Date().toISOString()
+      };
+      
+      await addDoc(collection(db, this.NOTIFICATIONS_COLLECTION), notification);
+      console.log(`Notification created for user ${userId} about order ${orderId}`);
+      
+    } catch (error) {
+      console.error("Error creating offer notification:", error);
+    }
+  }
+  
+  // Method to get user's notifications
+  public async getUserNotifications(): Promise<any[]> {
+    try {
+      if (!auth.currentUser?.uid) return [];
+      
+      const notificationsQuery = query(
+        collection(db, this.NOTIFICATIONS_COLLECTION),
+        where("userId", "==", auth.currentUser.uid),
+        orderBy("createdAt", "desc")
+      );
+      
+      const snapshot = await getDocs(notificationsQuery);
+      
+      return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    } catch (error) {
+      console.error("Error fetching user notifications:", error);
+      return [];
+    }
+  }
+  
+  // Mark a notification as read
+  public async markNotificationAsRead(notificationId: string): Promise<boolean> {
+    try {
+      const notificationRef = doc(db, this.NOTIFICATIONS_COLLECTION, notificationId);
+      await updateDoc(notificationRef, {
+        read: true
+      });
+      return true;
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+      return false;
     }
   }
 
