@@ -837,8 +837,7 @@ const P2PPage = () => {
                                       {offer.user.completionRate?.toFixed(2) || (99 + Math.random()).toFixed(2)}% completion
                                     </div>
                                     {offer.user.responseTime && (
-                                      <div className="text-xs```text
- text-white/60">
+                                      <div className="text-xs text-white/60">
                                         {offer.user.responseTime} min response
                                       </div>
                                     )}
