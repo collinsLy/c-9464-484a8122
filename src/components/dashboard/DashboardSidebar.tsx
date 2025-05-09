@@ -52,6 +52,8 @@ const defaultNavCategories: NavCategory[] = [
     items: [
       { icon: Home, label: "Dashboard", id: "dashboard", path: "/dashboard" },
       { icon: Wallet, label: "Assets", id: "assets", path: "/assets" },
+      { icon: ArrowUpCircle, label: "Deposit", id: "deposit", path: "/deposit" },
+      { icon: ArrowDownCircle, label: "Withdraw", id: "withdraw", path: "/withdraw" },
       { icon: History, label: "History", id: "history", path: "/history" },
       { icon: Settings, label: "Settings", id: "settings", path: "/settings" },
     ]
