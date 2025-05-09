@@ -58,12 +58,33 @@ const P2PPage = () => {
 
   // Payment details for the ad
   const [paymentDetails, setPaymentDetails] = useState({
+    // Bank transfer details
     bankName: "",
     accountNumber: "",
     accountHolderName: "",
     swiftCode: "",
+    branchCode: "",
+    
+    // PayPal details
     paypalEmail: "",
-    mobileNumber: ""
+    paypalName: "",
+    
+    // M-PESA details
+    mobileNumber: "",
+    mpesaName: "",
+    
+    // Mobile Money details
+    mobileProvider: "",
+    otherProvider: "",
+    accountName: "",
+    
+    // Cash details
+    meetingLocation: "",
+    contactNumber: "",
+    preferredTime: "",
+    
+    // Generic
+    instructions: ""
   });
 
   // User Profile Customization
@@ -239,6 +260,14 @@ const P2PPage = () => {
       // Reload orders and offers
       loadOffers();
       loadUserOrders();
+
+      // Open chat automatically for new order
+      setTimeout(() => {
+        const newOrder = userOrders[0]; // Most recent order should be at the top
+        if (newOrder) {
+          openChat(newOrder.id);
+        }
+      }, 1000);
 
       setIsDialogOpen(false);
     } catch (error) {
@@ -501,35 +530,172 @@ const P2PPage = () => {
                 onChange={(e) => setPaymentDetails({...paymentDetails, swiftCode: e.target.value})}
               />
             </div>
+            <div className="space-y-1">
+              <Label className="text-white text-sm">Branch Code (Optional)</Label>
+              <Input 
+                placeholder="Enter branch code" 
+                className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
+                value={paymentDetails.branchCode}
+                onChange={(e) => setPaymentDetails({...paymentDetails, branchCode: e.target.value})}
+              />
+            </div>
           </div>
         );
       case "paypal":
         return (
-          <div className="space-y-1">
-            <Label className="text-white text-sm">PayPal Email</Label>
-            <Input 
-              placeholder="Enter PayPal email" 
-              className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
-              value={paymentDetails.paypalEmail}
-              onChange={(e) => setPaymentDetails({...paymentDetails, paypalEmail: e.target.value})}
-            />
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label className="text-white text-sm">PayPal Email</Label>
+              <Input 
+                placeholder="Enter PayPal email" 
+                className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
+                value={paymentDetails.paypalEmail}
+                onChange={(e) => setPaymentDetails({...paymentDetails, paypalEmail: e.target.value})}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-white text-sm">Full Name (Optional)</Label>
+              <Input 
+                placeholder="Enter your full name" 
+                className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
+                value={paymentDetails.paypalName}
+                onChange={(e) => setPaymentDetails({...paymentDetails, paypalName: e.target.value})}
+              />
+            </div>
           </div>
         );
       case "mpesa":
+        return (
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label className="text-white text-sm">M-PESA Number</Label>
+              <Input 
+                placeholder="Enter M-PESA number (e.g. +254712345678)" 
+                className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
+                value={paymentDetails.mobileNumber}
+                onChange={(e) => setPaymentDetails({...paymentDetails, mobileNumber: e.target.value})}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-white text-sm">Account Name</Label>
+              <Input 
+                placeholder="Enter account name" 
+                className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
+                value={paymentDetails.mpesaName}
+                onChange={(e) => setPaymentDetails({...paymentDetails, mpesaName: e.target.value})}
+              />
+            </div>
+          </div>
+        );
       case "mobile-money":
         return (
-          <div className="space-y-1">
-            <Label className="text-white text-sm">Mobile Number</Label>
-            <Input 
-              placeholder="Enter mobile number (e.g. +254712345678)" 
-              className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
-              value={paymentDetails.mobileNumber}
-              onChange={(e) => setPaymentDetails({...paymentDetails, mobileNumber: e.target.value})}
-            />
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label className="text-white text-sm">Mobile Number</Label>
+              <Input 
+                placeholder="Enter mobile number (e.g. +254712345678)" 
+                className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
+                value={paymentDetails.mobileNumber}
+                onChange={(e) => setPaymentDetails({...paymentDetails, mobileNumber: e.target.value})}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-white text-sm">Provider</Label>
+              <Select 
+                value={paymentDetails.mobileProvider || "other"}
+                onValueChange={(value) => setPaymentDetails({...paymentDetails, mobileProvider: value})}
+              >
+                <SelectTrigger className="bg-background/40 border-white/10 text-white">
+                  <SelectValue placeholder="Select provider" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="mtn">MTN Mobile Money</SelectItem>
+                  <SelectItem value="airtel">Airtel Money</SelectItem>
+                  <SelectItem value="orange">Orange Money</SelectItem>
+                  <SelectItem value="vodafone">Vodafone Cash</SelectItem>
+                  <SelectItem value="tigo">Tigo Cash</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {paymentDetails.mobileProvider === "other" && (
+              <div className="space-y-1">
+                <Label className="text-white text-sm">Provider Name</Label>
+                <Input 
+                  placeholder="Enter provider name" 
+                  className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
+                  value={paymentDetails.otherProvider}
+                  onChange={(e) => setPaymentDetails({...paymentDetails, otherProvider: e.target.value})}
+                />
+              </div>
+            )}
+            <div className="space-y-1">
+              <Label className="text-white text-sm">Account Name</Label>
+              <Input 
+                placeholder="Enter account name" 
+                className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
+                value={paymentDetails.accountName}
+                onChange={(e) => setPaymentDetails({...paymentDetails, accountName: e.target.value})}
+              />
+            </div>
+          </div>
+        );
+      case "cash":
+        return (
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label className="text-white text-sm">Meeting Location</Label>
+              <Input 
+                placeholder="Enter meeting location" 
+                className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
+                value={paymentDetails.meetingLocation}
+                onChange={(e) => setPaymentDetails({...paymentDetails, meetingLocation: e.target.value})}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-white text-sm">Contact Number</Label>
+              <Input 
+                placeholder="Enter contact number" 
+                className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
+                value={paymentDetails.contactNumber}
+                onChange={(e) => setPaymentDetails({...paymentDetails, contactNumber: e.target.value})}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-white text-sm">Preferred Time</Label>
+              <Input 
+                placeholder="Enter preferred meeting time" 
+                className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
+                value={paymentDetails.preferredTime}
+                onChange={(e) => setPaymentDetails({...paymentDetails, preferredTime: e.target.value})}
+              />
+            </div>
+          </div>
+        );
+      case "credit-card":
+        return (
+          <div className="p-3 rounded-md bg-yellow-400/10 border border-yellow-400/20 flex items-start space-x-2">
+            <AlertTriangle className="h-5 w-5 text-yellow-400 shrink-0 mt-0.5" />
+            <div className="text-sm text-white/80">
+              <p className="font-medium mb-1">Important Notice</p>
+              <p>For security reasons, credit card information should be exchanged directly during the trade process through secure methods. No credit card details should be stored on this platform.</p>
+            </div>
           </div>
         );
       default:
-        return null;
+        return (
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label className="text-white text-sm">Payment Instructions</Label>
+              <Input 
+                placeholder="Enter payment instructions" 
+                className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
+                value={paymentDetails.instructions}
+                onChange={(e) => setPaymentDetails({...paymentDetails, instructions: e.target.value})}
+              />
+            </div>
+          </div>
+        );
     }
   };
 
@@ -1533,17 +1699,20 @@ const P2PPage = () => {
               {selectedOrderForChat && (
                 <div className="w-[250px] bg-background/40 border border-white/10 rounded-md p-4 space-y-4">
                   <h3 className="font-medium text-white border-b border-white/10 pb-2">Payment Details</h3>
-                  {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails ? (
+                  {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails && 
+                   Object.keys(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails || {}).length > 0 ? (
                     <div className="space-y-3 text-sm">
                       {Object.entries(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails || {}).map(([key, value]) => (
-                        <div key={key} className="space-y-1">
-                          <div className="text-white/70">
-                            {key.replace(/([A-Z])/g, ' $1')
-                              .replace(/^./, str => str.toUpperCase())
-                              .replace(/([a-z])([A-Z])/g, '$1 $2')}
+                        value && (
+                          <div key={key} className="space-y-1">
+                            <div className="text-white/70">
+                              {key.replace(/([A-Z])/g, ' $1')
+                                .replace(/^./, str => str.toUpperCase())
+                                .replace(/([a-z])([A-Z])/g, '$1 $2')}
+                            </div>
+                            <div className="font-medium break-words">{value as string}</div>
                           </div>
-                          <div className="font-medium break-words">{value as string}</div>
-                        </div>
+                        )
                       ))}
                       <div className="p-2 mt-4 bg-background/60 rounded-md">
                         <div className="text-xs text-white/70 mb-1">Copy these details exactly as shown.</div>

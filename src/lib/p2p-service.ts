@@ -377,7 +377,7 @@ class P2PService {
 
       // Generate a random reference number for payment
       const referenceNumber = Math.floor(Math.random() * 10000000000000000000).toString().padStart(20, '0');
-      
+
       // Default payment window (15 min)
       const paymentWindow = 15;
       const paymentDeadline = new Date(Date.now() + (paymentWindow * 60 * 1000));
