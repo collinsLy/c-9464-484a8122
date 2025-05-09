@@ -752,22 +752,56 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
               bankName: paymentDetails.bankName,
               accountNumber: paymentDetails.accountNumber,
               accountHolderName: paymentDetails.accountHolderName,
-              swiftCode: paymentDetails.swiftCode
+              swiftCode: paymentDetails.swiftCode,
+              branchCode: paymentDetails.branchCode,
+              instructions: paymentDetails.instructions
             };
             break;
           case "paypal":
             adPaymentDetails = {
-              paypalEmail: paymentDetails.paypalEmail
+              paypalEmail: paymentDetails.paypalEmail,
+              paypalName: paymentDetails.paypalName,
+              instructions: paymentDetails.instructions
             };
             break;
           case "mpesa":
-          case "mobile-money":
             adPaymentDetails = {
-              mobileNumber: paymentDetails.mobileNumber
+              mobileNumber: paymentDetails.mobileNumber,
+              mpesaName: paymentDetails.mpesaName || sellerName,
+              instructions: paymentDetails.instructions
             };
             break;
+          case "mobile-money":
+            adPaymentDetails = {
+              mobileNumber: paymentDetails.mobileNumber,
+              mobileProvider: paymentDetails.mobileProvider,
+              otherProvider: paymentDetails.otherProvider,
+              accountName: paymentDetails.accountName || sellerName,
+              instructions: paymentDetails.instructions
+            };
+            break;
+          case "cash":
+            adPaymentDetails = {
+              meetingLocation: paymentDetails.meetingLocation,
+              contactNumber: paymentDetails.contactNumber,
+              preferredTime: paymentDetails.preferredTime,
+              instructions: paymentDetails.instructions
+            };
+            break;
+          default:
+            adPaymentDetails = {
+              instructions: paymentDetails.instructions
+            };
         }
+      } else {
+        // For buy ads, still include instructions
+        adPaymentDetails = {
+          instructions: paymentDetails.instructions
+        };
       }
+
+      // Log payment details before creating offer
+      console.log("Payment details being submitted:", adPaymentDetails);
 
       const newOffer: Omit<P2POffer, 'id' | 'createdAt'> = {
         user: {
@@ -789,7 +823,8 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
         },
         availableAmount: amount,
         terms: adTerms || "Standard terms apply.",
-        paymentDetails: adPaymentDetails // Add payment details to the offer
+        paymentDetails: adPaymentDetails, // Add payment details to the offer
+        type: adType as 'buy' | 'sell' // Explicitly set the type
       };
 
       await p2pService.createP2POffer(newOffer);
@@ -807,8 +842,18 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
         accountNumber: "",
         accountHolderName: "",
         swiftCode: "",
+        branchCode: "",
         paypalEmail: "",
-        mobileNumber: ""
+        paypalName: "",
+        mobileNumber: "",
+        mpesaName: "",
+        mobileProvider: "",
+        otherProvider: "",
+        accountName: "",
+        meetingLocation: "",
+        contactNumber: "",
+        preferredTime: "",
+        instructions: ""
       });
 
       // Reload offers - important to get the latest data

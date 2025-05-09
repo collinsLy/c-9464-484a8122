@@ -255,9 +255,15 @@ class P2PService {
         paymentDetails: newOffer.paymentDetails || {}
       };
 
+      // Debug: log what's being sent to Firebase
+      console.log("Saving offer to Firebase with payment details:", JSON.stringify(offerData.paymentDetails));
+
       try {
-        await addDoc(collection(db, this.OFFERS_COLLECTION), offerData);
-        console.log(`Offer saved to Firebase: ${newOffer.id}`);
+        // Use setDoc with a custom document ID to ensure ID consistency
+        const docRef = doc(collection(db, this.OFFERS_COLLECTION), newOffer.id);
+        await setDoc(docRef, offerData);
+        console.log(`Offer saved to Firebase: ${newOffer.id} with payment details:`, 
+                    Object.keys(offerData.paymentDetails || {}).length > 0 ? "Yes" : "No");
       } catch (error) {
         console.error("Firebase error creating offer:", error);
         // Remove from memory since Firebase save failed
