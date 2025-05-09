@@ -22,6 +22,14 @@ service cloud.firestore {
       allow update: if isAuthenticated() && resource.data.sender == request.auth.uid;
       allow delete: if isAuthenticated() && resource.data.sender == request.auth.uid;
     }
+    
+    // P2P Notifications
+    match /p2pNotifications/{notificationId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
 
     // P2P Trading collections
     match /p2pOffers/{document=**} {
