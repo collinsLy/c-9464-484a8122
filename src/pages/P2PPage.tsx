@@ -250,6 +250,14 @@ const P2PPage = () => {
       toast.error(`Not enough crypto available. Maximum: ${selectedOffer.availableAmount.toFixed(6)} ${selectedOffer.crypto}`);
       return;
     }
+    
+    // Add a slight buffer to account for rounding differences (0.1% less than max)
+    const safeCryptoAmount = cryptoAmount * 0.999;
+    if (safeCryptoAmount > selectedOffer.availableAmount) {
+      setBuyAmount((selectedOffer.availableAmount * selectedOffer.price * 0.999).toFixed(2));
+      setBuyTotal(selectedOffer.availableAmount * 0.999);
+      toast.warning(`Amount adjusted to match available crypto: ${selectedOffer.availableAmount.toFixed(6)} ${selectedOffer.crypto}`);
+    }
 
     setProcessingOrder(true);
 

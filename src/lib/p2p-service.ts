@@ -390,7 +390,9 @@ class P2PService {
       const cryptoAmount = amount / offer.price;
 
       if (cryptoAmount > offer.availableAmount) {
-        throw new Error(`Not enough crypto available. Maximum: ${offer.availableAmount} ${offer.crypto}`);
+        // Format the available amount to a fixed number of decimal places for better readability
+        const formattedAvailable = offer.availableAmount.toFixed(6);
+        throw new Error(`Not enough crypto available. Maximum: ${formattedAvailable} ${offer.crypto}`);
       }
 
       // Generate a random reference number for payment
