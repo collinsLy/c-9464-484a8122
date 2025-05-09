@@ -460,8 +460,8 @@ const P2PPage = () => {
   // State for edit dialog visibility
   const [showEditDialog, setShowEditDialog] = useState(false);
   
-  // Get Firebase authentication
-  const { auth } = require("@/lib/firebase");
+  // Import Firebase authentication
+  import { auth } from "@/lib/firebase";
 
   return (
     <DashboardLayout>
