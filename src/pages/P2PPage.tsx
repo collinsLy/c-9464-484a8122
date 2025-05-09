@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -1682,31 +1681,29 @@ const P2PPage = () => {
                 />
               </div>
 
-              {/* Payment Details Section - Only show for sell orders */}
-              {editingOffer?.type === "sell" && (
-                <div className="space-y-2 mt-4">
-                  <div className="flex items-center gap-2">
-                    <CreditCard className="h-5 w-5 text-white/70" />
-                    <Label className="text-white text-lg">Payment Details</Label>
-                  </div>
-                  <p className="text-sm text-white/70 mb-3">
-                    Update your payment details for this {adPayment.replace('-', ' ')}. This information will be shown to buyers when they place an order.
-                  </p>
-                  {renderPaymentDetailsFields()}
+              {/* Payment Details Section */}
+              <div className="space-y-2 mt-4">
+                <div className="flex items-center gap-2">
+                  <CreditCard className="h-5 w-5 text-white/70" />
+                  <Label className="text-white text-lg">Payment Details</Label>
                 </div>
-              )}
-            </div>
+                <p className="text-sm text-white/70 mb-3">
+                  Add your payment details for this {adPayment.replace('-', ' ')}. This information will be shown to buyers when they place an order.
+                </p>
+                {renderPaymentDetailsFields()}
+              </div>
 
-            <div className="flex justify-end gap-4 pt-4 mt-2">
-              <Button variant="outline" onClick={() => setShowEditDialog(false)}>
-                Cancel
-              </Button>
-              <Button 
-                className="bg-[#F2FF44] text-black hover:bg-[#E2EF34]"
-                onClick={handleEditOffer}
-              >
-                Update Advertisement
-              </Button>
+              <div className="flex justify-end gap-4 pt-4 mt-2">
+                <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  className="bg-[#F2FF44] text-black hover:bg-[#E2EF34]"
+                  onClick={handleEditOffer}
+                >
+                  Update Advertisement
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
