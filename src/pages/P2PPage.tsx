@@ -49,6 +49,7 @@ const P2PPage = () => {
 const NotificationsList = () => {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const hasTriggeredRefreshRef = useRef(false);
 
   useEffect(() => {
     const loadNotifications = async () => {
@@ -60,12 +61,18 @@ const NotificationsList = () => {
         // Check if there are any unread notifications
         const hasUnread = data.some(notif => !notif.read);
         
-        // If there are unread notifications, refresh the orders list
-        if (hasUnread) {
-          console.log("Found unread notifications, refreshing orders");
-          loadUserOrders().catch(err => 
-            console.error("Error refreshing orders after finding notifications:", err)
-          );
+        // Only refresh orders once per component mount if unread notifications exist
+        // This prevents an infinite refresh loop
+        if (hasUnread && !hasTriggeredRefreshRef.current) {
+          console.log("Found unread notifications, refreshing orders (one-time)");
+          hasTriggeredRefreshRef.current = true;
+          
+          // Add a small delay to prevent rapid successive calls
+          setTimeout(() => {
+            loadUserOrders().catch(err => 
+              console.error("Error refreshing orders after finding notifications:", err)
+            );
+          }, 1000);
         }
       } catch (error) {
         console.error("Error loading notifications:", error);
@@ -419,15 +426,25 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
     }, 60000); // 1 minute
 
     // Set up interval to check for new orders every minute
+    // Using a reference to track order count to avoid dependency on userOrders.length
+    // which can cause excessive re-rendering and sounds
+    const lastOrderCountRef = { current: userOrders.length };
+    
     const orderInterval = setInterval(async () => {
       try {
-        const currentOrderCount = userOrders.length;
+        // Skip if there are ongoing loading operations
+        if (ordersLoading) return;
+        
+        const currentOrderCount = lastOrderCountRef.current;
         const newOrders = await p2pService.getUserOrders();
 
+        // Update reference with latest count
+        lastOrderCountRef.current = newOrders.length;
+        
         if (newOrders.length > currentOrderCount) {
           setUserOrders(newOrders);
-          // Play notification sound for new orders
-          NotificationService.playSound('alert');
+          // Play notification sound for new orders but with reduced volume
+          NotificationService.playSound('alert', 0.2);
 
           toast.success("New order received", {
             description: "You have a new P2P trading order"
@@ -436,13 +453,13 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
       } catch (error) {
         console.error("Error checking for new orders:", error);
       }
-    }, 60000); // 1 minute
+    }, 120000); // Increased to 2 minutes to reduce frequency
 
     return () => {
       clearInterval(priceInterval);
       clearInterval(orderInterval);
     };
-  }, [userOrders.length]);
+  }, []); // Removed userOrders.length dependency to prevent excessive refreshing
 
   // Filter offers when filters change
   useEffect(() => {

@@ -115,8 +115,8 @@ export class NotificationService {
     }
   }
 
-  // Play a sound effect
-  static playSound(type: keyof typeof SOUND_EFFECTS): void {
+  // Play a sound effect with optional volume control
+  static playSound(type: keyof typeof SOUND_EFFECTS, volume?: number): void {
     try {
       // Stop and reset any currently playing sounds
       Object.values(SOUND_EFFECTS).forEach(audio => {
@@ -127,6 +127,13 @@ export class NotificationService {
       const sound = SOUND_EFFECTS[type];
       if (sound) {
         sound.currentTime = 0;
+        
+        // Set custom volume if provided
+        if (volume !== undefined && volume >= 0 && volume <= 1) {
+          sound.volume = volume;
+        }
+        
+        // Try to play the sound
         sound.play().catch(error => {
           console.error('Error playing notification sound:', error);
         });

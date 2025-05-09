@@ -703,6 +703,10 @@ class P2PService {
   }
   
   // Method to get user's notifications
+  // Track last notification sound time to prevent too frequent sounds
+  private lastNotificationSoundTime: number = 0;
+  private readonly NOTIFICATION_SOUND_COOLDOWN = 10000; // 10 seconds cooldown
+  
   public async getUserNotifications(): Promise<any[]> {
     try {
       if (!auth.currentUser?.uid) {
@@ -739,13 +743,16 @@ class P2PService {
         return dateB.getTime() - dateA.getTime();
       });
       
-      // Play a sound if there are unread notifications
+      // Play a sound if there are unread notifications, but with cooldown
       const hasUnread = notifications.some(notification => !notification.read);
-      if (hasUnread) {
+      const now = Date.now();
+      if (hasUnread && (now - this.lastNotificationSoundTime > this.NOTIFICATION_SOUND_COOLDOWN)) {
         try {
-          const audio = new Audio('/sounds/alert.mp3');
-          audio.volume = 0.2;
-          audio.play().catch(e => console.error("Error playing notification sound:", e));
+          // Update the last sound time
+          this.lastNotificationSoundTime = now;
+          
+          // Use NotificationService for consistent volume control
+          NotificationService.playSound('alert', 0.1); // Reduced volume to 0.1
         } catch (soundError) {
           console.error("Error playing notification sound:", soundError);
         }
