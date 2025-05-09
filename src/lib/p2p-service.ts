@@ -30,12 +30,23 @@ export interface P2POffer {
     accountNumber?: string;
     accountHolderName?: string;
     swiftCode?: string;
+    branchCode?: string;
     paypalEmail?: string;
+    paypalName?: string;
     mobileNumber?: string;
+    mpesaName?: string;
+    mobileProvider?: string;
+    otherProvider?: string;
+    accountName?: string;
+    meetingLocation?: string;
+    contactNumber?: string;
+    preferredTime?: string;
+    instructions?: string;
     [key: string]: any;
   };
   type?: 'buy' | 'sell'; // To track if it's a buy or sell offer
   advertisersTerms?: string; // Additional terms specifically from advertiser
+  userId?: string; // Firebase user ID of the offer creator
 }
 
 export interface P2POrder {
@@ -359,9 +370,13 @@ class P2PService {
         return {
           ...data,
           id: data.id || doc.id,
-          createdAt: new Date(data.createdAt) // Convert string back to Date
+          createdAt: new Date(data.createdAt), // Convert string back to Date
+          paymentDeadline: data.paymentDeadline ? new Date(data.paymentDeadline) : undefined
         } as P2POrder;
       });
+
+      // Sort orders by creation date (newest first)
+      orders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
       // Update local cache
       this.userOrders = orders;
@@ -422,7 +437,7 @@ class P2PService {
         type,
         status: 'pending',
         amount,
-        total: cryptoAmount,
+        total: safeCryptoAmount, // Use the safety buffer amount to avoid rounding errors
         crypto: offer.crypto,
         fiatCurrency: offer.fiatCurrency,
         createdAt: new Date(),
@@ -431,12 +446,12 @@ class P2PService {
         paymentMethod: offer.paymentMethods[0],
         paymentWindow,
         paymentDeadline,
-        // Use exactly the payment details from the offer
-        paymentDetails: type === 'buy' ? { ...offer.paymentDetails } : {}
+        // If buying, use the seller's payment details, otherwise empty (buyer will provide details)
+        paymentDetails: type === 'buy' ? { ...(offer.paymentDetails || {}) } : {}
       };
 
       // Update available amount in the offer
-      offer.availableAmount -= cryptoAmount;
+      offer.availableAmount -= safeCryptoAmount;
 
       // Add to user orders
       this.userOrders.push(newOrder);
@@ -448,9 +463,10 @@ class P2PService {
       const orderData = {
         ...newOrder,
         createdAt: newOrder.createdAt.toISOString(),
+        paymentDeadline: paymentDeadline.toISOString(),
         userId: auth.currentUser?.uid || 'anonymous',
         // Ensure payment details are explicitly included
-        paymentDetails: newOrder.paymentDetails
+        paymentDetails: newOrder.paymentDetails || {}
       };
 
       await addDoc(collection(db, this.ORDERS_COLLECTION), orderData);

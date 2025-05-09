@@ -317,7 +317,7 @@ const P2PPage = () => {
       if (order && order.type === 'buy') {
         initialMessages.push({
           sender: order.seller,
-          text: `Please send ${order.amount} ${order.fiatCurrency} using the payment method shown in the details panel. After payment, click the "I've Paid" button.`,
+          text: `Please send ${order.amount.toLocaleString()} ${order.fiatCurrency} using the payment method shown in the details panel. After payment, click the "I've Paid" button.`,
           timestamp: new Date(Date.now() + 1000)
         });
         
@@ -343,6 +343,29 @@ const P2PPage = () => {
           sender: 'System',
           text: `Wait for buyer to confirm payment. Once confirmed, verify the payment in your account and release the funds.`,
           timestamp: new Date(Date.now() + 1000)
+        });
+      }
+
+      // Add different instructions based on order status
+      if (order && order.status === 'awaiting_release') {
+        initialMessages.push({
+          sender: 'System',
+          text: order.type === 'buy' 
+            ? `Your payment has been marked as completed. Waiting for the seller to verify and release the funds.` 
+            : `The buyer has marked the payment as completed. Please verify the payment and release the funds if confirmed.`,
+          timestamp: new Date(Date.now() + 3000)
+        });
+      } else if (order && order.status === 'completed') {
+        initialMessages.push({
+          sender: 'System',
+          text: `This transaction has been completed successfully.`,
+          timestamp: new Date(Date.now() + 3000)
+        });
+      } else if (order && order.status === 'cancelled') {
+        initialMessages.push({
+          sender: 'System',
+          text: `This transaction has been cancelled.`,
+          timestamp: new Date(Date.now() + 3000)
         });
       }
 
@@ -1926,6 +1949,19 @@ const P2PPage = () => {
                         </span>
                       </div>
                       
+                      {/* Order amount and crypto */}
+                      {userOrders.find(order => order.id === selectedOrderForChat) && (
+                        <div className="space-y-1 bg-background/60 rounded-md p-2 mb-2">
+                          <div className="text-white/70">Transaction Details</div>
+                          <div className="font-medium text-xs">
+                            Amount: {userOrders.find(order => order.id === selectedOrderForChat)?.amount.toLocaleString()} {userOrders.find(order => order.id === selectedOrderForChat)?.fiatCurrency}
+                          </div>
+                          <div className="font-medium text-xs">
+                            Crypto: {userOrders.find(order => order.id === selectedOrderForChat)?.total.toFixed(8)} {userOrders.find(order => order.id === selectedOrderForChat)?.crypto}
+                          </div>
+                        </div>
+                      )}
+                      
                       {/* Payment instructions if available */}
                       {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.instructions && (
                         <div className="space-y-1 bg-background/60 rounded-md p-2 mb-2">
@@ -1939,40 +1975,246 @@ const P2PPage = () => {
                       {/* Payment details */}
                       {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails && 
                        Object.keys(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails || {}).length > 0 ? (
-                        Object.entries(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails || {}).map(([key, value]) => (
-                          value && key !== 'instructions' && (
-                            <div key={key} className="space-y-1">
-                              <div className="text-white/70">
-                                {key.replace(/([A-Z])/g, ' $1')
-                                  .replace(/^./, str => str.toUpperCase())
-                                  .replace(/([a-z])([A-Z])/g, '$1 $2')}
-                              </div>
-                              <div className="font-medium break-words flex items-center group relative">
-                                <span className="flex-1 pr-2">{value as string}</span>
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon" 
-                                  className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
-                                  onClick={() => {
-                                    navigator.clipboard.writeText(value as string);
-                                    toast.success(`Copied to clipboard`);
-                                  }}
-                                >
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/70">
-                                    <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-                                    <path d="M4 16V4a2 2 0 0 1 2-2h10" />
-                                  </svg>
-                                </Button>
-                              </div>
+                        <div className="space-y-2">
+                          {/* Bank Transfer Details */}
+                          {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.bankName && (
+                            <div className="space-y-2 bg-background/60 rounded-md p-2">
+                              <div className="text-white/70 font-medium">Bank Transfer Details</div>
+                              
+                              {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.bankName && (
+                                <div className="space-y-1">
+                                  <div className="text-white/70 text-xs">Bank Name</div>
+                                  <div className="font-medium text-xs break-words flex items-center group relative">
+                                    <span className="flex-1 pr-2">{userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.bankName}</span>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="icon" 
+                                      className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.bankName as string);
+                                        toast.success(`Bank name copied`);
+                                      }}
+                                    >
+                                      <Copy className="h-3 w-3 text-white/70" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.accountNumber && (
+                                <div className="space-y-1">
+                                  <div className="text-white/70 text-xs">Account Number</div>
+                                  <div className="font-medium text-xs break-words flex items-center group relative">
+                                    <span className="flex-1 pr-2">{userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.accountNumber}</span>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="icon" 
+                                      className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.accountNumber as string);
+                                        toast.success(`Account number copied`);
+                                      }}
+                                    >
+                                      <Copy className="h-3 w-3 text-white/70" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.accountHolderName && (
+                                <div className="space-y-1">
+                                  <div className="text-white/70 text-xs">Account Holder</div>
+                                  <div className="font-medium text-xs break-words flex items-center group relative">
+                                    <span className="flex-1 pr-2">{userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.accountHolderName}</span>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="icon" 
+                                      className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.accountHolderName as string);
+                                        toast.success(`Account holder name copied`);
+                                      }}
+                                    >
+                                      <Copy className="h-3 w-3 text-white/70" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.swiftCode && (
+                                <div className="space-y-1">
+                                  <div className="text-white/70 text-xs">SWIFT/BIC Code</div>
+                                  <div className="font-medium text-xs break-words flex items-center group relative">
+                                    <span className="flex-1 pr-2">{userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.swiftCode}</span>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="icon" 
+                                      className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.swiftCode as string);
+                                        toast.success(`SWIFT code copied`);
+                                      }}
+                                    >
+                                      <Copy className="h-3 w-3 text-white/70" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
                             </div>
-                          )
-                        ))
+                          )}
+                          
+                          {/* PayPal Details */}
+                          {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.paypalEmail && (
+                            <div className="space-y-2 bg-background/60 rounded-md p-2">
+                              <div className="text-white/70 font-medium">PayPal Details</div>
+                              
+                              <div className="space-y-1">
+                                <div className="text-white/70 text-xs">PayPal Email</div>
+                                <div className="font-medium text-xs break-words flex items-center group relative">
+                                  <span className="flex-1 pr-2">{userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.paypalEmail}</span>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.paypalEmail as string);
+                                      toast.success(`PayPal email copied`);
+                                    }}
+                                  >
+                                    <Copy className="h-3 w-3 text-white/70" />
+                                  </Button>
+                                </div>
+                              </div>
+                              
+                              {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.paypalName && (
+                                <div className="space-y-1">
+                                  <div className="text-white/70 text-xs">Full Name</div>
+                                  <div className="font-medium text-xs break-words flex items-center group relative">
+                                    <span className="flex-1 pr-2">{userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.paypalName}</span>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="icon" 
+                                      className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.paypalName as string);
+                                        toast.success(`PayPal name copied`);
+                                      }}
+                                    >
+                                      <Copy className="h-3 w-3 text-white/70" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          
+                          {/* Mobile Money / M-PESA Details */}
+                          {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.mobileNumber && (
+                            <div className="space-y-2 bg-background/60 rounded-md p-2">
+                              <div className="text-white/70 font-medium">
+                                {userOrders.find(order => order.id === selectedOrderForChat)?.paymentMethod?.includes("M-PESA") 
+                                  ? "M-PESA Details" 
+                                  : "Mobile Money Details"}
+                              </div>
+                              
+                              <div className="space-y-1">
+                                <div className="text-white/70 text-xs">Mobile Number</div>
+                                <div className="font-medium text-xs break-words flex items-center group relative">
+                                  <span className="flex-1 pr-2">{userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.mobileNumber}</span>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.mobileNumber as string);
+                                      toast.success(`Mobile number copied`);
+                                    }}
+                                  >
+                                    <Copy className="h-3 w-3 text-white/70" />
+                                  </Button>
+                                </div>
+                              </div>
+                              
+                              {(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.mpesaName || 
+                                userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.accountName) && (
+                                <div className="space-y-1">
+                                  <div className="text-white/70 text-xs">Account Name</div>
+                                  <div className="font-medium text-xs break-words flex items-center group relative">
+                                    <span className="flex-1 pr-2">
+                                      {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.mpesaName || 
+                                       userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.accountName}
+                                    </span>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="icon" 
+                                      className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(
+                                          (userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.mpesaName || 
+                                           userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.accountName) as string
+                                        );
+                                        toast.success(`Account name copied`);
+                                      }}
+                                    >
+                                      <Copy className="h-3 w-3 text-white/70" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.mobileProvider && (
+                                <div className="space-y-1">
+                                  <div className="text-white/70 text-xs">Provider</div>
+                                  <div className="font-medium text-xs break-words">
+                                    {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.mobileProvider === "other" 
+                                      ? userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.otherProvider 
+                                      : userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.mobileProvider}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          
+                          {/* If no specific payment details are found, show generic ones */}
+                          {!userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.bankName && 
+                           !userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.paypalEmail &&
+                           !userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.mobileNumber && 
+                           Object.keys(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails || {}).length > 0 && (
+                            <div className="space-y-2">
+                              {Object.entries(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails || {}).map(([key, value]) => (
+                                value && key !== 'instructions' && (
+                                  <div key={key} className="space-y-1">
+                                    <div className="text-white/70 text-xs">
+                                      {key.replace(/([A-Z])/g, ' $1')
+                                        .replace(/^./, str => str.toUpperCase())
+                                        .replace(/([a-z])([A-Z])/g, '$1 $2')}
+                                    </div>
+                                    <div className="font-medium text-xs break-words flex items-center group relative">
+                                      <span className="flex-1 pr-2">{value as string}</span>
+                                      <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        onClick={() => {
+                                          navigator.clipboard.writeText(value as string);
+                                          toast.success(`Copied to clipboard`);
+                                        }}
+                                      >
+                                        <Copy className="h-3 w-3 text-white/70" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )
+                              ))}
+                            </div>
+                           )}
+                        </div>
                       ) : (
                         // Default payment details if none exist
-                        <div>
+                        <div className="bg-background/60 rounded-md p-2">
                           <div className="space-y-1">
-                            <div className="text-white/70">Mobile Number</div>
-                            <div className="font-medium break-words flex items-center group relative">
+                            <div className="text-white/70 text-xs">Mobile Number</div>
+                            <div className="font-medium text-xs break-words flex items-center group relative">
                               <span className="flex-1 pr-2">+254712345678</span>
                               <Button 
                                 variant="ghost" 
@@ -1983,13 +2225,13 @@ const P2PPage = () => {
                                   toast.success(`Copied to clipboard`);
                                 }}
                               >
-                                <Copy className="h-4 w-4" />
+                                <Copy className="h-3 w-3 text-white/70" />
                               </Button>
                             </div>
                           </div>
                           <div className="space-y-1 mt-2">
-                            <div className="text-white/70">Account Name</div>
-                            <div className="font-medium break-words flex items-center group relative">
+                            <div className="text-white/70 text-xs">Account Name</div>
+                            <div className="font-medium text-xs break-words flex items-center group relative">
                               <span className="flex-1 pr-2">
                                 {userOrders.find(order => order.id === selectedOrderForChat)?.seller || "Vendor"}
                               </span>
@@ -2002,7 +2244,7 @@ const P2PPage = () => {
                                   toast.success(`Copied to clipboard`);
                                 }}
                               >
-                                <Copy className="h-4 w-4" />
+                                <Copy className="h-3 w-3 text-white/70" />
                               </Button>
                             </div>
                           </div>
@@ -2013,7 +2255,7 @@ const P2PPage = () => {
                       {userOrders.find(order => order.id === selectedOrderForChat)?.referenceNumber && (
                         <div className="space-y-1 mt-4">
                           <div className="text-white/70">Reference Number</div>
-                          <div className="font-medium break-words bg-yellow-400/10 p-1.5 rounded text-yellow-300 flex items-center group">
+                          <div className="font-medium text-xs break-words bg-yellow-400/10 p-1.5 rounded text-yellow-300 flex items-center group">
                             <span className="flex-1 pr-2">{userOrders.find(order => order.id === selectedOrderForChat)?.referenceNumber}</span>
                             <Button 
                               variant="ghost" 
@@ -2027,10 +2269,7 @@ const P2PPage = () => {
                                 }
                               }}
                             >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/70">
-                                <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-                                <path d="M4 16V4a2 2 0 0 1 2-2h10" />
-                              </svg>
+                              <Copy className="h-3 w-3 text-white/70" />
                             </Button>
                           </div>
                         </div>
@@ -2042,7 +2281,8 @@ const P2PPage = () => {
                       </div>
                       
                       {/* Payment deadline */}
-                      {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDeadline && (
+                      {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDeadline && 
+                       userOrders.find(order => order.id === selectedOrderForChat)?.status === 'pending' && (
                         <div className="p-2 mt-1 bg-yellow-400/10 border border-yellow-400/20 rounded-md flex items-start space-x-2">
                           <Clock className="h-4 w-4 text-yellow-400 shrink-0 mt-0.5" />
                           <div className="text-xs text-white/80">
