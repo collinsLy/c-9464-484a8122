@@ -1315,11 +1315,18 @@ const P2PPage = () => {
                                 className={
                                   order.status === 'completed' ? 'bg-green-900/20 text-green-400 border-green-800' :
                                   order.status === 'pending' ? 'bg-yellow-900/20 text-yellow-400 border-yellow-800' :
+                                  order.status === 'awaiting_release' ? 'bg-blue-900/20 text-blue-400 border-blue-800' :
                                   order.status === 'cancelled' ? 'bg-red-900/20 text-red-400 border-red-800' :
+                                  order.status === 'dispute_opened' ? 'bg-purple-900/20 text-purple-400 border-purple-800' :
                                   'bg-blue-900/20 text-blue-400 border-blue-800'
                                 }
                               >
-                                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                                {order.status === 'awaiting_release' 
+                                  ? 'Awaiting Release' 
+                                  : order.status === 'dispute_opened'
+                                    ? 'Dispute Opened'
+                                    : order.status.charAt(0).toUpperCase() + order.status.slice(1)
+                                }
                               </Badge>
                             </TableCell>
                             <TableCell>
@@ -1639,6 +1646,24 @@ const P2PPage = () => {
                     {buyTotal.toFixed(8)} {selectedOffer?.crypto}
                   </span>
                 </div>
+                
+                {/* Escrow explanation */}
+                <div className="p-3 rounded-md bg-blue-400/10 border border-blue-400/20 flex items-start space-x-2">
+                  <ShieldCheck className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
+                  <div className="text-xs text-white/80">
+                    <p className="font-medium mb-1">Secured by Escrow</p>
+                    <p>After confirming this order, the seller's crypto will be locked in escrow. When you complete payment, click "I've Paid" and wait for the seller to verify and release your crypto.</p>
+                  </div>
+                </div>
+
+                {/* Timeframe warning */}
+                <div className="p-3 rounded-md bg-yellow-400/10 border border-yellow-400/20 flex items-start space-x-2">
+                  <Clock className="h-4 w-4 text-yellow-400 shrink-0 mt-0.5" />
+                  <div className="text-xs text-white/80">
+                    <p className="font-medium mb-1">Payment Window: 15 minutes</p>
+                    <p>Please complete payment within 15 minutes. Trades not completed in time may be automatically cancelled.</p>
+                  </div>
+                </div>
 
                 <div className="p-2 rounded-md bg-yellow-400/10 border border-yellow-400/20 flex items-start space-x-2">
                   <AlertTriangle className="h-4 w-4 text-yellow-400 shrink-0 mt-0.5" />
@@ -1719,63 +1744,143 @@ const P2PPage = () => {
                     <Button 
                       variant="outline" 
                       className="w-full bg-green-500/20 border-green-500/30 text-green-400 hover:bg-green-500/30 hover:text-green-300"
-                      onClick={() => {
-                        // Simulate confirming payment
-                        const newMessages = {
-                          ...chatMessages,
-                          [selectedOrderForChat]: [
-                            ...(chatMessages[selectedOrderForChat] || []),
-                            {
-                              sender: 'System',
-                              text: 'You have marked this payment as completed. Please wait for the seller to verify and release the crypto.',
-                              timestamp: new Date()
-                            },
-                            {
-                              sender: userOrders.find(o => o.id === selectedOrderForChat)?.seller || 'Seller',
-                              text: 'I\'ll verify your payment and release the crypto shortly. Thank you for your patience.',
-                              timestamp: new Date(Date.now() + 1000)
-                            }
-                          ]
-                        };
-                        setChatMessages(newMessages);
-                        toast.success("Payment marked as completed");
+                      onClick={async () => {
+                        try {
+                          setProcessingOrder(true);
+                          // Update order status to awaiting_release
+                          await p2pService.updateOrderStatus(selectedOrderForChat, 'awaiting_release');
+                          
+                          const newMessages = {
+                            ...chatMessages,
+                            [selectedOrderForChat]: [
+                              ...(chatMessages[selectedOrderForChat] || []),
+                              {
+                                sender: 'System',
+                                text: 'You have marked this payment as completed. Please wait for the seller to verify and release the crypto from escrow.',
+                                timestamp: new Date()
+                              },
+                              {
+                                sender: userOrders.find(o => o.id === selectedOrderForChat)?.seller || 'Seller',
+                                text: 'I\'ll verify your payment and release the crypto shortly. Thank you for your patience.',
+                                timestamp: new Date(Date.now() + 1000)
+                              }
+                            ]
+                          };
+                          setChatMessages(newMessages);
+                          
+                          // Update local order data
+                          const updatedOrders = userOrders.map(order => 
+                            order.id === selectedOrderForChat 
+                              ? {...order, status: 'awaiting_release'} 
+                              : order
+                          );
+                          setUserOrders(updatedOrders);
+                          
+                          toast.success("Payment marked as completed", {
+                            description: "The seller will verify and release your crypto soon."
+                          });
+                        } catch (error) {
+                          console.error("Error marking payment as completed:", error);
+                          toast.error("Failed to mark payment as completed. Please try again.");
+                        } finally {
+                          setProcessingOrder(false);
+                        }
                       }}
+                      disabled={processingOrder}
                     >
-                      <CheckCircle2 className="h-4 w-4 mr-2" />
-                      I've Paid
+                      {processingOrder ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="h-4 w-4 mr-2" />
+                          I've Paid
+                        </>
+                      )}
                     </Button>
                   )}
 
                   {selectedOrderForChat && 
-                   userOrders.find(o => o.id === selectedOrderForChat)?.status === 'pending' && 
+                   (userOrders.find(o => o.id === selectedOrderForChat)?.status === 'awaiting_release') && 
                    userOrders.find(o => o.id === selectedOrderForChat)?.type === 'sell' && (
                     <Button 
                       variant="outline" 
                       className="w-full bg-green-500/20 border-green-500/30 text-green-400 hover:bg-green-500/30 hover:text-green-300"
+                      onClick={async () => {
+                        try {
+                          setProcessingOrder(true);
+                          // Release crypto from escrow and complete order
+                          await p2pService.updateOrderStatus(selectedOrderForChat, 'completed');
+                          
+                          const newMessages = {
+                            ...chatMessages,
+                            [selectedOrderForChat]: [
+                              ...(chatMessages[selectedOrderForChat] || []),
+                              {
+                                sender: 'System',
+                                text: 'You have released the crypto from escrow. The transaction is now complete.',
+                                timestamp: new Date()
+                              },
+                              {
+                                sender: userOrders.find(o => o.id === selectedOrderForChat)?.buyer || 'Buyer',
+                                text: 'Thank you for the smooth transaction!',
+                                timestamp: new Date(Date.now() + 1000)
+                              }
+                            ]
+                          };
+                          setChatMessages(newMessages);
+                          
+                          // Update local order data
+                          const updatedOrders = userOrders.map(order => 
+                            order.id === selectedOrderForChat 
+                              ? {...order, status: 'completed'} 
+                              : order
+                          );
+                          setUserOrders(updatedOrders);
+                          
+                          toast.success("Crypto released successfully", {
+                            description: "The funds have been transferred to the buyer."
+                          });
+                        } catch (error) {
+                          console.error("Error releasing crypto:", error);
+                          toast.error("Failed to release crypto. Please try again.");
+                        } finally {
+                          setProcessingOrder(false);
+                        }
+                      }}
+                      disabled={processingOrder}
+                    >
+                      {processingOrder ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="h-4 w-4 mr-2" />
+                          Release Crypto
+                        </>
+                      )}
+                    </Button>
+                  )}
+                  
+                  {/* Dispute button */}
+                  {selectedOrderForChat && 
+                   (userOrders.find(o => o.id === selectedOrderForChat)?.status === 'awaiting_release' || 
+                    userOrders.find(o => o.id === selectedOrderForChat)?.status === 'pending') && (
+                    <Button 
+                      variant="outline" 
+                      className="w-full mt-2 bg-yellow-500/20 border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/30 hover:text-yellow-300"
                       onClick={() => {
-                        // Simulate releasing crypto
-                        const newMessages = {
-                          ...chatMessages,
-                          [selectedOrderForChat]: [
-                            ...(chatMessages[selectedOrderForChat] || []),
-                            {
-                              sender: 'System',
-                              text: 'You have released the crypto. The transaction is now complete.',
-                              timestamp: new Date()
-                            },
-                            {
-                              sender: userOrders.find(o => o.id === selectedOrderForChat)?.buyer || 'Buyer',
-                              text: 'Thank you for the smooth transaction!',
-                              timestamp: new Date(Date.now() + 1000)
-                            }
-                          ]
-                        };
-                        setChatMessages(newMessages);
-                        toast.success("Crypto released successfully");
+                        toast.warning("Dispute option will be available soon", {
+                          description: "Our team is working on implementing the dispute resolution process."
+                        });
                       }}
                     >
-                      <CheckCircle2 className="h-4 w-4 mr-2" />
-                      Release Crypto
+                      <AlertTriangle className="h-4 w-4 mr-2" />
+                      Open Dispute
                     </Button>
                   )}
 

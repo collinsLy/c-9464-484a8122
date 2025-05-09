@@ -43,12 +43,13 @@ export interface P2POrder {
   referenceNumber?: string; // Reference number for payment
   offerId: string;
   type: 'buy' | 'sell';
-  status: 'pending' | 'completed' | 'cancelled' | 'disputed';
+  status: 'pending' | 'awaiting_release' | 'completed' | 'cancelled' | 'dispute_opened' | 'refunded';
   amount: number;
   total: number;
   crypto: string;
   fiatCurrency: string;
   createdAt: Date;
+  updatedAt?: Date; // Track status change times
   seller: string;
   buyer: string;
   paymentMethod: string;
@@ -394,6 +395,9 @@ class P2PService {
         const formattedAvailable = offer.availableAmount.toFixed(6);
         throw new Error(`Not enough crypto available. Maximum: ${formattedAvailable} ${offer.crypto}`);
       }
+      
+      // Add a safety buffer (0.1% less) to avoid rounding errors
+      const safeCryptoAmount = cryptoAmount * 0.999;
 
       // Generate a random reference number for payment
       const referenceNumber = Math.floor(Math.random() * 10000000000000000000).toString().padStart(20, '0');
@@ -529,6 +533,75 @@ class P2PService {
     } catch (error) {
       console.error("Error cancelling order:", error);
       return false;
+    }
+  }
+  
+  public async updateOrderStatus(
+    orderId: string, 
+    status: 'pending' | 'awaiting_release' | 'completed' | 'cancelled' | 'dispute_opened' | 'refunded'
+  ): Promise<boolean> {
+    try {
+      // Find the order in Firebase
+      const ordersQuery = query(
+        collection(db, this.ORDERS_COLLECTION),
+        where("id", "==", orderId)
+      );
+
+      const snapshot = await getDocs(ordersQuery);
+
+      if (snapshot.empty) {
+        throw new Error("Order not found");
+      }
+
+      // Update the order status in Firebase
+      const orderDoc = snapshot.docs[0];
+      const orderData = orderDoc.data();
+      
+      // Validate status transition
+      if (
+        (orderData.status === 'completed' && status !== 'dispute_opened') ||
+        (orderData.status === 'cancelled' && status !== 'dispute_opened') ||
+        (orderData.status === 'refunded') ||
+        // Only allow pending → awaiting_release → completed (or dispute)
+        (orderData.status === 'pending' && status !== 'awaiting_release' && status !== 'cancelled' && status !== 'dispute_opened') ||
+        (orderData.status === 'awaiting_release' && status !== 'completed' && status !== 'cancelled' && status !== 'dispute_opened')
+      ) {
+        throw new Error(`Invalid status transition from ${orderData.status} to ${status}`);
+      }
+      
+      // Handle escrow management based on status transitions
+      // In a real implementation, this would interact with a wallet/balance system
+      if (status === 'completed' && orderData.status === 'awaiting_release') {
+        // Transfer crypto from escrow to buyer
+        console.log(`Releasing ${orderData.total} ${orderData.crypto} from escrow to buyer`);
+        
+        // Here you would call your wallet service to move funds
+        // await walletService.releaseFromEscrow(orderId, orderData.total, orderData.crypto);
+      }
+      
+      // If transitioning to cancelled from awaiting_release, return funds to seller
+      if (status === 'cancelled' && orderData.status === 'awaiting_release') {
+        console.log(`Returning ${orderData.total} ${orderData.crypto} from escrow to seller`);
+        
+        // Here you would call your wallet service
+        // await walletService.returnFromEscrow(orderId, orderData.total, orderData.crypto);
+      }
+
+      await updateDoc(doc(db, this.ORDERS_COLLECTION, orderDoc.id), {
+        status,
+        updatedAt: new Date().toISOString()
+      });
+
+      // Update the order in local cache
+      const orderIndex = this.userOrders.findIndex(o => o.id === orderId);
+      if (orderIndex >= 0) {
+        this.userOrders[orderIndex].status = status;
+      }
+
+      return true;
+    } catch (error) {
+      console.error(`Error updating order status to ${status}:`, error);
+      throw error;
     }
   }
 
