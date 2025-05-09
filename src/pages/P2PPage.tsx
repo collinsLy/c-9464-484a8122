@@ -55,6 +55,16 @@ const P2PPage = () => {
   const [adMaxLimit, setAdMaxLimit] = useState("");
   const [adTerms, setAdTerms] = useState("");
   const [postingAd, setPostingAd] = useState(false);
+  
+  // Payment details for the ad
+  const [paymentDetails, setPaymentDetails] = useState({
+    bankName: "",
+    accountNumber: "",
+    accountHolderName: "",
+    swiftCode: "",
+    paypalEmail: "",
+    mobileNumber: ""
+  });
 
   // User Profile Customization
   const [sellerName, setSellerName] = useState("You");
@@ -331,16 +341,56 @@ const P2PPage = () => {
       return;
     }
 
+    // Validate payment details based on selected payment method
+    if (adType === "sell") {
+      if (adPayment === "bank-transfer" && (!paymentDetails.bankName || !paymentDetails.accountNumber || !paymentDetails.accountHolderName)) {
+        toast.error("Please complete bank account details");
+        return;
+      } else if (adPayment === "paypal" && !paymentDetails.paypalEmail) {
+        toast.error("Please enter PayPal email");
+        return;
+      } else if ((adPayment === "mpesa" || adPayment === "mobile-money") && !paymentDetails.mobileNumber) {
+        toast.error("Please enter mobile number");
+        return;
+      }
+    }
+
     setPostingAd(true);
 
     try {
       // Convert payment method ID to name
       const paymentMethodName = paymentMethods.find(m => m.id === adPayment)?.name || adPayment;
 
+      // Prepare payment details based on payment method
+      let adPaymentDetails = {};
+      if (adType === "sell") {
+        switch (adPayment) {
+          case "bank-transfer":
+            adPaymentDetails = {
+              bankName: paymentDetails.bankName,
+              accountNumber: paymentDetails.accountNumber,
+              accountHolderName: paymentDetails.accountHolderName,
+              swiftCode: paymentDetails.swiftCode
+            };
+            break;
+          case "paypal":
+            adPaymentDetails = {
+              paypalEmail: paymentDetails.paypalEmail
+            };
+            break;
+          case "mpesa":
+          case "mobile-money":
+            adPaymentDetails = {
+              mobileNumber: paymentDetails.mobileNumber
+            };
+            break;
+        }
+      }
+
       const newOffer: Omit<P2POffer, 'id' | 'createdAt'> = {
         user: {
-          name: sellerName, // Changed to dynamic value
-          avatar: sellerAvatar, // Changed to dynamic value
+          name: sellerName,
+          avatar: sellerAvatar,
           rating: 5.0,
           completedTrades: 10
         },
@@ -353,7 +403,8 @@ const P2PPage = () => {
           max: maxLimit
         },
         availableAmount: amount,
-        terms: adTerms || "Standard terms apply."
+        terms: adTerms || "Standard terms apply.",
+        paymentDetails: adPaymentDetails // Add payment details to the offer
       };
 
       await p2pService.createP2POffer(newOffer);
@@ -366,6 +417,14 @@ const P2PPage = () => {
       setAdMinLimit("");
       setAdMaxLimit("");
       setAdTerms("");
+      setPaymentDetails({
+        bankName: "",
+        accountNumber: "",
+        accountHolderName: "",
+        swiftCode: "",
+        paypalEmail: "",
+        mobileNumber: ""
+      });
 
       // Reload offers - important to get the latest data
       await loadOffers();
@@ -400,6 +459,80 @@ const P2PPage = () => {
     return numAmount / price;
   };
 
+  // Render payment details fields based on selected payment method
+  const renderPaymentDetailsFields = () => {
+    switch (adPayment) {
+      case "bank-transfer":
+        return (
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label className="text-white text-sm">Bank Name</Label>
+              <Input 
+                placeholder="Enter bank name" 
+                className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
+                value={paymentDetails.bankName}
+                onChange={(e) => setPaymentDetails({...paymentDetails, bankName: e.target.value})}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-white text-sm">Account Number</Label>
+              <Input 
+                placeholder="Enter account number" 
+                className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
+                value={paymentDetails.accountNumber}
+                onChange={(e) => setPaymentDetails({...paymentDetails, accountNumber: e.target.value})}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-white text-sm">Account Holder Name</Label>
+              <Input 
+                placeholder="Enter account holder name" 
+                className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
+                value={paymentDetails.accountHolderName}
+                onChange={(e) => setPaymentDetails({...paymentDetails, accountHolderName: e.target.value})}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-white text-sm">SWIFT/BIC Code (Optional)</Label>
+              <Input 
+                placeholder="Enter SWIFT/BIC code" 
+                className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
+                value={paymentDetails.swiftCode}
+                onChange={(e) => setPaymentDetails({...paymentDetails, swiftCode: e.target.value})}
+              />
+            </div>
+          </div>
+        );
+      case "paypal":
+        return (
+          <div className="space-y-1">
+            <Label className="text-white text-sm">PayPal Email</Label>
+            <Input 
+              placeholder="Enter PayPal email" 
+              className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
+              value={paymentDetails.paypalEmail}
+              onChange={(e) => setPaymentDetails({...paymentDetails, paypalEmail: e.target.value})}
+            />
+          </div>
+        );
+      case "mpesa":
+      case "mobile-money":
+        return (
+          <div className="space-y-1">
+            <Label className="text-white text-sm">Mobile Number</Label>
+            <Input 
+              placeholder="Enter mobile number (e.g. +254712345678)" 
+              className="bg-background/40 border-white/10 text-white placeholder:text-white/50 h-9"
+              value={paymentDetails.mobileNumber}
+              onChange={(e) => setPaymentDetails({...paymentDetails, mobileNumber: e.target.value})}
+            />
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   const filteredOffers = activeTab === "buy" ? buyOffers : sellOffers;
 
   // Edit offer handler
@@ -427,15 +560,55 @@ const P2PPage = () => {
       return;
     }
 
+    // Validate payment details if it's a sell offer
+    if (editingOffer.type === "sell") {
+      if (adPayment === "bank-transfer" && (!paymentDetails.bankName || !paymentDetails.accountNumber || !paymentDetails.accountHolderName)) {
+        toast.error("Please complete bank account details");
+        return;
+      } else if (adPayment === "paypal" && !paymentDetails.paypalEmail) {
+        toast.error("Please enter PayPal email");
+        return;
+      } else if ((adPayment === "mpesa" || adPayment === "mobile-money") && !paymentDetails.mobileNumber) {
+        toast.error("Please enter mobile number");
+        return;
+      }
+    }
+
     try {
       // Convert payment method ID to name
       const paymentMethodName = paymentMethods.find(m => m.id === adPayment)?.name || adPayment;
 
+      // Prepare payment details based on payment method
+      let adPaymentDetails = {};
+      if (editingOffer.type === "sell") {
+        switch (adPayment) {
+          case "bank-transfer":
+            adPaymentDetails = {
+              bankName: paymentDetails.bankName,
+              accountNumber: paymentDetails.accountNumber,
+              accountHolderName: paymentDetails.accountHolderName,
+              swiftCode: paymentDetails.swiftCode
+            };
+            break;
+          case "paypal":
+            adPaymentDetails = {
+              paypalEmail: paymentDetails.paypalEmail
+            };
+            break;
+          case "mpesa":
+          case "mobile-money":
+            adPaymentDetails = {
+              mobileNumber: paymentDetails.mobileNumber
+            };
+            break;
+        }
+      }
+
       const updatedOffer: P2POffer = {
         ...editingOffer,
         user: {
-          name: sellerName, // Changed to dynamic value
-          avatar: sellerAvatar, // Changed to dynamic value
+          name: sellerName,
+          avatar: sellerAvatar,
           rating: 5.0,
           completedTrades: 10
         },
@@ -448,7 +621,8 @@ const P2PPage = () => {
           max: maxLimit
         },
         availableAmount: amount,
-        terms: adTerms || "Standard terms apply."
+        terms: adTerms || "Standard terms apply.",
+        paymentDetails: adPaymentDetails // Add payment details to the offer
       };
 
       await p2pService.updateP2POffer(updatedOffer.id, updatedOffer);
@@ -480,6 +654,20 @@ const P2PPage = () => {
     setAdTerms(offer.terms || "");
     setSellerName(offer.user.name);
     setSellerAvatar(offer.user.avatar);
+    
+    // Set payment details if available
+    if (offer.paymentDetails) {
+      const details = offer.paymentDetails as any;
+      setPaymentDetails({
+        bankName: details.bankName || "",
+        accountNumber: details.accountNumber || "",
+        accountHolderName: details.accountHolderName || "",
+        swiftCode: details.swiftCode || "",
+        paypalEmail: details.paypalEmail || "",
+        mobileNumber: details.mobileNumber || ""
+      });
+    }
+    
     setShowEditDialog(true);
   };
 
@@ -1109,6 +1297,20 @@ const P2PPage = () => {
                         />
                       </div>
 
+                      {/* Payment Details Section - Only show for sell orders */}
+                      {adType === "sell" && (
+                        <div className="space-y-2 mt-4">
+                          <div className="flex items-center gap-2">
+                            <CreditCard className="h-5 w-5 text-white/70" />
+                            <Label className="text-white text-lg">Payment Details</Label>
+                          </div>
+                          <p className="text-sm text-white/70 mb-3">
+                            Add your payment details for this {adPayment.replace('-', ' ')}. This information will be shown to buyers when they place an order.
+                          </p>
+                          {renderPaymentDetailsFields()}
+                        </div>
+                      )}
+
                       {buyOffers.length === 0 && sellOffers.length === 0 && (
                         <div className="mt-4 p-3 rounded-md bg-yellow-400/10 border border-yellow-400/20 flex items-start space-x-2">
                           <AlertTriangle className="h-5 w-5 text-yellow-400 shrink-0 mt-0.5" />
@@ -1310,24 +1512,41 @@ const P2PPage = () => {
                     const order = userOrders.find(o => o.id === selectedOrderForChat);
                     if (!order) return <p className="text-sm text-white/70">No order details available</p>;
                     
+                    // Find the original offer to get payment details
+                    const offerList = order.type === 'buy' ? sellOffers : buyOffers;
+                    const relatedOffer = offerList.find(o => o.id === order.offerId);
+                    const paymentDetails = relatedOffer?.paymentDetails;
                     const paymentMethod = order.paymentMethod || "bank-transfer";
                     
                     switch(paymentMethod) {
                       case "bank-transfer":
+                      case "Bank Transfer":
                         return (
                           <div className="space-y-3">
                             <div>
                               <p className="text-xs text-white/50">Bank Name</p>
-                              <p className="text-sm font-medium">National Bank Ltd</p>
+                              <p className="text-sm font-medium">
+                                {paymentDetails?.bankName || "National Bank Ltd"}
+                              </p>
                             </div>
                             <div>
                               <p className="text-xs text-white/50">Account Number</p>
-                              <p className="text-sm font-medium">0012345678901</p>
+                              <p className="text-sm font-medium">
+                                {paymentDetails?.accountNumber || "0012345678901"}
+                              </p>
                             </div>
                             <div>
                               <p className="text-xs text-white/50">Account Holder</p>
-                              <p className="text-sm font-medium">{order.seller}</p>
+                              <p className="text-sm font-medium">
+                                {paymentDetails?.accountHolderName || order.seller}
+                              </p>
                             </div>
+                            {paymentDetails?.swiftCode && (
+                              <div>
+                                <p className="text-xs text-white/50">SWIFT/BIC Code</p>
+                                <p className="text-sm font-medium">{paymentDetails.swiftCode}</p>
+                              </div>
+                            )}
                             <div>
                               <p className="text-xs text-white/50">Reference</p>
                               <p className="text-sm font-medium">{selectedOrderForChat?.substring(0, 8)}</p>
@@ -1335,11 +1554,14 @@ const P2PPage = () => {
                           </div>
                         );
                       case "mpesa":
+                      case "M-PESA":
                         return (
                           <div className="space-y-3">
                             <div>
                               <p className="text-xs text-white/50">M-PESA Number</p>
-                              <p className="text-sm font-medium">+254712345678</p>
+                              <p className="text-sm font-medium">
+                                {paymentDetails?.mobileNumber || "+254712345678"}
+                              </p>
                             </div>
                             <div>
                               <p className="text-xs text-white/50">Account Name</p>
@@ -1352,11 +1574,14 @@ const P2PPage = () => {
                           </div>
                         );
                       case "paypal":
+                      case "PayPal":
                         return (
                           <div className="space-y-3">
                             <div>
                               <p className="text-xs text-white/50">PayPal Email</p>
-                              <p className="text-sm font-medium">payment@example.com</p>
+                              <p className="text-sm font-medium">
+                                {paymentDetails?.paypalEmail || "payment@example.com"}
+                              </p>
                             </div>
                             <div>
                               <p className="text-xs text-white/50">Amount</p>
@@ -1585,6 +1810,20 @@ const P2PPage = () => {
                   onChange={(e) => setAdTerms(e.target.value)}
                 />
               </div>
+              
+              {/* Payment Details Section in Edit Dialog */}
+              {editingOffer && editingOffer.type === "sell" && (
+                <div className="space-y-2 mt-4 border-t border-white/10 pt-4">
+                  <div className="flex items-center gap-2">
+                    <CreditCard className="h-5 w-5 text-white/70" />
+                    <Label className="text-white text-lg">Payment Details</Label>
+                  </div>
+                  <p className="text-sm text-white/70 mb-3">
+                    Update your payment details for this {adPayment.replace('-', ' ')}.
+                  </p>
+                  {renderPaymentDetailsFields()}
+                </div>
+              )}
             </div>
 
             <div className="flex justify-between gap-4 mt-2">

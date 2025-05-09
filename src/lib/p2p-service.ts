@@ -22,6 +22,16 @@ export interface P2POffer {
   availableAmount: number;
   terms: string;
   createdAt: Date;
+  paymentDetails?: {
+    bankName?: string;
+    accountNumber?: string;
+    accountHolderName?: string;
+    swiftCode?: string;
+    paypalEmail?: string;
+    mobileNumber?: string;
+    [key: string]: any;
+  };
+  type?: 'buy' | 'sell'; // To track if it's a buy or sell offer
 }
 
 export interface P2POrder {
