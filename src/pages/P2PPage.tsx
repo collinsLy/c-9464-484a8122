@@ -64,25 +64,25 @@ const P2PPage = () => {
     accountHolderName: "",
     swiftCode: "",
     branchCode: "",
-    
+
     // PayPal details
     paypalEmail: "",
     paypalName: "",
-    
+
     // M-PESA details
     mobileNumber: "",
     mpesaName: "",
-    
+
     // Mobile Money details
     mobileProvider: "",
     otherProvider: "",
     accountName: "",
-    
+
     // Cash details
     meetingLocation: "",
     contactNumber: "",
     preferredTime: "",
-    
+
     // Generic
     instructions: ""
   });
@@ -130,8 +130,32 @@ const P2PPage = () => {
       loadCurrentPrices();
     }, 60000); // 1 minute
 
-    return () => clearInterval(priceInterval);
-  }, []);
+    // Set up interval to check for new orders every minute
+    const orderInterval = setInterval(async () => {
+      try {
+        const currentOrderCount = userOrders.length;
+        const newOrders = await p2pService.getUserOrders();
+
+        if (newOrders.length > currentOrderCount) {
+          setUserOrders(newOrders);
+          // Play notification sound for new orders
+          const audio = new Audio('/sounds/alert.mp3');
+          audio.play().catch(e => console.error("Error playing sound:", e));
+
+          toast.success("New order received", {
+            description: "You have a new P2P trading order"
+          });
+        }
+      } catch (error) {
+        console.error("Error checking for new orders:", error);
+      }
+    }, 60000); // 1 minute
+
+    return () => {
+      clearInterval(priceInterval);
+      clearInterval(orderInterval);
+    };
+  }, [userOrders.length]);
 
   // Filter offers when filters change
   useEffect(() => {
@@ -243,14 +267,14 @@ const P2PPage = () => {
       toast.error(`Amount must be between ${selectedOffer.limits.min} and ${selectedOffer.limits.max} ${selectedOffer.fiatCurrency}`);
       return;
     }
-    
+
     // Calculate crypto amount before placing order to validate
     const cryptoAmount = amount / selectedOffer.price;
     if (cryptoAmount > selectedOffer.availableAmount) {
       toast.error(`Not enough crypto available. Maximum: ${selectedOffer.availableAmount.toFixed(6)} ${selectedOffer.crypto}`);
       return;
     }
-    
+
     // Add a slight buffer to account for rounding differences (0.1% less than max)
     const safeCryptoAmount = cryptoAmount * 0.999;
     if (safeCryptoAmount > selectedOffer.availableAmount) {
@@ -320,7 +344,7 @@ const P2PPage = () => {
           text: `Please send ${order.amount.toLocaleString()} ${order.fiatCurrency} using the payment method shown in the details panel. After payment, click the "I've Paid" button.`,
           timestamp: new Date(Date.now() + 1000)
         });
-        
+
         // Add a second message about payment details
         if (order.paymentDetails && Object.keys(order.paymentDetails).some(key => order.paymentDetails?.[key])) {
           initialMessages.push({
@@ -1552,7 +1576,7 @@ const P2PPage = () => {
                         <p className="text-sm text-white/70 mb-3">
                           Add your payment details for this {adPayment.replace('-', ' ')}. This information will be shown to buyers when they place an order.
                         </p>
-                        
+
                         {/* Payment Instructions field */}
                         <div className="space-y-2">
                           <Label className="text-white text-sm">Payment Instructions</Label>
@@ -1563,7 +1587,7 @@ const P2PPage = () => {
                             onChange={(e) => setPaymentDetails({...paymentDetails, instructions: e.target.value})}
                           />
                         </div>
-                        
+
                         {renderPaymentDetailsFields()}
                       </div>
 
@@ -1679,7 +1703,7 @@ const P2PPage = () => {
                     {buyTotal.toFixed(8)} {selectedOffer?.crypto}
                   </span>
                 </div>
-                
+
                 {/* Escrow explanation */}
                 <div className="p-3 rounded-md bg-blue-400/10 border border-blue-400/20 flex items-start space-x-2">
                   <ShieldCheck className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
@@ -1782,7 +1806,7 @@ const P2PPage = () => {
                           setProcessingOrder(true);
                           // Update order status to awaiting_release
                           await p2pService.updateOrderStatus(selectedOrderForChat, 'awaiting_release');
-                          
+
                           const newMessages = {
                             ...chatMessages,
                             [selectedOrderForChat]: [
@@ -1800,7 +1824,7 @@ const P2PPage = () => {
                             ]
                           };
                           setChatMessages(newMessages);
-                          
+
                           // Update local order data
                           const updatedOrders = userOrders.map(order => 
                             order.id === selectedOrderForChat 
@@ -1808,7 +1832,7 @@ const P2PPage = () => {
                               : order
                           );
                           setUserOrders(updatedOrders);
-                          
+
                           toast.success("Payment marked as completed", {
                             description: "The seller will verify and release your crypto soon."
                           });
@@ -1846,7 +1870,7 @@ const P2PPage = () => {
                           setProcessingOrder(true);
                           // Release crypto from escrow and complete order
                           await p2pService.updateOrderStatus(selectedOrderForChat, 'completed');
-                          
+
                           const newMessages = {
                             ...chatMessages,
                             [selectedOrderForChat]: [
@@ -1864,7 +1888,7 @@ const P2PPage = () => {
                             ]
                           };
                           setChatMessages(newMessages);
-                          
+
                           // Update local order data
                           const updatedOrders = userOrders.map(order => 
                             order.id === selectedOrderForChat 
@@ -1872,7 +1896,7 @@ const P2PPage = () => {
                               : order
                           );
                           setUserOrders(updatedOrders);
-                          
+
                           toast.success("Crypto released successfully", {
                             description: "The funds have been transferred to the buyer."
                           });
@@ -1898,7 +1922,7 @@ const P2PPage = () => {
                       )}
                     </Button>
                   )}
-                  
+
                   {/* Dispute button */}
                   {selectedOrderForChat && 
                    (userOrders.find(o => o.id === selectedOrderForChat)?.status === 'awaiting_release' || 
@@ -1948,7 +1972,7 @@ const P2PPage = () => {
                           {userOrders.find(order => order.id === selectedOrderForChat)?.paymentMethod || "M-PESA"}
                         </span>
                       </div>
-                      
+
                       {/* Order amount and crypto */}
                       {userOrders.find(order => order.id === selectedOrderForChat) && (
                         <div className="space-y-1 bg-background/60 rounded-md p-2 mb-2">
@@ -1961,7 +1985,7 @@ const P2PPage = () => {
                           </div>
                         </div>
                       )}
-                      
+
                       {/* Payment instructions if available */}
                       {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.instructions && (
                         <div className="space-y-1 bg-background/60 rounded-md p-2 mb-2">
@@ -1971,7 +1995,7 @@ const P2PPage = () => {
                           </div>
                         </div>
                       )}
-                      
+
                       {/* Payment details */}
                       {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails && 
                        Object.keys(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails || {}).length > 0 ? (
@@ -1980,7 +2004,7 @@ const P2PPage = () => {
                           {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.bankName && (
                             <div className="space-y-2 bg-background/60 rounded-md p-2">
                               <div className="text-white/70 font-medium">Bank Transfer Details</div>
-                              
+
                               {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.bankName && (
                                 <div className="space-y-1">
                                   <div className="text-white/70 text-xs">Bank Name</div>
@@ -2000,7 +2024,7 @@ const P2PPage = () => {
                                   </div>
                                 </div>
                               )}
-                              
+
                               {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.accountNumber && (
                                 <div className="space-y-1">
                                   <div className="text-white/70 text-xs">Account Number</div>
@@ -2020,7 +2044,7 @@ const P2PPage = () => {
                                   </div>
                                 </div>
                               )}
-                              
+
                               {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.accountHolderName && (
                                 <div className="space-y-1">
                                   <div className="text-white/70 text-xs">Account Holder</div>
@@ -2040,7 +2064,7 @@ const P2PPage = () => {
                                   </div>
                                 </div>
                               )}
-                              
+
                               {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.swiftCode && (
                                 <div className="space-y-1">
                                   <div className="text-white/70 text-xs">SWIFT/BIC Code</div>
@@ -2062,12 +2086,12 @@ const P2PPage = () => {
                               )}
                             </div>
                           )}
-                          
+
                           {/* PayPal Details */}
                           {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.paypalEmail && (
                             <div className="space-y-2 bg-background/60 rounded-md p-2">
                               <div className="text-white/70 font-medium">PayPal Details</div>
-                              
+
                               <div className="space-y-1">
                                 <div className="text-white/70 text-xs">PayPal Email</div>
                                 <div className="font-medium text-xs break-words flex items-center group relative">
@@ -2085,7 +2109,7 @@ const P2PPage = () => {
                                   </Button>
                                 </div>
                               </div>
-                              
+
                               {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.paypalName && (
                                 <div className="space-y-1">
                                   <div className="text-white/70 text-xs">Full Name</div>
@@ -2107,7 +2131,7 @@ const P2PPage = () => {
                               )}
                             </div>
                           )}
-                          
+
                           {/* Mobile Money / M-PESA Details */}
                           {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.mobileNumber && (
                             <div className="space-y-2 bg-background/60 rounded-md p-2">
@@ -2116,7 +2140,7 @@ const P2PPage = () => {
                                   ? "M-PESA Details" 
                                   : "Mobile Money Details"}
                               </div>
-                              
+
                               <div className="space-y-1">
                                 <div className="text-white/70 text-xs">Mobile Number</div>
                                 <div className="font-medium text-xs break-words flex items-center group relative">
@@ -2134,7 +2158,7 @@ const P2PPage = () => {
                                   </Button>
                                 </div>
                               </div>
-                              
+
                               {(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.mpesaName || 
                                 userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.accountName) && (
                                 <div className="space-y-1">
@@ -2161,7 +2185,7 @@ const P2PPage = () => {
                                   </div>
                                 </div>
                               )}
-                              
+
                               {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.mobileProvider && (
                                 <div className="space-y-1">
                                   <div className="text-white/70 text-xs">Provider</div>
@@ -2174,7 +2198,7 @@ const P2PPage = () => {
                               )}
                             </div>
                           )}
-                          
+
                           {/* If no specific payment details are found, show generic ones */}
                           {!userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.bankName && 
                            !userOrders.find(order => order.id === selectedOrderForChat)?.paymentDetails?.paypalEmail &&
@@ -2250,7 +2274,7 @@ const P2PPage = () => {
                           </div>
                         </div>
                       )}
-                      
+
                       {/* Reference number */}
                       {userOrders.find(order => order.id === selectedOrderForChat)?.referenceNumber && (
                         <div className="space-y-1 mt-4">
@@ -2274,12 +2298,12 @@ const P2PPage = () => {
                           </div>
                         </div>
                       )}
-                      
+
                       <div className="p-2 mt-4 bg-background/60 rounded-md">
                         <div className="text-xs text-white/70 mb-1">Copy these details exactly as shown.</div>
                         <div className="text-xs text-white/70">Always verify the payment has been received before releasing crypto.</div>
                       </div>
-                      
+
                       {/* Payment deadline */}
                       {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDeadline && 
                        userOrders.find(order => order.id === selectedOrderForChat)?.status === 'pending' && (

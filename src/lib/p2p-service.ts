@@ -826,6 +826,82 @@ class P2PService {
 
     return this.cryptoPrices;
   }
+  
+  // For handling payment confirmation
+  public async confirmPayment(orderId: string): Promise<boolean> {
+    try {
+      return await this.updateOrderStatus(orderId, 'awaiting_release');
+    } catch (error) {
+      console.error("Error confirming payment:", error);
+      throw error;
+    }
+  }
+  
+  // For handling crypto release
+  public async releaseCrypto(orderId: string): Promise<boolean> {
+    try {
+      return await this.updateOrderStatus(orderId, 'completed');
+    } catch (error) {
+      console.error("Error releasing crypto:", error);
+      throw error;
+    }
+  }
+  
+  // For handling payment windows
+  public async getPaymentTimeLeft(orderId: string): Promise<number> {
+    try {
+      // Find the order
+      const order = this.userOrders.find(o => o.id === orderId);
+      if (!order || !order.paymentDeadline) {
+        return 0;
+      }
+      
+      const now = new Date();
+      const deadline = new Date(order.paymentDeadline);
+      const timeLeft = Math.max(0, Math.floor((deadline.getTime() - now.getTime()) / 1000));
+      
+      return timeLeft;
+    } catch (error) {
+      console.error("Error getting payment time left:", error);
+      return 0;
+    }
+  }
+  
+  // For handling dispute creation
+  public async createDispute(orderId: string, reason: string): Promise<boolean> {
+    try {
+      // Find the order in Firebase
+      const ordersQuery = query(
+        collection(db, this.ORDERS_COLLECTION),
+        where("id", "==", orderId)
+      );
+
+      const snapshot = await getDocs(ordersQuery);
+
+      if (snapshot.empty) {
+        throw new Error("Order not found");
+      }
+
+      // Update the order status in Firebase
+      const orderDoc = snapshot.docs[0];
+      await updateDoc(doc(db, this.ORDERS_COLLECTION, orderDoc.id), {
+        status: 'dispute_opened',
+        disputeReason: reason,
+        disputeCreatedAt: new Date().toISOString()
+      });
+
+      // Update the order in local cache
+      const orderIndex = this.userOrders.findIndex(o => o.id === orderId);
+      if (orderIndex >= 0) {
+        this.userOrders[orderIndex].status = 'dispute_opened';
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Error creating dispute:", error);
+      throw error;
+    }
+  }
 }
 
 export const p2pService = new P2PService();
