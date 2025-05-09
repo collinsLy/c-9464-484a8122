@@ -20,6 +20,7 @@ import p2pService, { P2POffer, P2POrder } from "@/lib/p2p-service";
 import { auth } from "@/lib/firebase";
 import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { PaymentDetails, formatPaymentDetails } from '@/components/p2p/P2PHelpers';
 
 const P2PPage = () => {
   const { isDemoMode } = useDashboardContext();
@@ -42,9 +43,6 @@ const P2PPage = () => {
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [processingOrder, setProcessingOrder] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-
-// Import our helper components
-import { PaymentDetails, formatPaymentDetails } from '@/components/p2p/P2PHelpers';
 
 // Notifications List Component
 const NotificationsList = () => {
