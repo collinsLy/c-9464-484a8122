@@ -1055,8 +1055,9 @@ class P2PService {
         sellerId: orderData.seller || ''
       });
       
-      // Return success
-      return true;rId,
+      // Add the chat message to Firestore
+      await addDoc(collection(db, this.CHAT_MESSAGES_COLLECTION), {
+        orderId,
         sender,
         text,
         timestamp: timestamp.toISOString(),

@@ -28,20 +28,6 @@ const sampleSuggestions = [
   "Explain how to set stop losses properly"
 ];
 
-const sampleResponses: {[key: string]: string} = {
-  "Analyze BTC price action for the next week": 
-    "Based on current market data, Bitcoin shows signs of consolidation after recent volatility. Key resistance levels are at $65,000 and $68,000, with support at $60,000 and $57,500. Watch for volume patterns and MACD crossovers for potential trend changes. Remember that all analysis has uncertainty - always use proper risk management.",
-  
-  "What's your opinion on ETH right now?":
-    "Ethereum is currently in an interesting position with the network continuing to develop its Layer 2 solutions and scalability improvements. Price action shows consolidation with key resistance at $3,400 and support at $3,100. Monitor gas fees as an indicator of network usage and DeFi protocol TVL for ecosystem health. Consider dollar-cost averaging for long-term positions.",
-  
-  "Help me create a risk management strategy":
-    "A solid risk management strategy should include: 1) Limit risk to 1-2% of capital per trade, 2) Use appropriate position sizing based on volatility, 3) Always set stop losses before entering trades, 4) Diversify across different assets and strategies, 5) Keep a trading journal to track and improve performance, 6) Consider implementing a tiered take-profit strategy, and 7) Regularly review and adjust your strategy based on performance data.",
-  
-  "What technical indicators should I use for spotting reversals?":
-    "For spotting potential market reversals, consider these indicators: 1) RSI divergence (price makes new highs/lows while RSI doesn't), 2) MACD crossovers and histogram reversals, 3) Bollinger Bands contraction/expansion, 4) Candlestick patterns like doji, hammer, or shooting star, 5) Volume spikes or decline at extremes, 6) Support/resistance level tests, and 7) Fibonacci retracement levels. Always use multiple indicators for confirmation rather than relying on just one."
-};
-
 const sampleResponses = {
   "Analyze BTC price action for the next week": 
     `Based on current market conditions, BTC is showing bullish momentum with key resistance at $58,500. Multiple indicators suggest potential continuation:

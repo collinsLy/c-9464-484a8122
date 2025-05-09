@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { UserService } from '@/lib/user-service';
-import { P2PService } from '@/lib/p2p-service';
+import p2pService from '@/lib/p2p-service';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
