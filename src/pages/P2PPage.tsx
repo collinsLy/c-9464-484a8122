@@ -39,6 +39,70 @@ const P2PPage = () => {
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [processingOrder, setProcessingOrder] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+// Payment Timer Component
+const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => void }) => {
+  const [timeLeft, setTimeLeft] = useState<{ minutes: number, seconds: number }>({ minutes: 0, seconds: 0 });
+  const [isExpiring, setIsExpiring] = useState(false);
+  
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      const difference = deadline.getTime() - now.getTime();
+      
+      if (difference <= 0) {
+        return { minutes: 0, seconds: 0 };
+      }
+      
+      const minutes = Math.floor(difference / (1000 * 60));
+      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+      
+      // Trigger warning when less than 2 minutes remain
+      if (minutes < 2 && !isExpiring) {
+        setIsExpiring(true);
+        onExpire();
+      }
+      
+      return { minutes, seconds };
+    };
+    
+    // Initial calculation
+    setTimeLeft(calculateTimeLeft());
+    
+    // Update every second
+    const timer = setInterval(() => {
+      const newTimeLeft = calculateTimeLeft();
+      setTimeLeft(newTimeLeft);
+      
+      if (newTimeLeft.minutes === 0 && newTimeLeft.seconds === 0) {
+        clearInterval(timer);
+      }
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, [deadline, onExpire, isExpiring]);
+  
+  const { minutes, seconds } = timeLeft;
+  
+  return (
+    <div className={`p-2 mt-1 ${
+      minutes < 2 
+        ? "bg-red-400/10 border-red-400/20 text-red-300" 
+        : minutes < 5 
+          ? "bg-yellow-400/10 border-yellow-400/20 text-yellow-300" 
+          : "bg-blue-400/10 border-blue-400/20 text-blue-300"
+    } border rounded-md flex items-start space-x-2`}>
+      <Clock className="h-4 w-4 shrink-0 mt-0.5" />
+      <div className="text-xs">
+        <p>Payment deadline: {deadline.toLocaleTimeString()}</p>
+        <p className="font-medium mt-1">
+          Time remaining: {minutes}:{seconds.toString().padStart(2, '0')}
+        </p>
+      </div>
+    </div>
+  );
+};
+
   const [cryptoPrices, setCryptoPrices] = useState<Record<string, number>>({});
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
@@ -250,6 +314,8 @@ const P2PPage = () => {
   const [chatMessage, setChatMessage] = useState("");
   const [selectedOrderForChat, setSelectedOrderForChat] = useState<string | null>(null);
   const [showChatDialog, setShowChatDialog] = useState(false);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [sendingMessage, setSendingMessage] = useState(false);
 
   // Edit Offer State
   const [editingOffer, setEditingOffer] = useState<P2POffer | null>(null);
@@ -321,112 +387,185 @@ const P2PPage = () => {
     }
   };
 
-  const openChat = (orderId: string) => {
+  const openChat = async (orderId: string) => {
     setSelectedOrderForChat(orderId);
+    setLoadingMessages(true);
 
-    // Initialize chat if it doesn't exist
-    if (!chatMessages[orderId]) {
-      const order = userOrders.find(o => o.id === orderId);
-
-      // Create initial messages including payment instructions
-      const initialMessages = [
-        {
-          sender: 'System',
-          text: 'Chat started. Please be respectful and keep all transaction details within the platform.',
-          timestamp: new Date()
-        }
-      ];
-
-      // Add payment instructions if it's a buy order
-      if (order && order.type === 'buy') {
-        initialMessages.push({
-          sender: order.seller,
-          text: `Please send ${order.amount.toLocaleString()} ${order.fiatCurrency} using the payment method shown in the details panel. After payment, click the "I've Paid" button.`,
-          timestamp: new Date(Date.now() + 1000)
+    try {
+      // Try to fetch existing messages from Firebase
+      const messages = await p2pService.getChatMessages(orderId);
+      
+      // If messages exist in Firebase, use them
+      if (messages && messages.length > 0) {
+        setChatMessages({
+          ...chatMessages,
+          [orderId]: messages
         });
+      } else {
+        // Initialize chat if no messages exist
+        const order = userOrders.find(o => o.id === orderId);
 
-        // Add a second message about payment details
-        if (order.paymentDetails && Object.keys(order.paymentDetails).some(key => order.paymentDetails?.[key])) {
+        // Create initial messages including payment instructions
+        const initialMessages = [
+          {
+            sender: 'System',
+            text: 'Chat started. Please be respectful and keep all transaction details within the platform.',
+            timestamp: new Date()
+          }
+        ];
+
+        // Add payment instructions if it's a buy order
+        if (order && order.type === 'buy') {
           initialMessages.push({
             sender: order.seller,
-            text: `I've provided my payment details in the panel on the right. Please use them exactly as shown.`,
-            timestamp: new Date(Date.now() + 2000)
+            text: `Please send ${order.amount.toLocaleString()} ${order.fiatCurrency} using the payment method shown in the details panel. After payment, click the "I've Paid" button.`,
+            timestamp: new Date(Date.now() + 1000)
           });
-        } else {
+
+          // Add a second message about payment details
+          if (order.paymentDetails && Object.keys(order.paymentDetails).some(key => order.paymentDetails?.[key])) {
+            initialMessages.push({
+              sender: order.seller,
+              text: `I've provided my payment details in the panel on the right. Please use them exactly as shown.`,
+              timestamp: new Date(Date.now() + 2000)
+            });
+          } else {
+            initialMessages.push({
+              sender: order.seller,
+              text: `I'll share my payment details shortly.`,
+              timestamp: new Date(Date.now() + 2000)
+            });
+          }
+        }
+
+        // Add release funds instruction if it's a sell order
+        if (order && order.type === 'sell') {
           initialMessages.push({
-            sender: order.seller,
-            text: `I'll share my payment details shortly.`,
-            timestamp: new Date(Date.now() + 2000)
+            sender: 'System',
+            text: `Wait for buyer to confirm payment. Once confirmed, verify the payment in your account and release the funds.`,
+            timestamp: new Date(Date.now() + 1000)
           });
         }
-      }
 
-      // Add release funds instruction if it's a sell order
-      if (order && order.type === 'sell') {
-        initialMessages.push({
-          sender: 'System',
-          text: `Wait for buyer to confirm payment. Once confirmed, verify the payment in your account and release the funds.`,
-          timestamp: new Date(Date.now() + 1000)
-        });
-      }
+        // Add different instructions based on order status
+        if (order && order.status === 'awaiting_release') {
+          initialMessages.push({
+            sender: 'System',
+            text: order.type === 'buy' 
+              ? `Your payment has been marked as completed. Waiting for the seller to verify and release the funds.` 
+              : `The buyer has marked the payment as completed. Please verify the payment and release the funds if confirmed.`,
+            timestamp: new Date(Date.now() + 3000)
+          });
+        } else if (order && order.status === 'completed') {
+          initialMessages.push({
+            sender: 'System',
+            text: `This transaction has been completed successfully.`,
+            timestamp: new Date(Date.now() + 3000)
+          });
+        } else if (order && order.status === 'cancelled') {
+          initialMessages.push({
+            sender: 'System',
+            text: `This transaction has been cancelled.`,
+            timestamp: new Date(Date.now() + 3000)
+          });
+        }
 
-      // Add different instructions based on order status
-      if (order && order.status === 'awaiting_release') {
-        initialMessages.push({
-          sender: 'System',
-          text: order.type === 'buy' 
-            ? `Your payment has been marked as completed. Waiting for the seller to verify and release the funds.` 
-            : `The buyer has marked the payment as completed. Please verify the payment and release the funds if confirmed.`,
-          timestamp: new Date(Date.now() + 3000)
+        setChatMessages({
+          ...chatMessages,
+          [orderId]: initialMessages
         });
-      } else if (order && order.status === 'completed') {
-        initialMessages.push({
-          sender: 'System',
-          text: `This transaction has been completed successfully.`,
-          timestamp: new Date(Date.now() + 3000)
-        });
-      } else if (order && order.status === 'cancelled') {
-        initialMessages.push({
-          sender: 'System',
-          text: `This transaction has been cancelled.`,
-          timestamp: new Date(Date.now() + 3000)
-        });
-      }
 
-      setChatMessages({
-        ...chatMessages,
-        [orderId]: initialMessages
-      });
+        // Save these initial messages to Firebase
+        for (const message of initialMessages) {
+          await p2pService.addChatMessage(
+            orderId, 
+            message.sender, 
+            message.text, 
+            message.timestamp
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error loading chat messages:", error);
+      toast.error("Failed to load chat messages");
+    } finally {
+      setLoadingMessages(false);
+      setShowChatDialog(true);
     }
-
-    setShowChatDialog(true);
   };
 
-  const sendChatMessage = () => {
+  const sendChatMessage = async () => {
     if (!chatMessage.trim() || !selectedOrderForChat) return;
-
-    const newMessages = {
-      ...chatMessages,
-      [selectedOrderForChat]: [
-        ...(chatMessages[selectedOrderForChat] || []),
-        {
-          sender: 'You',
-          text: chatMessage,
-          timestamp: new Date()
-        },
-        // Simulate response from the other party
-        {
-          sender: userOrders.find(o => o.id === selectedOrderForChat)?.seller === 'You' 
+    
+    setSendingMessage(true);
+    try {
+      const messageTime = new Date();
+      
+      // Save message to Firebase
+      const success = await p2pService.addChatMessage(
+        selectedOrderForChat,
+        'You',
+        chatMessage,
+        messageTime
+      );
+      
+      if (success) {
+        // Update local state immediately
+        const newMessages = {
+          ...chatMessages,
+          [selectedOrderForChat]: [
+            ...(chatMessages[selectedOrderForChat] || []),
+            {
+              sender: 'You',
+              text: chatMessage,
+              timestamp: messageTime
+            }
+          ]
+        };
+        
+        setChatMessages(newMessages);
+        setChatMessage('');
+        
+        // In a real app, we'd use a websocket or real-time DB
+        // For demo, simulate a response after 2 seconds
+        setTimeout(async () => {
+          const counterparty = userOrders.find(o => o.id === selectedOrderForChat)?.seller === 'You' 
             ? userOrders.find(o => o.id === selectedOrderForChat)?.buyer || 'Counterparty' 
-            : userOrders.find(o => o.id === selectedOrderForChat)?.seller || 'Counterparty',
-          text: 'I\'ve received your message. Let me check and get back to you shortly.',
-          timestamp: new Date(Date.now() + 30000) // 30 seconds later
-        }
-      ]
-    };
-
-    setChatMessages(newMessages);
-    setChatMessage('');
+            : userOrders.find(o => o.id === selectedOrderForChat)?.seller || 'Counterparty';
+          
+          const responseTime = new Date();
+          const responseMessage = 'I\'ve received your message. Let me check and get back to you shortly.';
+            
+          // Save response to Firebase
+          await p2pService.addChatMessage(
+            selectedOrderForChat as string,
+            counterparty,
+            responseMessage,
+            responseTime
+          );
+          
+          // Update local state with the response
+          setChatMessages(prevMessages => ({
+            ...prevMessages,
+            [selectedOrderForChat as string]: [
+              ...(prevMessages[selectedOrderForChat as string] || []),
+              {
+                sender: counterparty,
+                text: responseMessage,
+                timestamp: responseTime
+              }
+            ]
+          }));
+        }, 2000);
+      } else {
+        toast.error("Failed to send message");
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast.error("Failed to send message");
+    } finally {
+      setSendingMessage(false);
+    }
   };
 
   const handlePostAd = async () => {
@@ -887,6 +1026,38 @@ const P2PPage = () => {
       toast.error(error instanceof Error ? error.message : "Failed to update advertisement. Please try again.");
     }
   };
+  
+  // Delete (deactivate) offer handler
+  const handleDeleteOffer = async (offerId: string) => {
+    try {
+      const confirmed = window.confirm("Are you sure you want to deactivate this offer? Users will no longer be able to place orders against it.");
+      
+      if (!confirmed) return;
+      
+      await p2pService.deleteP2POffer(offerId);
+      
+      toast.success("Offer successfully deactivated");
+      
+      // Reload offers
+      await loadOffers();
+      await filterOffers();
+    } catch (error) {
+      console.error("Error deleting offer:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to deactivate offer. Please try again.");
+    }
+  };
+  
+  // Report offer handler
+  const handleReportOffer = (offer: P2POffer) => {
+    const reason = window.prompt("Please provide a reason for reporting this offer:");
+    
+    if (!reason) return;
+    
+    // In a real implementation, this would send the report to your backend
+    toast.success("Report submitted successfully", {
+      description: "Our team will review this offer and take appropriate action if needed."
+    });
+  };
 
   // Function to open the edit dialog and pre-populate the form
   const openEditDialog = (offer: P2POffer) => {
@@ -1128,12 +1299,29 @@ const P2PPage = () => {
                                     {activeTab === "buy" ? "Buy" : "Sell"}
                                   </Button>
 
-                                  {auth.currentUser && offer.userId === auth.currentUser?.uid && (
+                                  {auth.currentUser && offer.userId === auth.currentUser?.uid ? (
+                                    <>
+                                      <Button 
+                                        variant="outline" 
+                                        onClick={() => openEditDialog(offer)}
+                                      >
+                                        Edit
+                                      </Button>
+                                      <Button 
+                                        variant="outline" 
+                                        className="text-red-400 border-red-400/20 hover:bg-red-400/10"
+                                        onClick={() => handleDeleteOffer(offer.id)}
+                                      >
+                                        Deactivate
+                                      </Button>
+                                    </>
+                                  ) : (
                                     <Button 
-                                      variant="outline" 
-                                      onClick={() => openEditDialog(offer)}
+                                      variant="ghost" 
+                                      className="text-orange-400 hover:bg-orange-400/10 hover:text-orange-300"
+                                      onClick={() => handleReportOffer(offer)}
                                     >
-                                      Edit
+                                      Report
                                     </Button>
                                   )}
                                 </div>
@@ -1770,27 +1958,38 @@ const P2PPage = () => {
               <div className="h-[400px] flex flex-col flex-1">
                 <ScrollArea className="flex-1 pr-4 mb-4">
                   <div className="space-y-4 p-2">
-                    {selectedOrderForChat && chatMessages[selectedOrderForChat]?.map((msg, index) => (
-                      <div 
-                        key={index} 
-                        className={`flex ${msg.sender === 'You' ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div 
-                          className={`rounded-lg px-4 py-2 max-w-[80%] ${
-                            msg.sender === 'System' 
-                            ? 'bg-yellow-500/10 text-yellow-300 border border-yellow-500/20' 
-                            : msg.sender === 'You' 
-                              ? 'bg-[#F2FF44]/10 border border-[#F2FF44]/20' 
-                              : 'bg-background/40 border border-white/10'
-                          }`}
-                        >
-                          <div className="text-xs text-white/50 mb-1">
-                            {msg.sender === 'You' ? 'You' : msg.sender} • {new Date(msg.timestamp).toLocaleTimeString()}
-                          </div>
-                          <div>{msg.text}</div>
-                        </div>
+                    {loadingMessages ? (
+                      <div className="flex justify-center items-center h-32">
+                        <Loader2 className="h-8 w-8 animate-spin text-white/50" />
+                        <span className="ml-2 text-white/70">Loading messages...</span>
                       </div>
-                    ))}
+                    ) : selectedOrderForChat && chatMessages[selectedOrderForChat]?.length > 0 ? (
+                      chatMessages[selectedOrderForChat].map((msg, index) => (
+                        <div 
+                          key={index} 
+                          className={`flex ${msg.sender === 'You' ? 'justify-end' : 'justify-start'}`}
+                        >
+                          <div 
+                            className={`rounded-lg px-4 py-2 max-w-[80%] ${
+                              msg.sender === 'System' 
+                              ? 'bg-yellow-500/10 text-yellow-300 border border-yellow-500/20' 
+                              : msg.sender === 'You' 
+                                ? 'bg-[#F2FF44]/10 border border-[#F2FF44]/20' 
+                                : 'bg-background/40 border border-white/10'
+                            }`}
+                          >
+                            <div className="text-xs text-white/50 mb-1">
+                              {msg.sender === 'You' ? 'You' : msg.sender} • {new Date(msg.timestamp).toLocaleTimeString()}
+                            </div>
+                            <div>{msg.text}</div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center p-6 text-white/40">
+                        No messages yet. Start the conversation!
+                      </div>
+                    )}
                   </div>
                 </ScrollArea>
 
@@ -1804,27 +2003,22 @@ const P2PPage = () => {
                       onClick={async () => {
                         try {
                           setProcessingOrder(true);
+                          
+                          // Confirm with user before proceeding
+                          const confirmed = window.confirm(
+                            "Please confirm that you have completed the payment. This action cannot be undone. Have you sent the payment exactly as described in the payment details?"
+                          );
+                          
+                          if (!confirmed) {
+                            setProcessingOrder(false);
+                            return;
+                          }
+                          
                           // Update order status to awaiting_release
                           await p2pService.updateOrderStatus(selectedOrderForChat, 'awaiting_release');
 
-                          const newMessages = {
-                            ...chatMessages,
-                            [selectedOrderForChat]: [
-                              ...(chatMessages[selectedOrderForChat] || []),
-                              {
-                                sender: 'System',
-                                text: 'You have marked this payment as completed. Please wait for the seller to verify and release the crypto from escrow.',
-                                timestamp: new Date()
-                              },
-                              {
-                                sender: userOrders.find(o => o.id === selectedOrderForChat)?.seller || 'Seller',
-                                text: 'I\'ll verify your payment and release the crypto shortly. Thank you for your patience.',
-                                timestamp: new Date(Date.now() + 1000)
-                              }
-                            ]
-                          };
-                          setChatMessages(newMessages);
-
+                          // Messages will be added through the updateOrderStatus method now
+                          
                           // Update local order data
                           const updatedOrders = userOrders.map(order => 
                             order.id === selectedOrderForChat 
@@ -1832,6 +2026,17 @@ const P2PPage = () => {
                               : order
                           );
                           setUserOrders(updatedOrders);
+
+                          // Refresh chat messages
+                          const messages = await p2pService.getChatMessages(selectedOrderForChat);
+                          setChatMessages({
+                            ...chatMessages,
+                            [selectedOrderForChat]: messages
+                          });
+
+                          // Play sound for important action
+                          const audio = new Audio('/sounds/alert.mp3');
+                          audio.play().catch(e => console.error("Error playing sound:", e));
 
                           toast.success("Payment marked as completed", {
                             description: "The seller will verify and release your crypto soon."
@@ -1868,26 +2073,19 @@ const P2PPage = () => {
                       onClick={async () => {
                         try {
                           setProcessingOrder(true);
+                          
+                          // Confirm with user before proceeding
+                          const confirmed = window.confirm(
+                            "Please confirm that you have verified the payment and wish to release the cryptocurrency to the buyer. This action cannot be undone."
+                          );
+                          
+                          if (!confirmed) {
+                            setProcessingOrder(false);
+                            return;
+                          }
+                          
                           // Release crypto from escrow and complete order
                           await p2pService.updateOrderStatus(selectedOrderForChat, 'completed');
-
-                          const newMessages = {
-                            ...chatMessages,
-                            [selectedOrderForChat]: [
-                              ...(chatMessages[selectedOrderForChat] || []),
-                              {
-                                sender: 'System',
-                                text: 'You have released the crypto from escrow. The transaction is now complete.',
-                                timestamp: new Date()
-                              },
-                              {
-                                sender: userOrders.find(o => o.id === selectedOrderForChat)?.buyer || 'Buyer',
-                                text: 'Thank you for the smooth transaction!',
-                                timestamp: new Date(Date.now() + 1000)
-                              }
-                            ]
-                          };
-                          setChatMessages(newMessages);
 
                           // Update local order data
                           const updatedOrders = userOrders.map(order => 
@@ -1896,6 +2094,17 @@ const P2PPage = () => {
                               : order
                           );
                           setUserOrders(updatedOrders);
+                          
+                          // Refresh chat messages
+                          const messages = await p2pService.getChatMessages(selectedOrderForChat);
+                          setChatMessages({
+                            ...chatMessages,
+                            [selectedOrderForChat]: messages
+                          });
+
+                          // Play success sound
+                          const audio = new Audio('/sounds/success.mp3');
+                          audio.play().catch(e => console.error("Error playing sound:", e));
 
                           toast.success("Crypto released successfully", {
                             description: "The funds have been transferred to the buyer."
@@ -1947,13 +2156,20 @@ const P2PPage = () => {
                       className="flex-1 bg-background/40 border-white/10 text-white placeholder:text-white/50"
                       value={chatMessage}
                       onChange={(e) => setChatMessage(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && sendChatMessage()}
+                      onKeyDown={(e) => e.key === 'Enter' && !sendingMessage && sendChatMessage()}
+                      disabled={sendingMessage}
                     />
                     <Button 
                       onClick={sendChatMessage}
                       className="bg-[#F2FF44] text-black hover:bg-[#E2EF34]"
+                      disabled={sendingMessage}
                     >
-                      Send
+                      {sendingMessage ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Sending...
+                        </>
+                      ) : "Send"}
                     </Button>
                   </div>
                 </div>
@@ -2307,12 +2523,18 @@ const P2PPage = () => {
                       {/* Payment deadline */}
                       {userOrders.find(order => order.id === selectedOrderForChat)?.paymentDeadline && 
                        userOrders.find(order => order.id === selectedOrderForChat)?.status === 'pending' && (
-                        <div className="p-2 mt-1 bg-yellow-400/10 border border-yellow-400/20 rounded-md flex items-start space-x-2">
-                          <Clock className="h-4 w-4 text-yellow-400 shrink-0 mt-0.5" />
-                          <div className="text-xs text-white/80">
-                            <p>Payment deadline: {new Date(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDeadline || Date.now()).toLocaleTimeString()}</p>
-                          </div>
-                        </div>
+                        <PaymentTimer 
+                          deadline={new Date(userOrders.find(order => order.id === selectedOrderForChat)?.paymentDeadline || Date.now())} 
+                          onExpire={() => {
+                            toast.warning("Payment window is expiring soon", {
+                              description: "Please complete your payment to avoid cancellation."
+                            });
+                            
+                            // Play warning sound
+                            const audio = new Audio('/sounds/warning.mp3');
+                            audio.play().catch(e => console.error("Error playing sound:", e));
+                          }}
+                        />
                       )}
                     </div>
                   ) : (

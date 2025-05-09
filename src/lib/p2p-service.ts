@@ -607,6 +607,14 @@ class P2PService {
         
         // Here you would call your wallet service to move funds
         // await walletService.releaseFromEscrow(orderId, orderData.total, orderData.crypto);
+        
+        // Add a system chat message about completion
+        await this.addChatMessage(
+          orderId,
+          'System',
+          'The seller has released the funds. Transaction completed successfully.',
+          new Date()
+        );
       }
       
       // If transitioning to cancelled from awaiting_release, return funds to seller
@@ -615,6 +623,24 @@ class P2PService {
         
         // Here you would call your wallet service
         // await walletService.returnFromEscrow(orderId, orderData.total, orderData.crypto);
+        
+        // Add a system chat message about cancellation
+        await this.addChatMessage(
+          orderId,
+          'System',
+          'The order has been cancelled. Any escrowed funds have been returned to the seller.',
+          new Date()
+        );
+      }
+
+      // Add a system message when payment is marked as sent
+      if (status === 'awaiting_release' && orderData.status === 'pending') {
+        await this.addChatMessage(
+          orderId,
+          'System',
+          'Buyer has marked payment as sent. Seller should verify payment and release the crypto.',
+          new Date()
+        );
       }
 
       await updateDoc(doc(db, this.ORDERS_COLLECTION, orderDoc.id), {
@@ -632,6 +658,69 @@ class P2PService {
     } catch (error) {
       console.error(`Error updating order status to ${status}:`, error);
       throw error;
+    }
+  }
+  
+  // Chat message management
+  private readonly CHAT_MESSAGES_COLLECTION = "p2pChatMessages";
+  
+  public async getChatMessages(orderId: string): Promise<{sender: string, text: string, timestamp: Date}[]> {
+    try {
+      const messagesQuery = query(
+        collection(db, this.CHAT_MESSAGES_COLLECTION),
+        where("orderId", "==", orderId),
+        // Sort by timestamp
+        orderBy("timestamp", "asc")
+      );
+      
+      const snapshot = await getDocs(messagesQuery);
+      
+      return snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          sender: data.sender,
+          text: data.text,
+          timestamp: new Date(data.timestamp)
+        };
+      });
+    } catch (error) {
+      console.error("Error fetching chat messages:", error);
+      return [];
+    }
+  }
+  
+  public async addChatMessage(
+    orderId: string, 
+    sender: string, 
+    text: string, 
+    timestamp: Date = new Date()
+  ): Promise<boolean> {
+    try {
+      // Ensure the order exists
+      const ordersQuery = query(
+        collection(db, this.ORDERS_COLLECTION),
+        where("id", "==", orderId)
+      );
+      
+      const orderSnapshot = await getDocs(ordersQuery);
+      
+      if (orderSnapshot.empty) {
+        throw new Error("Order not found");
+      }
+      
+      // Add the chat message
+      await addDoc(collection(db, this.CHAT_MESSAGES_COLLECTION), {
+        orderId,
+        sender,
+        text,
+        timestamp: timestamp.toISOString(),
+        userId: auth.currentUser?.uid || 'anonymous'
+      });
+      
+      return true;
+    } catch (error) {
+      console.error("Error adding chat message:", error);
+      return false;
     }
   }
 
