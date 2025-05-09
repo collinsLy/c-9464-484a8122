@@ -184,16 +184,32 @@ class P2PService {
         this.sellOffers.push(newOffer);
       }
       
+      // Check authentication status
+      if (!auth.currentUser) {
+        throw new Error("You must be logged in to create an offer. Please sign in and try again.");
+      }
+
       // Save to Firebase
       const offerData = {
         ...newOffer,
         type: offerType,
         createdAt: newOffer.createdAt.toISOString(), // Convert Date to string for Firestore
-        userId: auth.currentUser?.uid || 'anonymous' // Track who created the offer
+        userId: auth.currentUser.uid // Track who created the offer
       };
       
-      await addDoc(collection(db, this.OFFERS_COLLECTION), offerData);
-      console.log(`Offer saved to Firebase: ${newOffer.id}`);
+      try {
+        await addDoc(collection(db, this.OFFERS_COLLECTION), offerData);
+        console.log(`Offer saved to Firebase: ${newOffer.id}`);
+      } catch (error) {
+        console.error("Firebase error creating offer:", error);
+        // Remove from memory since Firebase save failed
+        if (offerType === 'buy') {
+          this.buyOffers = this.buyOffers.filter(o => o.id !== newOffer.id);
+        } else {
+          this.sellOffers = this.sellOffers.filter(o => o.id !== newOffer.id);
+        }
+        throw error;
+      }
       
       return newOffer;
     } catch (error) {

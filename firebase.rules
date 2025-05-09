@@ -1,33 +1,33 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // P2P Trading collections
-    match /p2pOffers/{document=**} {
-      allow read: if true; // Anyone can view offers
-      allow create, update: if request.auth != null; // Must be logged in to create/update
-      allow delete: if request.auth != null && 
-                      (resource.data.userId == request.auth.uid || 
-                       get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true); 
-    }
-    
-    match /p2pOrders/{document=**} {
-      allow read: if true; // Allow public read for now (could restrict to own orders later)
-      allow create, update: if request.auth != null; // Must be logged in to create/update
-      allow delete: if request.auth != null && 
-                      (resource.data.userId == request.auth.uid || 
-                       get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
-    }
     // Helper functions
     function isAuthenticated() {
       return request.auth != null;
     }
-
+    
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
-
+    
     function isAdmin() {
       return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // P2P Trading collections
+    match /p2pOffers/{document=**} {
+      allow read: if true; // Anyone can view offers
+      allow create, update: if isAuthenticated(); // Must be logged in to create/update
+      allow delete: if isAuthenticated() && 
+                      (resource.data.userId == request.auth.uid || isAdmin()); 
+    }
+    
+    match /p2pOrders/{document=**} {
+      allow read: if true; // Allow public read for now
+      allow create, update: if isAuthenticated(); // Must be logged in to create/update
+      allow delete: if isAuthenticated() && 
+                      (resource.data.userId == request.auth.uid || isAdmin());
     }
 
     // System collection for global app settings
@@ -54,7 +54,7 @@ service cloud.firestore {
         && request.resource.data.keys().hasAll(['email', 'createdAt'])
         && request.resource.data.get('balance', 0) is number
         && request.resource.data.get('balance', 0) >= 0;
-
+      
       // Allow users to update their profile and allow asset transfers
       allow update: if (isOwner(userId) || (
           // Allow any authenticated user to update other users' assets and transactions for transfers
