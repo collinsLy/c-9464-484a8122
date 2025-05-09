@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Search, Filter, ChevronDown, MessageCircle, ShieldCheck, ArrowUpRight, Star, Clock, CreditCard, Users, DollarSign, ArrowRight, AlertTriangle, CheckCircle2, Loader2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import p2pService, { P2POffer, P2POrder } from "@/lib/p2p-service";
+import { auth } from "@/lib/firebase";
 
 const P2PPage = () => {
   const { isDemoMode } = useDashboardContext();
@@ -460,9 +461,6 @@ const P2PPage = () => {
   // State for edit dialog visibility
   const [showEditDialog, setShowEditDialog] = useState(false);
   
-  // Import Firebase authentication
-  import { auth } from "@/lib/firebase";
-
   return (
     <DashboardLayout>
       <div className="space-y-4">
