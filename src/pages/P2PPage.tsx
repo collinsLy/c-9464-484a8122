@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,17 +6,20 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Switch } from "@/components/ui/switch";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
-import { Search, Filter, ChevronDown, MessageCircle, ShieldCheck, ArrowUpRight, Star, Clock, CreditCard, Users, DollarSign, ArrowRight, AlertTriangle, CheckCircle2, Loader2, RefreshCw, Copy, CheckCircle } from "lucide-react";
+import { Search, Filter, ChevronDown, MessageCircle, ShieldCheck, ArrowUpRight, Star, Clock, CreditCard, Users, DollarSign, ArrowRight, AlertTriangle, CheckCircle2, Loader2, RefreshCw, Copy, CheckCircle, Send } from "lucide-react";
 import { toast } from "sonner";
 import p2pService, { P2POffer, P2POrder } from "@/lib/p2p-service";
 import { auth } from "@/lib/firebase";
+import { onSnapshot, collection, query, where, orderBy } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const P2PPage = () => {
   const { isDemoMode } = useDashboardContext();
@@ -316,6 +319,8 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
   const [showChatDialog, setShowChatDialog] = useState(false);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [typingStatus, setTypingStatus] = useState<{[orderId: string]: boolean}>({});
+  const [chatAutoRefresh, setChatAutoRefresh] = useState(true);
 
   // Edit Offer State
   const [editingOffer, setEditingOffer] = useState<P2POffer | null>(null);
@@ -485,6 +490,32 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
           );
         }
       }
+      
+      // Set up periodic refresh for chat messages
+      if (chatAutoRefresh) {
+        const chatRefreshInterval = setInterval(async () => {
+          if (showChatDialog && selectedOrderForChat === orderId) {
+            const refreshedMessages = await p2pService.getChatMessages(orderId);
+            if (refreshedMessages && refreshedMessages.length > 0) {
+              // Check if we have new messages
+              const currentMessages = chatMessages[orderId] || [];
+              if (refreshedMessages.length > currentMessages.length) {
+                // Play notification sound for new message
+                const audio = new Audio('/sounds/alert.mp3');
+                audio.play().catch(e => console.error("Error playing sound:", e));
+                
+                setChatMessages({
+                  ...chatMessages,
+                  [orderId]: refreshedMessages
+                });
+              }
+            }
+          }
+        }, 5000); // Refresh every 5 seconds
+        
+        // Clean up interval when chat dialog closes
+        return () => clearInterval(chatRefreshInterval);
+      }
     } catch (error) {
       console.error("Error loading chat messages:", error);
       toast.error("Failed to load chat messages");
@@ -500,6 +531,12 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
     setSendingMessage(true);
     try {
       const messageTime = new Date();
+      
+      // Indicate typing status
+      setTypingStatus(prev => ({
+        ...prev,
+        [selectedOrderForChat]: true
+      }));
       
       // Save message to Firebase
       const success = await p2pService.addChatMessage(
@@ -526,16 +563,37 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
         setChatMessages(newMessages);
         setChatMessage('');
         
+        // Play sent message sound
+        const audio = new Audio('/sounds/transfer.mp3');
+        audio.volume = 0.2;
+        audio.play().catch(e => console.error("Error playing sound:", e));
+        
         // In a real app, we'd use a websocket or real-time DB
         // For demo, simulate a response after 2 seconds
         setTimeout(async () => {
-          const counterparty = userOrders.find(o => o.id === selectedOrderForChat)?.seller === 'You' 
-            ? userOrders.find(o => o.id === selectedOrderForChat)?.buyer || 'Counterparty' 
-            : userOrders.find(o => o.id === selectedOrderForChat)?.seller || 'Counterparty';
+          // Find the counterparty based on order details
+          const order = userOrders.find(o => o.id === selectedOrderForChat);
+          const counterparty = order?.seller === 'You' 
+            ? order?.buyer || 'Counterparty' 
+            : order?.seller || 'Counterparty';
+          
+          // Generate appropriate responses based on message content
+          let responseMessage = 'I\'ve received your message. Let me check and get back to you shortly.';
+          
+          // More contextual responses based on message content
+          const lowerCaseMessage = chatMessage.toLowerCase();
+          if (lowerCaseMessage.includes('payment') || lowerCaseMessage.includes('paid') || lowerCaseMessage.includes('sent')) {
+            responseMessage = 'Thanks for confirming your payment. Please remember to click the "I\'ve Paid" button so I can verify the transaction.';
+          } else if (lowerCaseMessage.includes('hello') || lowerCaseMessage.includes('hi') || lowerCaseMessage.includes('hey')) {
+            responseMessage = 'Hello! I\'m here to help with this transaction. Let me know if you have any questions.';
+          } else if (lowerCaseMessage.includes('help') || lowerCaseMessage.includes('how')) {
+            responseMessage = 'For this transaction, please follow the payment instructions in the panel on the right. If you have any issues, let me know.';
+          } else if (lowerCaseMessage.includes('thank') || lowerCaseMessage.includes('thanks')) {
+            responseMessage = 'You\'re welcome! Happy to help with this transaction.';
+          }
           
           const responseTime = new Date();
-          const responseMessage = 'I\'ve received your message. Let me check and get back to you shortly.';
-            
+          
           // Save response to Firebase
           await p2pService.addChatMessage(
             selectedOrderForChat as string,
@@ -543,6 +601,11 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
             responseMessage,
             responseTime
           );
+          
+          // Play received message sound
+          const receiveAudio = new Audio('/sounds/alert.mp3');
+          receiveAudio.volume = 0.3;
+          receiveAudio.play().catch(e => console.error("Error playing sound:", e));
           
           // Update local state with the response
           setChatMessages(prevMessages => ({
@@ -555,6 +618,12 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
                 timestamp: responseTime
               }
             ]
+          }));
+          
+          // Clear typing status
+          setTypingStatus(prev => ({
+            ...prev,
+            [selectedOrderForChat as string]: false
           }));
         }, 2000);
       } else {
@@ -1964,27 +2033,65 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
                         <span className="ml-2 text-white/70">Loading messages...</span>
                       </div>
                     ) : selectedOrderForChat && chatMessages[selectedOrderForChat]?.length > 0 ? (
-                      chatMessages[selectedOrderForChat].map((msg, index) => (
-                        <div 
-                          key={index} 
-                          className={`flex ${msg.sender === 'You' ? 'justify-end' : 'justify-start'}`}
-                        >
-                          <div 
-                            className={`rounded-lg px-4 py-2 max-w-[80%] ${
-                              msg.sender === 'System' 
-                              ? 'bg-yellow-500/10 text-yellow-300 border border-yellow-500/20' 
-                              : msg.sender === 'You' 
-                                ? 'bg-[#F2FF44]/10 border border-[#F2FF44]/20' 
-                                : 'bg-background/40 border border-white/10'
-                            }`}
-                          >
-                            <div className="text-xs text-white/50 mb-1">
-                              {msg.sender === 'You' ? 'You' : msg.sender} • {new Date(msg.timestamp).toLocaleTimeString()}
-                            </div>
-                            <div>{msg.text}</div>
-                          </div>
-                        </div>
-                      ))
+                      <>
+                        {/* Display date separators and messages */}
+                        {chatMessages[selectedOrderForChat].map((msg, index) => {
+                          // Get current message date
+                          const msgDate = new Date(msg.timestamp);
+                          const messageDay = msgDate.toLocaleDateString();
+                          
+                          // Get previous message date
+                          const prevMsg = index > 0 ? chatMessages[selectedOrderForChat][index - 1] : null;
+                          const prevMsgDay = prevMsg ? new Date(prevMsg.timestamp).toLocaleDateString() : null;
+                          
+                          // Check if we need to show a date separator
+                          const showDateSeparator = messageDay !== prevMsgDay;
+                          
+                          // Determine if messages are consecutive from same sender
+                          const nextMsg = index < chatMessages[selectedOrderForChat].length - 1 
+                            ? chatMessages[selectedOrderForChat][index + 1] 
+                            : null;
+                          const isConsecutive = nextMsg && nextMsg.sender === msg.sender;
+                          
+                          return (
+                            <React.Fragment key={index}>
+                              {/* Date separator */}
+                              {showDateSeparator && (
+                                <div className="flex justify-center my-4">
+                                  <div className="text-xs text-white/40 px-2 py-1 bg-background/40 rounded-full">
+                                    {messageDay === new Date().toLocaleDateString() 
+                                      ? 'Today' 
+                                      : messageDay === new Date(Date.now() - 86400000).toLocaleDateString()
+                                        ? 'Yesterday'
+                                        : messageDay}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* Message */}
+                              <div 
+                                className={`flex ${msg.sender === 'You' ? 'justify-end' : 'justify-start'}`}
+                              >
+                                <div 
+                                  className={`rounded-lg px-4 py-2 max-w-[80%] ${
+                                    msg.sender === 'System' 
+                                    ? 'bg-yellow-500/10 text-yellow-300 border border-yellow-500/20' 
+                                    : msg.sender === 'You' 
+                                      ? 'bg-[#F2FF44]/10 border border-[#F2FF44]/20' 
+                                      : 'bg-background/40 border border-white/10'
+                                  } ${!isConsecutive ? 'mb-3' : 'mb-1'}`}
+                                >
+                                  <div className="text-xs text-white/50 mb-1 flex justify-between items-center">
+                                    <span>{msg.sender === 'You' ? 'You' : msg.sender}</span>
+                                    <span className="ml-4 text-[10px]">{msgDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                  </div>
+                                  <div className="whitespace-pre-wrap break-words">{msg.text}</div>
+                                </div>
+                              </div>
+                            </React.Fragment>
+                          );
+                        })}
+                      </>
                     ) : (
                       <div className="text-center p-6 text-white/40">
                         No messages yet. Start the conversation!
@@ -2035,7 +2142,7 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
                           });
 
                           // Play sound for important action
-                          const audio = new Audio('/sounds/alert.mp3');
+                          const audio = new Audio('/sounds/payment_success.mp3');
                           audio.play().catch(e => console.error("Error playing sound:", e));
 
                           toast.success("Payment marked as completed", {
@@ -2103,7 +2210,7 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
                           });
 
                           // Play success sound
-                          const audio = new Audio('/sounds/success.mp3');
+                          const audio = new Audio('/sounds/payment_success.mp3');
                           audio.play().catch(e => console.error("Error playing sound:", e));
 
                           toast.success("Crypto released successfully", {
@@ -2149,6 +2256,32 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
                       Open Dispute
                     </Button>
                   )}
+                  
+                  {/* Auto-refresh toggle */}
+                  <div className="flex items-center justify-end space-x-2 text-xs text-white/60 mb-1">
+                    <span>Auto-refresh</span>
+                    <Switch
+                      checked={chatAutoRefresh}
+                      onCheckedChange={setChatAutoRefresh}
+                      size="sm"
+                    />
+                  </div>
+
+                  {/* Typing indicator */}
+                  {selectedOrderForChat && typingStatus[selectedOrderForChat] && (
+                    <div className="flex items-center gap-2 text-xs text-white/60 animate-pulse ml-1 mb-1">
+                      <div className="flex space-x-1">
+                        <div className="w-1.5 h-1.5 rounded-full bg-white/60 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-white/60 animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-white/60 animate-bounce" style={{ animationDelay: '600ms' }}></div>
+                      </div>
+                      <span>
+                        {userOrders.find(o => o.id === selectedOrderForChat)?.seller === 'You' 
+                          ? userOrders.find(o => o.id === selectedOrderForChat)?.buyer 
+                          : userOrders.find(o => o.id === selectedOrderForChat)?.seller} is typing...
+                      </span>
+                    </div>
+                  )}
 
                   <div className="flex gap-2">
                     <Input 
@@ -2170,6 +2303,42 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
                           Sending...
                         </>
                       ) : "Send"}
+                    </Button>
+                  </div>
+
+                  {/* Shortcut message buttons */}
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="text-xs bg-background/40 border-white/10 hover:bg-background/60"
+                      onClick={() => setChatMessage("I've sent the payment, please check.")}
+                    >
+                      Payment sent
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="text-xs bg-background/40 border-white/10 hover:bg-background/60"
+                      onClick={() => setChatMessage("Thanks for the quick response!")}
+                    >
+                      Thanks
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="text-xs bg-background/40 border-white/10 hover:bg-background/60"
+                      onClick={() => setChatMessage("Could you please provide more details?")}
+                    >
+                      More info
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="text-xs bg-background/40 border-white/10 hover:bg-background/60"
+                      onClick={() => setChatMessage("Hi, I need help with this transaction.")}
+                    >
+                      Help
                     </Button>
                   </div>
                 </div>

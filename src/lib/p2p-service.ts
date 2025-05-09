@@ -666,26 +666,67 @@ class P2PService {
   
   public async getChatMessages(orderId: string): Promise<{sender: string, text: string, timestamp: Date}[]> {
     try {
+      // Create a query ordered by timestamp to ensure messages are in correct sequence
       const messagesQuery = query(
         collection(db, this.CHAT_MESSAGES_COLLECTION),
         where("orderId", "==", orderId),
-        // Sort by timestamp
         orderBy("timestamp", "asc")
       );
       
       const snapshot = await getDocs(messagesQuery);
       
-      return snapshot.docs.map(doc => {
+      // Convert timestamps and format messages
+      const formattedMessages = snapshot.docs.map(doc => {
         const data = doc.data();
         return {
+          id: doc.id, // Include message ID for potential future operations
           sender: data.sender,
           text: data.text,
           timestamp: new Date(data.timestamp)
         };
       });
+      
+      return formattedMessages;
     } catch (error) {
       console.error("Error fetching chat messages:", error);
       return [];
+    }
+  }
+  
+  // Subscribe to chat messages in real-time (not yet fully integrated, but ready for future)
+  public subscribeToChatMessages(
+    orderId: string, 
+    callback: (messages: {sender: string, text: string, timestamp: Date}[]) => void
+  ): () => void {
+    try {
+      // Create a query for this order's messages
+      const messagesQuery = query(
+        collection(db, this.CHAT_MESSAGES_COLLECTION),
+        where("orderId", "==", orderId),
+        orderBy("timestamp", "asc")
+      );
+      
+      // Set up real-time listener
+      const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
+        const messages = snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            sender: data.sender,
+            text: data.text,
+            timestamp: new Date(data.timestamp)
+          };
+        });
+        
+        // Call the callback with the updated messages
+        callback(messages);
+      });
+      
+      // Return the unsubscribe function so it can be called when no longer needed
+      return unsubscribe;
+    } catch (error) {
+      console.error("Error subscribing to chat messages:", error);
+      return () => {}; // Return empty function as fallback
     }
   }
   
