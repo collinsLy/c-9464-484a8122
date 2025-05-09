@@ -54,6 +54,17 @@ const NotificationsList = () => {
         setLoading(true);
         const data = await p2pService.getUserNotifications();
         setNotifications(data);
+        
+        // Check if there are any unread notifications
+        const hasUnread = data.some(notif => !notif.read);
+        
+        // If there are unread notifications, refresh the orders list
+        if (hasUnread) {
+          console.log("Found unread notifications, refreshing orders");
+          loadUserOrders().catch(err => 
+            console.error("Error refreshing orders after finding notifications:", err)
+          );
+        }
       } catch (error) {
         console.error("Error loading notifications:", error);
         toast.error("Failed to load notifications");
@@ -83,20 +94,43 @@ const NotificationsList = () => {
 
   const handleNotificationAction = async (notification: any) => {
     if (notification.orderId) {
-      // Find the corresponding order
       try {
-        const orders = await p2pService.getUserOrders();
-        const order = orders.find(o => o.id === notification.orderId);
+        // Force refresh orders to ensure we have the latest data
+        await loadUserOrders();
+        
+        // Find the corresponding order after refreshing
+        const order = userOrders.find(o => o.id === notification.orderId);
         
         if (order) {
           // Open the chat for this order
           openChat(order.id);
         } else {
-          toast.error("Order not found");
+          // If order is still not found, try direct fetch from Firebase
+          console.log("Order not found in cached orders, trying direct fetch...");
+          
+          // Create a query to get the specific order
+          const orderQuery = query(
+            collection(db, "p2pOrders"),
+            where("id", "==", notification.orderId)
+          );
+          
+          const snapshot = await getDocs(orderQuery);
+          if (!snapshot.empty) {
+            const orderData = snapshot.docs[0].data();
+            console.log("Retrieved order directly:", orderData);
+            
+            // Force reload all orders
+            await loadUserOrders();
+            
+            // Try opening chat again
+            openChat(notification.orderId);
+          } else {
+            toast.error("Order not found in database. Please refresh the page and try again.");
+          }
         }
       } catch (error) {
-        console.error("Error loading order details:", error);
-        toast.error("Failed to load order details");
+        console.error("Error handling notification action:", error);
+        toast.error("Failed to load order details. Please refresh and try again.");
       }
     }
 
@@ -462,8 +496,24 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
   const loadUserOrders = async () => {
     setOrdersLoading(true);
     try {
+      // Fetch orders from p2p service
       const orders = await p2pService.getUserOrders();
-      setUserOrders(orders);
+      
+      // If no orders found but should have some (notification triggered this), 
+      // try a second time after a short delay
+      if (orders.length === 0) {
+        console.log("No orders found on first try, attempting second fetch after delay");
+        
+        // Short delay before second attempt
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const secondTryOrders = await p2pService.getUserOrders();
+        
+        console.log(`Second fetch found ${secondTryOrders.length} orders`);
+        setUserOrders(secondTryOrders);
+      } else {
+        console.log(`Found ${orders.length} orders for current user`);
+        setUserOrders(orders);
+      }
     } catch (error) {
       console.error("Error fetching user orders:", error);
       toast.error("Failed to load your orders. Please try again.");

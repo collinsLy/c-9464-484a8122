@@ -362,32 +362,66 @@ class P2PService {
     try {
       const userId = auth.currentUser?.uid || 'anonymous';
 
-      // Query Firebase for user's orders
-      const ordersQuery = query(
+      // Query Firebase for orders where user is the direct creator
+      const buyerOrdersQuery = query(
         collection(db, this.ORDERS_COLLECTION),
         where("userId", "==", userId)
       );
 
-      const snapshot = await getDocs(ordersQuery);
+      // Query Firebase for orders where user is the offer owner
+      const sellerOrdersQuery = query(
+        collection(db, this.ORDERS_COLLECTION),
+        where("offerOwnerId", "==", userId)
+      );
 
-      // Convert Firestore documents to P2POrder objects
-      const orders: P2POrder[] = snapshot.docs.map(doc => {
+      // Get both sets of orders
+      const [buyerSnapshot, sellerSnapshot] = await Promise.all([
+        getDocs(buyerOrdersQuery),
+        getDocs(sellerOrdersQuery)
+      ]);
+
+      // Process buyer orders
+      const buyerOrders: P2POrder[] = buyerSnapshot.docs.map(doc => {
         const data = doc.data();
         return {
           ...data,
           id: data.id || doc.id,
-          createdAt: new Date(data.createdAt), // Convert string back to Date
+          createdAt: new Date(data.createdAt),
           paymentDeadline: data.paymentDeadline ? new Date(data.paymentDeadline) : undefined
         } as P2POrder;
       });
 
+      // Process seller orders
+      const sellerOrders: P2POrder[] = sellerSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          ...data,
+          id: data.id || doc.id,
+          createdAt: new Date(data.createdAt),
+          paymentDeadline: data.paymentDeadline ? new Date(data.paymentDeadline) : undefined
+        } as P2POrder;
+      });
+
+      // Combine and deduplicate orders
+      const combinedOrders = [...buyerOrders];
+      
+      // Add seller orders that aren't already in the buyer orders
+      sellerOrders.forEach(sellerOrder => {
+        if (!combinedOrders.some(order => order.id === sellerOrder.id)) {
+          combinedOrders.push(sellerOrder);
+        }
+      });
+
       // Sort orders by creation date (newest first)
-      orders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      combinedOrders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+      // Log for debugging
+      console.log(`Found ${buyerOrders.length} buyer orders and ${sellerOrders.length} seller orders for user ${userId}`);
 
       // Update local cache
-      this.userOrders = orders;
+      this.userOrders = combinedOrders;
 
-      return orders;
+      return combinedOrders;
     } catch (error) {
       console.error("Error fetching user orders:", error);
       // Fall back to local cache if Firebase query fails
