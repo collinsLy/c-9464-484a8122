@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { UserBalanceService, UserService } from "@/lib/firebase-service";
+import BotWinTracker from "@/components/trading/BotWinTracker";
 
 
 const BotsPage = () => {
