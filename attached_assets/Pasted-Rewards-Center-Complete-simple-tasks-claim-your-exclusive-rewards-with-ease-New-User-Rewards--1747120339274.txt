@@ -1,0 +1,88 @@
+Rewards Center
+Complete simple tasks, claim your exclusive rewards with ease.
+
+New User Rewards
+Share with friends
+
+
+
+2 USDT
+
+Complete Account Information
+Complete KYC verification and bind your phone number and email.
+Log in
+To be completed
+
+2 USDT
+
+Advanced Learning - Futures Trading
+Complete the following guide tutorials to further understand and master futures knowledge.
+Log in
+To be completed
+
+5 USDT
+
+Spot Deposit
+Complete a single spot deposit of the specified cryptocurrency equivalent to more than 100 USDT.
+Log in
+To be completed
+
+1 USDT
+
+Spot Trading
+Complete a single spot trading volume of more than 200 USDT.
+Log in
+To be completed
+
+2 USDT
+
+Futures Trading
+Complete a single futures trading volume of more than 2000 USDT.
+Log in
+To be completed
+
+2 USDT
+
+Experience Futures TP/SL
+Successfully trigger a futures TP/SL order
+Log in
+To be completed
+
+5 USDT
+
+Bind X Account and Share Link
+Successfully link your X account and share the KCEX invitation link on X.
+Log in
+To be completed
+Event rules description
+1. Reward Distribution Rules
+(1) The spot deposit task applies only to the following currencies: USDT、BTC、ETH、SOL、XRP、TRX、USDC、BNB、POL、DOGE. Please note that deposits of other assets will not be included in the event.
+
+(2) The spot deposit task only supports on-chain deposits; assets transferred do not count towards the activity statistics.
+
+(3) Futures trading tasks only involve USDT-margined futures and only count trading volume with non-zero trading fees.
+
+(4) There may be delays in data statistics. If the conditions have been met but the task status has not been updated, please wait 2 minutes before trying again.
+
+(5) Event rewards will be audited and issued within 24 hours after you complete the task. If the system detects potential risks, the review period will be extended to 5 days after completing the task.
+
+(6) If you have already received a reward for the same task in a similar event, you will not be eligible for a reward for the same task in this event.
+
+(7) You can check the details of the rewards issued via the reward records at the bottom of the page.
+
+(8) The use of fake IPs, volume manipulation, or any other means to defraud rewards will be considered cheating. The task status will be changed to "rules violated", rewards will not be issued, and all futures bonuses will be reclaimed from the account.
+
+(9) KCEX reserves the final interpretation right of this event. The platform reserves the right to adjust tasks and rewards based on market conditions at any time.
+
+2. Futures Bonus Usage Rules
+(1) The Futures Bonus can only be used for futures trading and supports all futures trading pairs. The bonus itself cannot be transferred or withdrawn.
+
+(2) The Futures Bonus can be used as margin for futures trading, and also to offset trading fees, losses, and funding costs.
+
+(3) Any transfer of assets out of the futures account before the bonus is fully consumed will result in the bonus being reset to zero.
+
+(4) The Futures Bonus is valid for 7 days; any remaining bonus not used within 7 days of issuance will be reclaimed, please be aware of the liquidation risks during this period.
+
+(5) If any malicious activities such as exploiting the futures bonus, batch registration, or any other violations are discovered, the platform reserves the right to recover losses, revoke activity rewards, and take appropriate actions against the involved accounts at any time.
+
+(6) KCEX reserves the final right of interpretation for the Futures Bonus.
