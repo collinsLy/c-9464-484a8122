@@ -365,4 +365,5 @@ const DashboardSidebar = ({ navItems = defaultNavCategories }: SidebarProps) => 
   );
 };
 
+export { DashboardSidebar };
 export default DashboardSidebar;
