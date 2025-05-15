@@ -100,7 +100,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
             });
             return smoothedPrices;
           });
-          
+
           // Only calculate portfolio value if prices changed significantly
           calculatePortfolioValue(userAssets, newPrices, balance);
         }

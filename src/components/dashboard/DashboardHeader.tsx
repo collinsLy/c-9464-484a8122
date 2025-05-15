@@ -70,19 +70,12 @@ const DashboardHeader = () => {
   };
 
   return (
-    <header className="sticky top-0 z-30 w-full px-6 py-3 bg-background/80 backdrop-blur-lg border-b border-white/10 flex items-center justify-between">
-      <div className="flex items-center">
-        {isDemoMode && (
-          <div className="bg-amber-500/20 text-amber-500 text-sm font-medium px-3 py-1 rounded-full">
-            Demo Mode
-          </div>
-        )}
-        <div className="flex items-center gap-2">
-          <div className="text-xl font-bold">Vertex Trading</div>
-        </div>
-      </div>
+    <div className="border-b border-white/10 bg-background/95 backdrop-blur-xl">
+        <header className="flex h-14 sm:h-16 items-center px-2 sm:px-4 md:px-6">
+          {/* Search bar hidden on mobile */}
+          <div className="hidden md:flex-1 md:flex ml-auto"></div>
+          <div className="flex items-center space-x-2 sm:space-x-3 ml-auto">
 
-      <div className="flex items-center space-x-2">
         {/* UID Display */}
         <div className="hidden sm:flex items-center bg-white/5 rounded-md px-2 py-1 mr-2">
           <span className="text-xs font-mono text-white/70 mr-1">UID:</span>
