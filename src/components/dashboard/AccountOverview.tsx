@@ -1,5 +1,6 @@
 import { ArrowUp, ArrowDown } from "lucide-react"; 
 import { Card, CardContent } from "@/components/ui/card";
+import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
@@ -100,7 +101,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
             });
             return smoothedPrices;
           });
-          
+
           // Only calculate portfolio value if prices changed significantly
           calculatePortfolioValue(userAssets, newPrices, balance);
         }

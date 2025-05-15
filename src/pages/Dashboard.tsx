@@ -145,15 +145,15 @@ const Dashboard = () => {
             <AccountOverview isDemoMode={false} />
             
             {/* Trading Charts and Assets - Collapsible on mobile */}
-            <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-3 sm:gap-6">
               <div className="xl:col-span-3">
                 <div className="md:hidden">
                   <Accordion type="single" collapsible className="w-full">
                     <AccordionItem value="market-chart" className="border-white/10">
-                      <AccordionTrigger className="text-white hover:no-underline">
+                      <AccordionTrigger className="text-white hover:no-underline px-2 py-3 text-sm sm:text-base break-words">
                         Market Chart
                       </AccordionTrigger>
-                      <AccordionContent>
+                      <AccordionContent className="px-1">
                         <MarketChart 
                           selectedSymbol={selectedSymbol} 
                           selectedTimeframe={selectedTimeframe}
@@ -287,7 +287,7 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       {/* Dynamic Content based on active tab */}
-      <div className="space-y-6">
+      <div className="w-full space-y-4 sm:space-y-6">
         {renderContent()}
       </div>
     </DashboardLayout>

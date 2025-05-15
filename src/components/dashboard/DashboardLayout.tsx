@@ -80,12 +80,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <DashboardHeader />
 
           {/* Dashboard Content */}
-          <main className="flex-1 overflow-auto p-4 md:p-6">
-            <div className="max-w-7xl mx-auto space-y-6">
+          <main className="flex-1 overflow-auto p-3 sm:p-4 md:p-6">
+            <div className="w-full max-w-7xl mx-auto space-y-4 sm:space-y-6">
               {children}
             </div>
             {/* Add bottom padding on mobile to account for bottom nav */}
-            <div className="h-16 md:h-0 w-full"></div>
+            <div className="h-20 md:h-0 w-full"></div>
           </main>
           <MobileBottomNav />
         </div>

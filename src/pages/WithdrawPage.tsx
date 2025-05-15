@@ -1112,32 +1112,32 @@ const WithdrawPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-white">Withdraw Funds</h1>
-            <p className="text-sm text-white/70 mt-1">Withdraw your funds securely</p>
+      <div className="w-full space-y-4">
+        <div className="flex flex-wrap justify-between items-center gap-2">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white break-words">Withdraw Funds</h1>
+            <p className="text-sm text-white/70 mt-1 break-words">Withdraw your funds securely</p>
           </div>
-          {isDemoMode && <div className="text-sm text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-md">Demo Mode</div>}
-        </div>v>
+          {isDemoMode && <div className="text-sm text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-md whitespace-nowrap">Demo Mode</div>}
+        </div>
 
-        <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
-          <CardHeader className="pb-3">
-            <CardTitle>Select Withdrawal Method</CardTitle>
-            <CardDescription className="text-white/70">
+        <Card className="w-full bg-background/40 backdrop-blur-lg border-white/10 text-white">
+          <CardHeader className="pb-3 px-4 sm:px-6">
+            <CardTitle className="text-lg sm:text-xl break-words">Select Withdrawal Method</CardTitle>
+            <CardDescription className="text-white/70 break-words">
               Choose your preferred withdrawal method
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-3 sm:px-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white mb-6 grid grid-cols-3 w-full">
-                <TabsTrigger value="fiat" className="text-white data-[state=active]:bg-accent">
+              <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white mb-4 sm:mb-6 grid grid-cols-3 w-full">
+                <TabsTrigger value="fiat" className="text-xs sm:text-sm text-white data-[state=active]:bg-accent px-1 sm:px-3 py-1.5 sm:py-2">
                   Fiat
                 </TabsTrigger>
-                <TabsTrigger value="crypto" className="text-white data-[state=active]:bg-accent">
+                <TabsTrigger value="crypto" className="text-xs sm:text-sm text-white data-[state=active]:bg-accent px-1 sm:px-3 py-1.5 sm:py-2">
                   Crypto
                 </TabsTrigger>
-                <TabsTrigger value="vertex" className="text-white data-[state=active]:bg-accent">
+                <TabsTrigger value="vertex" className="text-xs sm:text-sm text-white data-[state=active]:bg-accent px-1 sm:px-3 py-1.5 sm:py-2">
                   Vertex User
                 </TabsTrigger>
               </TabsList>

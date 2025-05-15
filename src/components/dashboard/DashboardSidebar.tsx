@@ -1,4 +1,3 @@
-
 import { useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -319,9 +318,9 @@ const DashboardSidebar = ({ navItems = defaultNavCategories }: SidebarProps) => 
           {mobileOpen && (
             <div className="fixed inset-0 bg-black/50 z-30" onClick={() => setMobileOpen(false)} />
           )}
-          
+
           {/* Mobile sidebar with navigation and search */}
-          <div className={`fixed inset-y-0 left-0 w-[280px] bg-background border-r border-white/10 transform transition-transform duration-300 z-50 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} md:hidden`}>
+          <div className={`fixed inset-y-0 left-0 w-[85vw] max-w-[280px] sm:w-64 flex flex-col ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} bg-background/95 backdrop-blur-sm border-r border-white/10 transform transition-transform duration-300 z-50 md:hidden`}>
             <div className="flex flex-col h-full">
               <div className="p-3 pt-16 mb-2">
                 <SearchBar />

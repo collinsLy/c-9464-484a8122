@@ -10,21 +10,21 @@ const HistoryPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-4 p-8 pt-6">
-        <div className="flex items-center justify-between space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight text-white">History</h2>
+      <div className="w-full space-y-4 px-2 sm:px-4 md:px-6 pt-4 sm:pt-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white break-words">History</h2>
         </div>
-        <Card className="bg-background/40 backdrop-blur-lg border-white/10">
-          <CardHeader>
-            <CardTitle>Transaction History</CardTitle>
+        <Card className="w-full bg-background/40 backdrop-blur-lg border-white/10">
+          <CardHeader className="px-3 sm:px-6">
+            <CardTitle className="text-lg sm:text-xl break-words">Transaction History</CardTitle>
           </CardHeader>
-          <CardContent>
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="bg-background/40 backdrop-blur-lg border-white/10">
-                <TabsTrigger value="all">All Transactions</TabsTrigger>
-                <TabsTrigger value="deposits">Deposits</TabsTrigger>
-                <TabsTrigger value="withdrawals">Withdrawals</TabsTrigger>
-                <TabsTrigger value="trades">Trades</TabsTrigger>
+          <CardContent className="px-2 sm:px-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="w-full grid grid-cols-4 bg-background/40 backdrop-blur-lg border-white/10">
+                <TabsTrigger value="all" className="text-xs sm:text-sm whitespace-nowrap overflow-hidden text-ellipsis">All Transactions</TabsTrigger>
+                <TabsTrigger value="deposits" className="text-xs sm:text-sm whitespace-nowrap overflow-hidden text-ellipsis">Deposits</TabsTrigger>
+                <TabsTrigger value="withdrawals" className="text-xs sm:text-sm whitespace-nowrap overflow-hidden text-ellipsis">Withdrawals</TabsTrigger>
+                <TabsTrigger value="trades" className="text-xs sm:text-sm whitespace-nowrap overflow-hidden text-ellipsis">Trades</TabsTrigger>
               </TabsList>
               <TabsContent value="all" className="pt-4">
                 <TransactionHistory filter="all" />

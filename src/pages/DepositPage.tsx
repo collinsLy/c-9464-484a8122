@@ -80,23 +80,23 @@ const DepositPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-white">Deposit Funds</h1>
-            <p className="text-sm text-white/70 mt-1">Deposit funds securely to your account</p>
+      <div className="w-full space-y-4 sm:space-y-6">
+        <div className="flex flex-wrap justify-between items-center gap-2">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white break-words">Deposit Funds</h1>
+            <p className="text-sm text-white/70 mt-1 break-words">Deposit funds securely to your account</p>
           </div>
-          {isDemoMode && <div className="text-sm text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-md">Demo Mode</div>}
+          {isDemoMode && <div className="text-sm text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-md whitespace-nowrap">Demo Mode</div>}
         </div>
         
-        <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
-          <CardHeader className="pb-3">
-            <CardTitle>Deposit Options</CardTitle>
-            <CardDescription className="text-white/70">
+        <Card className="w-full bg-background/40 backdrop-blur-lg border-white/10 text-white">
+          <CardHeader className="pb-3 px-4 sm:px-6">
+            <CardTitle className="text-lg sm:text-xl break-words">Deposit Options</CardTitle>
+            <CardDescription className="text-white/70 break-words">
               Choose your preferred deposit method
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-3 sm:px-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white mb-6 grid grid-cols-2 w-full">
                 <TabsTrigger value="crypto" className="text-white data-[state=active]:bg-accent">

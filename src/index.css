@@ -2,6 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html, body {
+    @apply overflow-x-hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6, p, span, a, button, label, input {
+    @apply break-words;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 20 14.3% 4.1%;
+    --radius: 1.2rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-background text-foreground antialiased overflow-x-hidden touch-manipulation;
+  }
+  input, button {
+    @apply focus:outline-none;
+  }
+}
+
+/* Utilities */
+.perspective {
+  perspective: 400px;
+  -webkit-perspective: 400px;
+  -moz-perspective: 400px;
+}
+
 /* Global Animations */
 @keyframes fadeIn {
   from {
@@ -121,35 +159,6 @@
 
 .mobile-flex {
   @apply flex flex-col sm:flex-row;
-}
-
-/* Add shadcn ui styles */
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 20 14.3% 4.1%;
-    --radius: 1.2rem;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-    -webkit-tap-highlight-color: transparent;
-  }
-  body {
-    @apply bg-background text-foreground antialiased overflow-x-hidden touch-manipulation;
-  }
-  input, button {
-    @apply focus:outline-none;
-  }
-}
-
-/* Utilities */
-.perspective {
-  perspective: 400px;
-  -webkit-perspective: 400px;
-  -moz-perspective: 400px;
 }
 
 /* Scrollbar Styles */
