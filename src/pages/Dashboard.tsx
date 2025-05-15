@@ -12,6 +12,7 @@ import TradingPanel from "@/components/dashboard/TradingPanel";
 import AutomatedTrading from "@/components/dashboard/AutomatedTrading";
 import BinanceOrderBook from "@/components/markets/BinanceOrderBook";
 import { Card, CardContent } from "@/components/ui/card";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { auth, db } from "@/lib/firebase";
 import { collection, query, where, onSnapshot, orderBy, limit, Timestamp, doc, updateDoc } from "firebase/firestore";
 import { NotificationService } from "@/lib/notification-service";
@@ -143,15 +144,34 @@ const Dashboard = () => {
             {/* Account Summary Component */}
             <AccountOverview isDemoMode={false} />
             
-            {/* Trading Charts and Assets */}
+            {/* Trading Charts and Assets - Collapsible on mobile */}
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
               <div className="xl:col-span-3">
-                <MarketChart 
-                  selectedSymbol={selectedSymbol} 
-                  selectedTimeframe={selectedTimeframe}
-                  onSymbolChange={setSelectedSymbol}
-                  onTimeframeChange={setSelectedTimeframe}
-                />
+                <div className="md:hidden">
+                  <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="market-chart" className="border-white/10">
+                      <AccordionTrigger className="text-white hover:no-underline">
+                        Market Chart
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <MarketChart 
+                          selectedSymbol={selectedSymbol} 
+                          selectedTimeframe={selectedTimeframe}
+                          onSymbolChange={setSelectedSymbol}
+                          onTimeframeChange={setSelectedTimeframe}
+                        />
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                </div>
+                <div className="hidden md:block">
+                  <MarketChart 
+                    selectedSymbol={selectedSymbol} 
+                    selectedTimeframe={selectedTimeframe}
+                    onSymbolChange={setSelectedSymbol}
+                    onTimeframeChange={setSelectedTimeframe}
+                  />
+                </div>
               </div>
               <div className="xl:col-span-1">
                 <AssetsList />

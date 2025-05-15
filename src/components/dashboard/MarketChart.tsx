@@ -21,21 +21,21 @@ const MarketChart = ({
   
   return (
     <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
-      <CardHeader>
-        <div className="flex flex-col space-y-4">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-            <CardTitle>Market Chart</CardTitle>
-            <div className="flex flex-wrap gap-2">
+      <CardHeader className="p-3 md:p-6">
+        <div className="flex flex-col space-y-3">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+            <CardTitle className="text-lg md:text-2xl">Market Chart</CardTitle>
+            <div className="flex flex-wrap gap-1">
               {symbols.map((symbol) => (
                 <Button 
                   key={symbol}
                   variant={selectedSymbol === symbol ? "default" : "outline"}
                   size="sm"
                   onClick={() => onSymbolChange(symbol)}
-                  className={selectedSymbol === symbol 
+                  className={`text-xs md:text-sm px-2 py-1 ${selectedSymbol === symbol 
                     ? "bg-accent text-white" 
                     : "text-white border-white/20 hover:bg-white/10"
-                  }
+                  }`}
                 >
                   {symbol}
                 </Button>
@@ -44,17 +44,17 @@ const MarketChart = ({
           </div>
           
           <div className="flex justify-end">
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-7 gap-1">
               {timeframes.map((timeframe) => (
                 <Button 
                   key={timeframe}
                   variant={selectedTimeframe === timeframe ? "default" : "outline"}
                   size="sm"
                   onClick={() => onTimeframeChange(timeframe)}
-                  className={selectedTimeframe === timeframe 
+                  className={`text-xs md:text-sm px-1 py-0.5 ${selectedTimeframe === timeframe 
                     ? "bg-accent text-white" 
                     : "text-white border-white/20 hover:bg-white/10"
-                  }
+                  }`}
                 >
                   {timeframe}
                 </Button>
@@ -63,12 +63,12 @@ const MarketChart = ({
           </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="h-[600px]">
+      <CardContent className="p-2 md:p-6">
+        <div className="h-[300px] md:h-[600px]">
           <TradingViewChart 
             symbol={selectedSymbol} 
             theme="dark" 
-            height={400} 
+            height="100%" 
             interval={selectedTimeframe}
           />
         </div>
