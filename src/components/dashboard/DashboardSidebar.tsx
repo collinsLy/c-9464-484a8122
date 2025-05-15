@@ -1,3 +1,4 @@
+
 import { useLocation, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -118,7 +119,7 @@ const defaultNavCategories: NavCategory[] = [
 ];
 
 interface SidebarProps {
-  navItems?: NavItem[];
+  navItems?: NavCategory[];
 }
 
 const SearchBar = () => {
@@ -169,7 +170,6 @@ const SearchBar = () => {
     </div>
   );
 };
-
 
 const DashboardSidebar = ({ navItems = defaultNavCategories }: SidebarProps) => {
   const location = useLocation();
@@ -306,43 +306,30 @@ const DashboardSidebar = ({ navItems = defaultNavCategories }: SidebarProps) => 
         {!collapsed && !isMobile && (
           <div className="mt-auto p-4">
             <div className="rounded-lg p-3 bg-white/5">
+              <SearchBar />
             </div>
           </div>
         )}
       </aside>
 
-      {/* Overlay when mobile sidebar is open */}
-      {isMobile && mobileOpen && (
-            <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setMobileOpen(false)} />
+      {/* Mobile sidebar */}
+      {isMobile && (
+        <>
+          {/* Overlay when mobile sidebar is open */}
+          {mobileOpen && (
+            <div className="fixed inset-0 bg-black/50 z-30" onClick={() => setMobileOpen(false)} />
           )}
-
+          
+          {/* Mobile search bar */}
           <div className={`fixed inset-y-0 left-0 w-[240px] bg-background border-r border-white/10 transform transition-transform duration-300 z-50 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} md:hidden`}>
-            <div className="p-3">
+            <div className="p-3 pt-16">
               <SearchBar />
             </div>
-      {/* Overlay when mobile sidebar is open */}
-      {isMobile && mobileOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-          onClick={() => setMobileOpen(false)}
-        />
+          </div>
+        </>
       )}
     </>
   );
 };
 
 export default DashboardSidebar;
-
-// Placeholder page components (replace with actual implementations)
-const StrategyTradingPage = () => <div>Strategy Trading Page Content</div>;
-const P2PPage = () => <div>P2P Trading Page Content</div>;
-const USDTFuturesPage = () => <div>USDT Futures Page Content</div>;
-const CoinFuturesPage = () => <div>Coin Futures Page Content</div>;
-const OptionsPage = () => <div>Options Page Content</div>;
-const LeaderboardPage = () => <div>Leaderboard Page Content</div>;
-const SimpleEarnPage = () => <div>Simple Earn Page Content</div>;
-const AutoInvestPage = () => <div>Auto Invest Page Content</div>;
-const LiquidityFarmingPage = () => <div>Liquidity Farming Page Content</div>;
-const StakingPage = () => <div>Staking Page Content</div>;
-const VertexCardPage = () => <div>Vertex Card Page Content</div>;
-const APIManagementPage = () => <div>API Management Page Content</div>;
