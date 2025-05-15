@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, RefreshCcw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { UserService } from "@/lib/firebase-service";
+import { Button } from "@/components/ui/button";
+import { UserService } from "@/lib/user-service";
 
 interface AssetsListProps {
   isDemoMode?: boolean;

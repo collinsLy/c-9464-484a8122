@@ -18,7 +18,12 @@ import DemoModeToggle from "./DemoModeToggle";
 import SearchBar from "../search/SearchBar";
 
 // New AvatarCollection component
-const AvatarCollection = ({ selectedAvatar, onAvatarSelect }) => {
+interface AvatarCollectionProps {
+  selectedAvatar: string;
+  onAvatarSelect: (src: string) => void;
+}
+
+const AvatarCollection = ({ selectedAvatar, onAvatarSelect }: AvatarCollectionProps) => {
   const avatars = [
     { id: 1, src: '/avatars/avatar1.png', alt: 'Avatar 1' },
     { id: 2, src: '/avatars/avatar2.png', alt: 'Avatar 2' },
@@ -69,6 +74,10 @@ const DashboardHeader = () => {
     });
   };
 
+  const handleAvatarSelect = (src: string) => {
+    setSelectedAvatar(src);
+  };
+  
   return (
     <div className="border-b border-white/10 bg-background/95 backdrop-blur-xl">
       <header className="flex h-14 sm:h-16 items-center px-2 sm:px-4 md:px-6">
@@ -157,7 +166,7 @@ const DashboardHeader = () => {
                   <Avatar className="h-16 w-16">
                     {/* Placeholder for avatar image - replace with actual image source */}
                     {selectedAvatar ? (
-                      <AvatarImage src={selectedAvatar} />
+                      <AvatarImage src={selectedAvatar} alt="User avatar" />
                     ) : (
                       <AvatarFallback>JD</AvatarFallback>
                     )}
