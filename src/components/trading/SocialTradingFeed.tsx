@@ -239,4 +239,4 @@ export const SocialTradingFeed = () => {
   );
 };
 
-export default SocialTradingFeed;
+export default SocialTradingFeed;d;

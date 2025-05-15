@@ -326,7 +326,7 @@ const ApiManagementPage = () => {
                     </CardContent>
                   </Card>
                 )}
-              </div>
+              </div>div>
 
               <div>
                 <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">

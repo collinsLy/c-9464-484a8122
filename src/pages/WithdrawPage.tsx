@@ -1119,7 +1119,7 @@ const WithdrawPage = () => {
             <p className="text-sm text-white/70 mt-1">Withdraw your funds securely</p>
           </div>
           {isDemoMode && <div className="text-sm text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-md">Demo Mode</div>}
-        </div>
+        </div>v>
 
         <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
           <CardHeader className="pb-3">
