@@ -326,7 +326,7 @@ const ApiManagementPage = () => {
                     </CardContent>
                   </Card>
                 )}
-              </div>div>
+              </div>
 
               <div>
                 <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
@@ -585,7 +585,6 @@ const ApiManagementPage = () => {
                       <div className="text-white">        bytes(message, 'utf-8'),</div>
                       <div className="text-white">        hashlib.sha256</div>
                       <div className="text-white">    ).hexdigest()</div>
-                      <div className="text-white">    return signature</div>
                       <div className="text-white"></div>
                       <div className="text-white">signature = create_signature(timestamp, api_secret)</div>
                       <div className="text-white"></div>
