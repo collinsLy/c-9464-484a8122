@@ -1,210 +1,172 @@
-import React from 'react';
-import { LogOut, Bell, User, Settings, Copy, Menu, X } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useDashboardContext } from "./DashboardLayout";
-import { signOut } from "firebase/auth";
-import { auth } from '../../lib/firebase';
-import { useState, useEffect } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Link, useNavigate } from "react-router-dom";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useToast } from "@/components/ui/use-toast";
-import DashboardSidebar from "./DashboardSidebar";
-import DemoModeToggle from "./DemoModeToggle";
-import SearchBar from "../search/SearchBar";
+import React, { useState, useEffect } from 'react';
+import { Bell, ChevronDown, Search, Settings, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Badge } from '@/components/ui/badge';
+import { useNavigate } from 'react-router-dom';
 
-// New AvatarCollection component
-interface AvatarCollectionProps {
-  selectedAvatar: string;
-  onAvatarSelect: (src: string) => void;
-}
-
-const AvatarCollection = ({ selectedAvatar, onAvatarSelect }: AvatarCollectionProps) => {
-  const avatars = [
-    { id: 1, src: '/avatars/avatar1.png', alt: 'Avatar 1' },
-    { id: 2, src: '/avatars/avatar2.png', alt: 'Avatar 2' },
-    { id: 3, src: '/avatars/avatar3.png', alt: 'Avatar 3' },
-    // Add more avatars as needed
-  ];
-
-  return (
-    <div className="grid grid-cols-4 gap-4">
-      {avatars.map(avatar => (
-        <Avatar key={avatar.id} onClick={() => onAvatarSelect(avatar.src)} className="cursor-pointer hover:opacity-90">
-          <AvatarImage src={avatar.src} alt={avatar.alt} />
-        </Avatar>
-      ))}
-    </div>
-  );
-};
-
-
-const DashboardHeader = () => {
-  const [profileOpen, setProfileOpen] = React.useState(false);
+export function DashboardHeader() {
+  const [userName, setUserName] = useState<string>('');
+  const [userAvatar, setUserAvatar] = useState<string>('');
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [showNotifications, setShowNotifications] = useState(false);
   const navigate = useNavigate();
-  const { isDemoMode } = useDashboardContext();
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const { toast } = useToast();
-  const [userUid, setUserUid] = useState("");
-  const [selectedAvatar, setSelectedAvatar] = useState(''); // Added state for selected avatar
 
   useEffect(() => {
-    // Get current user UID when component loads
-    setUserUid(auth.currentUser?.uid || "");
+    // Fetch user data
+    const fetchUserData = async () => {
+      try {
+        const uid = localStorage.getItem('userId');
+        if (!uid) return;
+
+        // Here you would normally fetch user data from a service
+        // For now we'll use mock data
+        setUserName('User');
+        setUserAvatar('');
+
+        // Mock notifications
+        setNotifications([
+          { id: 1, message: 'Welcome to Vertex', read: false, time: new Date().toISOString() },
+          { id: 2, message: 'Your deposit has been confirmed', read: true, time: new Date().toISOString() }
+        ]);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
   }, []);
-  
-  const handleAvatarSelect = (src: string) => {
-    setSelectedAvatar(src);
+
+  const handleSignOut = () => {
+    // Clear local authentication
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userEmail');
+
+    // Redirect to home page
+    navigate('/');
   };
 
-  const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-      window.location.href = '/';
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
-  };
-
-  const copyUidToClipboard = () => {
-    navigator.clipboard.writeText(userUid || "");
-    toast({
-      title: "Copied!",
-      description: "Your UID has been copied to clipboard",
-    });
+  const handleNotificationClick = () => {
+    setShowNotifications(!showNotifications);
   };
 
   return (
-    <header className="sticky top-0 z-30 w-full px-6 py-3 bg-background/80 backdrop-blur-lg border-b border-white/10 flex items-center justify-between">
-      <div className="flex items-center">
-        {isDemoMode && (
-          <div className="bg-amber-500/20 text-amber-500 text-sm font-medium px-3 py-1 rounded-full">
-            Demo Mode
-          </div>
-        )}
-        <div className="flex items-center gap-2">
-          <div className="text-xl font-bold">Vertex Trading</div>
+    <header className="h-16 px-4 border-b border-gray-800 flex items-center justify-between">
+      {/* Search */}
+      <div className="md:w-72 hidden md:flex">
+        <div className="relative w-full">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+          <input
+            type="search"
+            placeholder="Search..."
+            className="w-full bg-gray-900 rounded-md border border-gray-800 pl-8 pr-4 py-2 focus:outline-none focus:border-blue-600 text-sm"
+          />
         </div>
       </div>
 
-      <div className="flex items-center space-x-2">
-        {/* UID Display */}
-        <div className="hidden sm:flex items-center bg-white/5 rounded-md px-2 py-1 mr-2">
-          <span className="text-xs font-mono text-white/70 mr-1">UID:</span>
-          <code className="text-xs font-mono text-white/90 truncate max-w-[80px]">{userUid}</code>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="h-6 w-6 ml-1 text-white/70 hover:text-white"
-            onClick={copyUidToClipboard}
-          >
-            <Copy className="h-3 w-3" />
-          </Button>
-        </div>
-        <div className="hidden md:flex items-center space-x-4 flex-1 justify-center max-w-2xl">
-        <SearchBar className="w-full" />
+      {/* Mobile search icon */}
+      <div className="md:hidden">
+        <Button variant="ghost" size="icon" className="text-gray-400">
+          <Search className="h-5 w-5" />
+        </Button>
       </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10" >
-              <Bell className="w-5 h-5" />
+      {/* Right side */}
+      <div className="flex items-center gap-2">
+        {/* Notifications */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="relative text-gray-400"
+              onClick={handleNotificationClick}
+            >
+              <Bell className="h-5 w-5" />
+              {notifications.filter(n => !n.read).length > 0 && (
+                <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center bg-blue-600">
+                  {notifications.filter(n => !n.read).length}
+                </Badge>
+              )}
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem className="cursor-pointer flex items-start gap-3 p-3 max-w-[300px] sm:max-w-[350px]">
-              <div className="h-2 w-2 mt-1.5 bg-green-500 rounded-full flex-shrink-0"></div>
-              <div className="space-y-1 overflow-hidden">
-                <p className="font-medium text-sm">New Payment Methods Available</p>
-                <p className="text-xs text-white/70 line-clamp-2">Now accepting crypto, mobile money, cards & bank transfers</p>
-                <p className="text-xs text-white/50">Just now</p>
-              </div>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-0" align="end">
+            <div className="p-2 border-b border-gray-800">
+              <h3 className="font-medium">Notifications</h3>
+            </div>
+            <div className="max-h-80 overflow-auto">
+              {notifications.length > 0 ? (
+                notifications.map((notification) => (
+                  <div
+                    key={notification.id}
+                    className={`p-2 border-b border-gray-800 last:border-none hover:bg-gray-800 cursor-pointer ${
+                      !notification.read ? 'bg-gray-900' : ''
+                    }`}
+                  >
+                    <p className="text-sm">{notification.message}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {new Date(notification.time).toLocaleTimeString()} - {new Date(notification.time).toLocaleDateString()}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <div className="p-4 text-center text-gray-500">No notifications</div>
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
 
-        {/* Mobile UID Menu */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild className="sm:hidden">
-            <Button variant="ghost" className="text-white/70 hover:text-white hover:bg-white/10 px-2">
-              <span className="text-xs font-mono">UID</span>
+        {/* Settings */}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="text-gray-400"
+          onClick={() => navigate('/settings')}
+        >
+          <Settings className="h-5 w-5" />
+        </Button>
+
+        {/* User */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" className="flex items-center gap-2 text-gray-400 pr-0">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={userAvatar} />
+                <AvatarFallback className="bg-gray-800">
+                  {userName?.charAt(0) || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm hidden md:inline-block">{userName || 'User'}</span>
+              <ChevronDown className="h-4 w-4" />
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem className="cursor-pointer flex flex-col items-start p-3">
-              <p className="font-medium text-sm mb-1">Your UID</p>
-              <code className="text-xs font-mono bg-white/10 p-1 rounded w-full overflow-hidden text-ellipsis">
-                {userUid || 'Loading...'}
-              </code>
+          </PopoverTrigger>
+          <PopoverContent className="w-56 p-0" align="end">
+            <div className="p-2 border-b border-gray-800">
+              <p className="text-sm font-medium">{userName || 'User'}</p>
+            </div>
+            <div className="p-1">
               <Button 
                 variant="ghost" 
-                size="sm" 
-                className="mt-2 text-xs w-full"
-                onClick={copyUidToClipboard}
+                className="w-full justify-start text-sm" 
+                onClick={() => navigate('/settings')}
               >
-                Copy UID
+                <User className="h-4 w-4 mr-2" />
+                Profile Settings
               </Button>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10" onClick={() => navigate('/settings')}>
-          <User className="w-5 h-5" />
-        </Button>
-        <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10" onClick={() => navigate('/settings')}>
-          <Settings className="w-5 h-5" />
-        </Button>
-        <Button variant="outline" size="sm" className="text-white border-white/20 hover:bg-white/10" onClick={handleSignOut}>
-          <LogOut className="w-4 h-4 mr-2" />
-          <span className="hidden sm:inline">Sign Out</span>
-        </Button>
-
-
-        {/* Profile Dialog */}
-        <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Profile</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-6">
-              <div className="flex items-center space-x-4">
-                <Avatar className="h-16 w-16">
-                  {/* Placeholder for avatar image - replace with actual image source */}
-                  {selectedAvatar ? (
-                    <AvatarImage src={selectedAvatar} alt="User avatar" />
-                  ) : (
-                    <AvatarFallback>JD</AvatarFallback>
-                  )}
-                </Avatar>
-                <div>
-                  <h3 className="font-medium">John Doe</h3>
-                  <p className="text-sm text-white/70">john.doe@example.com</p>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Link to="/settings">
-                  <Button variant="outline" className="w-full justify-start">
-                    <User className="w-4 h-4 mr-2" />
-                    Edit Profile
-                  </Button>
-                </Link>
-                <Button variant="outline" className="w-full justify-start" onClick={handleSignOut}>
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
-                </Button>
-              </div>
+              <Button 
+                variant="ghost" 
+                className="w-full justify-start text-sm" 
+                onClick={handleSignOut}
+              >
+                Sign out
+              </Button>
             </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Settings Dialog remains unchanged */}
+          </PopoverContent>
+        </Popover>
       </div>
     </header>
   );
-};
+}
 
 export default DashboardHeader;
