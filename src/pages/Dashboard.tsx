@@ -144,7 +144,7 @@ const Dashboard = () => {
             <AccountOverview isDemoMode={false} />
             
             {/* Trading Charts and Assets */}
-            <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
               <div className="xl:col-span-3">
                 <MarketChart 
                   selectedSymbol={selectedSymbol} 

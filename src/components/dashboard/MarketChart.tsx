@@ -18,7 +18,7 @@ const MarketChart = ({
 }: MarketChartProps) => {
   const symbols = ["BTCUSD", "ETHUSD", "SOLUSD", "BNBUSD", "ADAUSD", "DOTUSD"];
   const timeframes = ["1m", "5m", "15m", "1h", "4h", "1D", "1W"];
-
+  
   return (
     <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
       <CardHeader>
@@ -42,7 +42,7 @@ const MarketChart = ({
               ))}
             </div>
           </div>
-
+          
           <div className="flex justify-end">
             <div className="flex flex-wrap gap-2">
               {timeframes.map((timeframe) => (

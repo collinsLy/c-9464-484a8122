@@ -1,8 +1,8 @@
+
 import { useEffect, useState } from "react";
-import { ArrowUpRight, ArrowDownRight, RefreshCcw } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { UserService } from "@/lib/user-service";
+import { UserService } from "@/lib/firebase-service";
 
 interface AssetsListProps {
   isDemoMode?: boolean;
@@ -10,7 +10,7 @@ interface AssetsListProps {
 
 const AssetsList = ({ isDemoMode = false }: AssetsListProps) => {
   const [userBalance, setUserBalance] = useState(0);
-
+  
   useEffect(() => {
     const uid = localStorage.getItem('userId');
     if (!uid || isDemoMode) return;
@@ -33,7 +33,7 @@ const AssetsList = ({ isDemoMode = false }: AssetsListProps) => {
     { id: 4, name: "Cardano", symbol: "ADA", balance: 450, value: 265.50, change: -0.87 },
     { id: 5, name: "BNB", symbol: "BNB", balance: 2.2, value: 1332.72, change: 0.75 },
   ];
-
+  
   const [liveAssets, setLiveAssets] = useState([]);
   const [assetPrices, setAssetPrices] = useState<Record<string, number>>({});
 
@@ -45,7 +45,7 @@ const AssetsList = ({ isDemoMode = false }: AssetsListProps) => {
         const symbolsQuery = symbols.map(s => `${s}USDT`);
         const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
         const data = await response.json();
-
+        
         const prices: Record<string, number> = {};
         data.forEach((item: any) => {
           const symbol = item.symbol.replace('USDT', '');
@@ -84,14 +84,14 @@ const AssetsList = ({ isDemoMode = false }: AssetsListProps) => {
             logoUrl: "https://upload.wikimedia.org/wikipedia/commons/e/e9/Tether_USDT.png"
           });
         }
-
+        
         // Add other assets with accurate price data
         if (userData.assets) {
           Object.entries(userData.assets).forEach(([symbol, data]: [string, any]) => {
             const amount = data.amount || 0;
             const price = assetPrices[symbol] || 0;
             const valueInUsdt = amount * price;
-
+            
             assets.push({
               id: symbol.toLowerCase(),
               name: symbol,
@@ -110,20 +110,15 @@ const AssetsList = ({ isDemoMode = false }: AssetsListProps) => {
 
     return () => unsubscribe();
   }, [isDemoMode, assetPrices]);
-
+  
   const assets = isDemoMode ? demoAssets : liveAssets;
-
+  
   return (
-    <Card className="bg-background/40 backdrop-blur-lg border-white/10 h-full">
-    <CardHeader className="pb-1 sm:pb-2 p-3 sm:p-6">
-      <CardTitle className="text-base sm:text-lg font-semibold text-white flex items-center justify-between">
-        <span>Assets</span>
-        <Button variant="ghost" size="sm" className="text-white/70 hover:text-white p-0 h-7 w-7 sm:h-8 sm:w-8">
-          <RefreshCcw className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-        </Button>
-      </CardTitle>
-    </CardHeader>
-    <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+    <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white h-full">
+      <CardHeader>
+        <CardTitle>{isDemoMode ? "Demo Assets" : "Your Assets"}</CardTitle>
+      </CardHeader>
+      <CardContent className="px-2">
         {assets.length > 0 ? (
           <div className="space-y-4">
             {assets.map((asset) => (
