@@ -320,10 +320,43 @@ const DashboardSidebar = ({ navItems = defaultNavCategories }: SidebarProps) => 
             <div className="fixed inset-0 bg-black/50 z-30" onClick={() => setMobileOpen(false)} />
           )}
           
-          {/* Mobile search bar */}
-          <div className={`fixed inset-y-0 left-0 w-[240px] bg-background border-r border-white/10 transform transition-transform duration-300 z-50 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} md:hidden`}>
-            <div className="p-3 pt-16">
-              <SearchBar />
+          {/* Mobile sidebar with navigation and search */}
+          <div className={`fixed inset-y-0 left-0 w-[280px] bg-background border-r border-white/10 transform transition-transform duration-300 z-50 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} md:hidden`}>
+            <div className="flex flex-col h-full">
+              <div className="p-3 pt-16 mb-2">
+                <SearchBar />
+              </div>
+              <div className="flex-1 overflow-y-auto px-2">
+                {defaultNavCategories.map((category) => (
+                  <div key={category.label} className="mb-3">
+                    <h3 className="text-xs font-semibold text-white/50 px-3 mb-2">{category.label}</h3>
+                    <div className="grid grid-cols-2 gap-1">
+                      {category.items.map((item) => (
+                        <Button
+                          key={item.id}
+                          variant="ghost"
+                          asChild
+                          className={cn(
+                            "justify-start text-white/70 hover:text-white hover:bg-white/10",
+                            activeTab === item.id && "bg-white/10 text-white",
+                            "h-10 px-2",
+                          )}
+                          onClick={() => setMobileOpen(false)}
+                        >
+                          <Link to={item.path} className="flex items-center w-full">
+                            <div className="flex items-center w-full">
+                              <item.icon className="h-4 w-4 flex-shrink-0 mr-1" />
+                              <span className="font-medium whitespace-nowrap overflow-hidden text-ellipsis text-xs">
+                                {item.label}
+                              </span>
+                            </div>
+                          </Link>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </>
