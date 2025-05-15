@@ -6,7 +6,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 
-export function DashboardHeader() {
+export interface DashboardHeaderProps {}
+
+export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
   const [userName, setUserName] = useState<string>('');
   const [userAvatar, setUserAvatar] = useState<string>('');
   const [notifications, setNotifications] = useState<any[]>([]);
