@@ -87,12 +87,19 @@ const LiquidityFarmingPage = () => {
                       <Button variant="ghost" size="sm" className="text-xs text-white/70 hover:text-white hover:bg-white/10">MAX</Button>
                     </div>
                   </div>
-                  
+
                   <div className="rounded-lg bg-white/5 p-4 border border-white/10">
                     <div className="flex justify-between items-center mb-2">
                       <div className="flex items-center space-x-2">
-                        <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
-                          <span className="text-xs font-bold">USDT</span>
+                        <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center">
+                          <img 
+                            src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/usdt.svg" 
+                            alt="USDT" 
+                            className="w-6 h-6"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/generic.svg";
+                            }}
+                          />
                         </div>
                         <span>Tether</span>
                       </div>
@@ -315,7 +322,7 @@ const LiquidityFarmingPage = () => {
                             </div>
                             <Badge className="bg-green-500/20 text-green-500">Active</Badge>
                           </div>
-                          
+
                           <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
                             <div>
                               <p className="text-white/70">Your Liquidity</p>
@@ -327,7 +334,7 @@ const LiquidityFarmingPage = () => {
                               <p className="font-mono">$1,256.84</p>
                             </div>
                           </div>
-                          
+
                           <div className="mt-4">
                             <div className="flex justify-between text-sm mb-1">
                               <span className="text-white/70">Earned Rewards</span>
@@ -335,7 +342,7 @@ const LiquidityFarmingPage = () => {
                             </div>
                             <Progress value={68} className="h-2 bg-white/10" indicatorClassName="bg-[#F2FF44]" />
                           </div>
-                          
+
                           <div className="flex justify-between items-center mt-4">
                             <Button variant="outline" size="sm" className="border-white/10 hover:bg-white/10 hover:text-white">
                               Harvest
@@ -345,7 +352,7 @@ const LiquidityFarmingPage = () => {
                             </Button>
                           </div>
                         </div>
-                        
+
                         <div className="rounded-lg bg-white/5 p-4 border border-white/10">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
@@ -361,7 +368,7 @@ const LiquidityFarmingPage = () => {
                             </div>
                             <Badge className="bg-green-500/20 text-green-500">Active</Badge>
                           </div>
-                          
+
                           <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
                             <div>
                               <p className="text-white/70">Your Liquidity</p>
@@ -373,7 +380,7 @@ const LiquidityFarmingPage = () => {
                               <p className="font-mono">$1,024.76</p>
                             </div>
                           </div>
-                          
+
                           <div className="mt-4">
                             <div className="flex justify-between text-sm mb-1">
                               <span className="text-white/70">Earned Rewards</span>
@@ -381,7 +388,7 @@ const LiquidityFarmingPage = () => {
                             </div>
                             <Progress value={42} className="h-2 bg-white/10" indicatorClassName="bg-[#F2FF44]" />
                           </div>
-                          
+
                           <div className="flex justify-between items-center mt-4">
                             <Button variant="outline" size="sm" className="border-white/10 hover:bg-white/10 hover:text-white">
                               Harvest
@@ -420,7 +427,7 @@ const LiquidityFarmingPage = () => {
                             </div>
                             <Badge className="bg-gray-500/20 text-gray-400">Ended</Badge>
                           </div>
-                          
+
                           <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
                             <div>
                               <p className="text-white/70">Your Liquidity</p>
@@ -432,7 +439,7 @@ const LiquidityFarmingPage = () => {
                               <p className="font-mono">$685.24</p>
                             </div>
                           </div>
-                          
+
                           <div className="mt-4">
                             <div className="flex justify-between text-sm mb-1">
                               <span className="text-white/70">Earned Rewards</span>
@@ -440,7 +447,7 @@ const LiquidityFarmingPage = () => {
                             </div>
                             <Progress value={100} className="h-2 bg-white/10" indicatorClassName="bg-[#F2FF44]" />
                           </div>
-                          
+
                           <div className="flex justify-between items-center mt-4">
                             <Button variant="outline" size="sm" className="border-white/10 hover:bg-white/10 hover:text-white">
                               Claim All
@@ -460,7 +467,7 @@ const LiquidityFarmingPage = () => {
                 </Tabs>
               </CardContent>
             </Card>
-            
+
             <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white mt-4">
               <CardHeader>
                 <CardTitle>Rewards</CardTitle>
@@ -483,13 +490,20 @@ const LiquidityFarmingPage = () => {
                         <div className="text-xs text-white/70">≈ $38.15</div>
                       </div>
                     </div>
-                    
+
                     <Separator className="bg-white/10" />
-                    
+
                     <div className="flex justify-between items-center">
                       <div className="flex items-center space-x-2">
-                        <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
-                          <span className="text-xs font-bold">USDT</span>
+                        <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center">
+                          <img 
+                            src="https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/usdt.svg" 
+                            alt="USDT" 
+                            className="w-6 h-6"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/generic.svg";
+                            }}
+                          />
                         </div>
                         <div>
                           <div className="font-medium">Trading Fees</div>
@@ -501,7 +515,7 @@ const LiquidityFarmingPage = () => {
                         <div className="text-xs text-white/70">≈ $12.84</div>
                       </div>
                     </div>
-                    
+
                     <div className="pt-2">
                       <Button 
                         variant="outline" 
@@ -518,7 +532,7 @@ const LiquidityFarmingPage = () => {
                 )}
               </CardContent>
             </Card>
-            
+
             <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white mt-4">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">Why Provide Liquidity?</CardTitle>
@@ -536,7 +550,7 @@ const LiquidityFarmingPage = () => {
                       <div className="text-white/70">0.3% of all trades goes to liquidity providers</div>
                     </div>
                   </div>
-                  
+
                   <div className="flex space-x-3">
                     <div className="flex-shrink-0">
                       <div className="h-8 w-8 rounded-full bg-[#F2FF44]/20 flex items-center justify-center">
@@ -548,7 +562,7 @@ const LiquidityFarmingPage = () => {
                       <div className="text-white/70">Earn VTEX tokens for providing liquidity</div>
                     </div>
                   </div>
-                  
+
                   <div className="flex space-x-3">
                     <div className="flex-shrink-0">
                       <div className="h-8 w-8 rounded-full bg-[#F2FF44]/20 flex items-center justify-center">
@@ -561,7 +575,7 @@ const LiquidityFarmingPage = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="mt-4 text-xs text-white/50">
                   Note: Providing liquidity comes with risks including impermanent loss. Learn more about <a href="#" className="text-[#F2FF44] hover:underline inline-flex items-center">impermanent loss <ExternalLink className="h-3 w-3 ml-1" /></a>
                 </div>
