@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { CryptoConverter } from "@/components/trading/CryptoConverter";
@@ -17,17 +16,17 @@ const CryptoConverterPage = () => {
             <p className="text-white/70">
               Convert between different cryptocurrencies instantly with competitive rates and low fees.
             </p>
-            
+
             <div className="bg-background/40 backdrop-blur-xl border border-white/10 rounded-lg p-4">
               <CryptoConverter />
             </div>
-            
+
             <div className="bg-background/40 backdrop-blur-xl border border-white/10 rounded-lg p-6 space-y-4">
               <h2 className="text-xl font-semibold text-white">About Crypto Conversion</h2>
               <p className="text-white/70">
                 Our crypto converter allows you to swap between different cryptocurrencies directly from your Vertex Trading wallet. The conversion process is instant and secure, with competitive rates pulled from major exchanges in real-time.
               </p>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div className="border border-white/10 rounded-lg p-4">
                   <h3 className="text-lg font-medium text-white mb-2">Conversion Fees</h3>
@@ -48,7 +47,7 @@ const CryptoConverterPage = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="w-full lg:w-4/12 space-y-6">
             <div className="bg-background/40 backdrop-blur-xl border border-white/10 rounded-lg p-6">
               <h2 className="text-xl font-semibold text-white mb-4">Conversion Tips</h2>
@@ -71,7 +70,7 @@ const CryptoConverterPage = () => {
                 </li>
               </ul>
             </div>
-            
+
             <div className="bg-background/40 backdrop-blur-xl border border-white/10 rounded-lg p-6">
               <h2 className="text-xl font-semibold text-white mb-4">Conversion History</h2>
               <p className="text-white/70 text-sm">
@@ -86,3 +85,4 @@ const CryptoConverterPage = () => {
 };
 
 export default CryptoConverterPage;
+```

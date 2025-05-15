@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState } from "react";
-import DashboardHeader from "./DashboardHeader";
-import DashboardSidebar from "./DashboardSidebar";
+import { DashboardSidebar } from "./DashboardSidebar";
+import { DashboardHeader } from "./DashboardHeader";
+import MobileBottomNav from "./MobileBottomNav";
 import {
   Home, LineChart, BarChart3, Wallet, CreditCard,
   TrendingUp, History, Settings, PlayCircle, HelpCircle, ArrowDownCircle, ArrowUpCircle,
@@ -83,7 +84,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="max-w-7xl mx-auto space-y-6">
               {children}
             </div>
+            {/* Add bottom padding on mobile to account for bottom nav */}
+            <div className="h-16 md:h-0 w-full"></div>
           </main>
+          <MobileBottomNav />
         </div>
       </div>
     </DashboardProvider>

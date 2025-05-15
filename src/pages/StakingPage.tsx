@@ -22,7 +22,7 @@ const StakingPage = () => {
   const [duration, setDuration] = useState("30");
   const [autoCompound, setAutoCompound] = useState(true);
   const [stakeTab, setStakeTab] = useState("active");
-  
+
   const assets = [
     { id: "VTEX", name: "Vertex Token", balance: "324.57", price: "$5.12", apy: "18.5%" },
     { id: "BTC", name: "Bitcoin", balance: "0.148", price: "$51,245.32", apy: "8.4%" },
@@ -32,7 +32,7 @@ const StakingPage = () => {
   ];
 
   const selectedAssetData = assets.find(asset => asset.id === selectedAsset);
-  
+
   const handleStake = () => {
     if (isDemoMode) {
       toast.success("Successfully staked", {
@@ -100,7 +100,7 @@ const StakingPage = () => {
                       Balance: {isDemoMode ? selectedAssetData?.balance : "0.00"}
                     </Badge>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label className="text-white/70">Stake Amount</Label>
                     <div className="relative">
@@ -368,7 +368,7 @@ const StakingPage = () => {
                             </div>
                             <Badge className="bg-green-500/20 text-green-500">Active</Badge>
                           </div>
-                          
+
                           <div className="mt-4">
                             <div className="flex justify-between text-sm">
                               <span className="text-white/70">Staked Amount</span>
@@ -379,7 +379,7 @@ const StakingPage = () => {
                               <span className="font-mono text-green-400">18.5%</span>
                             </div>
                           </div>
-                          
+
                           <div className="mt-4">
                             <div className="flex justify-between text-sm mb-1">
                               <span className="text-white/70">Unlocks in</span>
@@ -387,14 +387,14 @@ const StakingPage = () => {
                             </div>
                             <Progress value={53} className="h-2 bg-white/10" indicatorClassName="bg-[#F2FF44]" />
                           </div>
-                          
+
                           <div className="mt-4">
                             <div className="flex justify-between text-sm">
                               <span className="text-white/70">Rewards Earned</span>
                               <span className="font-mono text-green-400">+8.45 VTEX</span>
                             </div>
                           </div>
-                          
+
                           <div className="flex justify-between items-center mt-4">
                             <Button variant="outline" size="sm" className="border-white/10 hover:bg-white/10 hover:text-white">
                               Claim Rewards
@@ -404,7 +404,7 @@ const StakingPage = () => {
                             </Button>
                           </div>
                         </div>
-                        
+
                         <div className="rounded-lg bg-white/5 p-4 border border-white/10">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
@@ -418,7 +418,7 @@ const StakingPage = () => {
                             </div>
                             <Badge className="bg-green-500/20 text-green-500">Active</Badge>
                           </div>
-                          
+
                           <div className="mt-4">
                             <div className="flex justify-between text-sm">
                               <span className="text-white/70">Staked Amount</span>
@@ -429,7 +429,7 @@ const StakingPage = () => {
                               <span className="font-mono text-green-400">10.5%</span>
                             </div>
                           </div>
-                          
+
                           <div className="mt-4">
                             <div className="flex justify-between text-sm mb-1">
                               <span className="text-white/70">Unlocks in</span>
@@ -437,14 +437,14 @@ const StakingPage = () => {
                             </div>
                             <Progress value={70} className="h-2 bg-white/10" indicatorClassName="bg-[#F2FF44]" />
                           </div>
-                          
+
                           <div className="mt-4">
                             <div className="flex justify-between text-sm">
                               <span className="text-white/70">Rewards Earned</span>
                               <span className="font-mono text-green-400">+0.034 ETH</span>
                             </div>
                           </div>
-                          
+
                           <div className="flex justify-between items-center mt-4">
                             <Button variant="outline" size="sm" className="border-white/10 hover:bg-white/10 hover:text-white">
                               Claim Rewards
@@ -481,7 +481,7 @@ const StakingPage = () => {
                             </div>
                             <Badge className="bg-gray-500/20 text-gray-400">Ended</Badge>
                           </div>
-                          
+
                           <div className="mt-4">
                             <div className="flex justify-between text-sm">
                               <span className="text-white/70">Staked Amount</span>
@@ -492,7 +492,7 @@ const StakingPage = () => {
                               <span className="font-mono text-green-400">11.1%</span>
                             </div>
                           </div>
-                          
+
                           <div className="mt-4">
                             <div className="flex justify-between text-sm mb-1">
                               <span className="text-white/70">Status</span>
@@ -500,14 +500,14 @@ const StakingPage = () => {
                             </div>
                             <Progress value={100} className="h-2 bg-white/10" indicatorClassName="bg-[#F2FF44]" />
                           </div>
-                          
+
                           <div className="mt-4">
                             <div className="flex justify-between text-sm">
                               <span className="text-white/70">Rewards Earned</span>
                               <span className="font-mono text-green-400">+0.72 SOL</span>
                             </div>
                           </div>
-                          
+
                           <div className="flex justify-between items-center mt-4">
                             <Button variant="outline" size="sm" className="w-full border-white/10 hover:bg-white/10 hover:text-white">
                               Withdraw All
@@ -524,7 +524,7 @@ const StakingPage = () => {
                 </Tabs>
               </CardContent>
             </Card>
-            
+
             <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white mt-4">
               <CardHeader>
                 <CardTitle>Rewards Calculator</CardTitle>
@@ -546,12 +546,12 @@ const StakingPage = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label className="text-white/70">Amount</Label>
                     <Input type="text" placeholder="0.00" defaultValue="100" className="bg-white/5 border-white/10 text-white" />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label className="text-white/70">Duration</Label>
                     <Select defaultValue="90">
@@ -565,7 +565,7 @@ const StakingPage = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label className="text-white/70">Auto-compound</Label>
                     <Select defaultValue="yes">
@@ -578,12 +578,12 @@ const StakingPage = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <Button variant="outline" className="w-full border-white/10 hover:bg-white/10 hover:text-white">
                     <Calculator className="mr-2 h-4 w-4" />
                     Calculate
                   </Button>
-                  
+
                   <div className="rounded-lg bg-white/5 p-4 border border-white/10 mt-4">
                     <h3 className="font-medium mb-3">Estimated Returns</h3>
                     <div className="space-y-2">
@@ -591,26 +591,26 @@ const StakingPage = () => {
                         <span className="text-white/70">Initial Investment</span>
                         <span className="font-mono">100 VTEX</span>
                       </div>
-                      
+
                       <Separator className="bg-white/10" />
-                      
+
                       <div className="flex justify-between text-sm">
                         <span className="text-white/70">APY</span>
                         <span className="font-mono">18.5%</span>
                       </div>
-                      
+
                       <div className="flex justify-between text-sm">
                         <span className="text-white/70">Duration</span>
                         <span className="font-mono">90 days</span>
                       </div>
-                      
+
                       <div className="flex justify-between text-sm">
                         <span className="text-white/70">Rewards</span>
                         <span className="font-mono text-green-400">+4.56 VTEX</span>
                       </div>
-                      
+
                       <Separator className="bg-white/10" />
-                      
+
                       <div className="flex justify-between text-sm font-medium">
                         <span>Total Value</span>
                         <span className="font-mono text-green-400">104.56 VTEX</span>
@@ -620,7 +620,7 @@ const StakingPage = () => {
                 </div>
               </CardContent>
             </Card>
-            
+
             <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white mt-4">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">Why Stake?</CardTitle>
@@ -638,7 +638,7 @@ const StakingPage = () => {
                       <div className="text-white/70">Earn up to 22.4% APY on your digital assets</div>
                     </div>
                   </div>
-                  
+
                   <div className="flex space-x-3">
                     <div className="flex-shrink-0">
                       <div className="h-8 w-8 rounded-full bg-[#F2FF44]/20 flex items-center justify-center">
@@ -650,7 +650,7 @@ const StakingPage = () => {
                       <div className="text-white/70">Assets are secured by institutional-grade security</div>
                     </div>
                   </div>
-                  
+
                   <div className="flex space-x-3">
                     <div className="flex-shrink-0">
                       <div className="h-8 w-8 rounded-full bg-[#F2FF44]/20 flex items-center justify-center">

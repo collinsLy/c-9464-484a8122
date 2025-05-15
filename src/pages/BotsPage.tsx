@@ -176,7 +176,7 @@ const BotsPage = () => {
                   </div>
 
                   <ScrollArea className="h-[calc(100vh-300px)] rounded-md border border-white/10 p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                       {botTiers.map((bot) => {
                         return (
                           <BotCard

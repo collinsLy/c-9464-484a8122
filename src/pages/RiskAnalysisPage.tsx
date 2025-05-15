@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
@@ -13,7 +12,7 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A020F0', '#2c3e50'
 const RiskAnalysisPage = () => {
   const { isDemoMode } = useDashboardContext();
   const [riskMetric, setRiskMetric] = useState("concentration");
-  
+
   // Sample portfolio data - would be fetched from user's actual holdings
   const portfolioData = [
     { name: 'BTC', value: 45, volatility: 75, drawdown: 55 },
@@ -22,7 +21,7 @@ const RiskAnalysisPage = () => {
     { name: 'USDT', value: 10, volatility: 10, drawdown: 5 },
     { name: 'ADA', value: 5, volatility: 68, drawdown: 58 },
   ];
-  
+
   // Sample correlation data between assets (would be calculated from historical prices)
   const correlationData = [
     { pair: 'BTC-ETH', value: 0.85 },
@@ -32,20 +31,20 @@ const RiskAnalysisPage = () => {
     { pair: 'ETH-ADA', value: 0.65 },
     { pair: 'SOL-ADA', value: 0.62 },
   ];
-  
+
   const riskScores = {
     concentration: 76,
     volatility: 82,
     correlation: 68,
     overall: 75
   };
-  
+
   const getColorByRisk = (score) => {
     if (score < 40) return '#10b981'; // Low risk - green
     if (score < 70) return '#f59e0b'; // Medium risk - yellow/orange
     return '#ef4444'; // High risk - red
   };
-  
+
   return (
     <DashboardLayout>
       <div className="space-y-4">
@@ -58,9 +57,9 @@ const RiskAnalysisPage = () => {
         </div>
 
         <CryptoTicker />
-        
+
         <LivePriceTicker />
-        
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="bg-background/40 backdrop-blur-lg border-white/10">
             <CardContent className="pt-6">
@@ -95,7 +94,7 @@ const RiskAnalysisPage = () => {
             </CardContent>
           </Card>
         </div>
-        
+
         <Tabs defaultValue="concentration" className="w-full" onValueChange={setRiskMetric}>
           <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
             <TabsTrigger value="concentration">Asset Concentration</TabsTrigger>
@@ -103,7 +102,7 @@ const RiskAnalysisPage = () => {
             <TabsTrigger value="correlation">Correlation Matrix</TabsTrigger>
             <TabsTrigger value="optimization">Portfolio Optimization</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="concentration">
             <Card className="bg-background/40 backdrop-blur-lg border-white/10">
               <CardHeader>
@@ -137,7 +136,7 @@ const RiskAnalysisPage = () => {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="volatility">
             <Card className="bg-background/40 backdrop-blur-lg border-white/10">
               <CardHeader>
@@ -162,7 +161,7 @@ const RiskAnalysisPage = () => {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="correlation">
             <Card className="bg-background/40 backdrop-blur-lg border-white/10">
               <CardHeader>
@@ -185,15 +184,15 @@ const RiskAnalysisPage = () => {
               </CardContent>
             </Card>
           </TabsContent>
-          
+
           <TabsContent value="optimization">
             <Card className="bg-background/40 backdrop-blur-lg border-white/10">
               <CardHeader>
                 <CardTitle>Portfolio Optimization</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-background/20 p-4 rounded-lg">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                  <div className="bg-background/20 p-3 md:p-4 rounded-lg">
                     <h3 className="text-lg font-medium mb-2">Recommended Allocations</h3>
                     <div className="space-y-2">
                       <div className="flex justify-between">
@@ -222,7 +221,7 @@ const RiskAnalysisPage = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="bg-background/20 p-4 rounded-lg">
+                  <div className="bg-background/20 p-3 md:p-4 rounded-lg">
                     <h3 className="text-lg font-medium mb-2">Optimization Strategy</h3>
                     <p className="text-white/70 mb-2">
                       Our algorithm suggests reducing BTC exposure by 10% and increasing stablecoin allocation.

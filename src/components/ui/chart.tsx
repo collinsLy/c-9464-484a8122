@@ -353,6 +353,16 @@ function getPayloadConfigFromPayload(
     : config[key as keyof typeof config]
 }
 
+export interface ChartProps extends React.HTMLAttributes<HTMLDivElement> {
+  // Your existing props
+  responsiveHeight?: boolean;
+}
+
+// Add responsive height utility
+export const getChartHeight = (isResponsive = true) => {
+  return isResponsive ? "h-[250px] sm:h-[300px] md:h-[400px]" : "h-[400px]";
+};
+
 export {
   ChartContainer,
   ChartTooltip,

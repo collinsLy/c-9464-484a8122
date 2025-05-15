@@ -317,10 +317,10 @@ const AssetsPage = () => {
                 </div>
 
                 {/* Portfolio Analytics */}
-                <div className="grid grid-cols-3 gap-4 mt-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 mt-4">
                   <div className="bg-white/5 rounded-lg p-3">
-                    <div className="text-sm text-white/60">Most Profitable</div>
-                    <div className="mt-2 text-lg font-semibold">
+                    <div className="text-xs md:text-sm text-white/60">Most Profitable</div>
+                    <div className="mt-1 md:mt-2 text-base md:text-lg font-semibold">
                       {sortedAssets.length > 0 ? sortedAssets[0].symbol : '-'}
                     </div>
                     <div className="text-xs text-white/40">
@@ -329,8 +329,8 @@ const AssetsPage = () => {
                   </div>
 
                   <div className="bg-white/5 rounded-lg p-3">
-                    <div className="text-sm text-white/60">Portfolio Diversity</div>
-                    <div className="mt-2 text-lg font-semibold">
+                    <div className="text-xs md:text-sm text-white/60">Portfolio Diversity</div>
+                    <div className="mt-1 md:mt-2 text-base md:text-lg font-semibold">
                       {sortedAssets.filter(a => parseFloat(a.amount) > 0).length}
                     </div>
                     <div className="text-xs text-white/40">

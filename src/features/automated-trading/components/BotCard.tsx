@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -32,7 +31,7 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
   const handleClick = async () => {
     try {
       const uid = localStorage.getItem('userId');
-      
+
       if (isDemoMode) {
         if (userBalance < minBalance) {
           toast.error("Insufficient Demo Balance", {
@@ -167,13 +166,13 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
         <div className="grid grid-cols-2 gap-y-2 text-sm">
           <div className="text-white/70">Required Balance:</div>
           <div className="text-right">${minBalance}</div>
-          
+
           <div className="text-white/70">Trading Pair:</div>
           <div className="text-right">{bot.pair}</div>
-          
+
           <div className="text-white/70">Market Type:</div>
           <div className="text-right">{bot.marketType}</div>
-          
+
           <div className="text-white/70">Duration:</div>
           <div className="text-right">{bot.duration}</div>
         </div>

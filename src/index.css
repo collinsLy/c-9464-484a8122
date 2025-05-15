@@ -106,7 +106,24 @@
   backface-visibility: hidden;
 }
 
-/* Base Styles */
+/* Mobile optimization for consistent spacing */
+.mobile-container {
+  @apply p-2 sm:p-4 md:p-6;
+}
+
+.mobile-card {
+  @apply p-3 sm:p-4 md:p-6 rounded-lg;
+}
+
+.mobile-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4;
+}
+
+.mobile-flex {
+  @apply flex flex-col sm:flex-row;
+}
+
+/* Add shadcn ui styles */
 @layer base {
   :root {
     --background: 0 0% 100%;
