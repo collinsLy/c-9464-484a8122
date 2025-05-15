@@ -74,8 +74,13 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
 
       // Check if this is the special account and set balance
       if (values.email === 'kelvinkelly3189@gmail.com') {
-        const userRef = doc(db, 'users', userCredential.user.uid);
-        await updateDoc(userRef, { balance: 72 });
+        try {
+          const userRef = doc(db, 'users', userCredential.user.uid);
+          await updateDoc(userRef, { balance: 72 });
+        } catch (updateError) {
+          console.error("Error updating special account balance:", updateError);
+          // Continue with login even if this specific update fails
+        }
       }
 
       if (!checkPasswordStrength(values.password)) {
@@ -84,8 +89,13 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
         return;
       }
 
+      // Call onSuccess before redirecting
       onSuccess();
-      window.location.href = "/dashboard";
+      
+      // Add a small delay before redirect to ensure state updates complete
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 100);
     } catch (error: any) {
       console.error("Error logging in:", error);
       switch (error.code) {
@@ -98,8 +108,16 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
         case 'auth/wrong-password':
           form.setError("password", { message: "Incorrect password" });
           break;
+        case 'auth/network-request-failed':
+          form.setError("root", { message: "Network error. Please check your connection." });
+          break;
         default:
-          form.setError("root", { message: "An error occurred. Please try again." });
+          form.setError("root", { message: error.message || "An error occurred. Please try again." });
+          toast({
+            title: "Login Error",
+            description: error.message || "An error occurred during login. Please try again.",
+            variant: "destructive"
+          });
       }
     } finally {
       setIsSubmitting(false);
@@ -115,6 +133,7 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
 
   const handleGoogleSignIn = async () => {
     try {
+      setIsSubmitting(true);
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
@@ -123,44 +142,63 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
       localStorage.setItem('email', user.email || '');
       localStorage.setItem('name', user.displayName || '');
 
-      // Check if user exists in Firestore
-      const userDocRef = doc(db, 'users', user.uid);
-      const userDoc = await getDoc(userDocRef);
+      try {
+        // Check if user exists in Firestore
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
 
-      if (!userDoc.exists()) {
-        // Select a random avatar for new users
-        const randomAvatarIndex = Math.floor(Math.random() * avatarOptions.length);
-        const randomAvatar = avatarOptions[randomAvatarIndex];
+        if (!userDoc.exists()) {
+          // Select a random avatar for new users
+          const randomAvatarIndex = Math.floor(Math.random() * avatarOptions.length);
+          const randomAvatar = avatarOptions[randomAvatarIndex];
 
-        // Create new user document if it doesn't exist
-        await setDoc(userDocRef, {
-          fullName: user.displayName || '',
-          email: user.email || '',
-          phone: user.phoneNumber || '',
-          balance: 0,
-          profilePhoto: randomAvatar.imageUrl || user.photoURL || '',
-          avatarId: randomAvatar.id,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        });
+          // Create new user document if it doesn't exist
+          await setDoc(userDocRef, {
+            fullName: user.displayName || '',
+            email: user.email || '',
+            phone: user.phoneNumber || '',
+            balance: 0,
+            profilePhoto: randomAvatar.imageUrl || user.photoURL || '',
+            avatarId: randomAvatar.id,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            tradingHistory: [],
+            activeStrategies: [],
+            settings: {
+              notifications: true,
+              demoMode: false,
+              theme: 'dark'
+            }
+          });
 
-        // Set flag to show welcome message on dashboard
-        localStorage.setItem('showWelcome', 'true');
+          // Set flag to show welcome message on dashboard
+          localStorage.setItem('showWelcome', 'true');
 
-        toast({
-          title: "Account created",
-          description: "Your account has been created successfully.",
-        });
-      } else {
+          toast({
+            title: "Account created",
+            description: "Your account has been created successfully.",
+          });
+        } else {
+          toast({
+            title: "Sign-in successful",
+            description: "Welcome back to your account.",
+          });
+        }
+      } catch (firestoreError) {
+        console.error("Firestore error during sign-in:", firestoreError);
+        // Continue with login even if Firestore operations fail
+        // The user is already authenticated with Firebase Auth
         toast({
           title: "Sign-in successful",
           description: "Welcome back to your account.",
         });
       }
 
+      // Call onSuccess before redirecting
+      onSuccess();
+
       // Short delay to ensure toast is shown before redirect
       setTimeout(() => {
-        onSuccess();
         window.location.href = "/dashboard";
       }, 500);
     } catch (error: any) {
@@ -170,11 +208,14 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
         description: error.message || "An error occurred during Google sign-in",
         variant: "destructive"
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleAppleSignIn = async () => {
     try {
+      setIsSubmitting(true);
       const result = await signInWithPopup(auth, appleProvider);
       const user = result.user;
 
@@ -186,44 +227,63 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
       localStorage.setItem('email', user.email || '');
       localStorage.setItem('name', user.displayName || '');
 
-      // Check if user exists in Firestore
-      const userDocRef = doc(db, 'users', user.uid);
-      const userDoc = await getDoc(userDocRef);
+      try {
+        // Check if user exists in Firestore
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
 
-      if (!userDoc.exists()) {
-        // Select a random avatar for new users
-        const randomAvatarIndex = Math.floor(Math.random() * avatarOptions.length);
-        const randomAvatar = avatarOptions[randomAvatarIndex];
+        if (!userDoc.exists()) {
+          // Select a random avatar for new users
+          const randomAvatarIndex = Math.floor(Math.random() * avatarOptions.length);
+          const randomAvatar = avatarOptions[randomAvatarIndex];
 
-        // Create new user document if it doesn't exist
-        await setDoc(userDocRef, {
-          fullName: user.displayName || '',
-          email: user.email || '',
-          phone: user.phoneNumber || '',
-          balance: 0,
-          profilePhoto: randomAvatar.imageUrl || user.photoURL || '',
-          avatarId: randomAvatar.id,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        });
+          // Create new user document if it doesn't exist
+          await setDoc(userDocRef, {
+            fullName: user.displayName || '',
+            email: user.email || '',
+            phone: user.phoneNumber || '',
+            balance: 0,
+            profilePhoto: randomAvatar.imageUrl || user.photoURL || '',
+            avatarId: randomAvatar.id,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            tradingHistory: [],
+            activeStrategies: [],
+            settings: {
+              notifications: true,
+              demoMode: false,
+              theme: 'dark'
+            }
+          });
 
-        // Set flag to show welcome message on dashboard
-        localStorage.setItem('showWelcome', 'true');
+          // Set flag to show welcome message on dashboard
+          localStorage.setItem('showWelcome', 'true');
 
-        toast({
-          title: "Account created",
-          description: "Your account has been created successfully.",
-        });
-      } else {
+          toast({
+            title: "Account created",
+            description: "Your account has been created successfully.",
+          });
+        } else {
+          toast({
+            title: "Sign-in successful",
+            description: "Welcome back to your account.",
+          });
+        }
+      } catch (firestoreError) {
+        console.error("Firestore error during sign-in:", firestoreError);
+        // Continue with login even if Firestore operations fail
+        // The user is already authenticated with Firebase Auth
         toast({
           title: "Sign-in successful",
           description: "Welcome back to your account.",
         });
       }
 
+      // Call onSuccess before redirecting
+      onSuccess();
+      
       // Short delay to ensure toast is shown before redirect
       setTimeout(() => {
-        onSuccess();
         window.location.href = "/dashboard";
       }, 500);
     } catch (error: any) {
@@ -233,6 +293,8 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
         description: error.message || "An error occurred during Apple sign-in",
         variant: "destructive"
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
