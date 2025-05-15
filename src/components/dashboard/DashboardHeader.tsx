@@ -198,4 +198,4 @@ const DashboardHeader = () => {
   );
 };
 
-export default DashboardHeader;
+export { DashboardHeader };

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 import { DashboardSidebar } from "./DashboardSidebar";
-import { DashboardHeader } from "./DashboardHeader";
+import DashboardHeader from "./DashboardHeader";
 import MobileBottomNav from "./MobileBottomNav";
 import {
   Home, LineChart, BarChart3, Wallet, CreditCard,
