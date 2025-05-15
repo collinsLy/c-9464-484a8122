@@ -30,9 +30,11 @@ import {
   Droplets,
   BadgePercent,
   KeyRound,
+  Search,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Input } from "@/components/ui/input";
 
 interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
@@ -118,6 +120,56 @@ const defaultNavCategories: NavCategory[] = [
 interface SidebarProps {
   navItems?: NavItem[];
 }
+
+const SearchBar = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState<NavItem[]>([]);
+
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const term = event.target.value;
+    setSearchTerm(term);
+
+    if (term) {
+      const results: NavItem[] = [];
+      defaultNavCategories.forEach((category) => {
+        category.items.forEach((item) => {
+          if (item.label.toLowerCase().includes(term.toLowerCase())) {
+            results.push(item);
+          }
+        });
+      });
+      setSearchResults(results);
+    } else {
+      setSearchResults([]);
+    }
+  };
+
+  return (
+    <div>
+      <div className="relative">
+        <Input
+          type="text"
+          placeholder="Search pages..."
+          value={searchTerm}
+          onChange={handleSearch}
+          className="w-full rounded-md bg-background border border-input text-sm py-2 px-3 focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      </div>
+
+      {searchTerm && searchResults.length > 0 && (
+        <div className="mt-2">
+          {searchResults.map((item) => (
+            <Link key={item.id} to={item.path} className="block py-2 px-3 hover:bg-secondary rounded-md">
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 
 const DashboardSidebar = ({ navItems = defaultNavCategories }: SidebarProps) => {
   const location = useLocation();
@@ -259,6 +311,15 @@ const DashboardSidebar = ({ navItems = defaultNavCategories }: SidebarProps) => 
         )}
       </aside>
 
+      {/* Overlay when mobile sidebar is open */}
+      {isMobile && mobileOpen && (
+            <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setMobileOpen(false)} />
+          )}
+
+          <div className={`fixed inset-y-0 left-0 w-[240px] bg-background border-r border-white/10 transform transition-transform duration-300 z-50 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} md:hidden`}>
+            <div className="p-3">
+              <SearchBar />
+            </div>
       {/* Overlay when mobile sidebar is open */}
       {isMobile && mobileOpen && (
         <div

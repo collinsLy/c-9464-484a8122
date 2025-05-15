@@ -1,5 +1,6 @@
 import React from 'react';
-import { LogOut, Bell, User, Settings, Copy } from "lucide-react";
+import { LogOut, Bell, User, Settings, Copy, Menu, X } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useDashboardContext } from "./DashboardLayout";
@@ -11,6 +12,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link, useNavigate } from "react-router-dom";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/ui/use-toast";
+import DashboardSidebar from "./DashboardSidebar";
+import DemoModeToggle from "./DemoModeToggle";
+import SearchBar from "../search/SearchBar";
 
 // New AvatarCollection component
 const AvatarCollection = ({ selectedAvatar, onAvatarSelect }) => {
@@ -92,6 +96,9 @@ const DashboardHeader = () => {
             <Copy className="h-3 w-3" />
           </Button>
         </div>
+        <div className="hidden md:flex items-center space-x-4 flex-1 justify-center max-w-2xl">
+        <SearchBar className="w-full" />
+      </div>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
