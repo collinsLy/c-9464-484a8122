@@ -1,0 +1,47 @@
+[16:35:44.662] Running build in Washington, D.C., USA (East) – iad1
+[16:35:44.680] Build machine configuration: 2 cores, 8 GB
+[16:35:44.757] Cloning github.com/collinsLy/c-9464-484a8122 (Branch: main, Commit: 56a9b02)
+[16:35:46.997] Cloning completed: 2.240s
+[16:35:47.424] Restored build cache from previous deployment (4Ce6VXBcQXc1wfpfo2PmcjAZq8qp)
+[16:35:48.123] Running "vercel build"
+[16:35:48.517] Vercel CLI 41.7.3
+[16:35:49.163] Installing dependencies...
+[16:35:50.789] 
+[16:35:50.790] up to date in 1s
+[16:35:50.790] 
+[16:35:50.790] 89 packages are looking for funding
+[16:35:50.791]   run `npm fund` for details
+[16:35:50.940] 
+[16:35:50.940] > vite_react_shadcn_ts@0.0.0 build
+[16:35:50.940] > vite build
+[16:35:50.940] 
+[16:35:51.853] [36mvite v5.4.10 [32mbuilding for production...[36m[39m
+[16:35:52.227] transforming...
+[16:35:53.957] [32m✓[39m 29 modules transformed.
+[16:35:53.958] [31mx[39m Build failed in 2.08s
+[16:35:53.958] [31merror during build:
+[16:35:53.959] [31m[vite:esbuild] Transform failed with 1 error:
+[16:35:53.959] /vercel/path0/src/pages/ApiManagementPage.tsx:329:23: ERROR: The character ">" is not valid inside a JSX element[31m
+[16:35:53.959] file: [36m/vercel/path0/src/pages/ApiManagementPage.tsx:329:23[31m
+[16:35:53.959] [33m
+[16:35:53.959] [33mThe character ">" is not valid inside a JSX element[33m
+[16:35:53.959] 327|                    </Card>
+[16:35:53.959] 328|                  )}
+[16:35:53.960] 329|                </div>div>
+[16:35:53.960]    |                         ^
+[16:35:53.960] 330|  
+[16:35:53.960] 331|                <div>
+[16:35:53.960] [31m
+[16:35:53.960]     at failureErrorWithLog (/vercel/path0/node_modules/esbuild/lib/main.js:1472:15)
+[16:35:53.960]     at /vercel/path0/node_modules/esbuild/lib/main.js:755:50
+[16:35:53.960]     at responseCallbacks.<computed> (/vercel/path0/node_modules/esbuild/lib/main.js:622:9)
+[16:35:53.961]     at handleIncomingPacket (/vercel/path0/node_modules/esbuild/lib/main.js:677:12)
+[16:35:53.961]     at Socket.readFromStdout (/vercel/path0/node_modules/esbuild/lib/main.js:600:7)
+[16:35:53.961]     at Socket.emit (node:events:518:28)
+[16:35:53.961]     at addChunk (node:internal/streams/readable:561:12)
+[16:35:53.961]     at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+[16:35:53.961]     at Readable.push (node:internal/streams/readable:392:5)
+[16:35:53.961]     at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)[39m
+[16:35:53.981] Error: Command "npm run build" exited with 1
+[16:35:54.390] 
+[16:35:57.482] Exiting build container
