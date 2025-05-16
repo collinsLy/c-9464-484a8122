@@ -478,9 +478,12 @@ const WithdrawPage = () => {
               balance = parseFloat(userData.balance) || 0;
             }
 
+            console.log(`USDT from main balance field (in withdrawal function): ${balance}`);
+
             // Then check assets.USDT (new location), which overrides if present
             if (userData.assets && userData.assets.USDT && userData.assets.USDT.amount !== undefined) {
               balance = Number(userData.assets.USDT.amount);
+              console.log(`USDT from assets object (in withdrawal function): ${balance}`);
             }
           } 
           // Standard handling for other assets
@@ -1561,10 +1564,11 @@ const WithdrawPage = () => {
                           {/* Minimum withdrawal amount */}
                           <div className="flex justify-between text-xs text-white/60">
                             <span>Minimum withdrawal:</span>
-                            <span>{selectedCrypto === 'BTC' ? '0.001 BTC' : 
-                                  selectedCrypto === 'ETH' ? '0.01 ETH' : 
-                                  selectedCrypto === 'BNB' ? '0.01 BNB' :
-                                  '10 ' + selectedCrypto}</span>
+                            <span>{getMinimumWithdrawalAmount(selectedCrypto)} {selectedCrypto}</span>
+                          </div>
+                          <div className="flex justify-between text-xs text-white/60">
+                            <span>Maximum withdrawal:</span>
+                            <span>$50,000.00 USD equivalent per day</span>
                           </div>
                         </div>
                       )}
@@ -1688,7 +1692,7 @@ const WithdrawPage = () => {
                                 <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
                                 <rect width="7" height="7" x="7" y="7" rx="1"></rect>
                               </svg>
-                              Scan QR
+                      Scan QR
                             </Button>
                           </div>
                           <Input
