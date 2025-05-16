@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from 'react';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { useCountdown } from '../hooks/useCountdown';
+import { Clock } from 'lucide-react';
 
 interface FlipUnitProps {
   digit: string;
@@ -43,96 +42,18 @@ interface CountdownDisplayProps {
 }
 
 export const CountdownDisplay = ({ initialDays = 7 }: CountdownDisplayProps) => {
-  const [days, setDays] = useState(0);
-  const [hours, setHours] = useState(0);
-  const [minutes, setMinutes] = useState(0);
-  const [seconds, setSeconds] = useState(0);
+  // Use the useCountdown hook to get the time left
+  const timeLeft = useCountdown(initialDays);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchOrCreateTargetDate = async () => {
-      setIsLoading(true);
-      
-      try {
-        // Always create a fresh target date for the demo
-        const newTargetDate = new Date();
-        newTargetDate.setDate(newTargetDate.getDate() + initialDays);
-        newTargetDate.setHours(23, 59, 59, 999);
-        
-        // Set the new date in Firebase
-        const countdownRef = doc(db, 'system', 'countdown');
-        await setDoc(countdownRef, {
-          endDate: newTargetDate.toISOString(),
-          createdAt: new Date().toISOString()
-        }, { merge: true });
-        
-        console.log("Created new countdown target date:", newTargetDate.toISOString());
-        
-        // Use this target date for our countdown
-        const targetDate = newTargetDate;
-        
-        // Store in localStorage as a backup
-        localStorage.setItem('countdownTargetDate', targetDate.toISOString());
-        
-        // Set up interval to update the countdown
-        const interval = setInterval(() => {
-          const now = new Date().getTime();
-          const distance = targetDate.getTime() - now;
-          
-          if (distance < 0) {
-            clearInterval(interval);
-            setDays(0);
-            setHours(0);
-            setMinutes(0);
-            setSeconds(0);
-          } else {
-            setDays(Math.floor(distance / (1000 * 60 * 60 * 24)));
-            setHours(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
-            setMinutes(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)));
-            setSeconds(Math.floor((distance % (1000 * 60)) / 1000));
-          }
-          
-          setIsLoading(false);
-        }, 1000);
-        
-        return () => clearInterval(interval);
-        
-      } catch (error) {
-        console.error("Error in countdown management:", error);
-        
-        // Fallback to local countdown if Firebase fails
-        const targetDate = new Date();
-        targetDate.setDate(targetDate.getDate() + initialDays);
-        targetDate.setHours(23, 59, 59, 999);
-        
-        localStorage.setItem('countdownTargetDate', targetDate.toISOString());
-        
-        const interval = setInterval(() => {
-          const now = new Date().getTime();
-          const distance = targetDate.getTime() - now;
-          
-          if (distance < 0) {
-            clearInterval(interval);
-            setDays(0);
-            setHours(0);
-            setMinutes(0);
-            setSeconds(0);
-          } else {
-            setDays(Math.floor(distance / (1000 * 60 * 60 * 24)));
-            setHours(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
-            setMinutes(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)));
-            setSeconds(Math.floor((distance % (1000 * 60)) / 1000));
-          }
-          
-          setIsLoading(false);
-        }, 1000);
-        
-        return () => clearInterval(interval);
-      }
-    };
-    
-    fetchOrCreateTargetDate();
-  }, [initialDays]);
+    // Set loading to false after the initial countdown values are loaded
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   if (isLoading) {
     return (
@@ -145,5 +66,10 @@ export const CountdownDisplay = ({ initialDays = 7 }: CountdownDisplayProps) => 
     );
   }
 
-  return <FlipClock days={days} hours={hours} minutes={minutes} seconds={seconds} />;
+  return <FlipClock 
+    days={timeLeft.days} 
+    hours={timeLeft.hours} 
+    minutes={timeLeft.minutes} 
+    seconds={timeLeft.seconds} 
+  />;
 };
