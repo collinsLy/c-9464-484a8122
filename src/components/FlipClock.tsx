@@ -60,51 +60,20 @@ export const CountdownDisplay = ({ initialDays = 7 }: CountdownDisplayProps) => 
       newTargetDate.setHours(23, 59, 59, 999);
       
       try {
-        // Try to fetch from Firebase
+        // Always create a new countdown date for now
         const countdownRef = doc(db, 'system', 'countdown');
-        const countdownDoc = await getDoc(countdownRef);
+        const targetDate = newTargetDate;
         
-        let targetDate: Date;
-        
-        if (!countdownDoc.exists() || !countdownDoc.data().endDate) {
-          // Create a new countdown in Firebase
-          targetDate = newTargetDate;
-          
-          try {
-            await setDoc(countdownRef, {
-              endDate: targetDate.toISOString(),
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString()
-            });
-            console.log("Created new countdown target date in Firebase:", targetDate);
-          } catch (firebaseError) {
-            console.error("Error setting Firebase countdown:", firebaseError);
-          }
-        } else {
-          // Use the stored target date from Firebase
-          const storedDate = countdownDoc.data().endDate;
-          const parsedDate = new Date(storedDate);
-          
-          // Check if the stored date is in the past
-          if (parsedDate.getTime() < new Date().getTime()) {
-            // If expired, create a new one
-            targetDate = newTargetDate;
-            
-            try {
-              await setDoc(countdownRef, {
-                endDate: targetDate.toISOString(),
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-              });
-              console.log("Updated expired countdown target date in Firebase:", targetDate);
-            } catch (updateError) {
-              console.error("Error updating Firebase countdown:", updateError);
-            }
-          } else {
-            // Use the valid stored date
-            targetDate = parsedDate;
-            console.log("Using existing countdown target date from Firebase:", targetDate);
-          }
+        // Set the new date in Firebase
+        try {
+          await setDoc(countdownRef, {
+            endDate: targetDate.toISOString(),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          });
+          console.log("Created new countdown target date in Firebase:", targetDate);
+        } catch (firebaseError) {
+          console.error("Error setting Firebase countdown:", firebaseError);
         }
         
         // Store in localStorage as a backup
