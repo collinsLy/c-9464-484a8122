@@ -762,7 +762,14 @@ const WithdrawPage = () => {
       'USDT': 10,
       'USDC': 10,
       'BNB': 0.01,
-      'WLD': 10
+      'WLD': 10,
+      'DOGE': 100,
+      'SOL': 0.1,
+      'XRP': 10,
+      'ADA': 20,
+      'DOT': 1,
+      'LINK': 1,
+      'MATIC': 10
     };
     return minimums[crypto] || 0.001;
   };
@@ -1091,7 +1098,14 @@ const WithdrawPage = () => {
       'USDT': 1,
       'USDC': 1,
       'BNB': 600,
-      'WLD': 3.5
+      'WLD': 3.5,
+      'DOGE': 0.15,
+      'SOL': 140,
+      'XRP': 0.58,
+      'ADA': 0.45,
+      'DOT': 7.50,
+      'LINK': 18,
+      'MATIC': 0.65
     };
     return rates[crypto] || 1;
   };
@@ -1108,10 +1122,14 @@ const WithdrawPage = () => {
       USDT_TRC20: /^T[a-zA-Z0-9]{33}$/,
       USDT_ERC20: /^0x[a-fA-F0-9]{40}$/,
       USDT_BSC: /^0x[a-fA-F0-9]{40}$/,
+      USDT_SOLANA: /^[1-9A-HJ-NP-Za-km-z]{32,44}$/,
       USDC_ERC20: /^0x[a-fA-F0-9]{40}$/,
       USDC_BSC: /^0x[a-fA-F0-9]{40}$/,
+      USDC_SOLANA: /^[1-9A-HJ-NP-Za-km-z]{32,44}$/,
       ETH_ARBITRUM: /^0x[a-fA-F0-9]{40}$/,
       ETH_OPTIMISM: /^0x[a-fA-F0-9]{40}$/,
+      SOL_NATIVE: /^[1-9A-HJ-NP-Za-km-z]{32,44}$/,
+      SOL_SOLANA: /^[1-9A-HJ-NP-Za-km-z]{32,44}$/,
     };
 
     const key = `${crypto}_${network}`;
@@ -1128,6 +1146,8 @@ const WithdrawPage = () => {
       return /^T[a-zA-Z0-9]{33}$/.test(address);
     } else if (network === 'NATIVE' && crypto === 'BTC') {
       return /^(1|3|bc1)[a-zA-Z0-9]{25,42}$/.test(address);
+    } else if (network === 'SOLANA') {
+      return /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address);
     }
 
     // Basic length check for other networks
@@ -1269,11 +1289,12 @@ const WithdrawPage = () => {
                       {getUserCryptoBalance()}
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4"> {/* Display only important coins in first row */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4"> {/* Display important coins in first row */}
                     {[
                       { symbol: 'BTC', name: 'Bitcoin' },
                       { symbol: 'ETH', name: 'Ethereum' },
                       { symbol: 'USDT', name: 'Tether' },
+                      { symbol: 'USDC', name: 'USD Coin' },
                     ].map((crypto) => {
                       const balance = userCryptoBalances[crypto.symbol] || 0;
                       return (
@@ -1421,6 +1442,12 @@ const WithdrawPage = () => {
                           onClick={() => setNetwork('BSC')}
                         >
                           Binance Smart Chain (BEP20)
+                        </Button>
+                        <Button 
+                          variant={network === 'SOLANA' ? 'secondary' : 'outline'}
+                          onClick={() => setNetwork('SOLANA')}
+                        >
+                          Solana (SPL)
                         </Button>
                       </>
                     )}
