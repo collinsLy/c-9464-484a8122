@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
 interface FlipUnitProps {
@@ -51,30 +51,25 @@ export const CountdownDisplay = ({ initialDays = 7 }: CountdownDisplayProps) => 
 
   useEffect(() => {
     const fetchOrCreateTargetDate = async () => {
-      // Set loading state
       setIsLoading(true);
       
-      // Create a new target date
-      const newTargetDate = new Date();
-      newTargetDate.setDate(newTargetDate.getDate() + initialDays);
-      newTargetDate.setHours(23, 59, 59, 999);
-      
       try {
-        // Always create a new countdown date for now
-        const countdownRef = doc(db, 'system', 'countdown');
-        const targetDate = newTargetDate;
+        // Always create a fresh target date for the demo
+        const newTargetDate = new Date();
+        newTargetDate.setDate(newTargetDate.getDate() + initialDays);
+        newTargetDate.setHours(23, 59, 59, 999);
         
         // Set the new date in Firebase
-        try {
-          await setDoc(countdownRef, {
-            endDate: targetDate.toISOString(),
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          });
-          console.log("Created new countdown target date in Firebase:", targetDate);
-        } catch (firebaseError) {
-          console.error("Error setting Firebase countdown:", firebaseError);
-        }
+        const countdownRef = doc(db, 'system', 'countdown');
+        await setDoc(countdownRef, {
+          endDate: newTargetDate.toISOString(),
+          createdAt: new Date().toISOString()
+        }, { merge: true });
+        
+        console.log("Created new countdown target date:", newTargetDate.toISOString());
+        
+        // Use this target date for our countdown
+        const targetDate = newTargetDate;
         
         // Store in localStorage as a backup
         localStorage.setItem('countdownTargetDate', targetDate.toISOString());
@@ -106,7 +101,10 @@ export const CountdownDisplay = ({ initialDays = 7 }: CountdownDisplayProps) => 
         console.error("Error in countdown management:", error);
         
         // Fallback to local countdown if Firebase fails
-        const targetDate = newTargetDate;
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() + initialDays);
+        targetDate.setHours(23, 59, 59, 999);
+        
         localStorage.setItem('countdownTargetDate', targetDate.toISOString());
         
         const interval = setInterval(() => {
