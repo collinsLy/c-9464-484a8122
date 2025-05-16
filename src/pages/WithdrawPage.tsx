@@ -547,6 +547,7 @@ const WithdrawPage = () => {
     const amountValue = parseFloat(amount);
     const isWalletMethod = selectedPaymentMethod === 'mpesa' || selectedPaymentMethod === 'airtel';
     const minAmount = isWalletMethod ? 20 : 50;
+    const maxAmount = 50000; // Maximum withdrawal amount per day
 
     // Import NotificationService if it's not already used elsewhere in this file
     const { NotificationService } = await import('@/lib/notification-service');
@@ -555,6 +556,26 @@ const WithdrawPage = () => {
       toast({
         title: "Invalid Amount",
         description: "Please enter a valid withdrawal amount",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Strictly enforce minimum withdrawal amount
+    if (amountValue < minAmount) {
+      toast({
+        title: "Below Minimum Withdrawal Limit",
+        description: `Minimum withdrawal amount is $${minAmount.toFixed(2)} for ${isWalletMethod ? 'Mobile Money' : 'Bank Transfer/PayPal'}`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Enforce maximum withdrawal amount
+    if (amountValue > maxAmount) {
+      toast({
+        title: "Exceeds Maximum Withdrawal Limit",
+        description: `Maximum withdrawal amount is $${maxAmount.toFixed(2)} per day`,
         variant: "destructive",
       });
       return;
@@ -1165,19 +1186,43 @@ const WithdrawPage = () => {
                   {renderPaymentMethodFields()}
 
                   <div className="grid gap-2">
-                    <Label>Amount</Label>
+                    <div className="flex justify-between items-center">
+                      <Label>Amount</Label>
+                      <span className="text-xs text-white/70">
+                        Min: ${selectedPaymentMethod === 'mpesa' || selectedPaymentMethod === 'airtel' ? '20.00' : '50.00'} | Max: $50,000.00
+                      </span>
+                    </div>
                     <div className="relative">
                       <Input
                         type="number"
                         value={amount}
                         onChange={(e) => setAmount(e.target.value)}
-                        className="bg-background/40 border-white/10 text-white pr-16"
+                        className={`bg-background/40 border-white/10 text-white pr-16 ${
+                          amount && parseFloat(amount) > 0 && (
+                            (parseFloat(amount) < ((selectedPaymentMethod === 'mpesa' || selectedPaymentMethod === 'airtel') ? 20 : 50)) || 
+                            parseFloat(amount) > 50000
+                          ) ? 'border-red-500 focus-visible:ring-red-500' : ''
+                        }`}
                         placeholder="0.00"
                       />
                       <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                         <span className="text-white/70">USD</span>
                       </div>
                     </div>
+                    {amount && parseFloat(amount) > 0 && (
+                      <div className="text-xs">
+                        {parseFloat(amount) < ((selectedPaymentMethod === 'mpesa' || selectedPaymentMethod === 'airtel') ? 20 : 50) && (
+                          <p className="text-red-400">
+                            ⚠️ Below minimum withdrawal amount of ${(selectedPaymentMethod === 'mpesa' || selectedPaymentMethod === 'airtel') ? '20.00' : '50.00'}
+                          </p>
+                        )}
+                        {parseFloat(amount) > 50000 && (
+                          <p className="text-red-400">
+                            ⚠️ Exceeds maximum withdrawal limit of $50,000.00 per day
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <Button 
