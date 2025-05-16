@@ -48,20 +48,26 @@ export const CountdownDisplay = ({ initialDays = 7 }: CountdownDisplayProps) => 
 
   useEffect(() => {
     // Set loading to false after the initial countdown values are loaded
-    const timer = setTimeout(() => {
+    // or when any of the timeLeft values change from their initial state
+    if (timeLeft.days > 0 || timeLeft.hours > 0 || 
+        timeLeft.minutes > 0 || timeLeft.seconds > 0) {
       setIsLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, []);
+    } else {
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [timeLeft]);
 
   if (isLoading) {
     return (
       <div className="flex gap-4">
-        <FlipUnit digit="00" label="DAYS" />
-        <FlipUnit digit="00" label="HOURS" />
-        <FlipUnit digit="00" label="MINUTES" />
-        <FlipUnit digit="00" label="SECONDS" />
+        <FlipUnit digit="--" label="DAYS" />
+        <FlipUnit digit="--" label="HOURS" />
+        <FlipUnit digit="--" label="MINUTES" />
+        <FlipUnit digit="--" label="SECONDS" />
       </div>
     );
   }
