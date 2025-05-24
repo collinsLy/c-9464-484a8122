@@ -519,6 +519,7 @@ const SettingsPage = () => {
                         Save Changes
                       </Button>
                     </form>
+                    </Form>
                   </div>
                 </div>
               </CardContent>

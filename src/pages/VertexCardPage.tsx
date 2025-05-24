@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -20,12 +19,12 @@ const VertexCardPage: React.FC = () => {
   const [applicationStatus, setApplicationStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none');
   const [applicationData, setApplicationData] = useState<any>(null);
   const [isCardActive, setIsCardActive] = useState(false);
-  
+
   useEffect(() => {
     const checkCardApplication = async () => {
       const user = auth.currentUser;
       if (!user) return;
-      
+
       // Create a listener for real-time updates to the application status
       const cardAppRef = doc(db, 'cardApplications', user.uid);
       const unsubscribe = onSnapshot(cardAppRef, (doc) => {
@@ -33,7 +32,7 @@ const VertexCardPage: React.FC = () => {
           const data = doc.data();
           setApplicationStatus(data.status);
           setApplicationData(data);
-          
+
           // If approved, set card as active
           if (data.status === 'approved') {
             setIsCardActive(true);
@@ -45,13 +44,13 @@ const VertexCardPage: React.FC = () => {
       }, (error) => {
         console.error("Error checking card application status:", error);
       });
-      
+
       return unsubscribe;
     };
-    
+
     checkCardApplication();
   }, []);
-  
+
   return (
     <DashboardLayout>
       <div className="container mx-auto p-4">
@@ -77,7 +76,7 @@ const VertexCardPage: React.FC = () => {
                     <div className="space-y-4">
                       <h3 className="text-xl font-semibold">Card Overview</h3>
                       <p>Your Vertex Card gives you global access to your crypto assets in real-world spending.</p>
-                      
+
                       {/* Application Status Banner */}
                       {applicationStatus !== 'approved' && (
                         <div className={`p-4 rounded-lg flex items-start space-x-3 mt-4 ${
@@ -121,7 +120,7 @@ const VertexCardPage: React.FC = () => {
                           </div>
                         </div>
                       )}
-                      
+
                       {/* 3D Credit Card Component */}
                       <div className="mt-6">
                         <Credit3DCard />
@@ -165,7 +164,7 @@ const VertexCardPage: React.FC = () => {
                           <span className="text-xs text-center">Profile</span>
                         </Button>
                       </div>
-                      
+
                       {/* Additional card info */}
                       <div className="mt-6">
                         <Card className="bg-slate-800 p-4 rounded-lg border-white/10">
@@ -246,7 +245,7 @@ const VertexCardPage: React.FC = () => {
                   )}
                 </Card>
               </TabsContent>
-              
+
               <TabsContent value="manage">
                 <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
                   <CardContent className="p-6">
@@ -268,7 +267,7 @@ const VertexCardPage: React.FC = () => {
                             {isCardFrozen ? "Unfreeze Card" : "Freeze Card"}
                           </Button>
                         </div>
-                        
+
                         <div className="flex items-center justify-between p-4 border border-white/10 rounded-lg bg-slate-800">
                           <div className="flex items-center gap-3">
                             <Shield className="h-5 w-5 text-blue-400" />
@@ -279,7 +278,7 @@ const VertexCardPage: React.FC = () => {
                           </div>
                           <ChevronRight className="h-5 w-5 text-slate-400" />
                         </div>
-                        
+
                         <div className="flex items-center justify-between p-4 border border-white/10 rounded-lg bg-slate-800">
                           <div className="flex items-center gap-3">
                             <Globe className="h-5 w-5 text-blue-400" />
@@ -290,7 +289,7 @@ const VertexCardPage: React.FC = () => {
                           </div>
                           <ChevronRight className="h-5 w-5 text-slate-400" />
                         </div>
-                        
+
                         <div className="flex items-center justify-between p-4 border border-white/10 rounded-lg bg-slate-800">
                           <div className="flex items-center gap-3">
                             <Bell className="h-5 w-5 text-blue-400" />
@@ -313,7 +312,7 @@ const VertexCardPage: React.FC = () => {
                     <div className="space-y-4">
                       <h3 className="text-xl font-semibold">Recent Transactions</h3>
                       <p>View your recent card activity.</p>
-                      
+
                       <div className="flex items-center justify-between mt-4 mb-2">
                         <div className="font-medium">Transaction History</div>
                         <Select defaultValue="all">
@@ -328,7 +327,7 @@ const VertexCardPage: React.FC = () => {
                           </SelectContent>
                         </Select>
                       </div>
-                      
+
                       <div className="py-12 flex flex-col items-center justify-center text-center space-y-4 border border-dashed border-white/10 rounded-lg bg-white/5">
                         <div className="w-16 h-16 bg-yellow-500/10 rounded-full flex items-center justify-center">
                           <CreditCard className="h-8 w-8 text-yellow-500" />
@@ -344,7 +343,7 @@ const VertexCardPage: React.FC = () => {
                           Refresh
                         </Button>
                       </div>
-                      
+
                       <div className="mt-6">
                         <div className="flex items-center bg-blue-950/40 p-4 rounded-lg text-sm">
                           <Info className="h-5 w-5 text-blue-400 mr-3 flex-shrink-0" />
@@ -370,7 +369,7 @@ const VertexCardPage: React.FC = () => {
                     <div className="space-y-4">
                       <h3 className="text-xl font-semibold">Card Settings</h3>
                       <p>Configure your card preferences and security options.</p>
-                      
+
                       <div className="mt-6 space-y-6">
                         <div className="space-y-4">
                           <h4 className="font-medium flex items-center">
@@ -398,7 +397,7 @@ const VertexCardPage: React.FC = () => {
                             </div>
                           </div>
                         </div>
-                        
+
                         <div className="space-y-4">
                           <h4 className="font-medium flex items-center">
                             <Shield className="h-5 w-5 mr-2 text-blue-400" />
@@ -426,7 +425,7 @@ const VertexCardPage: React.FC = () => {
                             </div>
                           </div>
                         </div>
-                        
+
                         <div className="pt-4">
                           <Button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md">Save Changes</Button>
                         </div>
