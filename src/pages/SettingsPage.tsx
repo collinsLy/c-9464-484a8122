@@ -3,7 +3,8 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { updateEmail } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import DashboardLayout, { useDashboardContext } from "@/components/dashboard/DashboardLayout";
+import DashboardLayout from "@/components/dashboard/DashboardLayout"; 
+import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -64,7 +65,7 @@ const SettingsPage = () => {
 
             setInitialValues(profileData);
             profileForm.reset(profileData);
-
+            
             // Set the selected avatar ID from the user data
             setSelectedAvatarId(userData.avatarId || "default");
 
@@ -436,9 +437,7 @@ const SettingsPage = () => {
                   </div>
 
                   <div className="flex-1 space-y-4">
-                    <div className="space-y-4 flex-1 w-full">
-                    <Form {...profileForm}>
-                      <form onSubmit={profileForm.handleSubmit(onSubmit)} className="space-y-6">
+                    <form className="space-y-4" onSubmit={profileForm.handleSubmit(onSubmit)}>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="name">Full Name</Label>
@@ -519,7 +518,6 @@ const SettingsPage = () => {
                         Save Changes
                       </Button>
                     </form>
-                    </Form>
                   </div>
                 </div>
               </CardContent>
@@ -761,7 +759,7 @@ const SettingsPage = () => {
           </TabsContent>
         </Tabs>
         <Dialog open={isAvatarDialogOpen} onOpenChange={setIsAvatarDialogOpen}>
-          <DialogContent className="bg-background/90 backdrop-blur-lg border-white/10 text-white">
+          <DialogContent>
             <DialogHeader>
               <DialogTitle>Choose an Avatar</DialogTitle>
               <DialogDescription>
@@ -772,10 +770,10 @@ const SettingsPage = () => {
                 selectedAvatarId={selectedAvatarId} 
                 onSelectAvatar={(avatar) => {
                   setSelectedAvatarId(avatar.id);
-
+                  
                   // Update the form value
                   profileForm.setValue('avatarId', avatar.id);
-
+                  
                   // Save avatar change immediately
                   const user = auth.currentUser;
                   if (user) {
