@@ -94,27 +94,35 @@ const BotsPage = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <div className="md:hidden">
-          <div className="mb-2">
+          <div className="flex justify-between items-center mb-2">
             <h2 className="text-lg font-semibold text-white">Trading Bots</h2>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setShowChart(!showChart)}
+              className="text-xs border-white/20 text-white"
+            >
+              {showChart ? "Hide Chart" : "Show Chart"}
+            </Button>
           </div>
-          
-          <div className="mb-6 relative">
-            <MarketChart 
-              selectedSymbol={selectedSymbol} 
-              selectedTimeframe={selectedTimeframe}
-              onSymbolChange={setSelectedSymbol}
-              onTimeframeChange={setSelectedTimeframe}
-            />
-          </div>
+
+          {showChart && (
+            <div className="mb-6">
+              <MarketChart 
+                selectedSymbol={selectedSymbol} 
+                selectedTimeframe={selectedTimeframe}
+                onSymbolChange={setSelectedSymbol}
+                onTimeframeChange={setSelectedTimeframe}
+              />
+            </div>
+          )}
         </div>
-        <div className="hidden md:block">
-          <MarketChart
-            selectedSymbol={selectedSymbol}
-            selectedTimeframe={selectedTimeframe}
-            onSymbolChange={setSelectedSymbol}
-            onTimeframeChange={setSelectedTimeframe}
-          />
-        </div>
+        <MarketChart
+          selectedSymbol={selectedSymbol}
+          selectedTimeframe={selectedTimeframe}
+          onSymbolChange={setSelectedSymbol}
+          onTimeframeChange={setSelectedTimeframe}
+        />
         <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
           <CardHeader>
             <CardTitle>Trading Bots</CardTitle>

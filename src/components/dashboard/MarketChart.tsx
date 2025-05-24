@@ -20,7 +20,7 @@ const MarketChart = ({
   const timeframes = ["1m", "5m", "15m", "1h", "4h", "1D", "1W"];
   
   return (
-    <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white relative z-20">
+    <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white relative z-10">
       <CardHeader className="p-3 md:p-6">
         <div className="flex flex-col space-y-3">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
@@ -64,7 +64,7 @@ const MarketChart = ({
         </div>
       </CardHeader>
       <CardContent className="p-2 md:p-6">
-        <div className="h-[250px] md:h-[600px]">
+        <div className="h-[300px] md:h-[600px]">
           <TradingViewChart 
             symbol={selectedSymbol} 
             theme="dark" 
