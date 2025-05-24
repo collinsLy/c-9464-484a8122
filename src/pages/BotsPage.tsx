@@ -47,6 +47,7 @@ const BotsPage = () => {
   }, [isDemoMode]);
   const [selectedSymbol, setSelectedSymbol] = useState("BTCUSD");
   const [selectedTimeframe, setSelectedTimeframe] = useState("1D");
+  const [showChart, setShowChart] = useState(false);
 
   useEffect(() => {
     const uid = localStorage.getItem('userId');
@@ -92,6 +93,30 @@ const BotsPage = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
+        <div className="md:hidden">
+          <div className="flex justify-between items-center mb-2">
+            <h2 className="text-lg font-semibold text-white">Trading Bots</h2>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setShowChart(!showChart)}
+              className="text-xs border-white/20 text-white"
+            >
+              {showChart ? "Hide Chart" : "Show Chart"}
+            </Button>
+          </div>
+
+          {showChart && (
+            <div className="mb-6">
+              <MarketChart 
+                selectedSymbol={selectedSymbol} 
+                selectedTimeframe={selectedTimeframe}
+                onSymbolChange={setSelectedSymbol}
+                onTimeframeChange={setSelectedTimeframe}
+              />
+            </div>
+          )}
+        </div>
         <MarketChart
           selectedSymbol={selectedSymbol}
           selectedTimeframe={selectedTimeframe}
