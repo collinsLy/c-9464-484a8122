@@ -65,7 +65,7 @@ const SettingsPage = () => {
 
             setInitialValues(profileData);
             profileForm.reset(profileData);
-            
+
             // Set the selected avatar ID from the user data
             setSelectedAvatarId(userData.avatarId || "default");
 
@@ -437,7 +437,9 @@ const SettingsPage = () => {
                   </div>
 
                   <div className="flex-1 space-y-4">
-                    <form className="space-y-4" onSubmit={profileForm.handleSubmit(onSubmit)}>
+                    <div className="space-y-4 flex-1 w-full">
+                    <Form {...profileForm}>
+                      <form onSubmit={profileForm.handleSubmit(onSubmit)} className="space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="name">Full Name</Label>
@@ -770,10 +772,10 @@ const SettingsPage = () => {
                 selectedAvatarId={selectedAvatarId} 
                 onSelectAvatar={(avatar) => {
                   setSelectedAvatarId(avatar.id);
-                  
+
                   // Update the form value
                   profileForm.setValue('avatarId', avatar.id);
-                  
+
                   // Save avatar change immediately
                   const user = auth.currentUser;
                   if (user) {
