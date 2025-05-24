@@ -3,8 +3,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { updateEmail } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
-import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
+import DashboardLayout, { useDashboardContext } from "@/components/dashboard/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -761,7 +760,7 @@ const SettingsPage = () => {
           </TabsContent>
         </Tabs>
         <Dialog open={isAvatarDialogOpen} onOpenChange={setIsAvatarDialogOpen}>
-          <DialogContent>
+          <DialogContent className="bg-background/90 backdrop-blur-lg border-white/10 text-white">
             <DialogHeader>
               <DialogTitle>Choose an Avatar</DialogTitle>
               <DialogDescription>

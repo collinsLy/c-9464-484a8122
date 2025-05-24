@@ -116,7 +116,7 @@ const VertexCardPage: React.FC = () => {
                                 onClick={() => document.querySelector('[value="apply"]')?.dispatchEvent(new Event('click'))}
                               >
                                 Apply now →
-                              </Button>
+                              </Button>n>
                             )}
                           </div>
                         </div>
