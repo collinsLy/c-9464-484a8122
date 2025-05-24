@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, LineChart, Wallet, Settings, Menu } from 'lucide-react';
+import { Home, PlayCircle, Wallet, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const MobileBottomNav = () => {
@@ -9,7 +9,7 @@ export const MobileBottomNav = () => {
   
   const navItems = [
     { icon: Home, label: 'Home', path: '/dashboard' },
-    { icon: LineChart, label: 'Markets', path: '/spot-markets' },
+    { icon: PlayCircle, label: 'Bots', path: '/bots' },
     { icon: Wallet, label: 'Assets', path: '/assets' },
     { icon: Settings, label: 'Settings', path: '/settings' },
   ];
@@ -24,11 +24,11 @@ export const MobileBottomNav = () => {
             className={cn(
               "flex flex-col items-center justify-center text-xs",
               pathname === item.path 
-                ? "text-primary" 
+                ? "text-white" 
                 : "text-muted-foreground hover:text-white"
             )}
           >
-            <item.icon className="h-5 w-5 mb-0.5" />
+            <item.icon className={cn("h-5 w-5 mb-0.5", pathname === item.path ? "text-white" : "")} />
             <span>{item.label}</span>
           </Link>
         ))}
