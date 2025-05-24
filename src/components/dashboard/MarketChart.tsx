@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import TradingViewChart from "@/components/TradingViewChart";
@@ -17,9 +18,9 @@ const MarketChart = ({
 }: MarketChartProps) => {
   const symbols = ["BTCUSD", "ETHUSD", "SOLUSD", "BNBUSD", "ADAUSD", "DOTUSD"];
   const timeframes = ["1m", "5m", "15m", "1h", "4h", "1D", "1W"];
-
+  
   return (
-    <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white relative">
+    <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white relative z-10">
       <CardHeader className="p-3 md:p-6">
         <div className="flex flex-col space-y-3">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
@@ -41,7 +42,7 @@ const MarketChart = ({
               ))}
             </div>
           </div>
-
+          
           <div className="flex justify-end">
             <div className="grid grid-cols-7 gap-1">
               {timeframes.map((timeframe) => (
@@ -63,7 +64,7 @@ const MarketChart = ({
         </div>
       </CardHeader>
       <CardContent className="p-2 md:p-6">
-        <div className="h-[200px] md:h-[400px]">
+        <div className="h-[300px] md:h-[600px]">
           <TradingViewChart 
             symbol={selectedSymbol} 
             theme="dark" 

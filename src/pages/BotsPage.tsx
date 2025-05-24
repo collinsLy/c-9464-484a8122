@@ -94,12 +94,29 @@ const BotsPage = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <div className="md:hidden">
-          <div className="mb-2">
+          <div className="flex justify-between items-center mb-2">
             <h2 className="text-lg font-semibold text-white">Trading Bots</h2>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setShowChart(!showChart)}
+              className="text-xs border-white/20 text-white"
+            >
+              {showChart ? "Hide Chart" : "Show Chart"}
+            </Button>
           </div>
-        </div>
 
-        {/* Chart visible on all screens, but with different height based on screen size */}
+          {showChart && (
+            <div className="mb-6">
+              <MarketChart 
+                selectedSymbol={selectedSymbol} 
+                selectedTimeframe={selectedTimeframe}
+                onSymbolChange={setSelectedSymbol}
+                onTimeframeChange={setSelectedTimeframe}
+              />
+            </div>
+          )}
+        </div>
         <MarketChart
           selectedSymbol={selectedSymbol}
           selectedTimeframe={selectedTimeframe}
