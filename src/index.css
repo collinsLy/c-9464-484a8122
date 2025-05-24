@@ -120,13 +120,15 @@
 .chart-container {
   touch-action: pan-y;
   position: relative;
-  z-index: 10;
+  z-index: 1;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 @media (max-width: 768px) {
   .chart-container {
-    height: 400px !important; /* Smaller height on mobile for better usability */
     width: 100% !important;
+    overflow: hidden;
   }
 }
 
