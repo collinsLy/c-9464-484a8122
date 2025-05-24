@@ -15,6 +15,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { X } from "lucide-react";
 import { 
   User, Lock, Bell, Moon, Sun, CreditCard, Globe, Shield, LogOut, 
   Upload, Database, Smartphone, PictureInPicture
@@ -26,8 +28,116 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 
 
 const SettingsPage = () => {
-  const { isDemoMode } = useDashboardContext();
   const [activeTab, setActiveTab] = useState("profile");
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    // Get userId from localStorage
+    const userId = localStorage.getItem('userId');
+
+    // If no userId, use demo data
+    if (!userId) {
+      setNotifications([
+        {
+          id: "demo1",
+          title: "Welcome to Vertex Trading",
+          message: "Get started with your trading journey",
+          time: new Date().toISOString(),
+          read: true
+        },
+        {
+          id: "demo2",
+          title: "Market Alert",
+          message: "BTC price increased by 5% in the last hour",
+          time: new Date(Date.now() - 7200000).toISOString(), // 2 hours ago
+          read: true
+        },
+        {
+          id: "demo3", 
+          title: "Account Verification",
+          message: "Your account has been successfully verified",
+          time: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+          read: true
+        }
+      ]);
+      return;
+    }
+
+    // Import dynamically to avoid issues
+    import('@/lib/notification-service').then(({ NotificationService }) => {
+      // Get notifications from Firebase
+      NotificationService.getUserNotifications(userId).then(fetchedNotifications => {
+        setNotifications(fetchedNotifications);
+      }).catch(err => {
+        console.error("Error fetching notifications:", err);
+      });
+    }).catch(err => {
+      console.error("Error loading notification service:", err);
+    });
+  }, []);
+
+  const handleDeleteNotification = (index) => {
+    const notification = notifications[index];
+    const userId = localStorage.getItem('userId');
+
+    // For demo or when not logged in
+    if (!userId || !notification.id) {
+      const updatedNotifications = [...notifications];
+      updatedNotifications.splice(index, 1);
+      setNotifications(updatedNotifications);
+      return;
+    }
+
+    // For logged in users with Firebase
+    import('@/lib/notification-service').then(({ NotificationService }) => {
+      NotificationService.deleteNotification(userId, notification.id).catch(err => {
+        console.error("Error deleting notification:", err);
+      });
+    });
+  };
+
+  const handleClearAllNotifications = () => {
+    const userId = localStorage.getItem('userId');
+
+    // For demo or when not logged in
+    if (!userId) {
+      setNotifications([]);
+      return;
+    }
+
+    // For logged in users with Firebase
+    import('@/lib/notification-service').then(({ NotificationService }) => {
+      // We need to delete each notification individually
+      Promise.all(
+        notifications.map(notification => 
+          NotificationService.deleteNotification(userId, notification.id)
+        )
+      ).then(() => {
+        setNotifications([]);
+      }).catch(err => {
+        console.error("Error clearing notifications:", err);
+      });
+    });
+  };
+
+  // Helper function to format time display
+  const formatNotificationTime = (timeString) => {
+    try {
+      const now = new Date();
+      const time = new Date(timeString);
+      const diffMs = now.getTime() - time.getTime();
+
+      if (diffMs < 60000) return 'Just now';
+      if (diffMs < 3600000) return `${Math.floor(diffMs / 60000)} min ago`;
+      if (diffMs < 86400000) return `${Math.floor(diffMs / 3600000)} hours ago`;
+      if (diffMs < 604800000) return `${Math.floor(diffMs / 86400000)} days ago`;
+
+      return time.toLocaleDateString();
+    } catch (e) {
+      return timeString;
+    }
+  };
+
   const [darkMode, setDarkMode] = useState(true);
 
   const [initialValues, setInitialValues] = useState({
@@ -65,7 +175,7 @@ const SettingsPage = () => {
 
             setInitialValues(profileData);
             profileForm.reset(profileData);
-            
+
             // Set the selected avatar ID from the user data
             setSelectedAvatarId(userData.avatarId || "default");
 
@@ -770,10 +880,10 @@ const SettingsPage = () => {
                 selectedAvatarId={selectedAvatarId} 
                 onSelectAvatar={(avatar) => {
                   setSelectedAvatarId(avatar.id);
-                  
+
                   // Update the form value
                   profileForm.setValue('avatarId', avatar.id);
-                  
+
                   // Save avatar change immediately
                   const user = auth.currentUser;
                   if (user) {
