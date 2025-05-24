@@ -173,7 +173,7 @@ const SettingsPage = () => {
                 <CardTitle>Profile Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="flex flex-col md:flex-row md:items-center gap-6">
+                <div className="flex flex-col md:flex-row md:items-start gap-8">
                   <div className="flex flex-col items-center gap-2">
                     <Avatar className="h-24 w-24">
                       {selectedAvatarId !== "default" && selectedAvatarId ? (
@@ -437,10 +437,11 @@ const SettingsPage = () => {
                   </div>
 
                   <div className="flex-1 space-y-4">
-                    <form className="space-y-4" onSubmit={profileForm.handleSubmit(onSubmit)}>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="name">Full Name</Label>
+                    <Form {...profileForm}>
+                      <form onSubmit={profileForm.handleSubmit(onSubmit)} className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="name">Full Name</Label>
                           <Input 
                             id="name" 
                             placeholder="Your name" 
@@ -518,6 +519,7 @@ const SettingsPage = () => {
                         Save Changes
                       </Button>
                     </form>
+                    </Form>
                   </div>
                 </div>
               </CardContent>
