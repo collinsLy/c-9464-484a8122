@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Bell, ChevronDown, Search, Settings, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -5,6 +6,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db, auth } from '@/lib/firebase';
 
 export interface DashboardHeaderProps {}
 
@@ -19,19 +22,33 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
     // Fetch user data
     const fetchUserData = async () => {
       try {
-        const uid = localStorage.getItem('userId');
+        const currentUser = auth.currentUser;
+        const uid = currentUser?.uid || localStorage.getItem('userId');
+        
         if (!uid) return;
 
-        // Here you would normally fetch user data from a service
-        // For now we'll use mock data
-        setUserName('User');
-        setUserAvatar('');
-
-        // Mock notifications
-        setNotifications([
-          { id: 1, message: 'Welcome to Vertex', read: false, time: new Date().toISOString() },
-          { id: 2, message: 'Your deposit has been confirmed', read: true, time: new Date().toISOString() }
-        ]);
+        // Subscribe to user data from Firestore
+        const userRef = doc(db, 'users', uid);
+        const unsubscribe = onSnapshot(userRef, (doc) => {
+          if (doc.exists()) {
+            const userData = doc.data();
+            setUserName(userData.fullName || 'User');
+            setUserAvatar(userData.profilePhoto || '');
+            
+            // If notifications exist in user data, set them
+            if (userData.notifications) {
+              setNotifications(userData.notifications);
+            } else {
+              // Mock notifications if none exist
+              setNotifications([
+                { id: 1, message: 'Welcome to Vertex', read: false, time: new Date().toISOString() },
+                { id: 2, message: 'Your deposit has been confirmed', read: true, time: new Date().toISOString() }
+              ]);
+            }
+          }
+        });
+        
+        return () => unsubscribe();
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
@@ -44,13 +61,36 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
     // Clear local authentication
     localStorage.removeItem('userId');
     localStorage.removeItem('userEmail');
-
-    // Redirect to home page
-    navigate('/');
+    
+    // Sign out from Firebase
+    auth.signOut()
+      .then(() => {
+        // Redirect to home page
+        navigate('/');
+      })
+      .catch((error) => {
+        console.error('Error signing out:', error);
+      });
   };
 
   const handleNotificationClick = () => {
     setShowNotifications(!showNotifications);
+  };
+
+  // Generate initials from user name for avatar fallback
+  const getInitials = () => {
+    if (!userName) return 'U';
+    const names = userName.split(' ');
+    if (names.length === 1) return names[0].charAt(0).toUpperCase();
+    return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
+  };
+
+  const markNotificationAsRead = (notificationId: number) => {
+    setNotifications(notifications.map(notification => 
+      notification.id === notificationId 
+        ? { ...notification, read: true } 
+        : notification
+    ));
   };
 
   return (
@@ -105,6 +145,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
                     className={`p-2 border-b border-gray-800 last:border-none hover:bg-gray-800 cursor-pointer ${
                       !notification.read ? 'bg-gray-900' : ''
                     }`}
+                    onClick={() => markNotificationAsRead(notification.id)}
                   >
                     <p className="text-sm">{notification.message}</p>
                     <p className="text-xs text-gray-500 mt-1">
@@ -134,9 +175,11 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
           <PopoverTrigger asChild>
             <Button variant="ghost" className="flex items-center gap-2 text-gray-400 pr-0">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={userAvatar} />
+                {userAvatar ? (
+                  <AvatarImage src={userAvatar} alt={userName} />
+                ) : null}
                 <AvatarFallback className="bg-gray-800">
-                  {userName?.charAt(0) || 'U'}
+                  {getInitials()}
                 </AvatarFallback>
               </Avatar>
               <span className="text-sm hidden md:inline-block">{userName || 'User'}</span>
