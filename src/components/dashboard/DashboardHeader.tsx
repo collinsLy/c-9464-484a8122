@@ -6,8 +6,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, collection, query, where, orderBy, getDocs, updateDoc } from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase';
+import { NotificationService } from '@/lib/notification-service';
 
 export interface DashboardHeaderProps {}
 
@@ -19,8 +20,8 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch user data
-    const fetchUserData = async () => {
+    // Fetch user data and notifications
+    const fetchUserDataAndNotifications = async () => {
       try {
         const currentUser = auth.currentUser;
         const uid = currentUser?.uid || localStorage.getItem('userId');
@@ -29,32 +30,81 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
 
         // Subscribe to user data from Firestore
         const userRef = doc(db, 'users', uid);
-        const unsubscribe = onSnapshot(userRef, (doc) => {
+        const userUnsubscribe = onSnapshot(userRef, (doc) => {
           if (doc.exists()) {
             const userData = doc.data();
             setUserName(userData.fullName || 'User');
             setUserAvatar(userData.profilePhoto || '');
-            
-            // If notifications exist in user data, set them
-            if (userData.notifications) {
-              setNotifications(userData.notifications);
-            } else {
-              // Mock notifications if none exist
-              setNotifications([
-                { id: 1, message: 'Welcome to Vertex', read: false, time: new Date().toISOString() },
-                { id: 2, message: 'Your deposit has been confirmed', read: true, time: new Date().toISOString() }
-              ]);
-            }
           }
         });
         
-        return () => unsubscribe();
+        // Subscribe to notifications collection
+        const notificationsQuery = query(
+          collection(db, 'p2pNotifications'),
+          where('userId', '==', uid),
+          orderBy('createdAt', 'desc')
+        );
+        
+        const notificationsUnsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
+          const notificationsList = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            time: doc.data().createdAt
+          }));
+          
+          // If we have notifications, use them
+          if (notificationsList.length > 0) {
+            setNotifications(notificationsList);
+            
+            // Play notification sound for new unread notifications
+            const hasUnread = notificationsList.some(notification => !notification.read);
+            if (hasUnread) {
+              NotificationService.playSound('notification', 0.3);
+            }
+          } else {
+            // If no notifications found in p2pNotifications, try the general notifications collection
+            const generalNotificationsQuery = query(
+              collection(db, 'notifications'),
+              where('userId', '==', uid),
+              orderBy('timestamp', 'desc')
+            );
+            
+            getDocs(generalNotificationsQuery).then(generalSnapshot => {
+              if (!generalSnapshot.empty) {
+                const generalNotifications = generalSnapshot.docs.map(doc => ({
+                  id: doc.id,
+                  ...doc.data(),
+                  message: doc.data().message || doc.data().body || 'New notification',
+                  time: doc.data().timestamp || doc.data().createdAt || new Date().toISOString(),
+                  read: doc.data().isRead !== undefined ? doc.data().isRead : doc.data().read || false
+                }));
+                setNotifications(generalNotifications);
+              } else {
+                // If still no notifications, create a welcome notification
+                setNotifications([
+                  { 
+                    id: 'welcome', 
+                    message: 'Welcome to Vertex', 
+                    read: false, 
+                    time: new Date().toISOString() 
+                  }
+                ]);
+              }
+            });
+          }
+        });
+        
+        // Return cleanup function
+        return () => {
+          userUnsubscribe();
+          notificationsUnsubscribe();
+        };
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error('Error fetching user data and notifications:', error);
       }
     };
 
-    fetchUserData();
+    fetchUserDataAndNotifications();
   }, []);
 
   const handleSignOut = () => {
@@ -85,12 +135,35 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
     return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
   };
 
-  const markNotificationAsRead = (notificationId: number) => {
-    setNotifications(notifications.map(notification => 
-      notification.id === notificationId 
-        ? { ...notification, read: true } 
-        : notification
-    ));
+  const markNotificationAsRead = async (notificationId: string) => {
+    try {
+      // Update local state first for immediate UI feedback
+      setNotifications(notifications.map(notification => 
+        notification.id === notificationId 
+          ? { ...notification, read: true } 
+          : notification
+      ));
+      
+      // Update the notification in Firestore
+      const currentUser = auth.currentUser;
+      const uid = currentUser?.uid || localStorage.getItem('userId');
+      
+      if (!uid) return;
+      
+      // Try to update in p2pNotifications collection first
+      const notificationRef = doc(db, 'p2pNotifications', notificationId);
+      updateDoc(notificationRef, { read: true })
+        .catch(() => {
+          // If not found in p2pNotifications, try in notifications collection
+          const generalNotificationRef = doc(db, 'notifications', notificationId);
+          updateDoc(generalNotificationRef, { isRead: true })
+            .catch(error => {
+              console.error('Error marking notification as read:', error);
+            });
+        });
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
   };
 
   return (
