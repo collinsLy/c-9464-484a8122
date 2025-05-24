@@ -207,7 +207,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
               )}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-80 p-0" align="end">
+          <PopoverContent className="w-80 p-0 bg-[#0F1115]/90 backdrop-blur-lg border-white/10 text-white" align="end">
             <div className="p-2 border-b border-gray-800">
               <h3 className="font-medium">Notifications</h3>
             </div>
@@ -260,7 +260,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
               <ChevronDown className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-56 p-0" align="end">
+          <PopoverContent className="w-56 p-0 bg-[#0F1115]/90 backdrop-blur-lg border-white/10 text-white" align="end">
             <div className="p-2 border-b border-gray-800">
               <p className="text-sm font-medium">{userName || 'User'}</p>
             </div>
