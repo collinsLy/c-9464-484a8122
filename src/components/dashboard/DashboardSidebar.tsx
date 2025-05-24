@@ -302,13 +302,7 @@ const DashboardSidebar = ({ navItems = defaultNavCategories }: SidebarProps) => 
           ))}
         </nav>
 
-        {!collapsed && !isMobile && (
-          <div className="mt-auto p-4">
-            <div className="rounded-lg p-3 bg-white/5">
-              <SearchBar />
-            </div>
-          </div>
-        )}
+        {/* Removed duplicate SearchBar */}
       </aside>
 
       {/* Mobile sidebar */}

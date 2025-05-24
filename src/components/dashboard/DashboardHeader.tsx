@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Bell, ChevronDown, Search, Settings, User } from 'lucide-react';
+import { Bell, ChevronDown, Settings, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { doc, onSnapshot, collection, query, where, orderBy, getDocs, updateDoc } from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase';
 import { NotificationService } from '@/lib/notification-service';
+import SearchBar from '@/components/search/SearchBar';
 
 export interface DashboardHeaderProps {}
 
@@ -170,20 +171,20 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
     <header className="h-16 px-4 border-b border-gray-800 flex items-center justify-between">
       {/* Search */}
       <div className="md:w-72 hidden md:flex">
-        <div className="relative w-full">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-          <input
-            type="search"
-            placeholder="Search..."
-            className="w-full bg-gray-900 rounded-md border border-gray-800 pl-8 pr-4 py-2 focus:outline-none focus:border-blue-600 text-sm"
-          />
-        </div>
+        <SearchBar className="w-full" />
       </div>
 
-      {/* Mobile search icon */}
+      {/* Mobile search button - opens search modal/drawer */}
       <div className="md:hidden">
-        <Button variant="ghost" size="icon" className="text-gray-400">
-          <Search className="h-5 w-5" />
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="text-gray-400"
+          onClick={() => navigate('/search')}
+        >
+          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
         </Button>
       </div>
 
