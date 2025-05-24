@@ -172,10 +172,10 @@ const SettingsPage = () => {
               <CardHeader>
                 <CardTitle>Profile Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex flex-col md:flex-row md:items-start gap-8">
+              <CardContent className="space-y-4 pb-20 mb-16"> {/* Added padding and margin at bottom */}
+                <div className="flex flex-col md:flex-row md:items-start gap-4"> {/* Reduced gap */}
                   <div className="flex flex-col items-center gap-2">
-                    <Avatar className="h-24 w-24">
+                    <Avatar className="h-20 w-20"> {/* Reduced avatar size */}
                       {selectedAvatarId !== "default" && selectedAvatarId ? (
                         // If avatar is selected, show the avatar from avatarOptions
                         <AvatarImage 
@@ -438,8 +438,8 @@ const SettingsPage = () => {
 
                   <div className="flex-1 space-y-4">
                     <Form {...profileForm}>
-                      <form onSubmit={profileForm.handleSubmit(onSubmit)} className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <form onSubmit={profileForm.handleSubmit(onSubmit)} className="space-y-4"> {/* Reduced spacing */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3"> {/* Reduced gap */}
                           <div className="space-y-2">
                             <Label htmlFor="name">Full Name</Label>
                           <Input 
@@ -484,11 +484,11 @@ const SettingsPage = () => {
                         </div>
                       </div>
 
-                      <div className="space-y-2 p-4 bg-white/5 border border-white/10 rounded-md">
+                      <div className="space-y-1 p-3 bg-white/5 border border-white/10 rounded-md"> {/* Reduced padding and spacing */}
                         <div className="flex items-center justify-between">
                           <div>
-                            <h3 className="text-lg font-medium">User ID (UID)</h3>
-                            <p className="text-sm text-white/60">Use this ID to receive funds from other users</p>
+                            <h3 className="text-base font-medium">User ID (UID)</h3> {/* Reduced text size */}
+                            <p className="text-xs text-white/60">Use this ID to receive funds from other users</p> {/* Reduced text size */}
                           </div>
                           <Button 
                             variant="outline" 
