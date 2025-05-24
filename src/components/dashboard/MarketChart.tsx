@@ -64,7 +64,7 @@ const MarketChart = ({
         </div>
       </CardHeader>
       <CardContent className="p-2 md:p-6">
-        <div className="h-[300px] md:h-[600px]">
+        <div className="h-[250px] md:h-[600px]">
           <TradingViewChart 
             symbol={selectedSymbol} 
             theme="dark" 

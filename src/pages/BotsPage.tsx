@@ -98,7 +98,7 @@ const BotsPage = () => {
             <h2 className="text-lg font-semibold text-white">Trading Bots</h2>
           </div>
           
-          <div className="mb-6">
+          <div className="mb-6 relative">
             <MarketChart 
               selectedSymbol={selectedSymbol} 
               selectedTimeframe={selectedTimeframe}
@@ -107,12 +107,14 @@ const BotsPage = () => {
             />
           </div>
         </div>
-        <MarketChart
-          selectedSymbol={selectedSymbol}
-          selectedTimeframe={selectedTimeframe}
-          onSymbolChange={setSelectedSymbol}
-          onTimeframeChange={setSelectedTimeframe}
-        />
+        <div className="hidden md:block">
+          <MarketChart
+            selectedSymbol={selectedSymbol}
+            selectedTimeframe={selectedTimeframe}
+            onSymbolChange={setSelectedSymbol}
+            onTimeframeChange={setSelectedTimeframe}
+          />
+        </div>
         <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
           <CardHeader>
             <CardTitle>Trading Bots</CardTitle>
