@@ -133,12 +133,12 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
 
   return (
     <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white overflow-hidden">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+      <CardHeader className="p-3 sm:p-6">
+        <CardTitle className="flex items-center justify-between text-base sm:text-lg">
           <div className="flex items-center">
             <img 
               src={bot.icon} 
-              className="mr-2 h-6 w-6" 
+              className="mr-2 h-5 w-5 sm:h-6 sm:w-6" 
               alt={`${bot.type} icon`} 
               onError={(e) => {
                 console.log(`Failed to load icon: ${bot.icon}`);
@@ -158,12 +158,12 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
             </Tooltip>
           </TooltipProvider>
         </CardTitle>
-        <CardDescription className="text-white/70">
+        <CardDescription className="text-white/70 text-xs sm:text-sm mt-1">
           {bot.description}
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 gap-y-2 text-sm">
+      <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
+        <div className="grid grid-cols-2 gap-y-2 text-xs sm:text-sm">
           <div className="text-white/70">Required Balance:</div>
           <div className="text-right">${minBalance}</div>
 
@@ -177,15 +177,15 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
           <div className="text-right">{bot.duration}</div>
         </div>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="p-3 sm:p-6">
         <Button 
-          className="w-full"
+          className="w-full text-xs sm:text-sm"
           onClick={handleClick}
           disabled={!hasRequiredBalance}
           variant={hasRequiredBalance ? "default" : "secondary"}
         >
-          <Play className="mr-2 h-4 w-4" />
-          {hasRequiredBalance ? 'Trade' : `Deposit $${minBalance - userBalance} more to Trade`}
+          <Play className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+          {hasRequiredBalance ? 'Trade' : (minBalance - userBalance > 9999 ? 'Deposit more to Trade' : `Deposit $${minBalance - userBalance} more`)}
         </Button>
       </CardFooter>
     </Card>
