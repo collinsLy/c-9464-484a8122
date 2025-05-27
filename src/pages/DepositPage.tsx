@@ -549,7 +549,7 @@ const DepositPage = () => {
               </div>
               <div className="flex-1 overflow-hidden">
                 <iframe 
-                  src="https://pesapal-api-1.onrender.com/deposit" 
+                  src="https://app.payhero.co.ke/lipwa/1981" 
                   className="w-full h-full border-0"
                   title="Payment Gateway"
                   sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
