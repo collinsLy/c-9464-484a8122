@@ -59,45 +59,49 @@ const Dashboard = () => {
       notificationListenerRef.current = null;
     }
 
-    // Listen for new notifications
+    // Simple query without compound indexes to avoid Firestore index requirements
     const notificationsQuery = query(
       collection(db, 'notifications'),
       where('userId', '==', userId),
-      where('isRead', '==', false),
-      orderBy('timestamp', 'desc'),
       limit(10)
     );
 
-    // Set up real-time listener
+    // Set up real-time listener with better error handling
     notificationListenerRef.current = onSnapshot(notificationsQuery, (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === 'added') {
-          const notification = change.doc.data();
+      try {
+        const unreadCount = snapshot.docs.filter(doc => !doc.data().isRead).length;
+        setHasUnreadNotifications(unreadCount > 0);
 
-          // Show notification for new incoming transfers
-          if (notification.type === 'transfer') {
-            NotificationService.notifyFundReceived(
-              notification.amount,
-              notification.asset || 'USDT',
-              notification.senderName || 'Another user',
-              {
-                showToast: true,
-                playSound: true,
-                soundType: 'transfer'
-              }
-            );
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === 'added') {
+            const notification = change.doc.data();
 
-            // Mark the notification as read
-            updateDoc(doc(db, 'notifications', change.doc.id), { isRead: true })
-              .catch(error => console.error("Error marking notification as read:", error));
+            // Only show notifications for unread items
+            if (!notification.isRead && notification.type === 'transfer') {
+              NotificationService.notifyFundReceived(
+                notification.amount,
+                notification.asset || 'USDT',
+                notification.senderName || 'Another user',
+                {
+                  showToast: true,
+                  playSound: true,
+                  soundType: 'transfer'
+                }
+              );
+
+              // Mark the notification as read
+              updateDoc(doc(db, 'notifications', change.doc.id), { isRead: true })
+                .catch(error => console.error("Error marking notification as read:", error));
+            }
           }
-        }
-      });
-
-      // Update unread notifications flag
-      setHasUnreadNotifications(snapshot.size > 0);
+        });
+      } catch (error) {
+        console.error("Error processing notifications:", error);
+      }
     }, (error) => {
       console.error("Error listening for notifications:", error);
+      // Don't fail silently - just disable the notification system
+      setHasUnreadNotifications(false);
     });
 
     // Clean up on unmount
