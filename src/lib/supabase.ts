@@ -57,13 +57,12 @@ export const getProfileImageUrl = (profilePhotoPath: string): string => {
         }
       });
     
-    // Don't add duplicate query parameters - the transform already includes them
-    return data.publicUrl;
+    // Add timestamp to prevent caching issues
+    return `${data.publicUrl}?t=${Date.now()}`;
   } catch (error) {
     console.error('Error generating profile image URL:', error);
-    // Return a clean fallback URL
-    const cleanUrl = profilePhotoPath.split('?')[0];
-    return `${cleanUrl}?t=${Date.now()}`;
+    // Return the original URL with a timestamp as fallback
+    return `${profilePhotoPath}?t=${Date.now()}`;
   }
 };
 
