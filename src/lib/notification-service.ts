@@ -71,30 +71,57 @@ export class NotificationService {
       // Play payment success sound
       this.playSound('payment_success');
 
+      // Create notification message
+      const cryptoAmount = transaction.cryptoAmount || null;
+      const cryptoType = transaction.crypto || null;
+      const amount = transaction.amount || null;
+      
+      let notificationMessage = "Your withdrawal has been submitted and is being processed";
+      if (cryptoAmount && cryptoType) {
+        notificationMessage = `Your withdrawal of ${cryptoAmount} ${cryptoType} is being processed`;
+      } else if (amount) {
+        notificationMessage = `Your withdrawal of $${amount} is being processed`;
+      }
+
+      // Store notification in Firebase for the notification icon
+      const { addDoc, collection } = await import('firebase/firestore');
+      const { db } = await import('@/lib/firebase');
+      
+      // Store in both collections for better compatibility
+      const notificationData = {
+        userId: userId,
+        type: 'withdrawal',
+        title: 'Withdrawal Processing',
+        message: notificationMessage,
+        timestamp: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        read: false,
+        isRead: false,
+        txId: transaction.txId,
+        amount: cryptoAmount || amount,
+        currency: cryptoType || 'USD'
+      };
+
+      // Add to notifications collection
+      await addDoc(collection(db, 'notifications'), notificationData);
+      
+      // Also add to p2pNotifications collection for header compatibility
+      await addDoc(collection(db, 'p2pNotifications'), notificationData);
+
       // Show toast notification
       toast({
         title: "Withdrawal Processing",
-        description: `Your withdrawal has been submitted and is being processed`,
+        description: notificationMessage,
         variant: "success",
         className: "notification-toast",
       });
 
       // Show browser notification if permission granted
       if (Notification.permission === 'granted') {
-        const cryptoAmount = transaction.cryptoAmount || null;
-        const cryptoType = transaction.crypto || null;
-
-        if (cryptoAmount && cryptoType) {
-          new Notification('Withdrawal Processing', {
-            body: `Your withdrawal of ${cryptoAmount} ${cryptoType} is being processed`,
-            icon: '/favicon.svg'
-          });
-        } else {
-          new Notification('Withdrawal Processing', {
-            body: `Your withdrawal is being processed`,
-            icon: '/favicon.svg'
-          });
-        }
+        new Notification('Withdrawal Processing', {
+          body: notificationMessage,
+          icon: '/favicon.svg'
+        });
       }
     } catch (error) {
       console.error('Error sending withdrawal notification:', error);
@@ -187,12 +214,40 @@ export class NotificationService {
     playNext();
   }
 
+  // Store notification in Firebase
+  static async storeNotificationInFirebase(
+    userId: string,
+    type: string,
+    title: string,
+    message: string,
+    additionalData: any = {}
+  ): Promise<void> {
+    try {
+      const { addDoc, collection } = await import('firebase/firestore');
+      const { db } = await import('@/lib/firebase');
+      
+      await addDoc(collection(db, 'notifications'), {
+        userId: userId,
+        type: type,
+        title: title,
+        message: message,
+        timestamp: new Date().toISOString(),
+        read: false,
+        isRead: false,
+        ...additionalData
+      });
+    } catch (error) {
+      console.error('Error storing notification in Firebase:', error);
+    }
+  }
+
   // Enhanced notification sending based on type
   static async sendNotification(
     type: NotificationType, 
     title: string, 
     message: string, 
-    options: NotificationOptions = {}
+    options: NotificationOptions = {},
+    userId?: string
   ): Promise<void> {
     try {
       // Determine sound type based on notification type
@@ -220,6 +275,11 @@ export class NotificationService {
           default:
             soundType = 'notification';
         }
+      }
+
+      // Store notification in Firebase if userId is provided
+      if (userId) {
+        await this.storeNotificationInFirebase(userId, type, title, message);
       }
 
       // Show toast notification
