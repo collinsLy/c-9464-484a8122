@@ -57,6 +57,15 @@
   }
 }
 
+/* Force toast viewport to always be at top */
+[data-radix-toast-viewport] {
+  position: fixed !important;
+  top: 1rem !important;
+  right: 1rem !important;
+  bottom: auto !important;
+  flex-direction: column !important;
+}
+
 /* Utilities */
 .perspective {
   perspective: 400px;
@@ -225,7 +234,7 @@
     max-width: 100vw;
     box-sizing: border-box;
   }
-  
+
   body {
     position: relative;
     width: 100%;
@@ -233,13 +242,13 @@
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
   }
-  
+
   button, a {
     @apply min-h-[44px] min-w-[44px];
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
   }
-  
+
   input, select, textarea {
     @apply min-h-[44px];
     touch-action: manipulation;
@@ -247,7 +256,7 @@
     zoom: 1;
     font-size: 16px; /* Prevents zoom on iOS */
   }
-  
+
   .container {
     padding-left: 1rem;
     padding-right: 1rem;
