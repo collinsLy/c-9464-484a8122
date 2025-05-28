@@ -55,8 +55,8 @@ export default function TradingViewChart({ symbol, exchange, containerId }: Trad
     <div 
       id={chartId}
       ref={container} 
-      style={{ height: '600px', width: '100%' }}
-      className="rounded-lg overflow-hidden chart-container"
+      style={{ height: '600px', width: '100%', maxWidth: '100%' }}
+      className="rounded-lg overflow-hidden chart-container relative"
       onTouchStart={(e) => {
         // Store the initial touch position
         const touchY = e.touches[0].clientY;
