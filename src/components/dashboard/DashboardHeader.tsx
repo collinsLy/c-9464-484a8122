@@ -21,6 +21,9 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    let unsubscribeUser: (() => void) | null = null;
+    let unsubscribeNotifications: (() => void) | null = null;
+
     // Fetch user data and notifications
     const fetchUserDataAndNotifications = async () => {
       try {
@@ -31,81 +34,110 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
 
         // Subscribe to user data from Firestore
         const userRef = doc(db, 'users', uid);
-        const userUnsubscribe = onSnapshot(userRef, (doc) => {
+        unsubscribeUser = onSnapshot(userRef, (doc) => {
           if (doc.exists()) {
             const userData = doc.data();
-            setUserName(userData.fullName || 'User');
-            setUserAvatar(userData.profilePhoto || '');
+            setUserName(userData.fullName || userData.displayName || 'User');
+            setUserAvatar(userData.profilePhoto || userData.photoURL || '');
           }
         });
         
-        // Subscribe to notifications collection
+        // Subscribe to notifications collection with error handling
         const notificationsQuery = query(
           collection(db, 'p2pNotifications'),
           where('userId', '==', uid),
           orderBy('createdAt', 'desc')
         );
         
-        const notificationsUnsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
-          const notificationsList = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-            time: doc.data().createdAt
-          }));
-          
-          // If we have notifications, use them
-          if (notificationsList.length > 0) {
-            setNotifications(notificationsList);
+        unsubscribeNotifications = onSnapshot(notificationsQuery, (snapshot) => {
+          try {
+            const notificationsList = snapshot.docs.map(doc => ({
+              id: doc.id,
+              ...doc.data(),
+              message: doc.data().message || doc.data().title || 'New notification',
+              time: doc.data().createdAt || new Date().toISOString(),
+              read: doc.data().read || false
+            }));
             
-            // Play notification sound for new unread notifications
-            const hasUnread = notificationsList.some(notification => !notification.read);
-            if (hasUnread) {
-              NotificationService.playSound('notification', 0.3);
-            }
-          } else {
-            // If no notifications found in p2pNotifications, try the general notifications collection
-            const generalNotificationsQuery = query(
-              collection(db, 'notifications'),
-              where('userId', '==', uid),
-              orderBy('timestamp', 'desc')
-            );
-            
-            getDocs(generalNotificationsQuery).then(generalSnapshot => {
-              if (!generalSnapshot.empty) {
-                const generalNotifications = generalSnapshot.docs.map(doc => ({
-                  id: doc.id,
-                  ...doc.data(),
-                  message: doc.data().message || doc.data().body || 'New notification',
-                  time: doc.data().timestamp || doc.data().createdAt || new Date().toISOString(),
-                  read: doc.data().isRead !== undefined ? doc.data().isRead : doc.data().read || false
-                }));
-                setNotifications(generalNotifications);
-              } else {
-                // If still no notifications, create a welcome notification
+            // Set notifications or fallback to welcome notification
+            if (notificationsList.length > 0) {
+              setNotifications(notificationsList);
+              
+              // Play notification sound for new unread notifications (only once)
+              const hasUnread = notificationsList.some(notification => !notification.read);
+              if (hasUnread && notifications.length === 0) {
+                NotificationService.playSound('notification', 0.3);
+              }
+            } else {
+              // Fallback: check general notifications collection
+              const generalNotificationsQuery = query(
+                collection(db, 'notifications'),
+                where('userId', '==', uid),
+                orderBy('timestamp', 'desc')
+              );
+              
+              getDocs(generalNotificationsQuery).then(generalSnapshot => {
+                if (!generalSnapshot.empty) {
+                  const generalNotifications = generalSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    message: doc.data().message || doc.data().body || doc.data().title || 'New notification',
+                    time: doc.data().timestamp || doc.data().createdAt || new Date().toISOString(),
+                    read: doc.data().isRead !== undefined ? doc.data().isRead : doc.data().read || false
+                  }));
+                  setNotifications(generalNotifications);
+                } else {
+                  // Welcome notification for new users
+                  setNotifications([
+                    { 
+                      id: 'welcome', 
+                      message: 'Welcome to Vertex Trading Platform! 🚀', 
+                      read: false, 
+                      time: new Date().toISOString() 
+                    }
+                  ]);
+                }
+              }).catch(error => {
+                console.error('Error fetching general notifications:', error);
+                // Still show welcome notification on error
                 setNotifications([
                   { 
                     id: 'welcome', 
-                    message: 'Welcome to Vertex', 
+                    message: 'Welcome to Vertex Trading Platform! 🚀', 
                     read: false, 
                     time: new Date().toISOString() 
                   }
                 ]);
-              }
-            });
+              });
+            }
+          } catch (error) {
+            console.error('Error processing notifications:', error);
           }
+        }, (error) => {
+          console.error('Error listening to notifications:', error);
+          // Show fallback notification on error
+          setNotifications([
+            { 
+              id: 'error', 
+              message: 'Unable to load notifications. Please refresh the page.', 
+              read: false, 
+              time: new Date().toISOString() 
+            }
+          ]);
         });
         
-        // Return cleanup function
-        return () => {
-          userUnsubscribe();
-          notificationsUnsubscribe();
-        };
       } catch (error) {
-        console.error('Error fetching user data and notifications:', error);
+        console.error('Error setting up notifications:', error);
       }
     };
 
     fetchUserDataAndNotifications();
+
+    // Cleanup function
+    return () => {
+      if (unsubscribeUser) unsubscribeUser();
+      if (unsubscribeNotifications) unsubscribeNotifications();
+    };
   }, []);
 
   const handleSignOut = () => {
@@ -126,6 +158,12 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
 
   const handleNotificationClick = () => {
     setShowNotifications(!showNotifications);
+    
+    // Mark all notifications as viewed (not necessarily read) when opening the panel
+    if (!showNotifications && notifications.some(n => !n.read)) {
+      // Optional: Play a subtle sound when opening notifications
+      NotificationService.playSound('notification', 0.1);
+    }
   };
 
   // Generate initials from user name for avatar fallback
@@ -139,11 +177,18 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
   const markNotificationAsRead = async (notificationId: string) => {
     try {
       // Update local state first for immediate UI feedback
-      setNotifications(notifications.map(notification => 
-        notification.id === notificationId 
-          ? { ...notification, read: true } 
-          : notification
-      ));
+      setNotifications(prevNotifications => 
+        prevNotifications.map(notification => 
+          notification.id === notificationId 
+            ? { ...notification, read: true } 
+            : notification
+        )
+      );
+      
+      // Skip updating welcome/error notifications
+      if (notificationId === 'welcome' || notificationId === 'error') {
+        return;
+      }
       
       // Update the notification in Firestore
       const currentUser = auth.currentUser;
@@ -152,18 +197,38 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
       if (!uid) return;
       
       // Try to update in p2pNotifications collection first
-      const notificationRef = doc(db, 'p2pNotifications', notificationId);
-      updateDoc(notificationRef, { read: true })
-        .catch(() => {
-          // If not found in p2pNotifications, try in notifications collection
-          const generalNotificationRef = doc(db, 'notifications', notificationId);
-          updateDoc(generalNotificationRef, { isRead: true })
-            .catch(error => {
-              console.error('Error marking notification as read:', error);
-            });
+      try {
+        const notificationRef = doc(db, 'p2pNotifications', notificationId);
+        await updateDoc(notificationRef, { 
+          read: true,
+          readAt: new Date().toISOString()
         });
+      } catch (p2pError) {
+        // If not found in p2pNotifications, try in notifications collection
+        try {
+          const generalNotificationRef = doc(db, 'notifications', notificationId);
+          await updateDoc(generalNotificationRef, { 
+            isRead: true,
+            read: true,
+            readAt: new Date().toISOString()
+          });
+        } catch (generalError) {
+          console.error('Error marking notification as read in both collections:', {
+            p2pError,
+            generalError
+          });
+        }
+      }
     } catch (error) {
       console.error('Error marking notification as read:', error);
+      // Revert local state on error
+      setNotifications(prevNotifications => 
+        prevNotifications.map(notification => 
+          notification.id === notificationId 
+            ? { ...notification, read: false } 
+            : notification
+        )
+      );
     }
   };
 
@@ -207,28 +272,54 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
               )}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-80 p-0 bg-[#0F1115]/90 backdrop-blur-lg border-white/10 text-white" align="end">
-            <div className="p-2 border-b border-gray-800">
-              <h3 className="font-medium">Notifications</h3>
+          <PopoverContent className="w-80 p-0 bg-[#0F1115]/95 backdrop-blur-lg border-white/10 text-white shadow-xl" align="end">
+            <div className="p-3 border-b border-gray-800/50 bg-gradient-to-r from-blue-600/10 to-purple-600/10">
+              <div className="flex items-center justify-between">
+                <h3 className="font-medium text-white">Notifications</h3>
+                {notifications.filter(n => !n.read).length > 0 && (
+                  <Badge className="bg-blue-600 text-xs px-2 py-1">
+                    {notifications.filter(n => !n.read).length} new
+                  </Badge>
+                )}
+              </div>
             </div>
-            <div className="max-h-80 overflow-auto">
+            <div className="max-h-80 overflow-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent">
               {notifications.length > 0 ? (
-                notifications.map((notification) => (
+                notifications.slice(0, 10).map((notification) => (
                   <div
                     key={notification.id}
-                    className={`p-2 border-b border-gray-800 last:border-none hover:bg-gray-800 cursor-pointer ${
-                      !notification.read ? 'bg-gray-900' : ''
+                    className={`p-3 border-b border-gray-800/30 last:border-none hover:bg-gray-800/50 cursor-pointer transition-colors duration-200 ${
+                      !notification.read ? 'bg-blue-900/20 border-l-2 border-l-blue-500' : ''
                     }`}
                     onClick={() => markNotificationAsRead(notification.id)}
                   >
-                    <p className="text-sm">{notification.message}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {new Date(notification.time).toLocaleTimeString()} - {new Date(notification.time).toLocaleDateString()}
-                    </p>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <p className="text-sm text-white leading-relaxed">{notification.message}</p>
+                        <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                          <span>🕒</span>
+                          {new Date(notification.time).toLocaleString()}
+                        </p>
+                      </div>
+                      {!notification.read && (
+                        <div className="w-2 h-2 bg-blue-500 rounded-full ml-2 mt-1 flex-shrink-0"></div>
+                      )}
+                    </div>
                   </div>
                 ))
               ) : (
-                <div className="p-4 text-center text-gray-500">No notifications</div>
+                <div className="p-6 text-center text-gray-400">
+                  <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No notifications yet</p>
+                  <p className="text-xs mt-1 opacity-75">You'll see updates here when they arrive</p>
+                </div>
+              )}
+              {notifications.length > 10 && (
+                <div className="p-2 text-center border-t border-gray-800/30">
+                  <Button variant="ghost" size="sm" className="text-xs text-blue-400 hover:text-blue-300">
+                    View all notifications
+                  </Button>
+                </div>
               )}
             </div>
           </PopoverContent>

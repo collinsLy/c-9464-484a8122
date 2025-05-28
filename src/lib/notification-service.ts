@@ -4,10 +4,27 @@ import { toast } from "@/components/ui/use-toast";
 export interface NotificationOptions {
   showToast?: boolean;
   playSound?: boolean;
-  soundType?: 'transfer' | 'deposit' | 'success' | 'warning' | 'error' | 'payment_success' | 'alert' | 'notification' | 'withdraw';
+  soundType?: 'transfer' | 'deposit' | 'success' | 'warning' | 'error' | 'payment_success' | 'alert' | 'notification' | 'withdraw' | 'order_filled' | 'price_alert' | 'login' | 'system';
   body?: string;
   icon?: string;
+  priority?: 'low' | 'normal' | 'high';
+  persistent?: boolean;
 }
+
+// Notification types based on the blueprint
+export type NotificationType = 
+  | 'ORDER_FILLED' 
+  | 'ORDER_PLACED' 
+  | 'ORDER_CANCELED'
+  | 'P2P_TRANSACTION_UPDATE'
+  | 'BALANCE_UPDATED'
+  | 'PRICE_THRESHOLD_HIT'
+  | 'MARKET_MAINTENANCE'
+  | 'SUSPICIOUS_LOGIN'
+  | 'KYC_UPDATE'
+  | 'WITHDRAWAL_PROCESSING'
+  | 'DEPOSIT_CONFIRMED'
+  | 'SYSTEM_ALERT';
 
 // Sound effects
 const SOUND_EFFECTS = {
@@ -168,6 +185,107 @@ export class NotificationService {
     };
 
     playNext();
+  }
+
+  // Enhanced notification sending based on type
+  static async sendNotification(
+    type: NotificationType, 
+    title: string, 
+    message: string, 
+    options: NotificationOptions = {}
+  ): Promise<void> {
+    try {
+      // Determine sound type based on notification type
+      let soundType = options.soundType;
+      if (!soundType) {
+        switch (type) {
+          case 'ORDER_FILLED':
+          case 'P2P_TRANSACTION_UPDATE':
+            soundType = 'payment_success';
+            break;
+          case 'PRICE_THRESHOLD_HIT':
+            soundType = 'alert';
+            break;
+          case 'BALANCE_UPDATED':
+          case 'DEPOSIT_CONFIRMED':
+            soundType = 'success';
+            break;
+          case 'WITHDRAWAL_PROCESSING':
+            soundType = 'warning';
+            break;
+          case 'SUSPICIOUS_LOGIN':
+          case 'SYSTEM_ALERT':
+            soundType = 'error';
+            break;
+          default:
+            soundType = 'notification';
+        }
+      }
+
+      // Show toast notification
+      if (options.showToast !== false) {
+        toast({
+          title,
+          description: message,
+          variant: type.includes('ERROR') || type === 'SUSPICIOUS_LOGIN' ? "destructive" : "success",
+          className: "notification-toast",
+        });
+      }
+
+      // Play sound
+      if (options.playSound !== false) {
+        this.playSound(soundType);
+      }
+
+      // Show browser notification
+      if (Notification.permission === 'granted') {
+        new Notification(title, {
+          body: message,
+          icon: options.icon || '/favicon.svg',
+          tag: type, // Prevents duplicate notifications of same type
+          requireInteraction: options.persistent || false
+        });
+      }
+    } catch (error) {
+      console.error('Error sending notification:', error);
+    }
+  }
+
+  // Order-related notifications
+  static notifyOrderFilled(orderId: string, price: number, amount: number, symbol: string): void {
+    this.sendNotification(
+      'ORDER_FILLED',
+      'Order Filled! 🎉',
+      `Your order for ${amount} ${symbol} was filled at $${price.toFixed(2)}`,
+      { soundType: 'payment_success' }
+    );
+  }
+
+  static notifyPriceAlert(symbol: string, price: number, threshold: number): void {
+    this.sendNotification(
+      'PRICE_THRESHOLD_HIT',
+      `Price Alert: ${symbol} 📈`,
+      `${symbol} has reached your target price of $${threshold}. Current price: $${price}`,
+      { soundType: 'alert', priority: 'high' }
+    );
+  }
+
+  static notifySystemMaintenance(message: string): void {
+    this.sendNotification(
+      'MARKET_MAINTENANCE',
+      'System Maintenance 🔧',
+      message,
+      { soundType: 'warning', persistent: true }
+    );
+  }
+
+  static notifySecurityAlert(message: string): void {
+    this.sendNotification(
+      'SUSPICIOUS_LOGIN',
+      'Security Alert! 🚨',
+      message,
+      { soundType: 'error', priority: 'high', persistent: true }
+    );
   }
 
   // Show desktop notification if supported
