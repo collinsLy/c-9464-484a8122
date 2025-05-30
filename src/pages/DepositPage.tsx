@@ -375,7 +375,6 @@ const DepositPage = () => {
                       <p className="mb-2">Important Notes:</p>
                       <ul className="list-disc pl-4 space-y-1">
                         <li>Send only {selectedCrypto} to this address</li>
-                        <li>Minimum deposit: 0.001 {selectedCrypto}</li>
                         <li>Deposits will be credited after {selectedCrypto === 'BTC' ? '2' : '12'} network confirmations</li>
                         <li>Please double-check the address before sending</li>
                       </ul>
@@ -451,7 +450,7 @@ const DepositPage = () => {
                     </div>
                     <Button 
                       className="w-full bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34] h-12 text-lg"
-                      disabled={!amount || parseFloat(amount) < 10}
+                      disabled={!amount || parseFloat(amount) <= 0}
                       onClick={() => {
                         // Show payment iframe for both demo and production
                         setShowPaymentIframe(true);
@@ -472,7 +471,6 @@ const DepositPage = () => {
                     <div>
                       <p className="font-medium text-white mb-2">Important Notes</p>
                       <ul className="list-disc pl-4 space-y-1">
-                        <li>Minimum deposit amount: $10.00 (KSH 1,350.00)</li>
                         <li>Maximum single deposit: $10,000.00 (KSH 1,350,000.00)</li>
                         <li>Exchange rate: 1 USD = 135 KSH (fixed rate)</li>
                         <li>All payment methods are secure and encrypted</li>
