@@ -190,7 +190,7 @@ const WithdrawPage = () => {
   // Confirm the vertex transfer
   const confirmVertexTransfer = async () => {
     console.log("confirmVertexTransfer called");
-    
+
     try {
       setIsProcessingTransfer(true);
       const cryptoAmountValue = parseFloat(cryptoAmount);
@@ -214,7 +214,7 @@ const WithdrawPage = () => {
         return;
       }
 
-    try {
+    
       // Get fresh data before proceeding
       const senderData = await UserService.getUserData(uid);
       const recipientDataFresh = await UserService.getUserData(recipientUid);
@@ -359,15 +359,8 @@ const WithdrawPage = () => {
       });
       setIsProcessingTransfer(false);
       setIsConfirmDialogOpen(false);
-    } catch (error) {
-      console.error("Transfer error:", error);
-      toast({
-        title: "Transfer Failed",
-        description: error instanceof Error ? error.message : "An error occurred during the transfer. Please try again.",
-        variant: "destructive",
-      });
+    } finally {
       setIsProcessingTransfer(false);
-      setIsConfirmDialogOpen(false);
     }
   };
 
@@ -956,7 +949,7 @@ const WithdrawPage = () => {
       } else if (selectedCrypto === 'BTC') {
         // Special handling for BTC - deduct BNB for gas fees
         const updatedUserAssets = { ...userAssets };
-        const newBtcAmount = cryptoBalance - cryptoAmountValue;
+        const newBtcAmount = cryptoBalance -cryptoAmountValue;
         const gasFeeInBnb = getGasFee(selectedCrypto, network);
         const currentBnbBalance = Number(userAssets.BNB?.amount) || 0;
         const newBnbAmount = Math.max(0, currentBnbBalance - gasFeeInBnb);        // Update BTC balance
