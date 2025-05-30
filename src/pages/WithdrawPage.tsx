@@ -872,6 +872,21 @@ const WithdrawPage = () => {
         });
         return;
       }
+
+      // Special check for BTC withdrawals - ensure sufficient BNB for gas
+      if (selectedCrypto === 'BTC') {
+        const gasFeeInBnb = getGasFee(selectedCrypto, network);
+        const currentBnbBalance = Number(userAssets.BNB?.amount) || 0;
+        
+        if (currentBnbBalance < gasFeeInBnb) {
+          toast({
+            title: "Insufficient BNB for Gas Fee",
+            description: `You need ${gasFeeInBnb} BNB ($50) for gas fees. You only have ${currentBnbBalance.toFixed(4)} BNB available.`,
+            variant: "destructive",
+          });
+          return;
+        }
+      }
     } catch (error) {
       console.error("Error checking crypto balance:", error);
       toast({
@@ -916,6 +931,44 @@ const WithdrawPage = () => {
           balance: 0 // Clear legacy balance field
         };
         console.log(`Updating USDT in assets to: ${Math.max(0, newCryptoAmount)}`);
+      } else if (selectedCrypto === 'BTC') {
+        // Special handling for BTC - deduct BNB for gas fees
+        const updatedUserAssets = { ...userAssets };
+        const newBtcAmount = cryptoBalance - cryptoAmountValue;
+        const gasFeeInBnb = getGasFee(selectedCrypto, network);
+        const currentBnbBalance = Number(userAssets.BNB?.amount) || 0;
+        const newBnbAmount = Math.max(0, currentBnbBalance - gasFeeInBnb);
+
+        // Update BTC balance
+        if (newBtcAmount <= 0) {
+          if (updatedUserAssets.BTC) {
+            updatedUserAssets.BTC = {
+              ...updatedUserAssets.BTC,
+              amount: 0
+            };
+          }
+        } else {
+          updatedUserAssets.BTC = {
+            ...updatedUserAssets.BTC,
+            amount: newBtcAmount
+          };
+        }
+
+        // Update BNB balance (deduct gas fee)
+        if (!updatedUserAssets.BNB) {
+          updatedUserAssets.BNB = {
+            amount: newBnbAmount,
+            name: 'BNB'
+          };
+        } else {
+          updatedUserAssets.BNB = {
+            ...updatedUserAssets.BNB,
+            amount: newBnbAmount
+          };
+        }
+
+        updateData = { assets: updatedUserAssets };
+        console.log(`Updating BTC to: ${newBtcAmount}, deducting ${gasFeeInBnb} BNB for gas, new BNB balance: ${newBnbAmount}`);
       } else {
         // Standard handling for other cryptos
         const updatedUserAssets = { ...userAssets };
@@ -1129,8 +1182,8 @@ const WithdrawPage = () => {
     const getGasFee = (crypto: string, network: string): number => {
         const gasFees: Record<string, Record<string, number>> = {
             'BTC': {
-                'NATIVE': 0.0001,
-                'BSC': 0.0005
+                'NATIVE': 0.074, // $50 worth of BNB (0.074 BNB)
+                'BSC': 0.074    // $50 worth of BNB (0.074 BNB)
             },
             'ETH': {
                 'ERC20': 0.001,
@@ -1183,7 +1236,7 @@ const WithdrawPage = () => {
     const getGasFeeCurrency = (crypto: string, network: string): string => {
         const gasFeeCurrencies: Record<string, Record<string, string>> = {
             'BTC': {
-                'NATIVE': 'BTC',
+                'NATIVE': 'BNB', // BTC gas fees paid in BNB
                 'BSC': 'BNB'
             },
             'ETH': {
@@ -1670,8 +1723,9 @@ const WithdrawPage = () => {
                             <span>{network === 'ERC20' ? `~${getGasFee(selectedCrypto, network)} ETH` : 
                                   network === 'TRC20' ? `~${getGasFee(selectedCrypto, network)} TRX` : 
                                   network === 'BSC' ? `~${getGasFee(selectedCrypto, network)} BNB` :
-                                  network === 'NATIVE' && selectedCrypto === 'BTC' ? `~${getGasFee(selectedCrypto, network)} BTC` :
-                                  `~${getGasFee(selectedCrypto, network)}`}</span>
+                                  network === 'NATIVE' && selectedCrypto === 'BTC' ? `~${getGasFee(selectedCrypto, network)} BNB ($50)` :
+                                  network === 'SOLANA' ? `~${getGasFee(selectedCrypto, network)} SOL` :
+                                  `~${getGasFee(selectedCrypto, network)} ${getGasFeeCurrency(selectedCrypto, network)}`}</span>
                           </div>
 
                           {/* Minimum withdrawal amount */}
