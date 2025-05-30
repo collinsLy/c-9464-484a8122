@@ -755,11 +755,24 @@ const WithdrawPage = () => {
     }
   };
 
-  // Get minimum withdrawal amount for each cryptocurrency ($20 USD equivalent)
+  // Get minimum withdrawal amount for each cryptocurrency
   const getMinimumWithdrawalAmount = (crypto: string): number => {
-    const minimumUsdValue = 20; // $20 minimum for all cryptos
-    const rate = getEstimatedRate(crypto);
-    return minimumUsdValue / rate;
+    const minimums: Record<string, number> = {
+      'BTC': 0.0002367,
+      'ETH': 0.009009,
+      'USDT': 20,
+      'USDC': 20,
+      'BNB': 0.03158,
+      'WLD': 10,
+      'DOGE': 85.29,
+      'SOL': 0.1161,
+      'XRP': 9.43,
+      'ADA': 28.35,
+      'DOT': 2.857,
+      'LINK': 1.333,
+      'MATIC': 25
+    };
+    return minimums[crypto] || 0.001;
   };
 
   // Handle crypto withdrawal
@@ -1731,7 +1744,7 @@ const WithdrawPage = () => {
                           {/* Minimum withdrawal amount */}
                           <div className="flex justify-between text-xs text-white/60">
                             <span>Minimum withdrawal:</span>
-                            <span>{getMinimumWithdrawalAmount(selectedCrypto).toFixed(8)} {selectedCrypto} ($20)</span>
+                            <span>{getMinimumWithdrawalAmount(selectedCrypto)} {selectedCrypto}</span>
                           </div>
                           <div className="flex justify-between text-xs text-white/60">
                             <span>Maximum withdrawal:</span>
@@ -1787,7 +1800,7 @@ const WithdrawPage = () => {
                       <div>
                         <p className="font-medium text-white mb-2">Important Notes</p>
                         <ul className="list-disc pl-4 space-y-1">
-                          <li>Minimum withdrawal: $20 USD equivalent for all cryptocurrencies</li>
+                          <li>Minimum withdrawal: Varies by cryptocurrency (see amount above)</li>
                           <li>Network fee: Varies based on blockchain congestion</li>
                           <li>Processing time: 10-30 minutes after confirmations</li>
                           <li>Always double-check the wallet address and network</li>
