@@ -70,12 +70,23 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
           // Set up balances including USDT from main balance field
           const balances: Record<string, number> = {};
           
-          // Handle USDT specially - check both locations
-          if (userData.assets && userData.assets.USDT) {
-            balances.USDT = Number(userData.assets.USDT.amount) || 0;
-          } else {
-            balances.USDT = Number(userData.balance) || 0;
+          // Handle USDT specially - check both locations and prioritize the correct one
+          let usdtBalance = 0;
+          
+          // First check assets.USDT (new location)
+          if (userData.assets && userData.assets.USDT && userData.assets.USDT.amount !== undefined) {
+            usdtBalance = Number(userData.assets.USDT.amount);
+            console.log(`USDT from assets: ${usdtBalance}`);
+          } else if (typeof userData.balance === 'number') {
+            // Fallback to main balance field (legacy location)
+            usdtBalance = userData.balance;
+            console.log(`USDT from main balance field: ${usdtBalance}`);
+          } else if (typeof userData.balance === 'string') {
+            usdtBalance = parseFloat(userData.balance) || 0;
+            console.log(`USDT from main balance field (string): ${usdtBalance}`);
           }
+          
+          balances.USDT = usdtBalance;
           
           // Handle other assets
           if (userData.assets) {
@@ -86,6 +97,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
             });
           }
           
+          console.log('Updated user balances:', balances);
           setUserBalances(balances);
         }
       } catch (error) {
@@ -94,6 +106,40 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
     };
 
     fetchUserAssets();
+
+    // Set up real-time listener for balance updates
+    if (currentUserId) {
+      const unsubscribe = UserService.subscribeToUserData(currentUserId, (userData) => {
+        if (!userData) return;
+
+        const balances: Record<string, number> = {};
+        
+        // Handle USDT specially
+        let usdtBalance = 0;
+        if (userData.assets && userData.assets.USDT && userData.assets.USDT.amount !== undefined) {
+          usdtBalance = Number(userData.assets.USDT.amount);
+        } else if (typeof userData.balance === 'number') {
+          usdtBalance = userData.balance;
+        } else if (typeof userData.balance === 'string') {
+          usdtBalance = parseFloat(userData.balance) || 0;
+        }
+        balances.USDT = usdtBalance;
+
+        // Handle other assets
+        if (userData.assets) {
+          Object.entries(userData.assets).forEach(([key, asset]: [string, any]) => {
+            if (key !== 'USDT' && asset && typeof asset.amount !== 'undefined') {
+              balances[key] = Number(asset.amount) || 0;
+            }
+          });
+        }
+
+        setUserBalances(balances);
+        setUserAssets(userData.assets || {});
+      });
+
+      return () => unsubscribe();
+    }
   }, [currentUserId]);
 
   // Calculate USD value based on current price
@@ -158,10 +204,23 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
 
     // Check balance for selected crypto
     const availableBalance = userBalances[selectedCrypto] || 0;
+    console.log(`Validating transfer: ${transferAmount} ${selectedCrypto}, Available: ${availableBalance}`);
+    
     if (transferAmount > availableBalance) {
       toast({
         title: "Insufficient Funds",
-        description: `You don't have enough ${selectedCrypto} for this transfer. Available: ${availableBalance.toFixed(4)} ${selectedCrypto}`,
+        description: `You don't have enough ${selectedCrypto} for this transfer. Available: ${availableBalance.toFixed(8)} ${selectedCrypto}`,
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    // Minimum transfer amount check
+    const minTransfer = selectedCrypto === 'USDT' ? 1 : 0.001;
+    if (transferAmount < minTransfer) {
+      toast({
+        title: "Amount Too Small",
+        description: `Minimum transfer amount is ${minTransfer} ${selectedCrypto}`,
         variant: "destructive"
       });
       return false;
@@ -214,42 +273,57 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
 
         // Handle USDT transfers specially
         if (selectedCrypto === 'USDT') {
-          // Get current USDT balance (check both locations)
+          // Get current USDT balance (check both locations with proper priority)
           let senderUsdtBalance = 0;
+          
+          // First check assets.USDT (new location)
           if (senderAssets.USDT && senderAssets.USDT.amount !== undefined) {
             senderUsdtBalance = Number(senderAssets.USDT.amount);
-          } else {
-            senderUsdtBalance = Number(senderData.balance) || 0;
+            console.log(`Sender USDT from assets: ${senderUsdtBalance}`);
+          } else if (typeof senderData.balance === 'number') {
+            // Fallback to main balance field (legacy location)
+            senderUsdtBalance = senderData.balance;
+            console.log(`Sender USDT from main balance: ${senderUsdtBalance}`);
+          } else if (typeof senderData.balance === 'string') {
+            senderUsdtBalance = parseFloat(senderData.balance) || 0;
+            console.log(`Sender USDT from main balance (string): ${senderUsdtBalance}`);
           }
 
           // Verify sender has enough USDT
           if (senderUsdtBalance < transferAmount) {
-            throw new Error("Insufficient USDT balance");
+            throw new Error(`Insufficient USDT balance. Available: ${senderUsdtBalance}, Required: ${transferAmount}`);
           }
 
           // Get recipient USDT balance
           let recipientUsdtBalance = 0;
           if (recipientAssets.USDT && recipientAssets.USDT.amount !== undefined) {
             recipientUsdtBalance = Number(recipientAssets.USDT.amount);
-          } else {
-            recipientUsdtBalance = Number(recipientData.balance) || 0;
+          } else if (typeof recipientData.balance === 'number') {
+            recipientUsdtBalance = recipientData.balance;
+          } else if (typeof recipientData.balance === 'string') {
+            recipientUsdtBalance = parseFloat(recipientData.balance) || 0;
           }
 
-          // Update sender
+          // Calculate new balances
           const newSenderUsdtBalance = senderUsdtBalance - transferAmount;
+          const newRecipientUsdtBalance = recipientUsdtBalance + transferAmount;
+
+          // Update sender's assets and clear legacy balance
           const updatedSenderAssets = { ...senderAssets };
           updatedSenderAssets.USDT = {
             amount: newSenderUsdtBalance,
             name: 'USDT'
           };
 
-          // Update recipient
-          const newRecipientUsdtBalance = recipientUsdtBalance + transferAmount;
+          // Update recipient's assets and clear legacy balance
           const updatedRecipientAssets = { ...recipientAssets };
           updatedRecipientAssets.USDT = {
             amount: newRecipientUsdtBalance,
             name: 'USDT'
           };
+
+          console.log(`Updating sender USDT: ${senderUsdtBalance} -> ${newSenderUsdtBalance}`);
+          console.log(`Updating recipient USDT: ${recipientUsdtBalance} -> ${newRecipientUsdtBalance}`);
 
           transaction.update(senderRef, { 
             assets: updatedSenderAssets,
@@ -540,7 +614,12 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="amount">Amount</Label>
+          <div className="flex justify-between items-center">
+            <Label htmlFor="amount">Amount</Label>
+            <span className="text-sm text-white/70">
+              Available: {(userBalances[selectedCrypto] || 0).toFixed(8)} {selectedCrypto}
+            </span>
+          </div>
           <div className="relative">
             <Input
               id="amount"
@@ -549,15 +628,24 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               className="bg-white/5 border-white/10 pr-16"
+              step={selectedCrypto === 'USDT' ? '0.01' : '0.00000001'}
+              min="0"
             />
             <div className="absolute inset-y-0 right-0 flex items-center pr-3">
               <span className="text-white/70">{selectedCrypto}</span>
             </div>
           </div>
           {amount && (
-            <div className="flex justify-between text-sm text-white/70">
-              <span>Value:</span>
-              <span>≈ ${calculateUsdValue().toFixed(2)} USD</span>
+            <div className="space-y-1">
+              <div className="flex justify-between text-sm text-white/70">
+                <span>Value:</span>
+                <span>≈ ${calculateUsdValue().toFixed(2)} USD</span>
+              </div>
+              {parseFloat(amount) > (userBalances[selectedCrypto] || 0) && (
+                <p className="text-xs text-red-400">
+                  ⚠️ Insufficient balance. You have {(userBalances[selectedCrypto] || 0).toFixed(8)} {selectedCrypto}
+                </p>
+              )}
             </div>
           )}
         </div>
