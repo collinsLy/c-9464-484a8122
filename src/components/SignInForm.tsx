@@ -101,15 +101,42 @@ const SignInForm = ({ onSuccess }: SignInFormProps) => {
       switch (error.code) {
         case 'auth/invalid-email':
           form.setError("email", { message: "Invalid email format" });
+          toast({
+            title: "Invalid Email",
+            description: "Please enter a valid email address.",
+            variant: "destructive"
+          });
           break;
         case 'auth/user-not-found':
           form.setError("email", { message: "Email not registered" });
+          toast({
+            title: "Account Not Found",
+            description: "No account found with this email address.",
+            variant: "destructive"
+          });
           break;
         case 'auth/wrong-password':
           form.setError("password", { message: "Incorrect password" });
+          toast({
+            title: "Incorrect Password",
+            description: "The password you entered is incorrect.",
+            variant: "destructive"
+          });
           break;
         case 'auth/network-request-failed':
           form.setError("root", { message: "Network error. Please check your connection." });
+          toast({
+            title: "Network Error",
+            description: "Please check your internet connection and try again.",
+            variant: "destructive"
+          });
+          break;
+        case 'auth/too-many-requests':
+          toast({
+            title: "Too Many Attempts",
+            description: "Too many failed login attempts. Please try again later.",
+            variant: "destructive"
+          });
           break;
         default:
           form.setError("root", { message: error.message || "An error occurred. Please try again." });

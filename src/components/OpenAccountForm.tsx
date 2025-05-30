@@ -84,13 +84,43 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
           form.setError("email", { 
             message: "Email already registered. Please sign in instead." 
           });
+          toast({
+            title: "Email Already Registered",
+            description: "This email is already registered. Please sign in instead.",
+            variant: "destructive"
+          });
           break;
         case 'auth/invalid-email':
           form.setError("email", { message: "Invalid email format" });
+          toast({
+            title: "Invalid Email",
+            description: "Please enter a valid email address.",
+            variant: "destructive"
+          });
+          break;
+        case 'auth/weak-password':
+          form.setError("password", { message: "Password is too weak" });
+          toast({
+            title: "Weak Password",
+            description: "Password must be at least 8 characters long.",
+            variant: "destructive"
+          });
+          break;
+        case 'auth/network-request-failed':
+          toast({
+            title: "Network Error",
+            description: "Please check your internet connection and try again.",
+            variant: "destructive"
+          });
           break;
         default:
           form.setError("root", { 
             message: "An error occurred. Please try again." 
+          });
+          toast({
+            title: "Account Creation Failed",
+            description: error.message || "An unexpected error occurred. Please try again.",
+            variant: "destructive"
           });
       }
     } finally {
