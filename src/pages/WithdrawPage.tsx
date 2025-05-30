@@ -460,18 +460,19 @@ const WithdrawPage = () => {
 
           // Special handling for USDT - check both locations with proper priority
           if (selectedCrypto === 'USDT') {
-            // First try assets.USDT (new location)
-            if (userData.assets && userData.assets.USDT && userData.assets.USDT.amount !== undefined) {
-              balance = Number(userData.assets.USDT.amount);
-              console.log(`USDT from assets object (in withdrawal function): ${balance}`);
-            } 
-            // If assets.USDT is 0 or undefined, fallback to main balance field
-            else if (typeof userData.balance === 'number' && userData.balance > 0) {
+            // First try main balance field (legacy location) - this is where USDT is primarily stored
+            if (typeof userData.balance === 'number') {
               balance = userData.balance;
-              console.log(`USDT from main balance field (in withdrawal function): ${balance}`);
-            } else if (typeof userData.balance === 'string' && parseFloat(userData.balance) > 0) {
+              console.log(`USDT from main balance field (number): ${balance}`);
+            } else if (typeof userData.balance === 'string') {
               balance = parseFloat(userData.balance) || 0;
-              console.log(`USDT from main balance field (string) (in withdrawal function): ${balance}`);
+              console.log(`USDT from main balance field (string): ${balance}`);
+            }
+
+            // If main balance is 0 or undefined, then check assets.USDT
+            if (balance === 0 && userData.assets && userData.assets.USDT && userData.assets.USDT.amount !== undefined) {
+              balance = Number(userData.assets.USDT.amount);
+              console.log(`USDT from assets object (fallback): ${balance}`);
             }
           } 
           // Standard handling for other assets
@@ -838,18 +839,19 @@ const WithdrawPage = () => {
 
       // Special handling for USDT - check both locations with proper priority
       if (selectedCrypto === 'USDT') {
-        // First check assets.USDT
-        if (userAssets.USDT && userAssets.USDT.amount !== undefined && userAssets.USDT.amount > 0) {
-          cryptoBalance = Number(userAssets.USDT.amount);
-          console.log(`USDT from assets object: ${cryptoBalance}`);
-        } 
-        // If assets.USDT is 0 or undefined, use main balance field
-        else if (typeof userData.balance === 'number' && userData.balance > 0) {
+        // First try main balance field (legacy location) - this is where USDT is primarily stored
+        if (typeof userData.balance === 'number') {
           cryptoBalance = userData.balance;
-          console.log(`USDT from main balance field: ${cryptoBalance}`);
-        } else if (typeof userData.balance === 'string' && parseFloat(userData.balance) > 0) {
+          console.log(`USDT from main balance field (number): ${cryptoBalance}`);
+        } else if (typeof userData.balance === 'string') {
           cryptoBalance = parseFloat(userData.balance) || 0;
           console.log(`USDT from main balance field (string): ${cryptoBalance}`);
+        }
+
+        // If main balance is 0 or undefined, then check assets.USDT
+        if (cryptoBalance === 0 && userAssets.USDT && userAssets.USDT.amount !== undefined) {
+          cryptoBalance = Number(userAssets.USDT.amount);
+          console.log(`USDT from assets object (fallback): ${cryptoBalance}`);
         }
       } else {
         // Standard handling for other cryptos
@@ -878,7 +880,7 @@ const WithdrawPage = () => {
       if (selectedCrypto === 'BTC') {
         const gasFeeInBnb = getGasFee(selectedCrypto, network);
         const currentBnbBalance = Number(userAssets.BNB?.amount) || 0;
-        
+
         if (currentBnbBalance < gasFeeInBnb) {
           toast({
             title: "Insufficient BNB for Gas Fee",
@@ -938,9 +940,7 @@ const WithdrawPage = () => {
         const newBtcAmount = cryptoBalance - cryptoAmountValue;
         const gasFeeInBnb = getGasFee(selectedCrypto, network);
         const currentBnbBalance = Number(userAssets.BNB?.amount) || 0;
-        const newBnbAmount = Math.max(0, currentBnbBalance - gasFeeInBnb);
-
-        // Update BTC balance
+        const newBnbAmount = Math.max(0, currentBnbBalance - gasFeeInBnb);        // Update BTC balance
         if (newBtcAmount <= 0) {
           if (updatedUserAssets.BTC) {
             updatedUserAssets.BTC = {
@@ -1465,7 +1465,7 @@ const WithdrawPage = () => {
 
                                   // Special handling for USDT - check both locations
                                   if (crypto.symbol === 'USDT') {
-                                    // First check main balance field (legacy location)
+                                    // First try main balance field (legacy location)
                                     if (typeof userData.balance === 'number') {
                                       freshBalance = userData.balance;
                                     } else if (typeof userData.balance === 'string') {
@@ -1561,13 +1561,13 @@ const WithdrawPage = () => {
                       <>
                         <Button 
                           variant={network === 'ERC20' ? 'secondary' : 'outline'}
-                          onClick={() => setNetwork('ERC20')}
+                          onClick={()={() => setNetwork('ERC20')}
                         >
                           Ethereum (ERC20)
                         </Button>
                         <Button 
                           variant={network === 'TRC20' ? 'secondary' : 'outline'}
-                          onClick={() => setNetwork('TRC20')}
+                          onClick={()={() => setNetwork('TRC20')}
                         >
                           Tron (TRC20)
                         </Button>
