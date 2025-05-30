@@ -1125,6 +1125,115 @@ const WithdrawPage = () => {
     return address.length >= 25 && address.length <= 128;
   };
 
+    // Get the gas fee for each cryptocurrency and network
+    const getGasFee = (crypto: string, network: string): number => {
+        const gasFees: Record<string, Record<string, number>> = {
+            'BTC': {
+                'NATIVE': 0.0001,
+                'BSC': 0.0005
+            },
+            'ETH': {
+                'ERC20': 0.001,
+                'ARBITRUM': 0.0005,
+                'OPTIMISM': 0.0005
+            },
+            'BNB': {
+                'BSC': 0.0005
+            },
+            'USDT': {
+                'ERC20': 5,
+                'TRC20': 1,
+                'BSC': 0.8,
+                'SOLANA': 0.01
+            },
+            'USDC': {
+                'ERC20': 5,
+                'BSC': 0.8,
+                'SOLANA': 0.01
+            },
+            'WLD': {
+                'ERC20': 5,
+            },
+            'DOGE': {
+                'NATIVE': 1
+            },
+            'SOL': {
+                'SOLANA': 0.01
+            },
+            'XRP': {
+                'NATIVE': 0.2
+            },
+            'ADA': {
+                'NATIVE': 0.2
+            },
+            'DOT': {
+                'NATIVE': 0.1
+            },
+            'LINK': {
+                'ERC20': 1
+            },
+            'MATIC': {
+                'NATIVE': 0.1
+            }
+        };
+        return gasFees[crypto]?.[network] || 0;
+    };
+
+    // Get the currency of the gas fee for each cryptocurrency and network
+    const getGasFeeCurrency = (crypto: string, network: string): string => {
+        const gasFeeCurrencies: Record<string, Record<string, string>> = {
+            'BTC': {
+                'NATIVE': 'BTC',
+                'BSC': 'BNB'
+            },
+            'ETH': {
+                'ERC20': 'ETH',
+                'ARBITRUM': 'ETH',
+                'OPTIMISM': 'ETH'
+            },
+            'BNB': {
+                'BSC': 'BNB'
+            },
+            'USDT': {
+                'ERC20': 'ETH',
+                'TRC20': 'TRX',
+                'BSC': 'BNB',
+                'SOLANA': 'SOL'
+            },
+            'USDC': {
+                'ERC20': 'ETH',
+                'BSC': 'BNB',
+                'SOLANA': 'SOL'
+            },
+            'WLD': {
+                'ERC20': 'ETH',
+            },
+            'DOGE': {
+                'NATIVE': 'DOGE'
+            },
+            'SOL': {
+                'SOLANA': 'SOL'
+            },
+            'XRP': {
+                'NATIVE': 'XRP'
+            },
+            'ADA': {
+                'NATIVE': 'ADA'
+            },
+            'DOT': {
+                'NATIVE': 'DOT'
+            },
+            'LINK': {
+                'ERC20': 'ETH'
+            },
+            'MATIC': {
+                'NATIVE': 'MATIC'
+            }
+        };
+        return gasFeeCurrencies[crypto]?.[network] || crypto;
+    };
+
+
   return (
     <DashboardLayout>
       <div className="w-full space-y-4">
@@ -1544,19 +1653,25 @@ const WithdrawPage = () => {
                             <p className="text-white/70">
                               ≈ ${(parseFloat(cryptoAmount || '0') * getEstimatedRate(selectedCrypto)).toFixed(2)} USD
                             </p>
-                            {parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0) && (
-                              <p className="text-red-400">Insufficient {selectedCrypto} balance</p>
-                            )}
+                            {getGasFeeCurrency(selectedCrypto, network) === selectedCrypto && 
+                         (parseFloat(cryptoAmount) + getGasFee(selectedCrypto, network)) > (userCryptoBalances[selectedCrypto] || 0) && 
+                          <p className="text-red-400">Insufficient balance (including gas fee)</p>}
+                        {getGasFeeCurrency(selectedCrypto, network) !== selectedCrypto && 
+                         parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0) && 
+                          <p className="text-red-400">Insufficient {selectedCrypto} balance</p>}
+                        {getGasFeeCurrency(selectedCrypto, network) !== selectedCrypto && 
+                         getGasFee(selectedCrypto, network) > (userCryptoBalances[getGasFeeCurrency(selectedCrypto, network)] || 0) && 
+                          <p className="text-red-400">Insufficient {getGasFeeCurrency(selectedCrypto, network)} for gas fee</p>}
                           </div>
 
                           {/* Network fee estimate */}
                           <div className="flex justify-between text-xs text-white/60">
                             <span>Network Fee:</span>
-                            <span>{network === 'ERC20' ? '~0.001 ETH' : 
-                                  network === 'TRC20' ? '~1 TRX' : 
-                                  network === 'BSC' ? '~0.0005 BNB' :
-                                  network === 'NATIVE' && selectedCrypto === 'BTC' ? '~0.0001 BTC' :
-                                  '~0.0001'}</span>
+                            <span>{network === 'ERC20' ? `~${getGasFee(selectedCrypto, network)} ETH` : 
+                                  network === 'TRC20' ? `~${getGasFee(selectedCrypto, network)} TRX` : 
+                                  network === 'BSC' ? `~${getGasFee(selectedCrypto, network)} BNB` :
+                                  network === 'NATIVE' && selectedCrypto === 'BTC' ? `~${getGasFee(selectedCrypto, network)} BTC` :
+                                  `~${getGasFee(selectedCrypto, network)}`}</span>
                           </div>
 
                           {/* Minimum withdrawal amount */}
@@ -1591,17 +1706,24 @@ const WithdrawPage = () => {
                     {(
                       (!walletAddress || !isValidWalletAddress(walletAddress, selectedCrypto, network)) ||
                       (!cryptoAmount || parseFloat(cryptoAmount) <= 0) ||
-                      (parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0)) ||
+                      (getGasFeeCurrency(selectedCrypto, network) === selectedCrypto && 
+                         (parseFloat(cryptoAmount) + getGasFee(selectedCrypto, network)) > (userCryptoBalances[selectedCrypto] || 0)) ||
+                      (getGasFeeCurrency(selectedCrypto, network) !== selectedCrypto && parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0)) ||
+                      (getGasFeeCurrency(selectedCrypto, network) !== selectedCrypto && getGasFee(selectedCrypto, network) > (userCryptoBalances[getGasFeeCurrency(selectedCrypto, network)] || 0)) ||
                       (cryptoAmount && parseFloat(cryptoAmount) < getMinimumWithdrawalAmount(selectedCrypto))
                     ) && (
                       <div className="mt-2 p-2 bg-red-500/10 rounded-md">
-                        {!walletAddress && <p className="text-xs text-red-400 mb-1">⚠️ Please enter a wallet address</p>}
+                        {!walletAddress && <p className="text-xs text-red-400 mb-1">⚠️ Pleaseenter a wallet address</p>}
                         {walletAddress && !isValidWalletAddress(walletAddress, selectedCrypto, network) && 
                           <p className="text-xs text-red-400 mb-1">⚠️ Invalid wallet address format</p>}
                         {(!cryptoAmount || parseFloat(cryptoAmount) <= 0) && 
                           <p className="text-xs text-red-400 mb-1">⚠️ Please enter a valid amount</p>}
-                        {parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0) && 
-                          <p className="text-xs text-red-400 mb-1">⚠️ Insufficient balance</p>}
+                        {getGasFeeCurrency(selectedCrypto, network) === selectedCrypto && 
+                         (parseFloat(cryptoAmount) + getGasFee(selectedCrypto, network)) > (userCryptoBalances[selectedCrypto] || 0) && 
+                          <p className="text-xs text-red-400 mb-1">⚠️ Insufficient balance (including gas fee)</p>}
+                        {getGasFeeCurrency(selectedCrypto, network) !== selectedCrypto && 
+                         parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0) && 
+                          <p className="text-xs text-red-400 mb-1">⚠️ Insufficient {selectedCrypto} balance</p>}
                         {cryptoAmount && parseFloat(cryptoAmount) < getMinimumWithdrawalAmount(selectedCrypto) && 
                           <p className="text-xs text-red-400 mb-1">⚠️ Amount below minimum withdrawal</p>}
                       </div>
