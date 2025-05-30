@@ -189,20 +189,30 @@ const WithdrawPage = () => {
 
   // Confirm the vertex transfer
   const confirmVertexTransfer = async () => {
-    setIsProcessingTransfer(true);
-    const cryptoAmountValue = parseFloat(cryptoAmount);
-    const uid = userUid || auth.currentUser?.uid || localStorage.getItem('userId');
+    console.log("confirmVertexTransfer called");
+    
+    try {
+      setIsProcessingTransfer(true);
+      const cryptoAmountValue = parseFloat(cryptoAmount);
+      const uid = userUid || auth.currentUser?.uid || localStorage.getItem('userId');
 
-    if (!uid || !recipientUid) {
-      toast({
-        title: "Transfer Error",
-        description: "Missing user identifiers",
-        variant: "destructive",
+      console.log("Transfer details:", {
+        cryptoAmountValue,
+        uid,
+        recipientUid,
+        selectedCrypto
       });
-      setIsProcessingTransfer(false);
-      setIsConfirmDialogOpen(false);
-      return;
-    }
+
+      if (!uid || !recipientUid) {
+        toast({
+          title: "Transfer Error",
+          description: "Missing user identifiers",
+          variant: "destructive",
+        });
+        setIsProcessingTransfer(false);
+        setIsConfirmDialogOpen(false);
+        return;
+      }
 
     try {
       // Get fresh data before proceeding
@@ -344,12 +354,13 @@ const WithdrawPage = () => {
       console.error("Transfer error:", error);
       toast({
         title: "Transfer Failed",
-        description: "An error occurred during the transfer. Please try again.",
+        description: error instanceof Error ? error.message : "An error occurred during the transfer. Please try again.",
         variant: "destructive",
       });
-    } finally {
       setIsProcessingTransfer(false);
+      setIsConfirmDialogOpen(false);
     }
+  };
   };
 
   // Fetch user's crypto balances when the component loads
@@ -2109,9 +2120,10 @@ const WithdrawPage = () => {
 
                 {/* Confirmation Dialog */}
                 <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
-                  <DialogContent className="bg-background/95 backdrop-blur-lg border-white/10 text-white">
+                  <DialogContent className="bg-background/95 backdrop-blur-lg border-white/10 text-white" aria-describedby="transfer-description">
                     <div className="flex flex-col items-center justify-center p-6 space-y-4">
                       <h2 className="text-2xl font-bold">Confirm Transfer</h2>
+                      <p id="transfer-description" className="sr-only">Review and confirm your transfer details</p>
 
                       <div className="w-full bg-white/5 rounded-lg p-4 space-y-3">
                         <div className="flex justify-between">
@@ -2148,7 +2160,10 @@ const WithdrawPage = () => {
                         </Button>
                         <Button 
                           className="flex-1 bg-[#F2FF44] text-black hover:bg-[#E2EF34]"
-                          onClick={confirmVertexTransfer}
+                          onClick={() => {
+                            console.log("Confirm Transfer button clicked");
+                            confirmVertexTransfer();
+                          }}
                           disabled={isProcessingTransfer}
                         >
                           {isProcessingTransfer ? (
