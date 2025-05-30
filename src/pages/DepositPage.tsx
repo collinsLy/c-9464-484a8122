@@ -14,6 +14,7 @@ import { networkAddresses } from '@/lib/network-addresses';
 import UidTransfer from "@/components/dashboard/UidTransfer";
 import QRCodeScanner from '@/components/QRCodeScanner';
 import { auth } from '@/lib/firebase';
+import { getAuth } from 'firebase/auth';
 import { UserService } from '@/lib/user-service';
 
 
@@ -45,9 +46,11 @@ const DepositPage = () => {
   // Fetch user data on component mount
   useEffect(() => {
     const fetchUserData = async () => {
-      if (auth.currentUser) {
+      const currentAuth = getAuth();
+      if (currentAuth.currentUser) {
         try {
-          const data = await UserService.getUserData(auth.currentUser.uid);
+          const data = await UserService.getUserData(currentAuth.currentUser.uid);
+          console.log('Fetched user data:', data); // Debug log
           setUserData(data);
         } catch (error) {
           console.error('Error fetching user data:', error);
@@ -55,7 +58,19 @@ const DepositPage = () => {
       }
     };
 
-    fetchUserData();
+    // Listen for auth state changes
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        fetchUserData();
+      }
+    });
+
+    // Initial fetch if user is already logged in
+    if (auth.currentUser) {
+      fetchUserData();
+    }
+
+    return () => unsubscribe();
   }, []);
 
   // Generate reference number when user initiates payment
@@ -485,8 +500,16 @@ const DepositPage = () => {
                     <Button 
                       className="w-full bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34] h-12 text-lg"
                       disabled={!amount || parseFloat(amount) <= 0}
-                      onClick={() => {
-                        // Show payment iframe for both demo and production
+                      onClick={async () => {
+                        // Ensure user data is loaded before showing payment iframe
+                        if (!userData && auth.currentUser) {
+                          try {
+                            const data = await UserService.getUserData(auth.currentUser.uid);
+                            setUserData(data);
+                          } catch (error) {
+                            console.error('Error fetching user data:', error);
+                          }
+                        }
                         setShowPaymentIframe(true);
                       }}
                     >
@@ -586,10 +609,14 @@ const DepositPage = () => {
               </div>
               <div className="flex-1 overflow-hidden">
                 <iframe 
-                  src={isDemoMode 
-                    ? "https://app.payhero.co.ke/lipwa/1981" 
-                    : `https://app.payhero.co.ke/lipwa/1981?amount=${Math.round(kshAmount)}&customer_name=${encodeURIComponent(userData?.fullName || 'Guest User')}&reference=${referenceNumber}`
-                  } 
+                  src={(() => {
+                    const url = isDemoMode 
+                      ? "https://app.payhero.co.ke/lipwa/1981" 
+                      : `https://app.payhero.co.ke/lipwa/1981?amount=${Math.round(kshAmount)}&customer_name=${encodeURIComponent(userData?.fullName || userData?.name || 'Guest User')}&reference=${referenceNumber}`;
+                    console.log('Payment iframe URL:', url); // Debug log
+                    console.log('User data for payment:', userData); // Debug log
+                    return url;
+                  })()} 
                   className="w-full h-full border-0"
                   title="Payment Gateway"
                   sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
