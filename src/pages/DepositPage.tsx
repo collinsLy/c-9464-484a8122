@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -13,6 +13,8 @@ import { cn } from '@/lib/utils';
 import { networkAddresses } from '@/lib/network-addresses';
 import UidTransfer from "@/components/dashboard/UidTransfer";
 import QRCodeScanner from '@/components/QRCodeScanner';
+import { auth } from '@/lib/firebase';
+import { UserService } from '@/lib/user-service';
 
 
 const DepositPage = () => {
@@ -28,8 +30,40 @@ const DepositPage = () => {
   const [showAllCoinsDialog, setShowAllCoinsDialog] = useState(false);
   const [userBalance, setUserBalance] = useState(0);
   const [fetchUserBalance, setFetchUserBalance] = useState(0);
-  const [kshAmount, setKshAmount] = useState(0); // New state for KSH amount
+  const [kshAmount, setKshAmount] = useState(0);
+  const [userData, setUserData] = useState(null);
+  const [referenceNumber, setReferenceNumber] = useState("");
   const conversionRate = 135;
+
+  // Generate unique reference number
+  const generateReferenceNumber = () => {
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 1000);
+    return `DEP${timestamp}${random}`;
+  };
+
+  // Fetch user data on component mount
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (auth.currentUser) {
+        try {
+          const data = await UserService.getUserData(auth.currentUser.uid);
+          setUserData(data);
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  // Generate reference number when user initiates payment
+  useEffect(() => {
+    if (showPaymentIframe && !referenceNumber) {
+      setReferenceNumber(generateReferenceNumber());
+    }
+  }, [showPaymentIframe]);
 
   // Handler for QR code scanning results
   const handleScanResult = (result: string) => {
@@ -531,9 +565,17 @@ const DepositPage = () => {
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div className="bg-background/95 border border-white/10 rounded-lg w-full max-w-4xl h-[80vh] flex flex-col">
               <div className="flex justify-between items-center p-4 border-b border-white/10">
-                <h3 className="text-xl font-medium text-white">Payment Gateway</h3>
+                <div>
+                  <h3 className="text-xl font-medium text-white">Payment Gateway</h3>
+                  {referenceNumber && (
+                    <p className="text-sm text-white/70 mt-1">Reference: {referenceNumber}</p>
+                  )}
+                </div>
                 <button 
-                  onClick={() => setShowPaymentIframe(false)}
+                  onClick={() => {
+                    setShowPaymentIframe(false);
+                    setReferenceNumber("");
+                  }}
                   className="text-white/70 hover:text-white"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -546,7 +588,7 @@ const DepositPage = () => {
                 <iframe 
                   src={isDemoMode 
                     ? "https://app.payhero.co.ke/lipwa/1981" 
-                    : `https://app.payhero.co.ke/lipwa/1981?amount=${Math.round(kshAmount)}`
+                    : `https://app.payhero.co.ke/lipwa/1981?amount=${Math.round(kshAmount)}&customer_name=${encodeURIComponent(userData?.fullName || 'Guest User')}&reference=${referenceNumber}`
                   } 
                   className="w-full h-full border-0"
                   title="Payment Gateway"
