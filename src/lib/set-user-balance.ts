@@ -33,7 +33,12 @@ export async function setUserBalance(email: string, balance: number) {
   }
 }
 
-// Function to set the specific user's balance to $72
-export async function setKelvinBalance() {
-  return await setUserBalance('kelvinkelly3189@gmail.com', 72);
+// Function to manage Kelvin's balance (restriction removed)
+export async function setKelvinBalance(newBalance?: number) {
+  // If no balance is provided, just return true (no action needed)
+  if (newBalance === undefined) {
+    console.log('No balance restriction for kelvinkelly3189@gmail.com');
+    return true;
+  }
+  return await setUserBalance('kelvinkelly3189@gmail.com', newBalance);
 }

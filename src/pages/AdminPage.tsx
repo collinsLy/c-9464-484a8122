@@ -55,23 +55,24 @@ export default function AdminPage() {
   const handleSetKelvinBalance = async () => {
     setLoading(true);
     try {
+      // Kelvin's account is no longer restricted to $72
       const success = await setKelvinBalance();
       if (success) {
         toast({
           title: "Success",
-          description: "Kelvin's balance set to $72",
+          description: "Kelvin's account restrictions removed - balance can now be managed normally",
         });
       } else {
         toast({
           title: "Error",
-          description: "Failed to update Kelvin's balance",
+          description: "Failed to remove restrictions",
           variant: "destructive",
         });
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to update balance",
+        description: "Failed to update account settings",
         variant: "destructive",
       });
     } finally {
