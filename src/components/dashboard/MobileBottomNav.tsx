@@ -1,16 +1,16 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, PlayCircle, Wallet, Settings } from 'lucide-react';
+import { ArrowLeftRight, Home, PlayCircle, Wallet, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const MobileBottomNav = () => {
   const { pathname } = useLocation();
-  
+
   const navItems = [
     { icon: Home, label: 'Home', path: '/dashboard' },
     { icon: PlayCircle, label: 'Bots', path: '/bots' },
     { icon: Wallet, label: 'Assets', path: '/assets' },
+    { icon: ArrowLeftRight, label: 'Convert', path: '/dashboard/converter' },
     { icon: Settings, label: 'Settings', path: '/settings' },
   ];
 

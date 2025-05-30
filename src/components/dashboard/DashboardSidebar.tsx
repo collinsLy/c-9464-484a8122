@@ -111,6 +111,7 @@ const defaultNavCategories: NavCategory[] = [
       { icon: PlayCircle, label: "Demo", id: "demo", path: "/demo" },
       { icon: HelpCircle, label: "Support", id: "support", path: "/support" },
       { icon: Settings, label: "Settings", id: "settings", path: "/settings" },
+      { icon: ArrowLeftRight, label: "Converter", id: "converter", path: "/converter" },
     ]
   }
 ];
