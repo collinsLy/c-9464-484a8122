@@ -453,14 +453,8 @@ const DepositPage = () => {
                       className="w-full bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34] h-12 text-lg"
                       disabled={!amount || parseFloat(amount) < 10}
                       onClick={() => {
-                        if (isDemoMode) {
-                          // Show demo payment iframe
-                          setShowPaymentIframe(true);
-                        } else {
-                          // Redirect to PayHero with KSH amount
-                          const kshAmountForPayment = Math.round(kshAmount);
-                          window.open(`https://app.payhero.co.ke/lipwa/1981?amount=${kshAmountForPayment}`, '_blank');
-                        }
+                        // Show payment iframe for both demo and production
+                        setShowPaymentIframe(true);
                       }}
                     >
                       {isDemoMode ? "Demo Deposit" : `Pay $${amount || '0.00'}`}
@@ -552,7 +546,10 @@ const DepositPage = () => {
               </div>
               <div className="flex-1 overflow-hidden">
                 <iframe 
-                  src="https://app.payhero.co.ke/lipwa/1981" 
+                  src={isDemoMode 
+                    ? "https://app.payhero.co.ke/lipwa/1981" 
+                    : `https://app.payhero.co.ke/lipwa/1981?amount=${Math.round(kshAmount)}`
+                  } 
                   className="w-full h-full border-0"
                   title="Payment Gateway"
                   sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
