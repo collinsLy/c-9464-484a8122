@@ -359,6 +359,15 @@ const WithdrawPage = () => {
       });
       setIsProcessingTransfer(false);
       setIsConfirmDialogOpen(false);
+    } catch (error) {
+      console.error("Transfer error:", error);
+      toast({
+        title: "Transfer Failed",
+        description: error instanceof Error ? error.message : "An error occurred during the transfer. Please try again.",
+        variant: "destructive",
+      });
+      setIsProcessingTransfer(false);
+      setIsConfirmDialogOpen(false);
     }
   };
 
