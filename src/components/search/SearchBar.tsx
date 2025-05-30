@@ -119,25 +119,11 @@ const pagesData: PageData[] = [
     icon: BrainCircuit
   },
   {
-    title: "P2P Trading",
-    path: "/p2p",
-    keywords: ["peer", "direct", "local", "fiat", "personal"],
-    description: "Trade directly with other users",
-    icon: Users
-  },
-  {
     title: "Trading Bots",
     path: "/bots",
     keywords: ["automated", "bot", "algorithm", "strategy"],
     description: "Setup and manage trading bots",
     icon: PlayCircle
-  },
-  {
-    title: "Crypto Converter",
-    path: "/crypto-converter",
-    keywords: ["exchange", "convert", "swap", "calculate"],
-    description: "Convert between cryptocurrencies",
-    icon: ArrowLeftRight
   },
   {
     title: "USDT-M Futures",
