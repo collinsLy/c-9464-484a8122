@@ -27,15 +27,17 @@ const DepositPage = () => {
   const [showScanner, setShowScanner] = useState(false);
   const [showAllCoinsDialog, setShowAllCoinsDialog] = useState(false);
   const [userBalance, setUserBalance] = useState(0);
-  const fetchUserBalance = () => { /* Implementation needed to fetch user balance */ };
-  
+  const [fetchUserBalance, setFetchUserBalance] = useState(0);
+  const [kshAmount, setKshAmount] = useState(0); // New state for KSH amount
+  const conversionRate = 135;
+
   // Handler for QR code scanning results
   const handleScanResult = (result: string) => {
     toast({
       title: "QR Code Scanned",
       description: "Successfully scanned QR code",
     });
-    
+
     // Process the scanned result
     if (result.startsWith('bitcoin:')) {
       // Extract Bitcoin address from URI
@@ -88,7 +90,7 @@ const DepositPage = () => {
           </div>
           {isDemoMode && <div className="text-sm text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-md whitespace-nowrap">Demo Mode</div>}
         </div>
-        
+
         <Card className="w-full bg-background/40 backdrop-blur-lg border-white/10 text-white">
           <CardHeader className="pb-3 px-4 sm:px-6">
             <CardTitle className="text-lg sm:text-xl break-words">Deposit Options</CardTitle>
@@ -428,7 +430,11 @@ const DepositPage = () => {
                         <Input
                           type="number"
                           value={amount}
-                          onChange={(e) => setAmount(e.target.value)}
+                          onChange={(e) => {
+                            const usdValue = parseFloat(e.target.value);
+                            setAmount(e.target.value);
+                            setKshAmount(isNaN(usdValue) ? 0 : usdValue * conversionRate);
+                          }}
                           placeholder="0.00"
                           className="bg-background/40 border-white/10 text-white placeholder:text-white/50 pr-16 text-lg"
                         />
@@ -436,7 +442,12 @@ const DepositPage = () => {
                           <span className="text-white/70 text-lg">USD</span>
                         </div>
                       </div>
-                      
+                      {kshAmount > 0 && (
+                        <p className="text-white/70 text-sm">
+                          Equivalent in KSH: {kshAmount.toFixed(2)}
+                        </p>
+                      )}
+
                     </div>
                     <Button 
                       className="w-full bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34] h-12 text-lg"
@@ -461,8 +472,9 @@ const DepositPage = () => {
                     <div>
                       <p className="font-medium text-white mb-2">Important Notes</p>
                       <ul className="list-disc pl-4 space-y-1">
-                        <li>Minimum deposit amount: $10.00</li>
-                        <li>Maximum single deposit: $10,000.00</li>
+                        <li>Minimum deposit amount: $10.00 (KSH 1,350.00)</li>
+                        <li>Maximum single deposit: $10,000.00 (KSH 1,350,000.00)</li>
+                        <li>Exchange rate: 1 USD = 135 KSH (fixed rate)</li>
                         <li>All payment methods are secure and encrypted</li>
                         <li>Customer support available 24/7</li>
                       </ul>
@@ -475,7 +487,7 @@ const DepositPage = () => {
             </Tabs>
           </CardContent>
         </Card>
-        
+
         <div>
           <h2 className="text-3xl font-bold text-white mb-6">How to Buy Crypto</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
@@ -543,7 +555,7 @@ const DepositPage = () => {
             </div>
           </div>
         )}
-        
+
         {/* QR Code Scanner */}
         <QRCodeScanner 
           isOpen={showScanner}
