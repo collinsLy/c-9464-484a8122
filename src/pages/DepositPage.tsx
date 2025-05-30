@@ -664,10 +664,7 @@ const DepositPage = () => {
                 { symbol: 'DOT', name: 'Polkadot' },
                 { symbol: 'LINK', name: 'Chainlink' },
                 { symbol: 'MATIC', name: 'Polygon' }
-              Analysis: The code needs to add a loading state for the iframe and rename the iframe title to "Vertex Deposit Checkpoint". The provided changes include the addition of `iframeLoading` state and modification of the iframe title and loading logic.
-
-```
-                ].map((crypto) => (
+              ].map((crypto) => (
                 <button
                   key={crypto.symbol}
                   onClick={() => {
