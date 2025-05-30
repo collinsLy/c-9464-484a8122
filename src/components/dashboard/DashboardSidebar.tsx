@@ -111,7 +111,7 @@ const defaultNavCategories: NavCategory[] = [
       { icon: PlayCircle, label: "Demo", id: "demo", path: "/demo" },
       { icon: HelpCircle, label: "Support", id: "support", path: "/support" },
       { icon: Settings, label: "Settings", id: "settings", path: "/settings" },
-      { icon: ArrowLeftRight, label: "Converter", id: "converter", path: "/converter" },
+      { icon: ArrowLeftRight, label: "Converter", id: "converter", path: "/crypto-converter" },
     ]
   }
 ];
@@ -212,6 +212,7 @@ const DashboardSidebar = ({ navItems = defaultNavCategories }: SidebarProps) => 
     if (pathname === '/alerts') return 'alerts';
     if (pathname === '/new-listings') return 'newlistings'; // Added new-listings check
     if (pathname === '/futures-markets') return 'futures-markets'; //Added futures-markets check
+    if (pathname === '/crypto-converter') return 'converter'; // Added converter check
 
     // Log the current pathname for debugging
     console.log("Current active tab:", pathname);

@@ -216,6 +216,13 @@ const pagesData: PageData[] = [
     description: "Try the platform in demo mode",
     icon: PlayCircle
   },
+  {
+    title: "Crypto Converter",
+    path: "/crypto-converter",
+    keywords: ["convert", "swap", "exchange", "change", "currency"],
+    description: "Convert between different cryptocurrencies",
+    icon: ArrowLeftRight
+  },
 ];
 
 interface SearchBarProps {
