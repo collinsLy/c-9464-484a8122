@@ -99,15 +99,8 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
                 }
               }).catch(error => {
                 console.error('Error fetching general notifications:', error);
-                // Still show welcome notification on error
-                setNotifications([
-                  { 
-                    id: 'welcome', 
-                    message: 'Welcome to Vertex Trading Platform! 🚀', 
-                    read: false, 
-                    time: new Date().toISOString() 
-                  }
-                ]);
+                // Set empty notifications on error
+                setNotifications([]);
               });
             }
           } catch (error) {
@@ -115,15 +108,8 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
           }
         }, (error) => {
           console.error('Error listening to notifications:', error);
-          // Show fallback notification on error
-          setNotifications([
-            { 
-              id: 'error', 
-              message: 'Unable to load notifications. Please refresh the page.', 
-              read: false, 
-              time: new Date().toISOString() 
-            }
-          ]);
+          // Set empty notifications array on error
+          setNotifications([]);
         });
         
       } catch (error) {
@@ -185,8 +171,8 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
         )
       );
       
-      // Skip updating welcome/error notifications
-      if (notificationId === 'welcome' || notificationId === 'error') {
+      // Skip updating welcome notifications
+      if (notificationId === 'welcome') {
         return;
       }
       
