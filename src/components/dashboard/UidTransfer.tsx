@@ -55,15 +55,38 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch user's assets
+  // Fetch user's assets and balances
+  const [userBalances, setUserBalances] = useState<Record<string, number>>({});
+
   useEffect(() => {
     const fetchUserAssets = async () => {
       if (!currentUserId) return;
 
       try {
         const userData = await UserService.getUserData(currentUserId);
-        if (userData && userData.assets) {
-          setUserAssets(userData.assets);
+        if (userData) {
+          setUserAssets(userData.assets || {});
+          
+          // Set up balances including USDT from main balance field
+          const balances: Record<string, number> = {};
+          
+          // Handle USDT specially - check both locations
+          if (userData.assets && userData.assets.USDT) {
+            balances.USDT = Number(userData.assets.USDT.amount) || 0;
+          } else {
+            balances.USDT = Number(userData.balance) || 0;
+          }
+          
+          // Handle other assets
+          if (userData.assets) {
+            Object.entries(userData.assets).forEach(([key, asset]: [string, any]) => {
+              if (key !== 'USDT' && asset && typeof asset.amount !== 'undefined') {
+                balances[key] = Number(asset.amount) || 0;
+              }
+            });
+          }
+          
+          setUserBalances(balances);
         }
       } catch (error) {
         console.error('Error fetching user assets:', error);
@@ -133,10 +156,12 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
       return false;
     }
 
-    if (transferAmount > currentBalance) {
+    // Check balance for selected crypto
+    const availableBalance = userBalances[selectedCrypto] || 0;
+    if (transferAmount > availableBalance) {
       toast({
         title: "Insufficient Funds",
-        description: "You don't have enough funds for this transfer",
+        description: `You don't have enough ${selectedCrypto} for this transfer. Available: ${availableBalance.toFixed(4)} ${selectedCrypto}`,
         variant: "destructive"
       });
       return false;
@@ -182,30 +207,110 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
           throw new Error("User document not found");
         }
 
-        // Get current balances
-        const senderBalance = senderDoc.data().balance || 0;
-        const recipientBalance = recipientDoc.data().balance || 0;
+        const senderData = senderDoc.data();
+        const recipientData = recipientDoc.data();
+        const senderAssets = senderData.assets || {};
+        const recipientAssets = recipientData.assets || {};
 
-        // Verify sender has enough funds (double-check)
-        if (senderBalance < transferAmount) {
-          throw new Error("Insufficient funds");
+        // Handle USDT transfers specially
+        if (selectedCrypto === 'USDT') {
+          // Get current USDT balance (check both locations)
+          let senderUsdtBalance = 0;
+          if (senderAssets.USDT && senderAssets.USDT.amount !== undefined) {
+            senderUsdtBalance = Number(senderAssets.USDT.amount);
+          } else {
+            senderUsdtBalance = Number(senderData.balance) || 0;
+          }
+
+          // Verify sender has enough USDT
+          if (senderUsdtBalance < transferAmount) {
+            throw new Error("Insufficient USDT balance");
+          }
+
+          // Get recipient USDT balance
+          let recipientUsdtBalance = 0;
+          if (recipientAssets.USDT && recipientAssets.USDT.amount !== undefined) {
+            recipientUsdtBalance = Number(recipientAssets.USDT.amount);
+          } else {
+            recipientUsdtBalance = Number(recipientData.balance) || 0;
+          }
+
+          // Update sender
+          const newSenderUsdtBalance = senderUsdtBalance - transferAmount;
+          const updatedSenderAssets = { ...senderAssets };
+          updatedSenderAssets.USDT = {
+            amount: newSenderUsdtBalance,
+            name: 'USDT'
+          };
+
+          // Update recipient
+          const newRecipientUsdtBalance = recipientUsdtBalance + transferAmount;
+          const updatedRecipientAssets = { ...recipientAssets };
+          updatedRecipientAssets.USDT = {
+            amount: newRecipientUsdtBalance,
+            name: 'USDT'
+          };
+
+          transaction.update(senderRef, { 
+            assets: updatedSenderAssets,
+            balance: 0 // Clear legacy balance field
+          });
+
+          transaction.update(recipientRef, { 
+            assets: updatedRecipientAssets,
+            balance: 0 // Clear legacy balance field
+          });
+        } else {
+          // Handle other crypto transfers
+          const senderCryptoBalance = Number(senderAssets[selectedCrypto]?.amount) || 0;
+          const recipientCryptoBalance = Number(recipientAssets[selectedCrypto]?.amount) || 0;
+
+          // Verify sender has enough of the selected crypto
+          if (senderCryptoBalance < transferAmount) {
+            throw new Error(`Insufficient ${selectedCrypto} balance`);
+          }
+
+          // Update sender assets
+          const updatedSenderAssets = { ...senderAssets };
+          updatedSenderAssets[selectedCrypto] = {
+            ...updatedSenderAssets[selectedCrypto],
+            amount: senderCryptoBalance - transferAmount
+          };
+
+          // Update recipient assets
+          const updatedRecipientAssets = { ...recipientAssets };
+          if (!updatedRecipientAssets[selectedCrypto]) {
+            updatedRecipientAssets[selectedCrypto] = {
+              amount: transferAmount,
+              name: selectedCrypto
+            };
+          } else {
+            updatedRecipientAssets[selectedCrypto] = {
+              ...updatedRecipientAssets[selectedCrypto],
+              amount: recipientCryptoBalance + transferAmount
+            };
+          }
+
+          transaction.update(senderRef, { 
+            assets: updatedSenderAssets
+          });
+
+          transaction.update(recipientRef, { 
+            assets: updatedRecipientAssets
+          });
         }
 
-        // Update balances
-        transaction.update(senderRef, { 
-          balance: senderBalance - transferAmount 
-        });
-
-        transaction.update(recipientRef, { 
-          balance: recipientBalance + transferAmount 
-        });
-
         // Add transaction record to both users
+        const usdValue = transferAmount * (assetPrices[selectedCrypto] || 1);
         const transactionRecord = {
-          type: "transfer",
-          amount: transferAmount,
+          type: "Transfer",
+          method: "vertex",
+          crypto: selectedCrypto,
+          amount: usdValue,
+          cryptoAmount: transferAmount,
           timestamp: new Date().toISOString(),
-          status: "completed"
+          status: "Completed",
+          txId: `TX${Date.now()}`
         };
 
         // Add to sender's transactions
@@ -213,8 +318,14 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
           ...transactionRecord,
           direction: "out",
           recipientId: recipientUid,
-          recipientName: recipientDoc.data().fullName || "User",
-          description: `Sent to ${recipientDoc.data().fullName || "User"}`
+          recipientName: recipientData.fullName || "User",
+          details: {
+            crypto: selectedCrypto,
+            amount: transferAmount,
+            recipientId: recipientUid,
+            recipientName: recipientData.fullName || "User",
+            transferType: 'internal'
+          }
         };
 
         // Add to recipient's transactions
@@ -222,9 +333,14 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
           ...transactionRecord,
           direction: "in",
           senderId: currentUserId,
-          senderName: senderDoc.data().fullName || "User",
-          description: `Received from ${senderDoc.data().fullName || "User"}`,
-          asset: selectedCrypto, // Add the cryptocurrency type
+          senderName: senderData.fullName || "User",
+          details: {
+            crypto: selectedCrypto,
+            amount: transferAmount,
+            senderId: currentUserId,
+            senderName: senderData.fullName || "User",
+            transferType: 'internal'
+          },
           isRead: false, // Flag to track if the notification has been seen
           notificationId: `transfer-${Date.now()}-${Math.random().toString(36).substr(2, 9)}` // Unique notification ID
         };

@@ -379,13 +379,13 @@ const WithdrawPage = () => {
             });
           }
 
-          // For USDT, check if it exists in assets, otherwise use main balance field
-          if (!userData.assets?.USDT || userData.assets.USDT.amount === 0) {
-            if (typeof userData.balance === 'number') {
-              defaultBalances['USDT'] = userData.balance;
-            } else if (typeof userData.balance === 'string') {
-              defaultBalances['USDT'] = parseFloat(userData.balance) || 0;
-            }
+          // For USDT, check assets first, then fallback to main balance field
+          if (userData.assets?.USDT && userData.assets.USDT.amount !== undefined) {
+            defaultBalances['USDT'] = Number(userData.assets.USDT.amount);
+          } else if (typeof userData.balance === 'number') {
+            defaultBalances['USDT'] = userData.balance;
+          } else if (typeof userData.balance === 'string') {
+            defaultBalances['USDT'] = parseFloat(userData.balance) || 0;
           }
 
           console.log("Processed crypto balances:", defaultBalances);
@@ -421,13 +421,13 @@ const WithdrawPage = () => {
           });
         }
 
-        // For USDT, check if it exists in assets, otherwise use main balance field
-        if (!userData.assets?.USDT || userData.assets.USDT.amount === 0) {
-          if (typeof userData.balance === 'number') {
-            updatedBalances['USDT'] = userData.balance;
-          } else if (typeof userData.balance === 'string') {
-            updatedBalances['USDT'] = parseFloat(userData.balance) || 0;
-          }
+        // For USDT, check assets first, then fallback to main balance field
+        if (userData.assets?.USDT && userData.assets.USDT.amount !== undefined) {
+          updatedBalances['USDT'] = Number(userData.assets.USDT.amount);
+        } else if (typeof userData.balance === 'number') {
+          updatedBalances['USDT'] = userData.balance;
+        } else if (typeof userData.balance === 'string') {
+          updatedBalances['USDT'] = parseFloat(userData.balance) || 0;
         }
 
         setUserCryptoBalances(updatedBalances);
