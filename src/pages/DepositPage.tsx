@@ -641,7 +641,7 @@ const DepositPage = () => {
                   sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
                   onLoad={() => setIframeLoading(false)}
                 ></iframe>
-              }</div>
+              </div>
               </div>
             </div>
           </div>
