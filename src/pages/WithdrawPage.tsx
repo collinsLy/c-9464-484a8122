@@ -361,7 +361,6 @@ const WithdrawPage = () => {
       setIsConfirmDialogOpen(false);
     }
   };
-  };
 
   // Fetch user's crypto balances when the component loads
   useEffect(() => {
