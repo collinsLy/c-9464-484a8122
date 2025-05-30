@@ -379,8 +379,8 @@ const WithdrawPage = () => {
             });
           }
 
-          // For USDT, check assets first, then fallback to main balance field
-          if (userData.assets?.USDT && userData.assets.USDT.amount !== undefined) {
+          // For USDT, check assets first, but if it's 0 or undefined, use main balance
+          if (userData.assets?.USDT && userData.assets.USDT.amount !== undefined && userData.assets.USDT.amount > 0) {
             defaultBalances['USDT'] = Number(userData.assets.USDT.amount);
           } else if (typeof userData.balance === 'number') {
             defaultBalances['USDT'] = userData.balance;
@@ -421,8 +421,8 @@ const WithdrawPage = () => {
           });
         }
 
-        // For USDT, check assets first, then fallback to main balance field
-        if (userData.assets?.USDT && userData.assets.USDT.amount !== undefined) {
+        // For USDT, check assets first, but if it's 0 or undefined, use main balance
+        if (userData.assets?.USDT && userData.assets.USDT.amount !== undefined && userData.assets.USDT.amount > 0) {
           updatedBalances['USDT'] = Number(userData.assets.USDT.amount);
         } else if (typeof userData.balance === 'number') {
           updatedBalances['USDT'] = userData.balance;
@@ -458,21 +458,20 @@ const WithdrawPage = () => {
           // Explicitly handle USDT balance correctly
           let balance = 0;
 
-          // Special handling for USDT - check both locations
+          // Special handling for USDT - check both locations with proper priority
           if (selectedCrypto === 'USDT') {
-            // First check main balance field (legacy location)
-            if (typeof userData.balance === 'number') {
-              balance = userData.balance;
-            } else if (typeof userData.balance === 'string') {
-              balance = parseFloat(userData.balance) || 0;
-            }
-
-            console.log(`USDT from main balance field (in withdrawal function): ${balance}`);
-
-            // Then check assets.USDT (new location), which overrides if present
+            // First try assets.USDT (new location)
             if (userData.assets && userData.assets.USDT && userData.assets.USDT.amount !== undefined) {
               balance = Number(userData.assets.USDT.amount);
               console.log(`USDT from assets object (in withdrawal function): ${balance}`);
+            } 
+            // If assets.USDT is 0 or undefined, fallback to main balance field
+            else if (typeof userData.balance === 'number' && userData.balance > 0) {
+              balance = userData.balance;
+              console.log(`USDT from main balance field (in withdrawal function): ${balance}`);
+            } else if (typeof userData.balance === 'string' && parseFloat(userData.balance) > 0) {
+              balance = parseFloat(userData.balance) || 0;
+              console.log(`USDT from main balance field (string) (in withdrawal function): ${balance}`);
             }
           } 
           // Standard handling for other assets
@@ -837,16 +836,18 @@ const WithdrawPage = () => {
       // Get user's crypto assets and handle special case for USDT
       userAssets = userData.assets || {};
 
-      // Special handling for USDT - check both locations
+      // Special handling for USDT - check both locations with proper priority
       if (selectedCrypto === 'USDT') {
-        // Check assets first
-        if (userAssets.USDT && userAssets.USDT.amount !== undefined) {
+        // First check assets.USDT
+        if (userAssets.USDT && userAssets.USDT.amount !== undefined && userAssets.USDT.amount > 0) {
           cryptoBalance = Number(userAssets.USDT.amount);
           console.log(`USDT from assets object: ${cryptoBalance}`);
-        } else if (typeof userData.balance === 'number') {
+        } 
+        // If assets.USDT is 0 or undefined, use main balance field
+        else if (typeof userData.balance === 'number' && userData.balance > 0) {
           cryptoBalance = userData.balance;
           console.log(`USDT from main balance field: ${cryptoBalance}`);
-        } else if (typeof userData.balance === 'string') {
+        } else if (typeof userData.balance === 'string' && parseFloat(userData.balance) > 0) {
           cryptoBalance = parseFloat(userData.balance) || 0;
           console.log(`USDT from main balance field (string): ${cryptoBalance}`);
         }

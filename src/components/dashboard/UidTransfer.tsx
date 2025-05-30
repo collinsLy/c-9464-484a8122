@@ -66,13 +66,13 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
         const userData = await UserService.getUserData(currentUserId);
         if (userData) {
           setUserAssets(userData.assets || {});
-          
+
           // Set up balances including USDT from main balance field
           const balances: Record<string, number> = {};
-          
+
           // Handle USDT specially - check both locations and prioritize the correct one
           let usdtBalance = 0;
-          
+
           // First check assets.USDT (new location)
           if (userData.assets && userData.assets.USDT && userData.assets.USDT.amount !== undefined) {
             usdtBalance = Number(userData.assets.USDT.amount);
@@ -85,9 +85,9 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
             usdtBalance = parseFloat(userData.balance) || 0;
             console.log(`USDT from main balance field (string): ${usdtBalance}`);
           }
-          
+
           balances.USDT = usdtBalance;
-          
+
           // Handle other assets
           if (userData.assets) {
             Object.entries(userData.assets).forEach(([key, asset]: [string, any]) => {
@@ -96,7 +96,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
               }
             });
           }
-          
+
           console.log('Updated user balances:', balances);
           setUserBalances(balances);
         }
@@ -113,10 +113,10 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
         if (!userData) return;
 
         const balances: Record<string, number> = {};
-        
-        // Handle USDT specially
+
+        // Handle USDT specially - prioritize assets if it has a positive value, otherwise use main balance
         let usdtBalance = 0;
-        if (userData.assets && userData.assets.USDT && userData.assets.USDT.amount !== undefined) {
+        if (userData.assets && userData.assets.USDT && userData.assets.USDT.amount !== undefined && userData.assets.USDT.amount > 0) {
           usdtBalance = Number(userData.assets.USDT.amount);
         } else if (typeof userData.balance === 'number') {
           usdtBalance = userData.balance;
@@ -149,7 +149,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
 
     // Make sure we have the price data
     let price = assetPrices[selectedCrypto];
-    
+
     // If price is not found in the regular map, try special cases
     if (price === undefined) {
       // Add special handling for cryptocurrencies not covered in the main fetch
@@ -158,7 +158,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
         price = assetPrices['DOGE'];
         console.log(`Using special case for DOGE, price: ${price}`);
       }
-      
+
       // If still undefined after special handling
       if (price === undefined) {
         console.warn(`Price not found for ${selectedCrypto}. Available prices:`, assetPrices);
@@ -205,7 +205,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
     // Check balance for selected crypto
     const availableBalance = userBalances[selectedCrypto] || 0;
     console.log(`Validating transfer: ${transferAmount} ${selectedCrypto}, Available: ${availableBalance}`);
-    
+
     if (transferAmount > availableBalance) {
       toast({
         title: "Insufficient Funds",
@@ -275,7 +275,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
         if (selectedCrypto === 'USDT') {
           // Get current USDT balance (check both locations with proper priority)
           let senderUsdtBalance = 0;
-          
+
           // First check assets.USDT (new location)
           if (senderAssets.USDT && senderAssets.USDT.amount !== undefined) {
             senderUsdtBalance = Number(senderAssets.USDT.amount);
@@ -431,7 +431,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
           transactions: [recipientTransaction, ...recipientTransactions],
           hasUnreadNotifications: true // Set flag that recipient has unread notifications
         });
-        
+
         // Store a notification in the notifications collection for the recipient
         // This will be used to trigger real-time notifications
         const notificationData = {
@@ -445,7 +445,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
           isRead: false,
           notificationId: recipientTransaction.notificationId
         };
-        
+
         // This will be added outside the transaction to avoid making the transaction too complex
       });
 
@@ -462,7 +462,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
           timestamp: new Date().toISOString(),
           isRead: false
         });
-        
+
         console.log("Notification created for recipient");
       } catch (error) {
         console.error("Error creating notification:", error);
@@ -537,7 +537,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
             ].map((crypto) => {
               const balance = userBalances?.[crypto.symbol] || 0;
               const hasBalance = balance > 0;
-              
+
               return (
                 <div
                   key={crypto.symbol}
