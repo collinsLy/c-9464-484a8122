@@ -13,9 +13,9 @@ import { cn } from '@/lib/utils';
 import { networkAddresses } from '@/lib/network-addresses';
 import UidTransfer from "@/components/dashboard/UidTransfer";
 import QRCodeScanner from '@/components/QRCodeScanner';
-import { auth } from '@/lib/firebase';
-import { getAuth } from 'firebase/auth';
-import { UserService } from '@/lib/user-service';
+import { UserService } from "@/lib/user-service";
+import { auth } from "@/lib/firebase";
+import { getAuth } from "firebase/auth";
 
 
 const DepositPage = () => {
@@ -513,7 +513,7 @@ const DepositPage = () => {
                         }
                         setShowPaymentIframe(true);
                         setIframeLoading(true);
-                        
+
                         // Auto-hide loading after 2 seconds to ensure iframe opens quickly
                         setTimeout(() => {
                           setIframeLoading(false);
