@@ -453,8 +453,14 @@ const DepositPage = () => {
                       className="w-full bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34] h-12 text-lg"
                       disabled={!amount || parseFloat(amount) < 10}
                       onClick={() => {
-                        // Show payment iframe instead of redirecting
-                        setShowPaymentIframe(true);
+                        if (isDemoMode) {
+                          // Show demo payment iframe
+                          setShowPaymentIframe(true);
+                        } else {
+                          // Redirect to PayHero with KSH amount
+                          const kshAmountForPayment = Math.round(kshAmount);
+                          window.open(`https://app.payhero.co.ke/lipwa/1981?amount=${kshAmountForPayment}`, '_blank');
+                        }
                       }}
                     >
                       {isDemoMode ? "Demo Deposit" : `Pay $${amount || '0.00'}`}
