@@ -27,6 +27,7 @@ const DepositPage = () => {
   const [amount, setAmount] = useState("");
   const [network, setNetwork] = useState('NATIVE');
   const [showPaymentIframe, setShowPaymentIframe] = useState(false);
+  const [iframeLoading, setIframeLoading] = useState(true);
   const [showScanner, setShowScanner] = useState(false);
   const [showAllCoinsDialog, setShowAllCoinsDialog] = useState(false);
   const [userBalance, setUserBalance] = useState(0);
@@ -511,6 +512,7 @@ const DepositPage = () => {
                           }
                         }
                         setShowPaymentIframe(true);
+                        setIframeLoading(true); // Set loading to true when iframe is opened
                       }}
                     >
                       {isDemoMode ? "Demo Deposit" : `Pay $${amount || '0.00'}`}
@@ -589,7 +591,7 @@ const DepositPage = () => {
             <div className="bg-background/95 border border-white/10 rounded-lg w-full max-w-4xl h-[80vh] flex flex-col">
               <div className="flex justify-between items-center p-4 border-b border-white/10">
                 <div>
-                  <h3 className="text-xl font-medium text-white">Payment Gateway</h3>
+                  <h3 className="text-xl font-medium text-white">Vertex Deposit Checkpoint</h3>
                   {referenceNumber && (
                     <p className="text-sm text-white/70 mt-1">Reference: {referenceNumber}</p>
                   )}
@@ -608,19 +610,29 @@ const DepositPage = () => {
                 </button>
               </div>
               <div className="flex-1 overflow-hidden">
-                <iframe 
-                  src={(() => {
-                    const url = isDemoMode 
-                      ? "https://app.payhero.co.ke/lipwa/1981" 
-                      : `https://app.payhero.co.ke/lipwa/1981?amount=${Math.round(kshAmount)}&customer_name=${encodeURIComponent(userData?.fullName || userData?.name || 'Guest User')}&reference=${referenceNumber}`;
-                    console.log('Payment iframe URL:', url); // Debug log
-                    console.log('User data for payment:', userData); // Debug log
-                    return url;
-                  })()} 
-                  className="w-full h-full border-0"
-                  title="Payment Gateway"
-                  sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-                ></iframe>
+              {iframeLoading ? (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <svg className="animate-spin h-10 w-10 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  </div>
+                ) : (
+                  <iframe
+                    src={(() => {
+                      const url = isDemoMode
+                        ? "https://app.payhero.co.ke/lipwa/1981"
+                        : `https://app.payhero.co.ke/lipwa/1981?amount=${Math.round(kshAmount)}&customer_name=${encodeURIComponent(userData?.fullName || userData?.name || 'Guest User')}&reference=${referenceNumber}`;
+                      console.log('Payment iframe URL:', url); // Debug log
+                      console.log('User data for payment:', userData); // Debug log
+                      return url;
+                    })()}
+                    className="w-full h-full border-0"
+                    title="Vertex Deposit Checkpoint"
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                    onLoad={() => setIframeLoading(false)}
+                  ></iframe>
+                )}
               </div>
             </div>
           </div>
@@ -652,7 +664,10 @@ const DepositPage = () => {
                 { symbol: 'DOT', name: 'Polkadot' },
                 { symbol: 'LINK', name: 'Chainlink' },
                 { symbol: 'MATIC', name: 'Polygon' }
-              ].map((crypto) => (
+              Analysis: The code needs to add a loading state for the iframe and rename the iframe title to "Vertex Deposit Checkpoint". The provided changes include the addition of `iframeLoading` state and modification of the iframe title and loading logic.
+
+```
+                ].map((crypto) => (
                 <button
                   key={crypto.symbol}
                   onClick={() => {
