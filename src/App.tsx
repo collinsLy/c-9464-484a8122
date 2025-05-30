@@ -43,6 +43,7 @@ import ApiManagementPage from "./pages/ApiManagementPage";
 import RiskAnalysisPage from "./pages/RiskAnalysisPage"; // Added
 import AITradingAssistantPage from "./pages/AITradingAssistantPage"; // Added
 import CryptoConverterPage from "./pages/CryptoConverterPage";
+// import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 
 // Configure query client to not show error toasts
 const queryClient = new QueryClient({
