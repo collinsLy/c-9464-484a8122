@@ -370,40 +370,25 @@ const WithdrawPage = () => {
 
         // If user has assets, update with actual balances
         if (userData) {
-          // First check for USDT in user's main balance (for backward compatibility)
-          if (typeof userData.balance === 'number') {
-            defaultBalances['USDT'] = userData.balance;
-          } else if (typeof userData.balance === 'string') {
-            defaultBalances['USDT'] = parseFloat(userData.balance) || 0;
-          }
-
-          console.log("User USDT balance from main balance field:", defaultBalances['USDT']);
-
-          // Then check assets
+          // Process assets first
           if (userData.assets) {
-            console.log("Raw user assets:", userData.assets);
-
-            // Process each asset
             Object.entries(userData.assets).forEach(([key, asset]: [string, any]) => {
               if (asset && (typeof asset.amount === 'number' || typeof asset.amount === 'string')) {
-                // Convert to number if it's a string
                 defaultBalances[key] = Number(asset.amount);
               }
             });
+          }
 
-            // Double-check USDT from assets (may override the balance field)
-            if (userData.assets.USDT) {
-              const usdtAmount = userData.assets.USDT.amount;
-              if (usdtAmount !== undefined) {
-                defaultBalances['USDT'] = Number(usdtAmount);
-                console.log("USDT amount from assets:", usdtAmount, "Converted:", defaultBalances['USDT']);
-              }
+          // For USDT, check if it exists in assets, otherwise use main balance field
+          if (!userData.assets?.USDT || userData.assets.USDT.amount === 0) {
+            if (typeof userData.balance === 'number') {
+              defaultBalances['USDT'] = userData.balance;
+            } else if (typeof userData.balance === 'string') {
+              defaultBalances['USDT'] = parseFloat(userData.balance) || 0;
             }
           }
 
           console.log("Processed crypto balances:", defaultBalances);
-        } else {
-          console.log("No user data found, using defaults");
         }
 
         // Set the balances in state
@@ -421,17 +406,13 @@ const WithdrawPage = () => {
       const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
         if (!userData) return;
 
-        // Create a new balances object
-        const updatedBalances = { ...userCryptoBalances };
+        const supportedCryptos = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'DOGE', 'SOL', 'XRP', 'WLD', 'ADA', 'DOT', 'LINK', 'MATIC'];
+        const updatedBalances = supportedCryptos.reduce((acc, crypto) => {
+          acc[crypto] = 0;
+          return acc;
+        }, {} as Record<string, number>);
 
-        // Update USDT from main balance field
-        if (typeof userData.balance === 'number') {
-          updatedBalances['USDT'] = userData.balance;
-        } else if (typeof userData.balance === 'string') {
-          updatedBalances['USDT'] = parseFloat(userData.balance) || 0;
-        }
-
-        // Update from assets if available
+        // Process assets first
         if (userData.assets) {
           Object.entries(userData.assets).forEach(([key, asset]: [string, any]) => {
             if (asset && (typeof asset.amount === 'number' || typeof asset.amount === 'string')) {
@@ -440,7 +421,15 @@ const WithdrawPage = () => {
           });
         }
 
-        console.log("Updated crypto balances from subscription:", updatedBalances);
+        // For USDT, check if it exists in assets, otherwise use main balance field
+        if (!userData.assets?.USDT || userData.assets.USDT.amount === 0) {
+          if (typeof userData.balance === 'number') {
+            updatedBalances['USDT'] = userData.balance;
+          } else if (typeof userData.balance === 'string') {
+            updatedBalances['USDT'] = parseFloat(userData.balance) || 0;
+          }
+        }
+
         setUserCryptoBalances(updatedBalances);
       });
 
@@ -850,22 +839,16 @@ const WithdrawPage = () => {
 
       // Special handling for USDT - check both locations
       if (selectedCrypto === 'USDT') {
-        // First check main balance field (legacy location)
-        if (typeof userData.balance === 'number') {
+        // Check assets first
+        if (userAssets.USDT && userAssets.USDT.amount !== undefined) {
+          cryptoBalance = Number(userAssets.USDT.amount);
+          console.log(`USDT from assets object: ${cryptoBalance}`);
+        } else if (typeof userData.balance === 'number') {
           cryptoBalance = userData.balance;
+          console.log(`USDT from main balance field: ${cryptoBalance}`);
         } else if (typeof userData.balance === 'string') {
           cryptoBalance = parseFloat(userData.balance) || 0;
-        }
-
-        console.log(`USDT from main balance field (in withdrawal function): ${cryptoBalance}`);
-
-        // Then check assets.USDT (new location), which overrides if present
-        if (userAssets.USDT && userAssets.USDT.amount !== undefined) {
-          const assetAmount = Number(userAssets.USDT.amount);
-          if (assetAmount > 0) {
-            cryptoBalance = assetAmount;
-            console.log(`USDT from assets object (in withdrawal function): ${cryptoBalance}`);
-          }
+          console.log(`USDT from main balance field (string): ${cryptoBalance}`);
         }
       } else {
         // Standard handling for other cryptos
@@ -913,38 +896,26 @@ const WithdrawPage = () => {
       // Special handling for USDT
       if (selectedCrypto === 'USDT') {
         const newCryptoAmount = cryptoBalance - cryptoAmountValue;
+        const updatedUserAssets = { ...userAssets };
 
-        // Check if the USDT is stored in main balance field or in assets
-        const isInMainBalance = (
-          (typeof userData.balance === 'number' || typeof userData.balance === 'string') && 
-          (!userAssets.USDT || !userAssets.USDT.amount || Number(userAssets.USDT.amount) === 0)
-        );
-
-        console.log(`USDT is stored in main balance field: ${isInMainBalance}`);
-
-        if (isInMainBalance) {
-          // Update the main balance field
-          updateData = {
-            balance: Math.max(0, newCryptoAmount)
+        // Always update USDT in assets and clear main balance
+        if (!updatedUserAssets.USDT) {
+          updatedUserAssets.USDT = { 
+            amount: Math.max(0, newCryptoAmount),
+            name: 'USDT'
           };
-          console.log(`Updating main balance to: ${Math.max(0, newCryptoAmount)}`);
         } else {
-          // Update in assets
-          const updatedUserAssets = { ...userAssets };
-          if (newCryptoAmount <= 0) {
-            updatedUserAssets.USDT = {
-              ...updatedUserAssets.USDT,
-              amount: 0
-            };
-          } else {
-            updatedUserAssets.USDT = {
-              ...updatedUserAssets.USDT,
-              amount: newCryptoAmount
-            };
-          }
-          updateData = { assets: updatedUserAssets };
-          console.log(`Updating USDT in assets to: ${newCryptoAmount}`);
+          updatedUserAssets.USDT = {
+            ...updatedUserAssets.USDT,
+            amount: Math.max(0, newCryptoAmount)
+          };
         }
+
+        updateData = { 
+          assets: updatedUserAssets,
+          balance: 0 // Clear legacy balance field
+        };
+        console.log(`Updating USDT in assets to: ${Math.max(0, newCryptoAmount)}`);
       } else {
         // Standard handling for other cryptos
         const updatedUserAssets = { ...userAssets };
