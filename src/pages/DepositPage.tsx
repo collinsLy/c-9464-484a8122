@@ -428,17 +428,7 @@ const DepositPage = () => {
                         <Input
                           type="number"
                           value={amount}
-                          onChange={(e) => {
-                            const newAmount = e.target.value;
-                            setAmount(newAmount);
-                            if ((selectedPaymentMethod === 'mpesa' || selectedPaymentMethod === 'airtel') && parseFloat(newAmount) > 15) {
-                              toast({
-                                title: "First Deposit Limit",
-                                description: "For your first deposit with mobile money, the maximum amount is $15 (KES 2,300)",
-                                variant: "destructive"
-                              });
-                            }
-                          }}
+                          onChange={(e) => setAmount(e.target.value)}
                           placeholder="0.00"
                           className="bg-background/40 border-white/10 text-white placeholder:text-white/50 pr-16 text-lg"
                         />
@@ -446,16 +436,11 @@ const DepositPage = () => {
                           <span className="text-white/70 text-lg">USD</span>
                         </div>
                       </div>
-                      {(selectedPaymentMethod === 'mpesa' || selectedPaymentMethod === 'airtel') && (
-                        <p className="text-sm text-yellow-400">First deposit limit: $15 (KES 2,300)</p>
-                      )}
+                      
                     </div>
                     <Button 
                       className="w-full bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34] h-12 text-lg"
-                      disabled={!amount || 
-                        parseFloat(amount) < 10 || 
-                        ((selectedPaymentMethod === 'mpesa' || selectedPaymentMethod === 'airtel') && parseFloat(amount) > 15)
-                      }
+                      disabled={!amount || parseFloat(amount) < 10}
                       onClick={() => {
                         // Show payment iframe instead of redirecting
                         setShowPaymentIframe(true);
