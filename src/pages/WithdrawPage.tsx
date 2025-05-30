@@ -1561,13 +1561,13 @@ const WithdrawPage = () => {
                       <>
                         <Button 
                           variant={network === 'ERC20' ? 'secondary' : 'outline'}
-                          onClick={()={() => setNetwork('ERC20')}
+                          onClick={() => setNetwork('ERC20')}
                         >
                           Ethereum (ERC20)
                         </Button>
                         <Button 
                           variant={network === 'TRC20' ? 'secondary' : 'outline'}
-                          onClick={()={() => setNetwork('TRC20')}
+                          onClick={() => setNetwork('TRC20')}
                         >
                           Tron (TRC20)
                         </Button>
