@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
-import { updateEmail } from "firebase/auth";
+import { updateEmail, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import DashboardLayout from "@/components/dashboard/DashboardLayout"; 
 import { useDashboardContext } from "@/components/dashboard/DashboardLayout";
@@ -42,6 +42,12 @@ const SettingsPage = () => {
   const [profileImageUrl, setProfileImageUrl] = useState("");
   const [isAvatarDialogOpen, setIsAvatarDialogOpen] = useState(false);
   const [selectedAvatarId, setSelectedAvatarId] = useState("default");
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: ""
+  });
 
   const profileForm = useForm({
     defaultValues: initialValues
@@ -87,6 +93,93 @@ const SettingsPage = () => {
 
     fetchUserData();
   }, []);
+
+  const checkPasswordStrength = (password: string): boolean => {
+    const hasMinLength = password.length >= 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[^A-Za-z0-9]/.test(password);
+
+    return hasMinLength && hasUpperCase && hasLowerCase && hasNumber && hasSpecial;
+  };
+
+  const handlePasswordChange = async () => {
+    try {
+      const { currentPassword, newPassword, confirmPassword } = passwordForm;
+
+      // Validation
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        toast({
+          title: "Error",
+          description: "Please fill in all password fields",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        toast({
+          title: "Error",
+          description: "New passwords do not match",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (!checkPasswordStrength(newPassword)) {
+        toast({
+          title: "Error",
+          description: "Password must contain at least 8 characters, including uppercase, lowercase, number, and special character",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const user = auth.currentUser;
+      if (!user || !user.email) {
+        toast({
+          title: "Error",
+          description: "User not authenticated",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Re-authenticate user with current password
+      const credential = EmailAuthProvider.credential(user.email, currentPassword);
+      await reauthenticateWithCredential(user, credential);
+
+      // Update password
+      await updatePassword(user, newPassword);
+
+      // Reset form and close dialog
+      setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      setIsPasswordDialogOpen(false);
+
+      toast({
+        title: "Success",
+        description: "Password updated successfully",
+      });
+    } catch (error: any) {
+      console.error("Error updating password:", error);
+      let errorMessage = "Failed to update password";
+      
+      if (error.code === 'auth/wrong-password') {
+        errorMessage = "Current password is incorrect";
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = "New password is too weak";
+      } else if (error.code === 'auth/requires-recent-login') {
+        errorMessage = "Please log out and log back in before changing your password";
+      }
+
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    }
+  };
 
   const onSubmit = async (data: any) => {
     try {
@@ -538,7 +631,13 @@ const SettingsPage = () => {
                       <h3 className="text-lg font-medium">Password</h3>
                       <p className="text-sm text-white/60">Change your account password</p>
                     </div>
-                    <Button variant="outline">Change Password</Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setIsPasswordDialogOpen(true)}
+                      disabled={isDemoMode}
+                    >
+                      {isDemoMode ? "Disabled in Demo" : "Change Password"}
+                    </Button>
                   </div>
                   <Separator className="bg-white/10" />
 
@@ -804,6 +903,73 @@ const SettingsPage = () => {
                 }}
                 userInitials={initialValues.name ? initialValues.name.slice(0, 2).toUpperCase() : "VT"}
               />
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Change Password</DialogTitle>
+              <DialogDescription>
+                Enter your current password and choose a new secure password.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="current-password">Current Password</Label>
+                <Input
+                  id="current-password"
+                  type="password"
+                  value={passwordForm.currentPassword}
+                  onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
+                  placeholder="Enter current password"
+                  className="bg-white/5 border-white/10"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="new-password">New Password</Label>
+                <Input
+                  id="new-password"
+                  type="password"
+                  value={passwordForm.newPassword}
+                  onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                  placeholder="Enter new password"
+                  className="bg-white/5 border-white/10"
+                />
+                <p className="text-xs text-white/60">
+                  Password must contain at least 8 characters, including uppercase, lowercase, number, and special character
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password">Confirm New Password</Label>
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  value={passwordForm.confirmPassword}
+                  onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                  placeholder="Confirm new password"
+                  className="bg-white/5 border-white/10"
+                />
+              </div>
+              <div className="flex gap-2 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+                    setIsPasswordDialogOpen(false);
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handlePasswordChange}
+                  className="flex-1 bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34]"
+                >
+                  Update Password
+                </Button>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
