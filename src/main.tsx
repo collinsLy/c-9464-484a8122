@@ -31,4 +31,25 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-createRoot(document.getElementById("root")!).render(<App />);
+// Add error handling for the root render
+try {
+  const rootElement = document.getElementById("root");
+  if (!rootElement) {
+    throw new Error("Root element not found");
+  }
+  createRoot(rootElement).render(<App />);
+} catch (error) {
+  console.error("Failed to render app:", error);
+  // Fallback if React fails to mount
+  document.body.innerHTML = `
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #000; color: #fff; padding: 20px; text-align: center;">
+      <div>
+        <h1>Loading Error</h1>
+        <p>Unable to load the application. Please refresh the page.</p>
+        <button onclick="window.location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #F2FF44; color: #000; border: none; border-radius: 5px; cursor: pointer;">
+          Refresh Page
+        </button>
+      </div>
+    </div>
+  `;
+}
