@@ -134,20 +134,6 @@ export class CacheManager {
   }
 }
 
-// Auto-detect and fix cache issues on load
-window.addEventListener('load', () => {
-  // Check version first
-  const versionChanged = CacheManager.checkVersionAndClearCache();
-  
-  if (!versionChanged && CacheManager.detectAdvancedCacheIssues()) {
-    console.warn('Cache issues detected, performing emergency reset...');
-    CacheManager.emergencyReset();
-  } else if (!versionChanged) {
-    // Update version if everything is working
-    CacheManager.updateStoredVersion();
-  }
-});
-
 // Make cache utilities globally available for debugging
 declare global {
   interface Window {

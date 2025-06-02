@@ -1,107 +1,62 @@
+const CACHE_NAME = 'vertex-trading-v1.0.6';
 
-const APP_VERSION = '1.0.5'; // Keep in sync with cache-utils.ts
-const CACHE_NAME = 'vertex-trading-v' + APP_VERSION;
-const STATIC_CACHE = 'vertex-static-v' + APP_VERSION;
-
-// Cache essential assets
-const CACHE_URLS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/favicon.svg'
+// Only cache essential assets, avoid caching during development
+const urlsToCache = [
+  '/manifest.json'
 ];
 
-// Install event - cache essential files
 self.addEventListener('install', (event) => {
+  // Skip waiting and activate immediately
+  self.skipWaiting();
+
   event.waitUntil(
-    Promise.all([
-      caches.open(STATIC_CACHE).then((cache) => {
-        return cache.addAll(CACHE_URLS);
-      }),
-      self.skipWaiting()
-    ])
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(urlsToCache))
   );
 });
 
-// Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
+  // Take control immediately
+  event.waitUntil(self.clients.claim());
+
+  // Clean up old caches
   event.waitUntil(
-    Promise.all([
-      caches.keys().then((cacheNames) => {
-        return Promise.all(
-          cacheNames.map((cacheName) => {
-            if (cacheName !== CACHE_NAME && cacheName !== STATIC_CACHE) {
-              return caches.delete(cacheName);
-            }
-          })
-        );
-      }),
-      self.clients.claim()
-    ])
-  );
-});
-
-// Fetch event - network first strategy for JS/CSS, cache first for assets
-self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
-
-  // Skip cross-origin requests
-  if (url.origin !== location.origin) {
-    return;
-  }
-
-  // Network first for JS/CSS files to avoid stale code
-  if (request.url.includes('.js') || request.url.includes('.css') || request.url.includes('hot-update')) {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          // Only cache successful responses
-          if (response.status === 200) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, responseClone);
-            });
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
           }
-          return response;
         })
-        .catch(() => {
-          // Fallback to cache only if network fails
-          return caches.match(request);
-        })
-    );
-    return;
-  }
-
-  // Cache first for other assets
-  event.respondWith(
-    caches.match(request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-
-      return fetch(request).then((response) => {
-        if (response.status === 200) {
-          const responseClone = response.clone();
-          caches.open(STATIC_CACHE).then((cache) => {
-            cache.put(request, responseClone);
-          });
-        }
-        return response;
-      });
+      );
     })
   );
 });
 
-// Handle cache cleanup message from main thread
+self.addEventListener('fetch', (event) => {
+  // Don't cache during development - always fetch from network
+  if (event.request.url.includes('localhost') || event.request.url.includes('replit.dev')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  event.respondWith(
+    caches.match(event.request)
+      .then((response) => {
+        return response || fetch(event.request);
+      })
+  );
+});
+
+// Handle cache clearing messages
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'CLEAR_CACHE') {
-    event.waitUntil(
-      caches.keys().then((cacheNames) => {
-        return Promise.all(
-          cacheNames.map((cacheName) => caches.delete(cacheName))
-        );
-      })
-    );
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          return caches.delete(cacheName);
+        })
+      );
+    });
   }
 });
