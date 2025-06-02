@@ -12,14 +12,53 @@ export const BalanceProvider = ({ children }: BalanceProviderProps) => {
   const { fetchBalances, updateAssetPrices, clearBalances } = useBalanceStore();
 
   useEffect(() => {
+    let unsubscribe: (() => void) | null = null;
+
     // Listen for authentication state changes
     const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
       if (user) {
         // User is logged in - immediately preload all balances
         console.log('User authenticated, preloading balances...');
         await fetchBalances(user.uid);
+
+        // Set up real-time listener for balance updates
+        unsubscribe = UserService.subscribeToUserData(user.uid, (userData) => {
+          if (!userData) return;
+
+          // Update the store with real-time data
+          const store = useBalanceStore.getState();
+          
+          // Process USDT balance
+          let usdtBalance = 0;
+          if (userData.assets?.USDT && userData.assets.USDT.amount > 0) {
+            usdtBalance = Number(userData.assets.USDT.amount);
+          } else if (typeof userData.balance === 'number') {
+            usdtBalance = userData.balance;
+          } else if (typeof userData.balance === 'string') {
+            usdtBalance = parseFloat(userData.balance) || 0;
+          }
+
+          // Calculate total portfolio value with current prices
+          let totalValue = usdtBalance;
+          const userAssets = userData.assets || {};
+          
+          Object.entries(userAssets).forEach(([symbol, data]: [string, any]) => {
+            if (symbol === 'USDT') return;
+            const amount = data.amount || 0;
+            const price = store.assetPrices[symbol] || 0;
+            totalValue += amount * price;
+          });
+
+          // Update store
+          useBalanceStore.setState({
+            totalPortfolioValue: totalValue,
+            usdtBalance,
+            userAssets,
+            lastUpdated: Date.now(),
+          });
+        });
       } else {
-        // User logged out - clear balances
+        // User logged out - check localStorage
         const storedUserId = localStorage.getItem('userId');
         if (storedUserId) {
           console.log('User authenticated via localStorage, preloading balances...');
@@ -35,43 +74,7 @@ export const BalanceProvider = ({ children }: BalanceProviderProps) => {
     if (immediateUserId && !auth.currentUser) {
       console.log('Immediate balance preload for stored user...');
       fetchBalances(immediateUserId);
-
-    // Set up real-time listener for balance updates
-    const unsubscribe = UserService.subscribeToUserData(userId, (userData) => {
-      if (!userData) return;
-
-      // Update the store with real-time data
-      const store = useBalanceStore.getState();
-      
-      // Process USDT balance
-      let usdtBalance = 0;
-      if (userData.assets?.USDT && userData.assets.USDT.amount > 0) {
-        usdtBalance = Number(userData.assets.USDT.amount);
-      } else if (typeof userData.balance === 'number') {
-        usdtBalance = userData.balance;
-      } else if (typeof userData.balance === 'string') {
-        usdtBalance = parseFloat(userData.balance) || 0;
-      }
-
-      // Calculate total portfolio value with current prices
-      let totalValue = usdtBalance;
-      const userAssets = userData.assets || {};
-      
-      Object.entries(userAssets).forEach(([symbol, data]: [string, any]) => {
-        if (symbol === 'USDT') return;
-        const amount = data.amount || 0;
-        const price = store.assetPrices[symbol] || 0;
-        totalValue += amount * price;
-      });
-
-      // Update store
-      useBalanceStore.setState({
-        totalPortfolioValue: totalValue,
-        usdtBalance,
-        userAssets,
-        lastUpdated: Date.now(),
-      });
-    });
+    }
 
     // Set up price updates every 30 seconds
     const priceInterval = setInterval(async () => {
@@ -99,7 +102,7 @@ export const BalanceProvider = ({ children }: BalanceProviderProps) => {
       if (unsubscribe) unsubscribe();
       clearInterval(priceInterval);
     };
-  }, [fetchBalances, updateAssetPrices]);
+  }, [fetchBalances, updateAssetPrices, clearBalances]);
 
   return <>{children}</>;
 };
