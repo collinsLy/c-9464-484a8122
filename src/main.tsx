@@ -39,9 +39,21 @@ try {
   }
   createRoot(rootElement).render(<App />);
 } catch (error) {
-  console.error("Failed to render app:", error);
-  // Fallback if React fails to mount
-  document.body.innerHTML = `
+    console.error("Failed to render app:", error);
+
+    // Check if this is a cache-related error
+    const isCacheError = error.message.includes('SyntaxError') || 
+                        error.message.includes('Unexpected token') ||
+                        error.message.includes('ChunkLoadError');
+
+    if (isCacheError) {
+      console.warn('Cache-related error detected, clearing cache...');
+      CacheManager.emergencyReset();
+      return;
+    }
+
+    // Fallback if React fails to mount
+    document.body.innerHTML = `
     <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #000; color: #fff; padding: 20px; text-align: center;">
       <div>
         <h1>Loading Error</h1>

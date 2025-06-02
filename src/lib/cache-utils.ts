@@ -3,6 +3,10 @@
  * Cache management utilities for Vertex Trading Platform
  */
 
+// Current app version - bump this on each deployment
+const APP_VERSION = '1.0.5';
+const VERSION_KEY = 'vertex_app_version';
+
 export class CacheManager {
   /**
    * Clear all application caches
@@ -68,13 +72,79 @@ export class CacheManager {
     // Force hard reload
     window.location.href = window.location.href + '?cache_bust=' + Date.now();
   }
+
+  /**
+   * Check if app version has changed and clear cache if needed
+   */
+  static checkVersionAndClearCache(): boolean {
+    try {
+      const storedVersion = localStorage.getItem(VERSION_KEY);
+      
+      if (storedVersion && storedVersion !== APP_VERSION) {
+        console.log(`Version changed from ${storedVersion} to ${APP_VERSION}, clearing cache...`);
+        this.emergencyReset();
+        return true;
+      } else if (!storedVersion) {
+        // First time visit
+        localStorage.setItem(VERSION_KEY, APP_VERSION);
+        console.log(`App version ${APP_VERSION} initialized`);
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Error checking version:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Update stored version after successful cache clear
+   */
+  static updateStoredVersion(): void {
+    try {
+      localStorage.setItem(VERSION_KEY, APP_VERSION);
+      console.log(`Version updated to ${APP_VERSION}`);
+    } catch (error) {
+      console.error('Error updating version:', error);
+    }
+  }
+
+  /**
+   * Auto-detect cache issues based on common error patterns
+   */
+  static detectAdvancedCacheIssues(): boolean {
+    try {
+      // Check for common cache-related errors in console
+      const hasConsoleErrors = window.console && console.error;
+      
+      // Check if any script tags contain HTML instead of JS
+      const scripts = document.querySelectorAll('script[src]');
+      const hasHtmlInScripts = Array.from(scripts).some(script => {
+        const src = script.getAttribute('src');
+        return src && src.includes('.js') && script.innerHTML.includes('<!DOCTYPE');
+      });
+
+      // Check for missing or corrupted chunks
+      const hasChunkErrors = document.querySelectorAll('script[src*="chunk"]').length === 0;
+
+      return hasHtmlInScripts || hasChunkErrors || this.detectCacheIssues();
+    } catch {
+      return false;
+    }
+  }
 }
 
 // Auto-detect and fix cache issues on load
 window.addEventListener('load', () => {
-  if (CacheManager.detectCacheIssues()) {
+  // Check version first
+  const versionChanged = CacheManager.checkVersionAndClearCache();
+  
+  if (!versionChanged && CacheManager.detectAdvancedCacheIssues()) {
     console.warn('Cache issues detected, performing emergency reset...');
     CacheManager.emergencyReset();
+  } else if (!versionChanged) {
+    // Update version if everything is working
+    CacheManager.updateStoredVersion();
   }
 });
 

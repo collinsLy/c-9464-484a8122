@@ -1,6 +1,7 @@
 
-const CACHE_NAME = 'vertex-trading-v' + Date.now();
-const STATIC_CACHE = 'vertex-static-v' + Date.now();
+const APP_VERSION = '1.0.5'; // Keep in sync with cache-utils.ts
+const CACHE_NAME = 'vertex-trading-v' + APP_VERSION;
+const STATIC_CACHE = 'vertex-static-v' + APP_VERSION;
 
 // Cache essential assets
 const CACHE_URLS = [

@@ -20,7 +20,10 @@ class ErrorBoundary extends React.Component<Props, State> {
   static getDerivedStateFromError(error: Error): State {
     const isCacheIssue = error.message.includes('Unexpected token') || 
                         error.message.includes('SyntaxError') ||
-                        error.message.includes('ChunkLoadError');
+                        error.message.includes('ChunkLoadError') ||
+                        error.message.includes('Loading chunk') ||
+                        error.message.includes('Failed to fetch') ||
+                        error.stack?.includes('Loading CSS chunk');
 
     return { hasError: true, error, isCacheIssue };
   }
