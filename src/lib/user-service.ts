@@ -84,10 +84,6 @@ export class UserService {
       throw error;
     }
   }
-
-  static getCurrentUserId(): string | null {
-    return auth.currentUser?.uid || localStorage.getItem('userId');
-  }
 }
 
 export const userService = new UserService();
