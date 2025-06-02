@@ -71,7 +71,7 @@ const SettingsPage = () => {
 
             setInitialValues(profileData);
             profileForm.reset(profileData);
-            
+
             // Set the selected avatar ID from the user data
             setSelectedAvatarId(userData.avatarId || "default");
 
@@ -164,7 +164,7 @@ const SettingsPage = () => {
     } catch (error: any) {
       console.error("Error updating password:", error);
       let errorMessage = "Failed to update password";
-      
+
       if (error.code === 'auth/wrong-password') {
         errorMessage = "Current password is incorrect";
       } else if (error.code === 'auth/weak-password') {
@@ -282,21 +282,8 @@ const SettingsPage = () => {
                           className="avatar-image" 
                           src={profileImageUrl}
                           key={`profile-${imageUpdateTimestamp}`} 
-                          onError={(e) => {
-                            console.log("Image failed to load, retrying with direct Supabase URL...");
-                            if (profileForm.getValues().profilePhoto) {
-                              setTimeout(async () => {
-                                try {
-                                  const { getProfileImageUrl } = await import('@/lib/supabase');
-                                  const freshUrl = getProfileImageUrl(profileForm.getValues().profilePhoto);
-                                  console.log("Generated fresh Supabase URL:", freshUrl);
-                                  setProfileImageUrl(freshUrl);
-                                  setImageUpdateTimestamp(Date.now());
-                                } catch (err) {
-                                  console.error("Error refreshing profile image URL:", err);
-                                }
-                              }, 500);
-                            }
+                          onError={() => {
+                            console.log("Image failed to load");
                           }}
                         />
                       ) : (
@@ -871,10 +858,10 @@ const SettingsPage = () => {
                 selectedAvatarId={selectedAvatarId} 
                 onSelectAvatar={(avatar) => {
                   setSelectedAvatarId(avatar.id);
-                  
+
                   // Update the form value
                   profileForm.setValue('avatarId', avatar.id);
-                  
+
                   // Save avatar change immediately
                   const user = auth.currentUser;
                   if (user) {
@@ -907,7 +894,7 @@ const SettingsPage = () => {
         </Dialog>
 
         <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
-          <DialogContent className="sm:max-w-[425px]">
+<DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Change Password</DialogTitle>
               <DialogDescription>

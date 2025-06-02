@@ -42,22 +42,7 @@ export class UserService {
 
   static async updateUserData(userId: string, data: Partial<any>) {
     try {
-      // Handle profile photo deletion if a new one is being set
       if (data.profilePhoto) {
-        const userData = await this.getUserData(userId);
-        const oldProfilePhoto = userData?.profilePhoto;
-        
-        // If there's an existing profile photo and it's stored in Supabase
-        if (oldProfilePhoto && oldProfilePhoto.includes('supabase')) {
-          try {
-            const { deleteProfileImage } = await import('./supabase');
-            await deleteProfileImage(oldProfilePhoto);
-          } catch (error) {
-            console.error('Error deleting old profile photo:', error);
-            // Continue with update even if delete fails
-          }
-        }
-        
         console.log('Updating profile photo to:', data.profilePhoto);
       }
       
