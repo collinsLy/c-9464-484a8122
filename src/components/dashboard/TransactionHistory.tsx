@@ -577,7 +577,7 @@ function TransactionHistory() {
                             onError={(e) => {
                               // Replace the image with a span displaying the currency code
                               const span = document.createElement('span');
-                              span.textContent = transaction.asset || 'UNKNOWN';';
+                              span.textContent = transaction.asset || 'UNKNOWN';
                               span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
                               e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                             }}
