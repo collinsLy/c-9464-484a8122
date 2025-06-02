@@ -32,13 +32,14 @@ if ('serviceWorker' in navigator) {
 }
 
 // Add error handling for the root render
-try {
-  const rootElement = document.getElementById("root");
-  if (!rootElement) {
-    throw new Error("Root element not found");
-  }
-  createRoot(rootElement).render(<App />);
-} catch (error) {
+function initializeApp() {
+  try {
+    const rootElement = document.getElementById("root");
+    if (!rootElement) {
+      throw new Error("Root element not found");
+    }
+    createRoot(rootElement).render(<App />);
+  } catch (error) {
     console.error("Failed to render app:", error);
 
     // Check if this is a cache-related error
@@ -64,4 +65,8 @@ try {
       </div>
     </div>
   `;
+  }
 }
+
+// Initialize the app
+initializeApp();
