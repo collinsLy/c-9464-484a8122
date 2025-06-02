@@ -1,0 +1,122 @@
+Alright Kelly, here’s what’s going on — and yeah, it’s a bit of a *Vite gotcha* moment with a side of “your build won’t chunk the way you thought.”
+
+---
+
+## ⚠️ TL;DR of the Warnings:
+
+You're mixing **dynamic** and **static imports** for some modules — especially ones like:
+
+* `firebase.ts`
+* `notification-service.ts`
+* `firebase-service.ts`
+
+So Vite’s telling you:
+
+> “Yo, I see you trying to dynamically import this file over here, but you’re also statically importing it in like 20 places… so I’m not going to chunk it into a separate bundle. It stays put.”
+
+---
+
+## 🧠 Translation (Real Talk)
+
+* **Static imports** are hoisted and always bundled.
+* **Dynamic imports** (`import('...')`) are *code-split* — they create new chunks for lazy-loading.
+
+But if the same file is **also statically imported elsewhere**, Vite *refuses* to code-split it because... it’s already needed upfront.
+
+So even though you said "lazy load this", Vite’s like, “Why? You already need it eagerly. No chunk for you!”
+
+---
+
+## 🧰 How to Fix (or Silence It)
+
+### ✅ Option 1: Be Consistent
+
+Pick one strategy per module:
+
+* **EITHER** always statically import `firebase.ts`
+* **OR** always dynamically import it
+
+> Example:
+
+```ts
+// Static everywhere
+import { firebaseApp } from '@/lib/firebase';
+
+// OR dynamic everywhere
+const { firebaseApp } = await import('@/lib/firebase');
+```
+
+This clears the warning *and* ensures proper chunking.
+
+---
+
+### ✅ Option 2: Accept the Warning, It’s Harmless (Mostly)
+
+This warning doesn’t *break* your app. It just tells you that **no actual code-splitting will occur**, which might affect initial load performance — especially if those files are chunky.
+
+If you don’t care about shaving 100ms off TTI, you can ignore it for now.
+
+---
+
+### 🧨 Option 3: Split the Module
+
+Want the best of both worlds? **Split the dynamic part into a separate file**.
+
+Say you're dynamically importing Firebase to delay heavy SDK loading:
+
+**Before:**
+
+```ts
+// firebase.ts — too big, too central
+import { initializeApp } from 'firebase/app';
+export const app = initializeApp(config);
+```
+
+**After:**
+
+```ts
+// firebase-core.ts — only for dynamic import
+import { initializeApp } from 'firebase/app';
+export const app = initializeApp(config);
+```
+
+Now `firebase-core.ts` can be dynamically imported and **actually chunked**, while `firebase.ts` can be statically used if needed elsewhere.
+
+---
+
+## 🔍 Final Tip: Enable Vite Visualizer
+
+To *see if chunking is happening*:
+
+```bash
+npm i -D rollup-plugin-visualizer
+```
+
+In `vite.config.ts`:
+
+```ts
+import { visualizer } from 'rollup-plugin-visualizer';
+
+export default defineConfig({
+  plugins: [react(), visualizer({ open: true })],
+});
+```
+
+Then run:
+
+```bash
+npm run build
+```
+
+You'll see a visual breakdown of your bundle — what chunked, what didn't.
+
+---
+
+### ✅ TL;DR Fix Flow:
+
+* Be consistent: static vs dynamic import per file.
+* Split heavy/lazy logic into new files.
+* Use Vite visualizer to verify.
+* Ignore if you don’t care about chunking for now (it’s *just a warning*, not an error).
+
+Let me know if you want me to scan your actual file structure and refactor import logic. I’ll go full surgeon on it. 🧵💉
