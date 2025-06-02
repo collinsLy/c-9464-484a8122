@@ -1,44 +1,71 @@
 
 import { useMemo } from 'react';
 import { shallow } from 'zustand/shallow';
-
-// Assuming you have a balance store - adjust the import path as needed
-// import { useBalanceStore as useStore } from '@/stores/balanceStore';
+import { useBalanceStore as useStore } from '@/lib/balance-store';
 
 interface Asset {
   symbol: string;
   amount: number;
   value: number;
-  // Add other asset properties as needed
-}
-
-interface BalanceState {
-  assets: Asset[];
-  isLoading: boolean;
-  // Add other balance state properties
+  price?: number;
 }
 
 // Create a stable hook that prevents unnecessary re-renders
 export const useBalanceStore = () => {
-  // Replace this with your actual store hook
-  // const balances = useStore((state) => state.balances, shallow);
-  
-  // For now, using a mock - replace with your actual store
-  const balances = {
-    assets: [
-      { symbol: 'USDT', amount: 1000, value: 1000 },
-      { symbol: 'USDC', amount: 500, value: 500 },
-      { symbol: 'DOGE', amount: 1000, value: 80 }
-    ],
-    isLoading: false
-  };
+  // Use the actual store with shallow comparison
+  const {
+    totalPortfolioValue,
+    usdtBalance,
+    userAssets,
+    assetPrices,
+    isLoading,
+    error
+  } = useStore((state) => ({
+    totalPortfolioValue: state.totalPortfolioValue,
+    usdtBalance: state.usdtBalance,
+    userAssets: state.userAssets,
+    assetPrices: state.assetPrices,
+    isLoading: state.isLoading,
+    error: state.error
+  }), shallow);
 
-  // Memoize assets to prevent unnecessary re-renders
-  const assets = useMemo(() => balances?.assets || [], [balances]);
+  // Convert userAssets to the expected Asset format
+  const assets = useMemo(() => {
+    const assetList: Asset[] = [];
+    
+    // Add USDT first
+    assetList.push({
+      symbol: 'USDT',
+      amount: usdtBalance,
+      value: usdtBalance,
+      price: 1
+    });
+
+    // Add other assets from userAssets
+    Object.entries(userAssets).forEach(([symbol, data]: [string, any]) => {
+      if (symbol !== 'USDT' && data?.amount > 0) {
+        const price = assetPrices[symbol] || 0;
+        assetList.push({
+          symbol,
+          amount: data.amount,
+          value: data.amount * price,
+          price
+        });
+      }
+    });
+
+    return assetList;
+  }, [usdtBalance, userAssets, assetPrices]);
 
   return {
-    balances,
+    balances: {
+      totalPortfolioValue,
+      usdtBalance,
+      userAssets,
+      assetPrices
+    },
     assets,
-    isLoading: balances?.isLoading || false
+    isLoading,
+    error
   };
 };

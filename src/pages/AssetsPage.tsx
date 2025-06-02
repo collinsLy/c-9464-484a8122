@@ -6,6 +6,7 @@ import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, Tooltip, L
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PortfolioAnalytics } from "@/components/dashboard/PortfolioAnalytics";
 import { useBalanceStore } from "@/lib/balance-store";
+import AssetList from "@/components/ui/AssetList";
 
 const AssetsPage = () => {
   const {
@@ -307,46 +308,7 @@ const AssetsPage = () => {
                 <TabsTrigger value="account-view" className="flex-1">Account View</TabsTrigger>
               </TabsList>
               <TabsContent value="coin-view" className="pt-2">
-                <div className="rounded-lg border border-white/10">
-                  <div className="grid grid-cols-3 p-3 text-xs sm:text-sm font-medium text-white/60">
-                    <div>Coin</div>
-                    <div className="text-right">Amount</div>
-                    <div className="text-right">Price</div>
-                  </div>
-                  <div className="divide-y divide-white/10">
-                    {sortedAssets.map((asset, index) => {
-                      // Get the amount from user assets or use default
-                      const userAssetAmount = userAssets[asset.symbol]?.amount || 0;
-                      // Use the actual amount from userAssets if available
-                      const displayAmount = userAssetAmount > 0 ? userAssetAmount.toFixed(8) : asset.amount;
-
-                      return (
-                        <div key={index} className="grid grid-cols-3 p-3">
-                          <div className="flex items-center gap-1 sm:gap-2">
-                            <img
-                              src={`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${asset.symbol.toLowerCase()}.svg`}
-                              alt={asset.symbol}
-                              className="w-5 h-5 sm:w-6 sm:h-6"
-                              onError={(e) => {
-                                e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
-                              }}
-                            />
-                            <div>
-                              <div className="text-sm sm:text-base">{asset.symbol}</div>
-                              <div className="text-xs text-white/60 hidden sm:block">{asset.fullName}</div>
-                            </div>
-                          </div>
-                          <div className="text-right text-xs sm:text-sm overflow-hidden text-ellipsis">
-                            {displayAmount}
-                          </div>
-                          <div className="text-right text-xs sm:text-sm">
-                            ${asset.symbol === 'USDT' ? '1.00' : assetPrices[asset.symbol]?.toFixed(2) || '0.00'}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
+                <AssetList />
               </TabsContent>
               <TabsContent value="account-view" className="pt-2">
                 <div className="text-center py-6 text-white/60">

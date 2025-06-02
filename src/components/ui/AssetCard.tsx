@@ -9,38 +9,36 @@ interface AssetCardProps {
   price?: number;
   change24h?: number;
   icon?: string;
+  fullName?: string;
 }
 
 // Memoized component to prevent unnecessary re-renders
-const AssetCard = React.memo(({ symbol, amount, value, price, change24h, icon }: AssetCardProps) => {
-  const changeColor = change24h && change24h >= 0 ? 'text-green-400' : 'text-red-400';
+const AssetCard = React.memo(({ symbol, amount, value, price, change24h, icon, fullName }: AssetCardProps) => {
+  const displayAmount = amount > 0 ? amount.toFixed(8) : '0.00000000';
   
   return (
-    <div className="bg-background/40 border border-white/10 rounded-lg p-4 hover:bg-background/60 transition-colors">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={icon} alt={symbol} />
-            <AvatarFallback className="bg-primary/20 text-white text-sm">
-              {symbol.slice(0, 2)}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <h3 className="text-white font-medium">{symbol}</h3>
-            {price && (
-              <p className="text-white/60 text-sm">${price.toFixed(4)}</p>
-            )}
-          </div>
-        </div>
-        <div className="text-right">
-          <p className="text-white font-medium">{amount.toLocaleString()}</p>
-          <p className="text-white/60 text-sm">${value.toFixed(2)}</p>
-          {change24h !== undefined && (
-            <p className={`text-xs ${changeColor}`}>
-              {change24h >= 0 ? '+' : ''}{change24h.toFixed(2)}%
-            </p>
+    <div className="grid grid-cols-3 p-3 hover:bg-white/5 transition-colors">
+      <div className="flex items-center gap-1 sm:gap-2">
+        <img
+          src={icon || `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${symbol.toLowerCase()}.svg`}
+          alt={symbol}
+          className="w-5 h-5 sm:w-6 sm:h-6"
+          onError={(e) => {
+            e.currentTarget.src = "https://assets.coingecko.com/coins/images/31069/small/worldcoin.jpeg";
+          }}
+        />
+        <div>
+          <div className="text-sm sm:text-base text-white">{symbol}</div>
+          {fullName && (
+            <div className="text-xs text-white/60 hidden sm:block">{fullName}</div>
           )}
         </div>
+      </div>
+      <div className="text-right text-xs sm:text-sm text-white overflow-hidden text-ellipsis">
+        {displayAmount}
+      </div>
+      <div className="text-right text-xs sm:text-sm text-white">
+        ${symbol === 'USDT' ? '1.00' : price?.toFixed(2) || '0.00'}
       </div>
     </div>
   );
