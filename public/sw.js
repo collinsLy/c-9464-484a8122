@@ -7,11 +7,7 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', (event) => {
-  // Don't skip waiting automatically in development
-  if (self.location.hostname !== 'localhost' && !self.location.hostname.includes('replit.dev')) {
-    self.skipWaiting();
-  }
-
+  // Never auto-skip waiting to prevent refresh loops
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => cache.addAll(urlsToCache))
@@ -19,11 +15,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  // Only take control in production
-  if (self.location.hostname !== 'localhost' && !self.location.hostname.includes('replit.dev')) {
-    event.waitUntil(self.clients.claim());
-  }
-
+  // Never auto-claim to prevent refresh loops
   // Clean up old caches
   event.waitUntil(
     caches.keys().then((cacheNames) => {

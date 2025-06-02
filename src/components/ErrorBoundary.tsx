@@ -30,11 +30,7 @@ class ErrorBoundary extends React.Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('Error caught by boundary:', error, errorInfo);
-
-    // If it's a cache issue, try to clear cache automatically
-    if (this.state.isCacheIssue) {
-      this.clearCacheAndReload();
-    }
+    // Don't auto-clear cache, let user decide
   }
 
   clearCacheAndReload = async () => {
