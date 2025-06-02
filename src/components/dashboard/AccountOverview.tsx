@@ -3,8 +3,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { UserService } from "@/lib/user-service";
+import { useBalanceStore } from "@/lib/balance-store";
 
 interface AccountOverviewProps {
   isDemoMode?: boolean;
@@ -12,7 +13,11 @@ interface AccountOverviewProps {
 
 const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   const { toast } = useToast();
-  const [balance, setBalance] = useState(0);
+  const { 
+    totalPortfolioValue, 
+    usdtBalance, 
+    isLoading: balanceLoading 
+  } = useBalanceStore();
   const [isLoading, setIsLoading] = useState(true);
   const [profitLoss, setProfitLoss] = useState(0);
   const [profitLossPercent, setProfitLossPercent] = useState(0);
@@ -53,7 +58,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
           .filter(symbol => symbol !== 'USDT');
 
         if (symbols.length === 0) {
-          calculatePortfolioValue(userAssets, {}, balance);
+          calculatePortfolioValue(userAssets, {}, usdtBalance);
           return;
         }
 
@@ -103,7 +108,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
           });
 
           // Only calculate portfolio value if prices changed significantly
-          calculatePortfolioValue(userAssets, newPrices, balance);
+          calculatePortfolioValue(userAssets, newPrices, usdtBalance);
         }
       } catch (error) {
         console.error('Error fetching asset prices:', error);
@@ -114,13 +119,12 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
       const debounceTimer = setTimeout(fetchPrices, 3000); // Increased to 3 seconds
       return () => clearTimeout(debounceTimer);
     }
-  }, [userAssets, balance]);
+  }, [userAssets, usdtBalance]);
 
   useEffect(() => {
     if (isDemoMode) {
       // Load demo balance from localStorage
       const demoBalance = parseFloat(localStorage.getItem('demoBalance') || '10000');
-      setBalance(demoBalance);
       setTotalBalance(demoBalance);
       setProfitLoss(0);
       setProfitLossPercent(0);
@@ -162,10 +166,8 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
 
       if (isNaN(parsedBalance)) {
         console.error('Invalid balance value received:', userData.balance);
-        setBalance(0);
         setTotalBalance(0);
       } else {
-        setBalance(parsedBalance);
         setProfitLoss(totalPL);
         setProfitLossPercent(initialBalance > 0 ? (totalPL / initialBalance) * 100 : 0);
 
@@ -207,6 +209,12 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
     }
     window.location.href = "/withdraw";
   };
+
+  const displayBalance = isDemoMode ? 10000 : totalPortfolioValue;
+  const displayPreviousBalance = isDemoMode ? 9500 : previousDayBalance;
+  const balanceChange = displayBalance - displayPreviousBalance;
+  const balanceChangePercent = displayPreviousBalance > 0 ? (balanceChange / displayPreviousBalance) * 100 : 0;
+  const availableCash = isDemoMode ? 5000 : usdtBalance;
 
   return (
     <div className="mb-6">
@@ -254,7 +262,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
               {isLoading ? (
                 <span className="text-white/60">Loading...</span>
               ) : (
-                `$${balance.toFixed(2)}`
+                `$${availableCash.toFixed(2)}`
               )}
             </div>
             <div className="flex mt-1 space-x-1">

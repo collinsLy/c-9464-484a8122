@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { UserService } from "@/lib/firebase-service";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
@@ -6,106 +5,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PortfolioAnalytics } from "@/components/dashboard/PortfolioAnalytics";
+import { useBalanceStore } from "@/lib/balance-store";
 
 const AssetsPage = () => {
-  const [balance, setBalance] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const {
+    totalPortfolioValue,
+    usdtBalance,
+    userAssets,
+    assetPrices,
+    isLoading: balanceLoading
+  } = useBalanceStore();
+
+  const [isLoading, setIsLoading] = useState(false);
   const [previousDayBalance, setPreviousDayBalance] = useState(0);
   const [selectedCrypto, setSelectedCrypto] = useState("BTC");
-
-  const [totalPortfolioValue, setTotalPortfolioValue] = useState(0);
-  const [assetPrices, setAssetPrices] = useState<Record<string, number>>({});
-  const [userAssets, setUserAssets] = useState<Record<string, any>>({});
-
-  // Fetch current prices for all assets
-  useEffect(() => {
-    const fetchPrices = async () => {
-      try {
-        // Get symbols from our baseAssets array to ensure consistency
-        const symbols = baseAssets
-          .map(asset => asset.symbol)
-          .filter(symbol => symbol !== 'USDT'); // Filter out USDT as we handle it separately
-        
-        const symbolsQuery = symbols.map(s => `${s}USDT`);
-        const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
-        const data = await response.json();
-        
-        const prices: Record<string, number> = {};
-        data.forEach((item: any) => {
-          const symbol = item.symbol.replace('USDT', '');
-          prices[symbol] = parseFloat(item.price);
-        });
-        // Add USDT itself with value of 1
-        prices['USDT'] = 1;
-        setAssetPrices(prices);
-        
-        // Recalculate portfolio value when prices update
-        calculatePortfolioValue(userAssets, prices, balance);
-      } catch (error) {
-        console.error('Error fetching asset prices:', error);
-      }
-    };
-
-    fetchPrices();
-    // Update prices every 30 seconds
-    const interval = setInterval(fetchPrices, 30000);
-    return () => clearInterval(interval);
-  }, [userAssets, balance]);
-
-  // Calculate total portfolio value with current prices
-  const calculatePortfolioValue = (assets: Record<string, any>, prices: Record<string, number>, usdtBalance: number) => {
-    // Always include USDT balance in the total
-    let total = usdtBalance;
-    
-    // Add value of all other assets
-    if (assets) {
-      Object.entries(assets).forEach(([symbol, data]) => {
-        if (symbol === 'USDT') return; // Skip USDT as it's already included in balance
-        const amount = data.amount || 0;
-        const price = prices[symbol] || 0;
-        const valueInUsdt = amount * price;
-        console.log(`Asset ${symbol}: Amount ${amount} × Price ${price} = ${valueInUsdt} USDT`);
-        total += valueInUsdt;
-      });
-    }
-    
-    console.log(`Total portfolio value: ${total} USDT`);
-    setTotalPortfolioValue(total);
-  };
-
-  useEffect(() => {
-    const uid = localStorage.getItem('userId');
-    if (!uid) {
-      setIsLoading(false);
-      return;
-    }
-
-    // Get yesterday's date at midnight
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    yesterday.setHours(0, 0, 0, 0);
-
-    const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
-      // Set previous day balance from userData
-      if (userData?.previousDayBalance) {
-        setPreviousDayBalance(userData.previousDayBalance);
-      }
-      if (userData) {
-        const parsedBalance = typeof userData.balance === 'string' ? parseFloat(userData.balance) : userData.balance;
-        setBalance(parsedBalance || 0);
-        setUserAssets(userData.assets || {});
-        
-        // Calculate portfolio value
-        calculatePortfolioValue(userData.assets || {}, assetPrices, parsedBalance || 0);
-      }
-      setIsLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [assetPrices]);
-
   const [prices, setPrices] = useState({});
-  
+
   // Base assets list that will be shown to all users
   const baseAssets = [
     {
@@ -126,8 +41,8 @@ const AssetsPage = () => {
       name: "USDT",
       symbol: "USDT",
       fullName: "TetherUS",
-      balance: balance,
-      amount: balance.toFixed(8)
+      balance: usdtBalance,
+      amount: usdtBalance.toFixed(8)
     },
     {
       name: "USDC",
@@ -202,52 +117,45 @@ const AssetsPage = () => {
   ];
 
   useEffect(() => {
-    const fetchPrices = async () => {
-      try {
-        const symbols = baseAssets.map(asset => `${asset.symbol}USDT`);
-        const response = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=' + JSON.stringify(symbols));
-        const data = await response.json();
-        
-        const newPrices = {};
-        data.forEach(item => {
-          const symbol = item.symbol.replace('USDT', '');
-          newPrices[symbol] = parseFloat(item.price);
-        });
-        setPrices(newPrices);
-      } catch (error) {
-        console.error('Error fetching prices:', error);
+    const uid = localStorage.getItem('userId');
+    if (!uid) {
+      setIsLoading(false);
+      return;
+    }
+
+    const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
+      if (userData?.previousDayBalance) {
+        setPreviousDayBalance(userData.previousDayBalance);
       }
-    };
+      setIsLoading(false);
+    });
 
-    fetchPrices();
-    const interval = setInterval(fetchPrices, 10000); // Update every 10 seconds
-
-    return () => clearInterval(interval);
+    return () => unsubscribe();
   }, []);
 
   // Merge base assets with user's actual assets data
   const assets = baseAssets.map(asset => {
     // Check if user has this asset
     const userAsset = userAssets[asset.symbol];
-    
+
     return {
       ...asset,
       // Override amount and balance if user has this asset
       amount: userAsset ? userAsset.amount.toFixed(8) : asset.amount,
-      balance: userAsset ? userAsset.amount * (assetPrices[asset.symbol] || prices[asset.symbol] || 0) : asset.balance,
-      price: assetPrices[asset.symbol] || prices[asset.symbol] || 0
+      balance: userAsset ? userAsset.amount * (assetPrices[asset.symbol] || 0) : asset.balance,
+      price: assetPrices[asset.symbol] || 0
     };
   });
-  
+
   // Sort assets: first show assets with balances, then the rest
   const sortedAssets = [...assets].sort((a, b) => {
     // First compare if either asset has a balance
     const aHasBalance = parseFloat(a.amount) > 0;
     const bHasBalance = parseFloat(b.amount) > 0;
-    
+
     if (aHasBalance && !bHasBalance) return -1;
     if (!aHasBalance && bHasBalance) return 1;
-    
+
     // If both have or don't have balances, sort by value
     return b.balance - a.balance;
   });
@@ -256,7 +164,7 @@ const AssetsPage = () => {
     <DashboardLayout>
       <div className="space-y-4 px-2 sm:px-4 pb-20">
         <PortfolioAnalytics />
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
             <CardHeader className="p-4 sm:p-6">
@@ -277,14 +185,14 @@ const AssetsPage = () => {
                     <div className="text-sm text-white/60">24h Change</div>
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4 pt-2">
                   <div className="bg-white/5 rounded-lg p-3">
-                    <div className="text-lg font-semibold">{balance.toFixed(2)} USDT</div>
+                    <div className="text-lg font-semibold">{usdtBalance.toFixed(2)} USDT</div>
                     <div className="text-sm text-white/60">Available Balance</div>
                   </div>
                   <div className="bg-white/5 rounded-lg p-3">
-                    <div className="text-lg font-semibold">${(totalPortfolioValue - balance).toFixed(2)}</div>
+                    <div className="text-lg font-semibold">${(totalPortfolioValue - usdtBalance).toFixed(2)}</div>
                     <div className="text-sm text-white/60">In Other Assets</div>
                   </div>
                 </div>
@@ -302,16 +210,16 @@ const AssetsPage = () => {
                       Previous Day Balance: ${previousDayBalance.toFixed(2)}
                     </div>
                   </div>
-                  
+
                   <div className="bg-white/5 rounded-lg p-3">
                     <div className="flex justify-between items-center">
                       <div className="text-sm text-white/60">ROI</div>
-                      <div className={`text-sm ${(totalPortfolioValue - balance) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                        {balance > 0 ? (((totalPortfolioValue - balance) / balance) * 100).toFixed(2) : '0.00'}%
+                      <div className={`text-sm ${(totalPortfolioValue - usdtBalance) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        {usdtBalance > 0 ? (((totalPortfolioValue - usdtBalance) / usdtBalance) * 100).toFixed(2) : '0.00'}%
                       </div>
                     </div>
                     <div className="mt-2 text-xs text-white/40">
-                      Initial Investment: ${balance.toFixed(2)}
+                      Initial Investment: ${usdtBalance.toFixed(2)}
                     </div>
                   </div>
                 </div>
@@ -352,7 +260,7 @@ const AssetsPage = () => {
               </div>
             </CardContent>
           </Card>
-          
+
         <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
           <CardHeader className="p-4 sm:p-6">
             <CardTitle className="text-xl sm:text-2xl">Asset Distribution</CardTitle>
@@ -417,7 +325,7 @@ const AssetsPage = () => {
                       const userAssetAmount = userAssets[asset.symbol]?.amount || 0;
                       // Use the actual amount from userAssets if available
                       const displayAmount = userAssetAmount > 0 ? userAssetAmount.toFixed(8) : asset.amount;
-                      
+
                       return (
                         <div key={index} className="grid grid-cols-3 p-3">
                           <div className="flex items-center gap-1 sm:gap-2">
@@ -438,7 +346,7 @@ const AssetsPage = () => {
                             {displayAmount}
                           </div>
                           <div className="text-right text-xs sm:text-sm">
-                            ${asset.symbol === 'USDT' ? '1.00' : assetPrices[asset.symbol]?.toFixed(2) || prices[asset.symbol]?.toFixed(2) || '0.00'}
+                            ${asset.symbol === 'USDT' ? '1.00' : assetPrices[asset.symbol]?.toFixed(2) || '0.00'}
                           </div>
                         </div>
                       );

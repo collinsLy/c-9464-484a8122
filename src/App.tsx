@@ -20,7 +20,7 @@ import WithdrawPage from "./pages/WithdrawPage";
 import ReferralsPage from "./pages/ReferralsPage";
 import AlertsPage from "./pages/AlertsPage";
 import SocialTradingPage from "./pages/SocialTradingPage";
-import DexScreenerPage from "./pages/DexScreenerPage";
+import DexScreenerPage from "@/pages/DexScreenerPage";
 import VertexNewListingsPage from "./pages/BinanceNewListingsPage";
 import HistoryPage from "./pages/HistoryPage";
 import SpotMarketsPage from "@/pages/SpotMarketsPage";
@@ -43,6 +43,7 @@ import ApiManagementPage from "./pages/ApiManagementPage";
 import RiskAnalysisPage from "./pages/RiskAnalysisPage"; // Added
 import AITradingAssistantPage from "./pages/AITradingAssistantPage"; // Added
 import CryptoConverterPage from "./pages/CryptoConverterPage";
+import { BalanceProvider } from "@/components/BalanceProvider";
 // import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 
 // Configure query client to not show error toasts
@@ -66,48 +67,50 @@ const App = () => (
         <Toaster />
         <Sonner />
         <Analytics />
-        <BrowserRouter>
-          <DashboardProvider>
-            <Routes>
-              <Route path="/" element={<ErrorBoundary><Index /></ErrorBoundary>} />
-              <Route path="/dashboard" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
-              <Route path="/spot-markets" element={<ErrorBoundary><SpotMarketsPage /></ErrorBoundary>} />
-              <Route path="/market" element={<ErrorBoundary><MarketPage /></ErrorBoundary>} />
-              <Route path="/settings" element={<ErrorBoundary><SettingsPage /></ErrorBoundary>} />
-              <Route path="/assets" element={<ErrorBoundary><AssetsPage /></ErrorBoundary>} />
-              <Route path="/demo" element={<ErrorBoundary><DemoPage /></ErrorBoundary>} />
-              <Route path="/bots" element={<ErrorBoundary><BotsPage /></ErrorBoundary>} />
-              <Route path="/deposit" element={<ErrorBoundary><DepositPage /></ErrorBoundary>} />
-              <Route path="/strategies" element={<ErrorBoundary><StrategiesPage /></ErrorBoundary>} />
-              <Route path="/support" element={<ErrorBoundary><SupportPage /></ErrorBoundary>} />
-              <Route path="/withdraw" element={<ErrorBoundary><WithdrawPage /></ErrorBoundary>} />
-              <Route path="/referrals" element={<ErrorBoundary><ReferralsPage /></ErrorBoundary>} />
-              <Route path="/alerts" element={<ErrorBoundary><AlertsPage /></ErrorBoundary>} />
-              <Route path="/social-trading" element={<ErrorBoundary><SocialTradingPage /></ErrorBoundary>} />
-              <Route path="/history" element={<ErrorBoundary><HistoryPage /></ErrorBoundary>} />
-              <Route path="/new-listings" element={<ErrorBoundary><VertexNewListingsPage /></ErrorBoundary>} />
-              <Route path="/futures-markets" element={<ErrorBoundary><FuturesMarketsPage /></ErrorBoundary>} />
-              <Route path="/top-movers" element={<ErrorBoundary><TopMoversPage /></ErrorBoundary>} />
-              <Route path="/spot-trading" element={<ErrorBoundary><SpotTradingPage /></ErrorBoundary>} />
-              <Route path="/margin-trading" element={<ErrorBoundary><MarginTradingPage /></ErrorBoundary>} />
-              <Route path="/strategy-trading" element={<ErrorBoundary><StrategyTradingPage /></ErrorBoundary>} />
-              <Route path="/p2p" element={<ErrorBoundary><P2PPage /></ErrorBoundary>} />
-              <Route path="/usdt-futures" element={<ErrorBoundary><USDTFuturesPage /></ErrorBoundary>} />
-              <Route path="/coin-futures" element={<ErrorBoundary><CoinFuturesPage /></ErrorBoundary>} />
-              <Route path="/options" element={<ErrorBoundary><OptionsPage /></ErrorBoundary>} />
-              <Route path="/leaderboard" element={<ErrorBoundary><LeaderboardPage /></ErrorBoundary>} />
-              <Route path="/simple-earn" element={<ErrorBoundary><SimpleEarnPage /></ErrorBoundary>} />
-              <Route path="/auto-invest" element={<ErrorBoundary><AutoInvestPage /></ErrorBoundary>} />
-              <Route path="/staking" element={<ErrorBoundary><StakingPage /></ErrorBoundary>} />
-              <Route path="/vertex-card" element={<ErrorBoundary><VertexCardPage /></ErrorBoundary>} />
-              <Route path="/liquidity-farming" element={<ErrorBoundary><LiquidityFarmingPage /></ErrorBoundary>} />
-              <Route path="/api-management" element={<ErrorBoundary><ApiManagementPage /></ErrorBoundary>} />
-              <Route path="/risk-analysis" element={<ErrorBoundary><RiskAnalysisPage /></ErrorBoundary>} /> {/* Added */}
-              <Route path="/ai-assistant" element={<ErrorBoundary><AITradingAssistantPage /></ErrorBoundary>} /> {/* Added */}
-              <Route path="/crypto-converter" element={<ErrorBoundary><CryptoConverterPage /></ErrorBoundary>} />
-            </Routes>
-          </DashboardProvider>
-        </BrowserRouter>
+        <BalanceProvider>
+          <BrowserRouter>
+            <DashboardProvider>
+              <Routes>
+                <Route path="/" element={<ErrorBoundary><Index /></ErrorBoundary>} />
+                <Route path="/dashboard" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
+                <Route path="/spot-markets" element={<ErrorBoundary><SpotMarketsPage /></ErrorBoundary>} />
+                <Route path="/market" element={<ErrorBoundary><MarketPage /></ErrorBoundary>} />
+                <Route path="/settings" element={<ErrorBoundary><SettingsPage /></ErrorBoundary>} />
+                <Route path="/assets" element={<ErrorBoundary><AssetsPage /></ErrorBoundary>} />
+                <Route path="/demo" element={<ErrorBoundary><DemoPage /></ErrorBoundary>} />
+                <Route path="/bots" element={<ErrorBoundary><BotsPage /></ErrorBoundary>} />
+                <Route path="/deposit" element={<ErrorBoundary><DepositPage /></ErrorBoundary>} />
+                <Route path="/strategies" element={<ErrorBoundary><StrategiesPage /></ErrorBoundary>} />
+                <Route path="/support" element={<ErrorBoundary><SupportPage /></ErrorBoundary>} />
+                <Route path="/withdraw" element={<ErrorBoundary><WithdrawPage /></ErrorBoundary>} />
+                <Route path="/referrals" element={<ErrorBoundary><ReferralsPage /></ErrorBoundary>} />
+                <Route path="/alerts" element={<ErrorBoundary><AlertsPage /></ErrorBoundary>} />
+                <Route path="/social-trading" element={<ErrorBoundary><SocialTradingPage /></ErrorBoundary>} />
+                <Route path="/history" element={<ErrorBoundary><HistoryPage /></ErrorBoundary>} />
+                <Route path="/new-listings" element={<ErrorBoundary><VertexNewListingsPage /></ErrorBoundary>} />
+                <Route path="/futures-markets" element={<ErrorBoundary><FuturesMarketsPage /></ErrorBoundary>} />
+                <Route path="/top-movers" element={<ErrorBoundary><TopMoversPage /></ErrorBoundary>} />
+                <Route path="/spot-trading" element={<ErrorBoundary><SpotTradingPage /></ErrorBoundary>} />
+                <Route path="/margin-trading" element={<ErrorBoundary><MarginTradingPage /></ErrorBoundary>} />
+                <Route path="/strategy-trading" element={<ErrorBoundary><StrategyTradingPage /></ErrorBoundary>} />
+                <Route path="/p2p" element={<ErrorBoundary><P2PPage /></ErrorBoundary>} />
+                <Route path="/usdt-futures" element={<ErrorBoundary><USDTFuturesPage /></ErrorBoundary>} />
+                <Route path="/coin-futures" element={<ErrorBoundary><CoinFuturesPage /></ErrorBoundary>} />
+                <Route path="/options" element={<ErrorBoundary><OptionsPage /></ErrorBoundary>} />
+                <Route path="/leaderboard" element={<ErrorBoundary><LeaderboardPage /></ErrorBoundary>} />
+                <Route path="/simple-earn" element={<ErrorBoundary><SimpleEarnPage /></ErrorBoundary>} />
+                <Route path="/auto-invest" element={<ErrorBoundary><AutoInvestPage /></ErrorBoundary>} />
+                <Route path="/staking" element={<ErrorBoundary><StakingPage /></ErrorBoundary>} />
+                <Route path="/vertex-card" element={<ErrorBoundary><VertexCardPage /></ErrorBoundary>} />
+                <Route path="/liquidity-farming" element={<ErrorBoundary><LiquidityFarmingPage /></ErrorBoundary>} />
+                <Route path="/api-management" element={<ErrorBoundary><ApiManagementPage /></ErrorBoundary>} />
+                <Route path="/risk-analysis" element={<ErrorBoundary><RiskAnalysisPage /></ErrorBoundary>} /> {/* Added */}
+                <Route path="/ai-assistant" element={<ErrorBoundary><AITradingAssistantPage /></ErrorBoundary>} /> {/* Added */}
+                <Route path="/crypto-converter" element={<ErrorBoundary><CryptoConverterPage /></ErrorBoundary>} />
+              </Routes>
+            </DashboardProvider>
+          </BrowserRouter>
+        </BalanceProvider>
       </TooltipProvider>
     </QueryClientProvider>
   </ErrorBoundary>

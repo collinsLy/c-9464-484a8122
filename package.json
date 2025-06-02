@@ -70,7 +70,8 @@
     "uuid": "^11.1.0",
     "vaul": "^0.9.3",
     "vite_react_shadcn_ts": "file:",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "zustand": "^5.0.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
