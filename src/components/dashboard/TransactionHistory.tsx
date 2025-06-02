@@ -526,10 +526,10 @@ function TransactionHistory() {
 
                           // Check specific patterns in amount to identify crypto type
                           if (!detectedCrypto) {
-                            if (transaction.amount === 61 || transaction.amount === 300 || transaction.amount === 366 || 
-                               (transaction.amount > 10 && transaction.amount < 400) && !transaction.amount.toString().includes('.')) {
+                            if ((transaction.amount >= 6 && transaction.amount <= 400) && 
+                                !transaction.amount.toString().includes('.')) {
                               detectedCrypto = 'DOGE';
-                            } else if (transaction.amount < 0.01 || transaction.amount === 208.3861) {
+                            } else if (transaction.amount < 0.01) {
                               detectedCrypto = 'BTC';
                             } else if (transaction.amount > 1 && transaction.amount < 5) {
                               detectedCrypto = 'ETH';
@@ -577,7 +577,7 @@ function TransactionHistory() {
                             onError={(e) => {
                               // Replace the image with a span displaying the currency code
                               const span = document.createElement('span');
-                              span.textContent = transaction.asset || 'UNKNOWN';
+                              span.textContent = transaction.asset || 'UNKNOWN';';
                               span.className = 'font-medium text-xs bg-white/10 rounded-full px-2 py-1';
                               e.currentTarget.parentNode.replaceChild(span, e.currentTarget);
                             }}
@@ -1126,13 +1126,13 @@ function TransactionHistory() {
                         }
 
                         if (!detectedCrypto) {
-                          if (selectedTransaction.amount === 61 || selectedTransaction.amount === 50 || 
-                              selectedTransaction.amount === 21 || selectedTransaction.amount === 11 || 
-                              selectedTransaction.amount === 6 || 
-                              (selectedTransaction.amount > 5 && selectedTransaction.amount < 100)) {
+                          if ((selectedTransaction.amount >= 6 && selectedTransaction.amount <= 400) && 
+                              !selectedTransaction.amount.toString().includes('.')) {
                             detectedCrypto = 'DOGE';
                           } else if (selectedTransaction.amount < 0.01) {
                             detectedCrypto = 'BTC';
+                          } else if (selectedTransaction.amount > 1 && selectedTransaction.amount < 5) {
+                            detectedCrypto = 'ETH';
                           } else {
                             detectedCrypto = selectedTransaction.asset || 'USDT';
                           }
