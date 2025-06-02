@@ -17,6 +17,7 @@ window.addEventListener('orientationchange', () => {
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
+import { CacheManager } from './lib/cache-utils'
 
 // Register service worker for PWA
 if ('serviceWorker' in navigator) {
@@ -49,7 +50,12 @@ function initializeApp() {
 
     if (isCacheError) {
       console.warn('Cache-related error detected, clearing cache...');
-      CacheManager.emergencyReset();
+      try {
+        CacheManager.emergencyReset();
+      } catch (cacheError) {
+        console.error('Failed to clear cache:', cacheError);
+        window.location.reload();
+      }
       return;
     }
 
