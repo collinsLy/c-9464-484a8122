@@ -9,14 +9,32 @@ interface BalanceProviderProps {
 }
 
 export const BalanceProvider = ({ children }: BalanceProviderProps) => {
-  const { fetchBalances, updateAssetPrices } = useBalanceStore();
+  const { fetchBalances, updateAssetPrices, clearBalances } = useBalanceStore();
 
   useEffect(() => {
-    const userId = auth.currentUser?.uid || localStorage.getItem('userId');
-    if (!userId) return;
+    // Listen for authentication state changes
+    const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        // User is logged in - immediately preload all balances
+        console.log('User authenticated, preloading balances...');
+        await fetchBalances(user.uid);
+      } else {
+        // User logged out - clear balances
+        const storedUserId = localStorage.getItem('userId');
+        if (storedUserId) {
+          console.log('User authenticated via localStorage, preloading balances...');
+          await fetchBalances(storedUserId);
+        } else {
+          clearBalances();
+        }
+      }
+    });
 
-    // Preload balances immediately
-    fetchBalances(userId);
+    // Also check for immediate userId in localStorage for faster initial load
+    const immediateUserId = localStorage.getItem('userId');
+    if (immediateUserId && !auth.currentUser) {
+      console.log('Immediate balance preload for stored user...');
+      fetchBalances(immediateUserId);
 
     // Set up real-time listener for balance updates
     const unsubscribe = UserService.subscribeToUserData(userId, (userData) => {
@@ -77,7 +95,8 @@ export const BalanceProvider = ({ children }: BalanceProviderProps) => {
     }, 30000);
 
     return () => {
-      unsubscribe();
+      unsubscribeAuth();
+      if (unsubscribe) unsubscribe();
       clearInterval(priceInterval);
     };
   }, [fetchBalances, updateAssetPrices]);

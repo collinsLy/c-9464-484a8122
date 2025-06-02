@@ -16,10 +16,8 @@ const AssetsPage = () => {
     isLoading: balanceLoading
   } = useBalanceStore();
 
-  const [isLoading, setIsLoading] = useState(false);
   const [previousDayBalance, setPreviousDayBalance] = useState(0);
   const [selectedCrypto, setSelectedCrypto] = useState("BTC");
-  const [prices, setPrices] = useState({});
 
   // Base assets list that will be shown to all users
   const baseAssets = [
@@ -118,16 +116,12 @@ const AssetsPage = () => {
 
   useEffect(() => {
     const uid = localStorage.getItem('userId');
-    if (!uid) {
-      setIsLoading(false);
-      return;
-    }
+    if (!uid) return;
 
     const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
       if (userData?.previousDayBalance) {
         setPreviousDayBalance(userData.previousDayBalance);
       }
-      setIsLoading(false);
     });
 
     return () => unsubscribe();

@@ -43,11 +43,13 @@ export const useBalanceStore = create<BalanceStore>()(
         const state = get();
         const now = Date.now();
         
-        // Skip if data is fresh (less than 30 seconds old)
-        if (state.lastUpdated && (now - state.lastUpdated) < 30000 && !state.isLoading) {
+        // Skip if data is fresh (less than 30 seconds old) and not empty
+        if (state.lastUpdated && (now - state.lastUpdated) < 30000 && !state.isLoading && state.totalPortfolioValue > 0) {
+          console.log('Using cached balance data');
           return;
         }
 
+        console.log('Fetching fresh balance data...');
         set({ isLoading: true, error: null });
 
         try {

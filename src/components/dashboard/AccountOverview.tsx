@@ -16,175 +16,55 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   const { 
     totalPortfolioValue, 
     usdtBalance, 
-    isLoading: balanceLoading 
+    isLoading: balanceLoading,
+    userAssets: storeUserAssets,
+    assetPrices: storeAssetPrices,
+    fetchBalances
   } = useBalanceStore();
-  const [isLoading, setIsLoading] = useState(true);
   const [profitLoss, setProfitLoss] = useState(0);
   const [profitLossPercent, setProfitLossPercent] = useState(0);
-  const [totalBalance, setTotalBalance] = useState(0);
   const [dailyChange, setDailyChange] = useState(0.00);
   const [previousDayBalance, setPreviousDayBalance] = useState(0);
-  const [assetPrices, setAssetPrices] = useState<Record<string, number>>({});
-  const [userAssets, setUserAssets] = useState<Record<string, any>>({});
 
-  // Calculate total portfolio value with current prices
-  const calculatePortfolioValue = (assets: Record<string, any>, prices: Record<string, number>, usdtBalance: number) => {
-    // Always include USDT balance in the total
-    let total = usdtBalance;
-
-    // Add value of all other assets
-    if (assets) {
-      Object.entries(assets).forEach(([symbol, data]) => {
-        if (symbol === 'USDT') return; // Skip USDT as it's already included in balance
-        const amount = data.amount || 0;
-        const price = prices[symbol] || 0;
-        const valueInUsdt = amount * price;
-        total += valueInUsdt;
-      });
-    }
-
-    setTotalBalance(total);
-  };
-
-  // Fetch current prices for assets with increased debounce and memoization
+  // Ensure balances are fetched if not already loaded
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    const FETCH_INTERVAL = 3000; // 3 seconds
-    const CHANGE_THRESHOLD = 0.001; // 0.1%
-
-    const fetchPrices = async () => {
-      try {
-        const symbols = Object.keys(userAssets)
-          .filter(symbol => symbol !== 'USDT');
-
-        if (symbols.length === 0) {
-          calculatePortfolioValue(userAssets, {}, usdtBalance);
-          return;
-        }
-
-        const symbolsQuery = symbols.map(s => `${s}USDT`);
-        const controller = new AbortController();
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => {
-            controller.abort();
-            reject(new Error('Timeout'));
-          }, 2000)
-        );
-
-        const fetchPromise = fetch(
-          `https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`,
-          { signal: controller.signal }
-        );
-
-        const response = await Promise.race([fetchPromise, timeoutPromise]);
-        const data = await (response as Response).json();
-
-        const newPrices: Record<string, number> = {};
-        data.forEach((item: any) => {
-          const symbol = item.symbol.replace('USDT', '');
-          newPrices[symbol] = parseFloat(item.price);
-        });
-        newPrices['USDT'] = 1;
-
-        // Deep compare prices to prevent unnecessary updates
-        const hasSignificantChanges = Object.entries(newPrices).some(
-          ([key, value]) => {
-            const oldPrice = assetPrices[key];
-            return !oldPrice || Math.abs((value - oldPrice) / oldPrice) > CHANGE_THRESHOLD;
-          }
-        );
-
-        if (hasSignificantChanges) {
-          setAssetPrices(prev => {
-            // Smooth transition between old and new prices
-            const smoothedPrices: Record<string, number> = {};
-            Object.entries(newPrices).forEach(([key, value]) => {
-              const oldPrice = prev[key];
-              smoothedPrices[key] = oldPrice 
-                ? oldPrice + (value - oldPrice) * 0.3 // Gradual transition
-                : value;
-            });
-            return smoothedPrices;
-          });
-
-          // Only calculate portfolio value if prices changed significantly
-          calculatePortfolioValue(userAssets, newPrices, usdtBalance);
-        }
-      } catch (error) {
-        console.error('Error fetching asset prices:', error);
-      }
-    };
-
-    if (Object.keys(userAssets).length > 0) {
-      const debounceTimer = setTimeout(fetchPrices, 3000); // Increased to 3 seconds
-      return () => clearTimeout(debounceTimer);
+    const uid = localStorage.getItem('userId');
+    if (uid && !balanceLoading && totalPortfolioValue === 0) {
+      fetchBalances(uid);
     }
-  }, [userAssets, usdtBalance]);
+  }, []);
 
   useEffect(() => {
     if (isDemoMode) {
-      // Load demo balance from localStorage
-      const demoBalance = parseFloat(localStorage.getItem('demoBalance') || '10000');
-      setTotalBalance(demoBalance);
       setProfitLoss(0);
       setProfitLossPercent(0);
-      setIsLoading(false);
       return;
     }
 
     const uid = localStorage.getItem('userId');
+    if (!uid) return;
 
-    if (!uid) {
-      setIsLoading(false);
-      return;
-    }
-
-    setIsLoading(true);
-
-    // Subscribe to user data updates
+    // Subscribe to user data for profit/loss and daily changes only
     const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
-      if (!userData) {
-        console.error('No user data found');
-        setIsLoading(false);
-        return;
-      }
+      if (!userData) return;
 
-      // Parse balance values
-      const parsedBalance = typeof userData.balance === 'number' ? userData.balance : 
-                          (typeof userData.balance === 'string' ? parseFloat(userData.balance) : 0);
-
-      const initialBalance = userData.initialBalance || parsedBalance;
       const totalPL = userData.totalProfitLoss || 0;
       const prevBalance = userData.previousDayBalance || 0;
+      const initialBalance = userData.initialBalance || totalPortfolioValue;
+      
       setPreviousDayBalance(prevBalance);
+      setProfitLoss(totalPL);
+      setProfitLossPercent(initialBalance > 0 ? (totalPL / initialBalance) * 100 : 0);
 
       // Calculate daily change percentage
       const dailyChangeValue = prevBalance > 0 
-        ? ((parsedBalance - prevBalance) / prevBalance) * 100 
+        ? ((totalPortfolioValue - prevBalance) / prevBalance) * 100 
         : 0;
       setDailyChange(dailyChangeValue);
-
-      if (isNaN(parsedBalance)) {
-        console.error('Invalid balance value received:', userData.balance);
-        setTotalBalance(0);
-      } else {
-        setProfitLoss(totalPL);
-        setProfitLossPercent(initialBalance > 0 ? (totalPL / initialBalance) * 100 : 0);
-
-        // Store user assets for portfolio calculation
-        setUserAssets(userData.assets || {});
-
-        // Calculate portfolio value including all assets
-        calculatePortfolioValue(userData.assets || {}, assetPrices, parsedBalance);
-      }
-
-      setIsLoading(false);
     });
 
-    return () => {
-      unsubscribe();
-    };
-  }, [isDemoMode, assetPrices]);
+    return () => unsubscribe();
+  }, [isDemoMode, totalPortfolioValue]);
 
   const handleDeposit = () => {
     if (isDemoMode) {
@@ -215,6 +95,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   const balanceChange = displayBalance - displayPreviousBalance;
   const balanceChangePercent = displayPreviousBalance > 0 ? (balanceChange / displayPreviousBalance) * 100 : 0;
   const availableCash = isDemoMode ? 5000 : usdtBalance;
+  const isLoading = isDemoMode ? false : balanceLoading;
 
   return (
     <div className="mb-6">
@@ -228,14 +109,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
               {isLoading ? (
                 <span className="text-white/60">Loading...</span>
               ) : (
-                <div className="relative">
-                  <span className={`transition-opacity duration-200 ${Object.keys(assetPrices).length === 0 ? 'opacity-50' : 'opacity-100'}`}>
-                    ${totalBalance.toFixed(2)}
-                  </span>
-                  {Object.keys(assetPrices).length === 0 && (
-                    <span className="absolute top-0 left-0 ml-1 animate-pulse text-white/60">*</span>
-                  )}
-                </div>
+                <span>${displayBalance.toFixed(2)}</span>
               )}
             </div>
             <div className="flex items-center text-xs md:text-sm">
