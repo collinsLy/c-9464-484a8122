@@ -1,4 +1,3 @@
-
 /**
  * Cache management utilities for Vertex Trading Platform
  */
@@ -42,27 +41,11 @@ export class CacheManager {
   }
 
   /**
-   * Check if user is experiencing cache issues
-   */
-  static detectCacheIssues(): boolean {
-    try {
-      // Check if we're getting HTML when we expect JS
-      const scripts = document.querySelectorAll('script[src]');
-      return Array.from(scripts).some(script => {
-        const src = script.getAttribute('src');
-        return src && src.includes('.js') && script.innerHTML.includes('<!DOCTYPE');
-      });
-    } catch {
-      return false;
-    }
-  }
-
-  /**
-   * Emergency cache clear and reload
+   * Emergency cache clear and reload (manual only)
    */
   static async emergencyReset(): Promise<void> {
     await this.clearAllCaches();
-    
+
     // Unregister service worker
     if ('serviceWorker' in navigator) {
       const registrations = await navigator.serviceWorker.getRegistrations();
@@ -74,31 +57,35 @@ export class CacheManager {
   }
 
   /**
-   * Check if app version has changed and clear cache if needed
+   * Check version without automatic actions
    */
-  static checkVersionAndClearCache(): boolean {
+  static checkVersion(): { hasChanged: boolean; oldVersion: string | null; newVersion: string } {
     try {
       const storedVersion = localStorage.getItem(VERSION_KEY);
-      
-      if (storedVersion && storedVersion !== APP_VERSION) {
-        console.log(`Version changed from ${storedVersion} to ${APP_VERSION}, clearing cache...`);
-        this.emergencyReset();
-        return true;
-      } else if (!storedVersion) {
-        // First time visit
+
+      if (!storedVersion) {
+        // First time visit - just store the version
         localStorage.setItem(VERSION_KEY, APP_VERSION);
         console.log(`App version ${APP_VERSION} initialized`);
+        return { hasChanged: false, oldVersion: null, newVersion: APP_VERSION };
       }
-      
-      return false;
+
+      const hasChanged = storedVersion !== APP_VERSION;
+
+      if (hasChanged) {
+        console.log(`Version changed from ${storedVersion} to ${APP_VERSION}`);
+        // Don't automatically clear cache - let user decide
+      }
+
+      return { hasChanged, oldVersion: storedVersion, newVersion: APP_VERSION };
     } catch (error) {
       console.error('Error checking version:', error);
-      return false;
+      return { hasChanged: false, oldVersion: null, newVersion: APP_VERSION };
     }
   }
 
   /**
-   * Update stored version after successful cache clear
+   * Update stored version after manual cache clear
    */
   static updateStoredVersion(): void {
     try {
@@ -106,30 +93,6 @@ export class CacheManager {
       console.log(`Version updated to ${APP_VERSION}`);
     } catch (error) {
       console.error('Error updating version:', error);
-    }
-  }
-
-  /**
-   * Auto-detect cache issues based on common error patterns
-   */
-  static detectAdvancedCacheIssues(): boolean {
-    try {
-      // Check for common cache-related errors in console
-      const hasConsoleErrors = window.console && console.error;
-      
-      // Check if any script tags contain HTML instead of JS
-      const scripts = document.querySelectorAll('script[src]');
-      const hasHtmlInScripts = Array.from(scripts).some(script => {
-        const src = script.getAttribute('src');
-        return src && src.includes('.js') && script.innerHTML.includes('<!DOCTYPE');
-      });
-
-      // Check for missing or corrupted chunks
-      const hasChunkErrors = document.querySelectorAll('script[src*="chunk"]').length === 0;
-
-      return hasHtmlInScripts || hasChunkErrors || this.detectCacheIssues();
-    } catch {
-      return false;
     }
   }
 }

@@ -1,13 +1,16 @@
+
 const CACHE_NAME = 'vertex-trading-v1.0.6';
 
-// Only cache essential assets, avoid caching during development
+// Minimal caching strategy
 const urlsToCache = [
   '/manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
-  // Skip waiting and activate immediately
-  self.skipWaiting();
+  // Don't skip waiting automatically in development
+  if (self.location.hostname !== 'localhost' && !self.location.hostname.includes('replit.dev')) {
+    self.skipWaiting();
+  }
 
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -16,8 +19,10 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  // Take control immediately
-  event.waitUntil(self.clients.claim());
+  // Only take control in production
+  if (self.location.hostname !== 'localhost' && !self.location.hostname.includes('replit.dev')) {
+    event.waitUntil(self.clients.claim());
+  }
 
   // Clean up old caches
   event.waitUntil(
@@ -34,12 +39,17 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Don't cache during development - always fetch from network
-  if (event.request.url.includes('localhost') || event.request.url.includes('replit.dev')) {
+  // Never cache in development
+  if (event.request.url.includes('localhost') || 
+      event.request.url.includes('replit.dev') ||
+      event.request.url.includes('vite') ||
+      event.request.url.includes('/@vite/') ||
+      event.request.url.includes('hot-update')) {
     event.respondWith(fetch(event.request));
     return;
   }
 
+  // Minimal caching for production
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
