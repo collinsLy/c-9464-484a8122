@@ -78,6 +78,120 @@ export const avatarOptions = [
     name: "Personas",
     bgColor: "#06B6D4",
   },
+  {
+    id: "big-ears",
+    imageUrl: "https://api.dicebear.com/7.x/big-ears/svg?seed=trading",
+    name: "Big Ears",
+    bgColor: "#F43F5E",
+  },
+  {
+    id: "big-ears-neutral",
+    imageUrl: "https://api.dicebear.com/7.x/big-ears-neutral/svg?seed=market",
+    name: "Big Ears Neutral",
+    bgColor: "#A855F7",
+  },
+  {
+    id: "big-smile",
+    imageUrl: "https://api.dicebear.com/7.x/big-smile/svg?seed=wealth",
+    name: "Big Smile",
+    bgColor: "#22C55E",
+  },
+  {
+    id: "bottts-neutral",
+    imageUrl: "https://api.dicebear.com/7.x/bottts-neutral/svg?seed=robot",
+    name: "Bottts Neutral",
+    bgColor: "#3B82F6",
+  },
+  {
+    id: "croodles",
+    imageUrl: "https://api.dicebear.com/7.x/croodles/svg?seed=doodle",
+    name: "Croodles",
+    bgColor: "#F59E0B",
+  },
+  {
+    id: "croodles-neutral",
+    imageUrl: "https://api.dicebear.com/7.x/croodles-neutral/svg?seed=neutral",
+    name: "Croodles Neutral",
+    bgColor: "#84CC16",
+  },
+  {
+    id: "dylan",
+    imageUrl: "https://api.dicebear.com/7.x/dylan/svg?seed=dylan",
+    name: "Dylan",
+    bgColor: "#06B6D4",
+  },
+  {
+    id: "fun-emoji",
+    imageUrl: "https://api.dicebear.com/7.x/fun-emoji/svg?seed=fun",
+    name: "Fun Emoji",
+    bgColor: "#FBBF24",
+  },
+  {
+    id: "glass",
+    imageUrl: "https://api.dicebear.com/7.x/glass/svg?seed=glass",
+    name: "Glass",
+    bgColor: "#10B981",
+  },
+  {
+    id: "icons",
+    imageUrl: "https://api.dicebear.com/7.x/icons/svg?seed=icons",
+    name: "Icons",
+    bgColor: "#8B5CF6",
+  },
+  {
+    id: "miniavs",
+    imageUrl: "https://api.dicebear.com/7.x/miniavs/svg?seed=mini",
+    name: "Miniavs",
+    bgColor: "#EF4444",
+  },
+  {
+    id: "open-peeps",
+    imageUrl: "https://api.dicebear.com/7.x/open-peeps/svg?seed=peeps",
+    name: "Open Peeps",
+    bgColor: "#EC4899",
+  },
+  {
+    id: "rings",
+    imageUrl: "https://api.dicebear.com/7.x/rings/svg?seed=rings",
+    name: "Rings",
+    bgColor: "#14B8A6",
+  },
+  {
+    id: "adventurer-neutral",
+    imageUrl: "https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=adventure",
+    name: "Adventurer Neutral",
+    bgColor: "#F97316",
+  },
+  {
+    id: "avataaars-neutral",
+    imageUrl: "https://api.dicebear.com/7.x/avataaars-neutral/svg?seed=avatar",
+    name: "Avataaars Neutral",
+    bgColor: "#6366F1",
+  },
+  {
+    id: "identicon-2",
+    imageUrl: "https://api.dicebear.com/7.x/identicon/svg?seed=unique",
+    name: "Identicon Alt",
+    bgColor: "#7C3AED",
+  },
+  {
+    id: "lorelei-neutral",
+    imageUrl: "https://api.dicebear.com/7.x/lorelei-neutral/svg?seed=lorelei",
+    name: "Lorelei Neutral",
+    bgColor: "#0EA5E9",
+  },
+  {
+    id: "notionists-neutral",
+    imageUrl: "https://api.dicebear.com/7.x/notionists-neutral/svg?seed=notion",
+    name: "Notionists Neutral",
+    bgColor: "#64748B",
+  },
+  {
+    id: "personas-alt",
+    imageUrl: "https://api.dicebear.com/7.x/personas/svg?seed=alternate",
+    name: "Personas Alt",
+    bgColor: "#DC2626",
+  },
 ];
 
 interface AvatarCollectionProps {
@@ -93,7 +207,7 @@ const AvatarCollection: React.FC<AvatarCollectionProps> = ({
 }) => {
   return (
     <div className="w-full">
-      <div className="grid grid-cols-3 md:grid-cols-4 gap-4 mb-4">
+      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-4 max-h-96 overflow-y-auto">
         {avatarOptions.map((avatar) => (
           <HoverCard key={avatar.id}>
             <HoverCardTrigger asChild>
