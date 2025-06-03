@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Play, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { BotTier } from "../types";
@@ -15,6 +17,9 @@ interface BotCardProps {
 }
 
 export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardProps) {
+  const [customAmount, setCustomAmount] = useState('');
+  const [showCustomInput, setShowCustomInput] = useState(false);
+
   const getMinBalance = (botId: string) => {
     const balances = {
       standard: 20,
@@ -26,16 +31,26 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
   };
 
   const minBalance = getMinBalance(bot.id);
-  const hasRequiredBalance = isDemoMode || userBalance >= minBalance;
+  const tradeAmount = customAmount ? parseFloat(customAmount) : minBalance;
+  const hasRequiredBalance = isDemoMode || userBalance >= (customAmount ? tradeAmount : minBalance);
+  const isValidAmount = !customAmount || (tradeAmount >= minBalance && tradeAmount <= userBalance);
 
   const handleClick = async () => {
     try {
       const uid = localStorage.getItem('userId');
+      const actualTradeAmount = customAmount ? parseFloat(customAmount) : minBalance;
 
       if (isDemoMode) {
-        if (userBalance < minBalance) {
+        if (userBalance < actualTradeAmount) {
           toast.error("Insufficient Demo Balance", {
-            description: `You need a minimum balance of $${minBalance} to use demo trading.`,
+            description: `You need a minimum balance of $${actualTradeAmount} to use demo trading.`,
+          });
+          return;
+        }
+
+        if (actualTradeAmount < minBalance) {
+          toast.error("Invalid Trade Amount", {
+            description: `Minimum trade amount for ${bot.type} bot is $${minBalance}.`,
           });
           return;
         }
@@ -49,7 +64,7 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
         const tradeCount = parseInt(localStorage.getItem('tradeCount') || '0');
         const isWin = tradeCount < 7 ? true : Math.random() < 0.7;
         const profitMultiplier = isWin ? 1.8 : -1.0;
-        const profitLoss = minBalance * profitMultiplier;
+        const profitLoss = actualTradeAmount * profitMultiplier;
 
         localStorage.setItem('tradeCount', (tradeCount + 1).toString());
         const currentBalance = parseFloat(localStorage.getItem('demoBalance') || '10000');
@@ -58,11 +73,11 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
 
         if (isWin) {
           toast.success(`Trade Won!`, {
-            description: `Profit: $${(minBalance * 0.8).toFixed(2)}. New Balance: $${newBalance.toFixed(2)}`,
+            description: `Profit: $${(actualTradeAmount * 0.8).toFixed(2)}. New Balance: $${newBalance.toFixed(2)}`,
           });
         } else {
           toast.error(`Trade Lost`, {
-            description: `Loss: $${minBalance.toFixed(2)}. New Balance: $${newBalance.toFixed(2)}`,
+            description: `Loss: $${actualTradeAmount.toFixed(2)}. New Balance: $${newBalance.toFixed(2)}`,
           });
         }
 
@@ -79,15 +94,22 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
 
       try {
         const currentBalance = await UserBalanceService.getUserBalance(uid);
-        if (currentBalance < minBalance) {
+        if (currentBalance < actualTradeAmount) {
           toast.error("Insufficient Balance", {
-            description: `You need a minimum balance of $${minBalance} to use the ${bot.type} bot.`,
+            description: `You need a minimum balance of $${actualTradeAmount} to use the ${bot.type} bot.`,
+          });
+          return;
+        }
+
+        if (actualTradeAmount < minBalance) {
+          toast.error("Invalid Trade Amount", {
+            description: `Minimum trade amount for ${bot.type} bot is $${minBalance}.`,
           });
           return;
         }
 
         // Deduct initial trade amount
-        const newBalance = currentBalance - minBalance;
+        const newBalance = currentBalance - actualTradeAmount;
         await UserBalanceService.updateUserBalance(uid, newBalance);
 
         toast.success(`${bot.type} Bot Activated`, {
@@ -99,21 +121,21 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
         const tradeCount = parseInt(localStorage.getItem(`liveTradeCount_${uid}`) || '0');
         const isWin = tradeCount < 7 ? true : Math.random() < 0.7;
         const profitMultiplier = isWin ? 1.8 : -1.0;
-        const profitLoss = minBalance * profitMultiplier;
+        const profitLoss = actualTradeAmount * profitMultiplier;
 
         localStorage.setItem(`liveTradeCount_${uid}`, (tradeCount + 1).toString());
         if (isWin) {
-          const profit = minBalance * 0.8;
-          const finalBalance = newBalance + (minBalance * 1.8);
+          const profit = actualTradeAmount * 0.8;
+          const finalBalance = newBalance + (actualTradeAmount * 1.8);
           await UserBalanceService.updateUserBalance(uid, finalBalance);
-          await UserBalanceService.updateTradeStats(uid, true, minBalance, profit);
+          await UserBalanceService.updateTradeStats(uid, true, actualTradeAmount, profit);
           toast.success(`Trade Won!`, {
             description: `Profit: $${profit.toFixed(2)}. New Balance: $${finalBalance.toFixed(2)}`,
           });
         } else {
-          await UserBalanceService.updateTradeStats(uid, false, minBalance, 0);
+          await UserBalanceService.updateTradeStats(uid, false, actualTradeAmount, 0);
           toast.error(`Trade Lost`, {
-            description: `Loss: $${minBalance.toFixed(2)}. New Balance: $${newBalance.toFixed(2)}`,
+            description: `Loss: $${actualTradeAmount.toFixed(2)}. New Balance: $${newBalance.toFixed(2)}`,
           });
         }
 
@@ -163,8 +185,8 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
         </CardDescription>
       </CardHeader>
       <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0">
-        <div className="grid grid-cols-2 gap-y-2 text-xs sm:text-sm">
-          <div className="text-white/70">Required Balance:</div>
+        <div className="grid grid-cols-2 gap-y-2 text-xs sm:text-sm mb-4">
+          <div className="text-white/70">Min. Balance:</div>
           <div className="text-right">${minBalance}</div>
 
           <div className="text-white/70">Trading Pair:</div>
@@ -176,16 +198,56 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
           <div className="text-white/70">Duration:</div>
           <div className="text-right">{bot.duration}</div>
         </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-white/70">Custom Amount</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowCustomInput(!showCustomInput)}
+              className="text-xs h-6 px-2 text-white/70 hover:text-white"
+            >
+              {showCustomInput ? 'Use Default' : 'Customize'}
+            </Button>
+          </div>
+          
+          {showCustomInput && (
+            <div className="space-y-1">
+              <Input
+                type="number"
+                placeholder={`Min: $${minBalance}`}
+                value={customAmount}
+                onChange={(e) => setCustomAmount(e.target.value)}
+                className="bg-white/5 border-white/20 text-white text-xs h-8"
+                min={minBalance}
+                max={userBalance}
+              />
+              {customAmount && !isValidAmount && (
+                <p className="text-xs text-red-400">
+                  Amount must be between ${minBalance} and ${userBalance.toFixed(2)}
+                </p>
+              )}
+              {customAmount && isValidAmount && (
+                <p className="text-xs text-green-400">
+                  Trade Amount: ${tradeAmount.toFixed(2)}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
       </CardContent>
       <CardFooter className="p-3 sm:p-6">
         <Button 
           className="w-full text-xs sm:text-sm"
           onClick={handleClick}
-          disabled={!hasRequiredBalance}
-          variant={hasRequiredBalance ? "default" : "secondary"}
+          disabled={!hasRequiredBalance || (customAmount && !isValidAmount)}
+          variant={hasRequiredBalance && (!customAmount || isValidAmount) ? "default" : "secondary"}
         >
           <Play className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-          {hasRequiredBalance ? 'Trade' : (minBalance - userBalance > 9999 ? 'Deposit more to Trade' : `Deposit $${minBalance - userBalance} more`)}
+          {customAmount && !isValidAmount ? 'Invalid Amount' : 
+           !hasRequiredBalance ? (minBalance - userBalance > 9999 ? 'Deposit more to Trade' : `Deposit $${minBalance - userBalance} more`) :
+           customAmount ? `Trade $${tradeAmount.toFixed(2)}` : 'Trade'}
         </Button>
       </CardFooter>
     </Card>
