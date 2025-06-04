@@ -1,78 +1,96 @@
 
-import React, { Suspense } from 'react';
+import React, { memo, Suspense, useMemo } from 'react';
+import { useBalanceStore } from '@/lib/balance-store';
 import AssetCard from './AssetCard';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useBalanceStore } from '@/hooks/useBalanceStore';
 
 // Skeleton component for loading state
 const AssetListSkeleton = () => (
-  <div className="space-y-4">
-    {Array.from({ length: 5 }).map((_, i) => (
-      <div key={i} className="bg-background/40 border border-white/10 rounded-lg p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Skeleton className="h-10 w-10 rounded-full" />
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-16" />
-              <Skeleton className="h-3 w-12" />
+  <div className="rounded-lg border border-white/10">
+    <div className="grid grid-cols-3 p-3 text-xs sm:text-sm font-medium text-white/60">
+      <div>Coin</div>
+      <div className="text-right">Amount</div>
+      <div className="text-right">Price</div>
+    </div>
+    <div className="divide-y divide-white/10">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="p-3 animate-pulse">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-white/10 rounded-full"></div>
+              <div>
+                <div className="w-16 h-4 bg-white/10 rounded mb-1"></div>
+                <div className="w-12 h-3 bg-white/10 rounded"></div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="w-20 h-4 bg-white/10 rounded mb-1"></div>
+              <div className="w-16 h-3 bg-white/10 rounded"></div>
             </div>
           </div>
-          <div className="text-right space-y-2">
-            <Skeleton className="h-4 w-20" />
-            <Skeleton className="h-3 w-16" />
-          </div>
         </div>
-      </div>
-    ))}
+      ))}
+    </div>
   </div>
 );
 
-// Memoized list component
-const AssetListContent = React.memo(() => {
-  const { assets, isLoading, balances } = useBalanceStore();
+// Memoized content component
+const AssetListContent = memo(() => {
+  const {
+    totalPortfolioValue,
+    usdtBalance,
+    userAssets,
+    assetPrices,
+    isLoading
+  } = useBalanceStore();
 
-  // Base assets list for complete display
-  const baseAssets = [
-    { symbol: "BTC", fullName: "Bitcoin" },
-    { symbol: "ETH", fullName: "Ethereum" },
-    { symbol: "USDT", fullName: "TetherUS" },
-    { symbol: "USDC", fullName: "USD Coin" },
-    { symbol: "BNB", fullName: "Binance Coin" },
-    { symbol: "DOGE", fullName: "Dogecoin" },
-    { symbol: "SOL", fullName: "Solana" },
-    { symbol: "XRP", fullName: "Ripple" },
-    { symbol: "WLD", fullName: "Worldcoin" },
-    { symbol: "ADA", fullName: "Cardano" },
-    { symbol: "DOT", fullName: "Polkadot" },
-    { symbol: "LINK", fullName: "Chainlink" },
-    { symbol: "MATIC", fullName: "Polygon" }
-  ];
+  // Base assets list
+  const baseAssets = useMemo(() => [
+    { name: "BTC", symbol: "BTC", fullName: "Bitcoin" },
+    { name: "ETH", symbol: "ETH", fullName: "Ethereum" },
+    { name: "USDT", symbol: "USDT", fullName: "TetherUS" },
+    { name: "USDC", symbol: "USDC", fullName: "USD Coin" },
+    { name: "BNB", symbol: "BNB", fullName: "Binance Coin" },
+    { name: "DOGE", symbol: "DOGE", fullName: "Dogecoin" },
+    { name: "SOL", symbol: "SOL", fullName: "Solana" },
+    { name: "XRP", symbol: "XRP", fullName: "Ripple" },
+    { name: "WLD", symbol: "WLD", fullName: "Worldcoin" },
+    { name: "ADA", symbol: "ADA", fullName: "Cardano" },
+    { name: "DOT", symbol: "DOT", fullName: "Polkadot" },
+    { name: "LINK", symbol: "LINK", fullName: "Chainlink" },
+    { name: "MATIC", symbol: "MATIC", fullName: "Polygon" }
+  ], []);
+
+  // Merge and sort assets
+  const sortedAssets = useMemo(() => {
+    const assets = baseAssets.map(asset => {
+      const userAsset = userAssets[asset.symbol];
+      const amount = userAsset ? userAsset.amount : (asset.symbol === 'USDT' ? usdtBalance : 0);
+      const price = assetPrices[asset.symbol] || 0;
+      const value = amount * price;
+
+      return {
+        ...asset,
+        amount: amount.toFixed(8),
+        value,
+        price
+      };
+    });
+
+    // Sort: assets with balances first, then by value
+    return assets.sort((a, b) => {
+      const aHasBalance = parseFloat(a.amount) > 0;
+      const bHasBalance = parseFloat(b.amount) > 0;
+
+      if (aHasBalance && !bHasBalance) return -1;
+      if (!aHasBalance && bHasBalance) return 1;
+
+      return b.value - a.value;
+    });
+  }, [baseAssets, userAssets, assetPrices, usdtBalance]);
 
   if (isLoading) {
     return <AssetListSkeleton />;
   }
-
-  // Merge base assets with user's actual assets data
-  const mergedAssets = baseAssets.map(baseAsset => {
-    const userAsset = assets.find(a => a.symbol === baseAsset.symbol);
-    return {
-      ...baseAsset,
-      amount: userAsset?.amount || 0,
-      value: userAsset?.value || 0,
-      price: userAsset?.price || balances.assetPrices[baseAsset.symbol] || 0
-    };
-  });
-
-  // Sort assets: first show assets with balances, then the rest
-  const sortedAssets = [...mergedAssets].sort((a, b) => {
-    const aHasBalance = a.amount > 0;
-    const bHasBalance = b.amount > 0;
-
-    if (aHasBalance && !bHasBalance) return -1;
-    if (!aHasBalance && bHasBalance) return 1;
-
-    return b.value - a.value;
-  });
 
   return (
     <div className="rounded-lg border border-white/10">
