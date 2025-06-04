@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { UserService } from "@/lib/firebase-service";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
@@ -18,7 +19,6 @@ const AssetsPage = () => {
   } = useBalanceStore();
 
   const [previousDayBalance, setPreviousDayBalance] = useState(0);
-  const [selectedCrypto, setSelectedCrypto] = useState("BTC");
 
   // Base assets list that will be shown to all users
   const baseAssets = [
@@ -155,6 +155,16 @@ const AssetsPage = () => {
     return b.balance - a.balance;
   });
 
+  if (balanceLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-4 px-2 sm:px-4 pb-20">
@@ -192,7 +202,6 @@ const AssetsPage = () => {
                   </div>
                 </div>
 
-                {/* Portfolio Performance Metrics */}
                 <div className="grid grid-cols-2 gap-4 mt-2">
                   <div className="bg-white/5 rounded-lg p-3">
                     <div className="flex justify-between items-center">
@@ -219,7 +228,6 @@ const AssetsPage = () => {
                   </div>
                 </div>
 
-                {/* Portfolio Analytics */}
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 mt-4">
                   <div className="bg-white/5 rounded-lg p-3">
                     <div className="text-xs md:text-sm text-white/60">Most Profitable</div>
@@ -236,65 +244,61 @@ const AssetsPage = () => {
                     <div className="mt-1 md:mt-2 text-base md:text-lg font-semibold">
                       {sortedAssets.filter(a => parseFloat(a.amount) > 0).length}
                     </div>
-                    <div className="text-xs text-white/40">
-                      Assets Held
-                    </div>
+                    <div className="text-xs text-white/40">Assets Held</div>
                   </div>
 
                   <div className="bg-white/5 rounded-lg p-3">
-                    <div className="text-sm text-white/60">Risk Level</div>
-                    <div className="mt-2 text-lg font-semibold">
+                    <div className="text-xs md:text-sm text-white/60">Risk Level</div>
+                    <div className="mt-1 md:mt-2 text-base md:text-lg font-semibold">
                       {sortedAssets.filter(a => parseFloat(a.amount) > 0).length < 3 ? 'High' : 
                        sortedAssets.filter(a => parseFloat(a.amount) > 0).length < 5 ? 'Medium' : 'Low'}
                     </div>
-                    <div className="text-xs text-white/40">
-                      Based on Diversity
-                    </div>
+                    <div className="text-xs text-white/40">Based on Diversity</div>
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-        <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-xl sm:text-2xl">Asset Distribution</CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-6">
-            <div className="w-full h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={sortedAssets}>
-                  <XAxis dataKey="symbol" />
-                  <YAxis yAxisId="left" />
-                  <YAxis yAxisId="right" orientation="right" />
-                  <Tooltip />
-                  <Legend />
-                  <Bar yAxisId="left" dataKey="balance" fill="#8884d8" name="Balance" />
-                  <Line yAxisId="right" type="monotone" dataKey="value" stroke="#82ca9d" name="Value (USD)" />
-                </ComposedChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="mt-4 space-y-2">
-              {sortedAssets
-                .filter(asset => parseFloat(asset.amount) > 0)
-                .map((asset, index, arr) => {
-                  const total = arr.reduce((sum, a) => sum + a.balance, 0);
-                  return (
-                    <div key={asset.symbol} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div 
-                          className="w-3 h-3 rounded-full" 
-                          style={{ backgroundColor: `hsl(${index * (360 / arr.length)}, 70%, 50%)` }}
-                        />
-                        <span>{asset.symbol}</span>
+          <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
+            <CardHeader className="p-4 sm:p-6">
+              <CardTitle className="text-xl sm:text-2xl">Asset Distribution</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 sm:p-6">
+              <div className="w-full h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={sortedAssets}>
+                    <XAxis dataKey="symbol" />
+                    <YAxis yAxisId="left" />
+                    <YAxis yAxisId="right" orientation="right" />
+                    <Tooltip />
+                    <Legend />
+                    <Bar yAxisId="left" dataKey="balance" fill="#8884d8" name="Balance" />
+                    <Line yAxisId="right" type="monotone" dataKey="balance" stroke="#82ca9d" name="Value (USD)" />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="mt-4 space-y-2">
+                {sortedAssets
+                  .filter(asset => parseFloat(asset.amount) > 0)
+                  .map((asset, index, arr) => {
+                    const total = arr.reduce((sum, a) => sum + a.balance, 0);
+                    return (
+                      <div key={asset.symbol} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-3 h-3 rounded-full" 
+                            style={{ backgroundColor: `hsl(${index * (360 / arr.length)}, 70%, 50%)` }}
+                          />
+                          <span>{asset.symbol}</span>
+                        </div>
+                        <span>{total > 0 ? ((asset.balance / total) * 100).toFixed(1) : '0.0'}%</span>
                       </div>
-                      <span>{((asset.balance / total) * 100).toFixed(1)}%</span>
-                    </div>
-                  );
-                })}
-            </div>
-          </CardContent>
-        </Card>
+                    );
+                  })}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
