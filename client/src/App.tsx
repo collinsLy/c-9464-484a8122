@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { DashboardProvider } from "@/components/dashboard/DashboardLayout";
+import { ThemeProvider } from "@/components/theme-provider";
 import { lazy, Suspense } from "react";
 
 // Lazy load all pages for better performance
@@ -54,11 +55,10 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: false,
-      useErrorBoundary: true,
       refetchOnWindowFocus: false,
     },
     mutations: {
-      useErrorBoundary: true,
+      retry: false,
     },
   },
 });
@@ -72,14 +72,15 @@ const LoadingFallback = () => (
 
 const App = () => (
   <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <Analytics />
-        <BalanceProvider>
-          <BrowserRouter>
-            <DashboardProvider>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <Analytics />
+          <BalanceProvider>
+            <BrowserRouter>
+              <DashboardProvider>
               <Suspense fallback={<LoadingFallback />}>
                 <Routes>
                 <Route path="/" element={<ErrorBoundary><Index /></ErrorBoundary>} />
@@ -125,6 +126,7 @@ const App = () => (
         </BalanceProvider>
       </TooltipProvider>
     </QueryClientProvider>
+    </ThemeProvider>
   </ErrorBoundary>
 );
 
