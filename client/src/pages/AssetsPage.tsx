@@ -3,34 +3,153 @@ import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UserService } from "@/lib/firebase-service";
 import { BASE_ASSETS } from "@/lib/constants";
+
+interface AssetPrice {
+  symbol: string;
+  price: number;
+  change24h: number;
+  changePercent24h: number;
+}
+
+interface UserAsset {
+  symbol: string;
+  amount: number;
+  value: number;
+}
 
 const AssetsPage = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [assetPrices, setAssetPrices] = useState<Record<string, number>>({
-    'BTC': 43250.00,
-    'ETH': 2680.50,
-    'SOL': 102.75,
-    'WLD': 2.85,
-    'BNB': 315.20,
-    'ADA': 0.52,
-    'DOGE': 0.088,
-    'XRP': 0.635,
-    'DOT': 7.25,
-    'LINK': 14.80,
-    'MATIC': 0.94,
-    'USDT': 1.00,
-    'USDC': 1.00
-  });
-  const [userBalance] = useState(10000);
+  const [assetPrices, setAssetPrices] = useState<Record<string, AssetPrice>>({});
+  const [userBalance, setUserBalance] = useState(0);
+  const [userAssets, setUserAssets] = useState<UserAsset[]>([]);
+  const [portfolioValue, setPortfolioValue] = useState(0);
+  const [portfolio24hChange, setPortfolio24hChange] = useState(0);
 
-  // Simulated data matching original design structure
+  // Fetch real-time prices from Binance API
+  const fetchRealTimePrices = async () => {
+    try {
+      const symbols = BASE_ASSETS.map(asset => `${asset.symbol}USDT`).filter(s => s !== 'USDTUSDT');
+      const response = await fetch(`https://api.binance.com/api/v3/ticker/24hr`);
+      const data = await response.json();
+      
+      const priceMap: Record<string, AssetPrice> = {};
+      
+      // Add USDT as base
+      priceMap['USDT'] = {
+        symbol: 'USDT',
+        price: 1.00,
+        change24h: 0,
+        changePercent24h: 0
+      };
+
+      data.forEach((ticker: any) => {
+        const symbol = ticker.symbol.replace('USDT', '');
+        if (BASE_ASSETS.some(asset => asset.symbol === symbol)) {
+          priceMap[symbol] = {
+            symbol: symbol,
+            price: parseFloat(ticker.lastPrice),
+            change24h: parseFloat(ticker.priceChange),
+            changePercent24h: parseFloat(ticker.priceChangePercent)
+          };
+        }
+      });
+
+      setAssetPrices(priceMap);
+    } catch (error) {
+      console.error('Error fetching prices:', error);
+    }
+  };
+
+  // Get user data and assets
+  useEffect(() => {
+    const uid = localStorage.getItem('userId');
+    if (!uid) {
+      console.log('No user ID found, setting default state');
+      return;
+    }
+
+    const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
+      if (userData) {
+        const balance = typeof userData.balance === 'number' ? userData.balance : parseFloat(userData.balance) || 0;
+        setUserBalance(balance);
+
+        // Process user assets
+        const assets: UserAsset[] = [];
+        
+        // Add USDT balance
+        if (balance > 0) {
+          assets.push({
+            symbol: 'USDT',
+            amount: balance,
+            value: balance
+          });
+        }
+
+        // Add other crypto assets
+        if (userData.assets) {
+          Object.entries(userData.assets).forEach(([symbol, data]: [string, any]) => {
+            const amount = data.amount || 0;
+            if (amount > 0) {
+              const price = assetPrices[symbol]?.price || 0;
+              assets.push({
+                symbol: symbol,
+                amount: amount,
+                value: amount * price
+              });
+            }
+          });
+        }
+
+        setUserAssets(assets);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [assetPrices]);
+
+  // Calculate portfolio totals
+  useEffect(() => {
+    const totalValue = userAssets.reduce((sum, asset) => sum + asset.value, 0);
+    setPortfolioValue(totalValue);
+
+    // Calculate 24h change (simplified calculation)
+    const change24h = userAssets.reduce((sum, asset) => {
+      const assetPrice = assetPrices[asset.symbol];
+      if (assetPrice && assetPrice.changePercent24h !== 0) {
+        const previousValue = asset.value / (1 + assetPrice.changePercent24h / 100);
+        return sum + (asset.value - previousValue);
+      }
+      return sum;
+    }, 0);
+    setPortfolio24hChange(change24h);
+  }, [userAssets, assetPrices]);
+
+  // Fetch prices on component mount and set up interval
+  useEffect(() => {
+    fetchRealTimePrices();
+    const interval = setInterval(fetchRealTimePrices, 30000); // Update every 30 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  // Get official crypto logo URL
+  const getCryptoLogoUrl = (symbol: string): string => {
+    const symbolLower = symbol.toLowerCase();
+    return `https://cryptologos.cc/logos/${symbolLower}-${symbolLower}-logo.png`;
+  };
+
+  // Fallback logo if main logo fails
+  const getFallbackLogoUrl = (symbol: string): string => {
+    return `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${symbol.toLowerCase()}.svg`;
+  };
+
   const portfolioData = {
-    totalValue: userBalance,
-    change24h: 245.67,
-    changePercent: 2.51,
-    usdtBalance: 5000,
-    otherAssets: 5000
+    totalValue: portfolioValue,
+    change24h: portfolio24hChange,
+    changePercent: portfolioValue > 0 ? (portfolio24hChange / portfolioValue) * 100 : 0,
+    usdtBalance: userBalance,
+    otherAssets: portfolioValue - userBalance
   };
 
   return (
@@ -59,9 +178,9 @@ const AssetsPage = () => {
                   <div>
                     <p className="text-white/70">Total Portfolio Value</p>
                     <h2 className="text-3xl font-bold">${portfolioData.totalValue.toFixed(2)}</h2>
-                    <div className="flex items-center gap-2 text-green-400">
-                      <span>+${portfolioData.change24h.toFixed(2)}</span>
-                      <span>(+{portfolioData.changePercent.toFixed(2)}%)</span>
+                    <div className={`flex items-center gap-2 ${portfolioData.change24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      <span>{portfolioData.change24h >= 0 ? '+' : ''}${portfolioData.change24h.toFixed(2)}</span>
+                      <span>({portfolioData.change24h >= 0 ? '+' : ''}{portfolioData.changePercent.toFixed(2)}%)</span>
                     </div>
                   </div>
                 </div>
@@ -70,20 +189,21 @@ const AssetsPage = () => {
               <div>
                 <h3 className="text-lg font-medium mb-4">Asset Allocation</h3>
                 <div className="space-y-3">
-                  {BASE_ASSETS.slice(0, 5).map((asset) => (
-                    <div key={asset.symbol} className="flex items-center justify-between h-8">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-primary"></div>
-                        <span>{asset.name} ({asset.symbol})</span>
+                  {userAssets.slice(0, 5).map((asset) => {
+                    const percentage = portfolioValue > 0 ? (asset.value / portfolioValue) * 100 : 0;
+                    return (
+                      <div key={asset.symbol} className="flex items-center justify-between h-8">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full bg-primary"></div>
+                          <span>{BASE_ASSETS.find(a => a.symbol === asset.symbol)?.name || asset.symbol} ({asset.symbol})</span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <span className="text-white/70">{percentage.toFixed(1)}%</span>
+                          <span>${assetPrices[asset.symbol]?.price?.toFixed(2) || '0.00'}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <span className="text-white/70">
-                          {asset.symbol === 'USDT' ? '50' : Math.floor(Math.random() * 20)}%
-                        </span>
-                        <span>${assetPrices[asset.symbol]?.toFixed(2) || '0.00'}</span>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -103,8 +223,8 @@ const AssetsPage = () => {
                     <div className="text-sm text-white/60">Total Portfolio Value</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-semibold text-green-400">
-                      +${portfolioData.change24h.toFixed(2)}
+                    <div className={`text-lg font-semibold ${portfolioData.change24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      {portfolioData.change24h >= 0 ? '+' : ''}${portfolioData.change24h.toFixed(2)}
                     </div>
                     <div className="text-sm text-white/60">24h Change</div>
                   </div>
@@ -126,12 +246,21 @@ const AssetsPage = () => {
 
           <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
             <CardHeader className="p-4 sm:p-6">
-              <CardTitle className="text-xl sm:text-2xl">Asset Distribution</CardTitle>
+              <CardTitle className="text-xl sm:text-2xl">Live Market Prices</CardTitle>
             </CardHeader>
             <CardContent className="p-4 sm:p-6">
-              <div className="text-center py-8">
-                <p className="text-white/60">Chart visualization will be displayed here</p>
-                <p className="text-sm text-white/40 mt-2">Real-time data integration in progress</p>
+              <div className="space-y-2">
+                {Object.values(assetPrices).slice(0, 5).map((asset) => (
+                  <div key={asset.symbol} className="flex justify-between items-center">
+                    <span className="font-medium">{asset.symbol}</span>
+                    <div className="text-right">
+                      <div className="text-sm">${asset.price.toFixed(2)}</div>
+                      <div className={`text-xs ${asset.changePercent24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        {asset.changePercent24h >= 0 ? '+' : ''}{asset.changePercent24h.toFixed(2)}%
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -145,36 +274,80 @@ const AssetsPage = () => {
             <Tabs defaultValue="coin-view">
               <TabsList className="bg-background/40 w-full mb-2">
                 <TabsTrigger value="coin-view" className="flex-1">Coin View</TabsTrigger>
-                <TabsTrigger value="account-view" className="flex-1">Account View</TabsTrigger>
+                <TabsTrigger value="market-view" className="flex-1">Market View</TabsTrigger>
               </TabsList>
               <TabsContent value="coin-view" className="pt-2">
                 <div className="space-y-2 p-4">
-                  {BASE_ASSETS.map((asset) => (
+                  {userAssets.length > 0 ? (
+                    userAssets.map((asset) => {
+                      const priceData = assetPrices[asset.symbol];
+                      return (
+                        <div key={asset.symbol} className="flex items-center justify-between p-3 rounded-lg bg-white/5">
+                          <div className="flex items-center gap-3">
+                            <img 
+                              src={getCryptoLogoUrl(asset.symbol)}
+                              alt={asset.symbol}
+                              className="w-8 h-8 rounded-full"
+                              onError={(e) => {
+                                e.currentTarget.src = getFallbackLogoUrl(asset.symbol);
+                              }}
+                            />
+                            <div>
+                              <div className="font-medium">{BASE_ASSETS.find(a => a.symbol === asset.symbol)?.name || asset.symbol}</div>
+                              <div className="text-sm text-white/60">{asset.symbol}</div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-medium">${asset.value.toFixed(2)}</div>
+                            <div className="text-sm text-white/60">
+                              {asset.amount.toFixed(8)} {asset.symbol}
+                            </div>
+                            {priceData && (
+                              <div className={`text-xs ${priceData.changePercent24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                {priceData.changePercent24h >= 0 ? '+' : ''}{priceData.changePercent24h.toFixed(2)}%
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="text-center py-8 text-white/60">
+                      <p>No assets found</p>
+                      <p className="text-sm mt-2">Deposit funds to start trading</p>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+              <TabsContent value="market-view" className="pt-2">
+                <div className="space-y-2 p-4">
+                  {Object.values(assetPrices).map((asset) => (
                     <div key={asset.symbol} className="flex items-center justify-between p-3 rounded-lg bg-white/5">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                          <span className="text-xs font-bold">{asset.symbol.slice(0, 2)}</span>
-                        </div>
+                        <img 
+                          src={getCryptoLogoUrl(asset.symbol)}
+                          alt={asset.symbol}
+                          className="w-8 h-8 rounded-full"
+                          onError={(e) => {
+                            e.currentTarget.src = getFallbackLogoUrl(asset.symbol);
+                          }}
+                        />
                         <div>
-                          <div className="font-medium">{asset.name}</div>
+                          <div className="font-medium">{BASE_ASSETS.find(a => a.symbol === asset.symbol)?.name || asset.symbol}</div>
                           <div className="text-sm text-white/60">{asset.symbol}</div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-medium">
-                          ${assetPrices[asset.symbol]?.toFixed(2) || '0.00'}
+                        <div className="font-medium">${asset.price.toFixed(2)}</div>
+                        <div className={`text-sm ${asset.changePercent24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                          {asset.changePercent24h >= 0 ? '+' : ''}{asset.changePercent24h.toFixed(2)}%
                         </div>
-                        <div className="text-sm text-white/60">
-                          0.00000000 {asset.symbol}
+                        <div className="text-xs text-white/60">
+                          {asset.changePercent24h >= 0 ? '+' : ''}${asset.change24h.toFixed(2)}
                         </div>
                       </div>
                     </div>
                   ))}
-                </div>
-              </TabsContent>
-              <TabsContent value="account-view" className="pt-2">
-                <div className="text-center py-6 text-white/60">
-                  <p>Account view coming soon</p>
                 </div>
               </TabsContent>
             </Tabs>
