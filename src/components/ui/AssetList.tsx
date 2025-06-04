@@ -1,6 +1,6 @@
 
 import React, { memo, Suspense, useMemo } from 'react';
-import { useBalanceStore } from '@/lib/balance-store';
+import { useBalanceStore } from '@/hooks/useBalanceStore';
 import AssetCard from './AssetCard';
 
 // Skeleton component for loading state
@@ -35,13 +35,7 @@ const AssetListSkeleton = () => (
 
 // Memoized content component
 const AssetListContent = memo(() => {
-  const {
-    totalPortfolioValue,
-    usdtBalance,
-    userAssets,
-    assetPrices,
-    isLoading
-  } = useBalanceStore();
+  const { balances, assets, isLoading } = useBalanceStore();
 
   // Base assets list
   const baseAssets = useMemo(() => [
@@ -62,10 +56,12 @@ const AssetListContent = memo(() => {
 
   // Merge and sort assets
   const sortedAssets = useMemo(() => {
-    const assets = baseAssets.map(asset => {
-      const userAsset = userAssets[asset.symbol];
-      const amount = userAsset ? userAsset.amount : (asset.symbol === 'USDT' ? usdtBalance : 0);
-      const price = assetPrices[asset.symbol] || 0;
+    if (!balances) return [];
+
+    const assetList = baseAssets.map(asset => {
+      const userAsset = balances.userAssets[asset.symbol];
+      const amount = userAsset ? userAsset.amount : (asset.symbol === 'USDT' ? balances.usdtBalance : 0);
+      const price = balances.assetPrices[asset.symbol] || 0;
       const value = amount * price;
 
       return {
@@ -77,7 +73,7 @@ const AssetListContent = memo(() => {
     });
 
     // Sort: assets with balances first, then by value
-    return assets.sort((a, b) => {
+    return assetList.sort((a, b) => {
       const aHasBalance = parseFloat(a.amount) > 0;
       const bHasBalance = parseFloat(b.amount) > 0;
 
@@ -86,7 +82,7 @@ const AssetListContent = memo(() => {
 
       return b.value - a.value;
     });
-  }, [baseAssets, userAssets, assetPrices, usdtBalance]);
+  }, [baseAssets, balances]);
 
   if (isLoading) {
     return <AssetListSkeleton />;
