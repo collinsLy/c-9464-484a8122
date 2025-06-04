@@ -183,23 +183,35 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
           setRates(initialRates);
         } else {
           // Fallback to default rates if API fails
-          const fallbackRates = {
-            BTC: { USDT: 65000, ETH: 20, SOL: 650, DOGE: 325000, USDC: 65000 }, //Added USDC
-            ETH: { USDT: 3200, BTC: 0.05, SOL: 32, DOGE: 16000, USDC: 3200 }, //Added USDC
-            USDT: { BTC: 0.000015, ETH: 0.0003, SOL: 0.01, DOGE: 5, USDC: 1 }, //Added USDC
-            SOL: { USDT: 100, BTC: 0.0015, ETH: 0.03, DOGE: 500, USDC: 100 }, //Added USDC
-            DOGE: { USDT: 0.2, BTC: 0.000003, ETH: 0.00006, SOL: 0.002, USDC: 0.2 }, //Added USDC
-            USDC: { BTC: 0.000015, ETH: 0.0003, SOL: 0.01, DOGE: 5, USDT: 1 } //Added USDC
+          const fallbackRates: Record<string, Record<string, number>> = {
+            BTC: { USDT: 65000, ETH: 20, SOL: 650, DOGE: 325000, USDC: 65000, BNB: 150, XRP: 100000, ADA: 50000, MATIC: 26000, DOT: 9000, LINK: 4500, WLD: 26000 },
+            ETH: { USDT: 3200, BTC: 0.05, SOL: 32, DOGE: 16000, USDC: 3200, BNB: 7.4, XRP: 5000, ADA: 2500, MATIC: 1280, DOT: 444, LINK: 222, WLD: 1280 },
+            USDT: { BTC: 0.000015, ETH: 0.0003, SOL: 0.01, DOGE: 5, USDC: 1, BNB: 0.0023, XRP: 1.6, ADA: 0.8, MATIC: 0.4, DOT: 0.14, LINK: 0.069, WLD: 0.4 },
+            SOL: { USDT: 100, BTC: 0.0015, ETH: 0.03, DOGE: 500, USDC: 100, BNB: 0.23, XRP: 160, ADA: 80, MATIC: 40, DOT: 14, LINK: 6.9, WLD: 40 },
+            DOGE: { USDT: 0.2, BTC: 0.000003, ETH: 0.00006, SOL: 0.002, USDC: 0.2, BNB: 0.00046, XRP: 0.32, ADA: 0.16, MATIC: 0.08, DOT: 0.028, LINK: 0.014, WLD: 0.08 },
+            USDC: { BTC: 0.000015, ETH: 0.0003, SOL: 0.01, DOGE: 5, USDT: 1, BNB: 0.0023, XRP: 1.6, ADA: 0.8, MATIC: 0.4, DOT: 0.14, LINK: 0.069, WLD: 0.4 },
+            BNB: { USDT: 430, BTC: 0.0066, ETH: 0.135, SOL: 4.3, DOGE: 2150, USDC: 430, XRP: 688, ADA: 344, MATIC: 172, DOT: 60, LINK: 30, WLD: 172 },
+            XRP: { USDT: 0.625, BTC: 0.00001, ETH: 0.0002, SOL: 0.00625, DOGE: 3.125, USDC: 0.625, BNB: 0.00145, ADA: 0.5, MATIC: 0.25, DOT: 0.087, LINK: 0.043, WLD: 0.25 },
+            ADA: { USDT: 1.25, BTC: 0.00002, ETH: 0.0004, SOL: 0.0125, DOGE: 6.25, USDC: 1.25, BNB: 0.0029, XRP: 2, MATIC: 0.5, DOT: 0.174, LINK: 0.087, WLD: 0.5 },
+            MATIC: { USDT: 2.5, BTC: 0.000038, ETH: 0.00078, SOL: 0.025, DOGE: 12.5, USDC: 2.5, BNB: 0.0058, XRP: 4, ADA: 2, DOT: 0.347, LINK: 0.174, WLD: 1 },
+            DOT: { USDT: 7.2, BTC: 0.00011, ETH: 0.00225, SOL: 0.072, DOGE: 36, USDC: 7.2, BNB: 0.0167, XRP: 11.5, ADA: 5.76, MATIC: 2.88, LINK: 0.5, WLD: 2.88 },
+            LINK: { USDT: 14.4, BTC: 0.00022, ETH: 0.0045, SOL: 0.144, DOGE: 72, USDC: 14.4, BNB: 0.0335, XRP: 23, ADA: 11.5, MATIC: 5.76, DOT: 2, WLD: 5.76 },
+            WLD: { USDT: 2.5, BTC: 0.000038, ETH: 0.00078, SOL: 0.025, DOGE: 12.5, USDC: 2.5, BNB: 0.0058, XRP: 4, ADA: 2, MATIC: 1, DOT: 0.347, LINK: 0.174 }
           };
 
-          // Initialize with fallback rates
+          // Initialize with fallback rates - ensure all pairs have values
           supportedCryptos.forEach(from => {
+            if (!initialRates[from]) initialRates[from] = {};
             supportedCryptos.forEach(to => {
               if (from !== to) {
                 if (fallbackRates[from]?.[to]) {
                   initialRates[from][to] = fallbackRates[from][to];
                 } else if (fallbackRates[to]?.[from]) {
                   initialRates[from][to] = 1 / fallbackRates[to][from];
+                } else {
+                  // If no direct rate found, use a reasonable default
+                  console.warn(`No fallback rate found for ${from} to ${to}, using 1.0`);
+                  initialRates[from][to] = 1.0;
                 }
               }
             });
@@ -288,9 +300,13 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
       result = numAmount;
     } else {
       // Check if the rate exists before using it
-      if (!rates[fromCurrency] || !rates[fromCurrency][toCurrency]) {
-        console.error(`Missing conversion rate from ${fromCurrency} to ${toCurrency}`);
-        // Default to a 1:1 conversion if rate is missing
+      if (!rates[fromCurrency] || rates[fromCurrency][toCurrency] === undefined || rates[fromCurrency][toCurrency] === 0) {
+        console.warn(`Missing conversion rate from ${fromCurrency} to ${toCurrency}, attempting to fetch...`);
+        
+        // Try to trigger rate refresh for this specific pair
+        refreshRate();
+        
+        // Use a temporary 1:1 conversion as fallback
         result = numAmount;
       } else {
         // Apply the conversion rate
