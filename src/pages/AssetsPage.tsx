@@ -1,13 +1,14 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { UserService } from "@/lib/firebase-service";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PortfolioAnalytics } from "@/components/dashboard/PortfolioAnalytics";
-import { useBalanceStore } from "@/lib/balance-store";
-import AssetList from "@/components/ui/AssetList";
+import { useBalanceStore } from "@/hooks/useBalanceStore";
+import AssetsList from "@/components/dashboard/AssetsList";
+import { BASE_ASSETS } from "@/lib/constants";
 
 const AssetsPage = () => {
   const {
@@ -15,105 +16,18 @@ const AssetsPage = () => {
     usdtBalance,
     userAssets,
     assetPrices,
-    isLoading: balanceLoading
+    isLoading: balanceLoading,
+    error: balanceError
   } = useBalanceStore();
 
   const [previousDayBalance, setPreviousDayBalance] = useState(0);
 
   // Base assets list that will be shown to all users
-  const baseAssets = [
-    {
-      name: "BTC",
-      symbol: "BTC",
-      fullName: "Bitcoin",
-      balance: 0,
-      amount: "0.00000000"
-    },
-    {
-      name: "ETH",
-      symbol: "ETH",
-      fullName: "Ethereum",
-      balance: 0,
-      amount: "0.00000000"
-    },
-    {
-      name: "USDT",
-      symbol: "USDT",
-      fullName: "TetherUS",
-      balance: usdtBalance,
-      amount: usdtBalance.toFixed(8)
-    },
-    {
-      name: "USDC",
-      symbol: "USDC",
-      fullName: "USD Coin",
-      balance: 0,
-      amount: "0.00000000"
-    },
-    {
-      name: "BNB",
-      symbol: "BNB",
-      fullName: "Binance Coin",
-      balance: 0,
-      amount: "0.00000000"
-    },
-    {
-      name: "DOGE",
-      symbol: "DOGE",
-      fullName: "Dogecoin",
-      balance: 0,
-      amount: "0.00000000"
-    },
-    {
-      name: "SOL",
-      symbol: "SOL",
-      fullName: "Solana",
-      balance: 0,
-      amount: "0.00000000"
-    },
-    {
-      name: "XRP",
-      symbol: "XRP",
-      fullName: "Ripple",
-      balance: 0,
-      amount: "0.00000000"
-    },
-    {
-      name: "WLD",
-      symbol: "WLD",
-      fullName: "Worldcoin",
-      balance: 0,
-      amount: "0.00000000"
-    },
-    {
-      name: "ADA",
-      symbol: "ADA",
-      fullName: "Cardano",
-      balance: 0,
-      amount: "0.00000000"
-    },
-    {
-      name: "DOT",
-      symbol: "DOT",
-      fullName: "Polkadot",
-      balance: 0,
-      amount: "0.00000000"
-    },
-    {
-      name: "LINK",
-      symbol: "LINK",
-      fullName: "Chainlink",
-      balance: 0,
-      amount: "0.00000000"
-    },
-    {
-      name: "MATIC",
-      symbol: "MATIC",
-      fullName: "Polygon",
-      balance: 0,
-      amount: "0.00000000"
-    }
-  ];
+  const baseAssets = BASE_ASSETS.map(asset => ({
+    ...asset,
+    balance: asset.symbol === "USDT" ? usdtBalance : 0,
+    amount: asset.symbol === "USDT" ? usdtBalance.toFixed(8) : "0.00000000"
+  }));
 
   useEffect(() => {
     const uid = localStorage.getItem('userId');
@@ -143,17 +57,32 @@ const AssetsPage = () => {
   });
 
   // Sort assets: first show assets with balances, then the rest
-  const sortedAssets = [...assets].sort((a, b) => {
-    // First compare if either asset has a balance
-    const aHasBalance = parseFloat(a.amount) > 0;
-    const bHasBalance = parseFloat(b.amount) > 0;
+  const sortedAssets = useMemo(() => {
+    return [...assets].sort((a, b) => {
+      // First compare if either asset has a balance
+      const aHasBalance = parseFloat(a.amount) > 0;
+      const bHasBalance = parseFloat(b.amount) > 0;
 
-    if (aHasBalance && !bHasBalance) return -1;
-    if (!aHasBalance && bHasBalance) return 1;
+      if (aHasBalance && !bHasBalance) return -1;
+      if (!aHasBalance && bHasBalance) return 1;
 
-    // If both have or don't have balances, sort by value
-    return b.balance - a.balance;
-  });
+      // If both have or don't have balances, sort by value
+      return b.balance - a.balance;
+    });
+  }, [assets]);
+
+  if (balanceError) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px] text-center">
+          <div className="text-red-400">
+            <p>Error loading balance data</p>
+            <p className="text-sm text-white/60 mt-2">{balanceError}</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   if (balanceLoading) {
     return (
@@ -312,7 +241,7 @@ const AssetsPage = () => {
                 <TabsTrigger value="account-view" className="flex-1">Account View</TabsTrigger>
               </TabsList>
               <TabsContent value="coin-view" className="pt-2">
-                <AssetList />
+                <AssetsList />
               </TabsContent>
               <TabsContent value="account-view" className="pt-2">
                 <div className="text-center py-6 text-white/60">

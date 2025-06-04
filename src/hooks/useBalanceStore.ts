@@ -58,12 +58,10 @@ export const useBalanceStore = () => {
   }, [usdtBalance, userAssets, assetPrices]);
 
   return {
-    balances: {
-      totalPortfolioValue,
-      usdtBalance,
-      userAssets,
-      assetPrices
-    },
+    totalPortfolioValue,
+    usdtBalance,
+    userAssets,
+    assetPrices,
     assets,
     isLoading,
     error
