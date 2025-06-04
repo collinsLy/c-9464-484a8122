@@ -6,43 +6,46 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { DashboardProvider } from "@/components/dashboard/DashboardLayout";
-import Index from "./pages/Index";
-import Dashboard from "./pages/Dashboard";
-import MarketPage from "@/pages/MarketPage";
-import SettingsPage from "./pages/SettingsPage";
-import AssetsPage from "./pages/AssetsPage";
-import DemoPage from "./pages/DemoPage";
-import BotsPage from "./pages/BotsPage";
-import DepositPage from "./pages/DepositPage";
-import StrategiesPage from "./pages/StrategiesPage";
-import SupportPage from "./pages/SupportPage";
-import WithdrawPage from "./pages/WithdrawPage";
-import ReferralsPage from "./pages/ReferralsPage";
-import AlertsPage from "./pages/AlertsPage";
-import SocialTradingPage from "./pages/SocialTradingPage";
-import DexScreenerPage from "@/pages/DexScreenerPage";
-import VertexNewListingsPage from "./pages/BinanceNewListingsPage";
-import HistoryPage from "./pages/HistoryPage";
-import SpotMarketsPage from "@/pages/SpotMarketsPage";
-import FuturesMarketsPage from "@/pages/FuturesMarketsPage";
-import TopMoversPage from "@/pages/TopMoversPage";
-import SpotTradingPage from "./pages/SpotTradingPage";
-import MarginTradingPage from "./pages/MarginTradingPage";
-import StrategyTradingPage from "./pages/StrategyTradingPage";
-import P2PPage from "./pages/P2PPage";
-import USDTFuturesPage from "./pages/USDTFuturesPage";
-import CoinFuturesPage from "./pages/CoinFuturesPage";
-import OptionsPage from "./pages/OptionsPage";
-import LeaderboardPage from "./pages/LeaderboardPage";
-import SimpleEarnPage from "./pages/SimpleEarnPage";
-import AutoInvestPage from "./pages/AutoInvestPage";
-import StakingPage from "./pages/StakingPage";
-import VertexCardPage from "./pages/VertexCardPage";
-import LiquidityFarmingPage from "./pages/LiquidityFarmingPage";
-import ApiManagementPage from "./pages/ApiManagementPage";
-import RiskAnalysisPage from "./pages/RiskAnalysisPage"; // Added
-import AITradingAssistantPage from "./pages/AITradingAssistantPage"; // Added
-import CryptoConverterPage from "./pages/CryptoConverterPage";
+import { lazy, Suspense } from "react";
+
+// Lazy load all pages for better performance
+const Index = lazy(() => import("./pages/Index"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const MarketPage = lazy(() => import("@/pages/MarketPage"));
+const SettingsPage = lazy(() => import("./pages/SettingsPage"));
+const AssetsPage = lazy(() => import("./pages/AssetsPage"));
+const DemoPage = lazy(() => import("./pages/DemoPage"));
+const BotsPage = lazy(() => import("./pages/BotsPage"));
+const DepositPage = lazy(() => import("./pages/DepositPage"));
+const StrategiesPage = lazy(() => import("./pages/StrategiesPage"));
+const SupportPage = lazy(() => import("./pages/SupportPage"));
+const WithdrawPage = lazy(() => import("./pages/WithdrawPage"));
+const ReferralsPage = lazy(() => import("./pages/ReferralsPage"));
+const AlertsPage = lazy(() => import("./pages/AlertsPage"));
+const SocialTradingPage = lazy(() => import("./pages/SocialTradingPage"));
+const DexScreenerPage = lazy(() => import("@/pages/DexScreenerPage"));
+const VertexNewListingsPage = lazy(() => import("./pages/BinanceNewListingsPage"));
+const HistoryPage = lazy(() => import("./pages/HistoryPage"));
+const SpotMarketsPage = lazy(() => import("@/pages/SpotMarketsPage"));
+const FuturesMarketsPage = lazy(() => import("@/pages/FuturesMarketsPage"));
+const TopMoversPage = lazy(() => import("@/pages/TopMoversPage"));
+const SpotTradingPage = lazy(() => import("./pages/SpotTradingPage"));
+const MarginTradingPage = lazy(() => import("./pages/MarginTradingPage"));
+const StrategyTradingPage = lazy(() => import("./pages/StrategyTradingPage"));
+const P2PPage = lazy(() => import("./pages/P2PPage"));
+const USDTFuturesPage = lazy(() => import("./pages/USDTFuturesPage"));
+const CoinFuturesPage = lazy(() => import("./pages/CoinFuturesPage"));
+const OptionsPage = lazy(() => import("./pages/OptionsPage"));
+const LeaderboardPage = lazy(() => import("./pages/LeaderboardPage"));
+const SimpleEarnPage = lazy(() => import("./pages/SimpleEarnPage"));
+const AutoInvestPage = lazy(() => import("./pages/AutoInvestPage"));
+const StakingPage = lazy(() => import("./pages/StakingPage"));
+const VertexCardPage = lazy(() => import("./pages/VertexCardPage"));
+const LiquidityFarmingPage = lazy(() => import("./pages/LiquidityFarmingPage"));
+const ApiManagementPage = lazy(() => import("./pages/ApiManagementPage"));
+const RiskAnalysisPage = lazy(() => import("./pages/RiskAnalysisPage"));
+const AITradingAssistantPage = lazy(() => import("./pages/AITradingAssistantPage"));
+const CryptoConverterPage = lazy(() => import("./pages/CryptoConverterPage"));
 import { BalanceProvider } from "@/components/BalanceProvider";
 // import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 
@@ -60,6 +63,13 @@ const queryClient = new QueryClient({
   },
 });
 
+// Loading fallback component
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center min-h-screen bg-black">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-400"></div>
+  </div>
+);
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -70,7 +80,8 @@ const App = () => (
         <BalanceProvider>
           <BrowserRouter>
             <DashboardProvider>
-              <Routes>
+              <Suspense fallback={<LoadingFallback />}>
+                <Routes>
                 <Route path="/" element={<ErrorBoundary><Index /></ErrorBoundary>} />
                 <Route path="/dashboard" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
                 <Route path="/spot-markets" element={<ErrorBoundary><SpotMarketsPage /></ErrorBoundary>} />
@@ -108,6 +119,7 @@ const App = () => (
                 <Route path="/ai-assistant" element={<ErrorBoundary><AITradingAssistantPage /></ErrorBoundary>} /> {/* Added */}
                 <Route path="/crypto-converter" element={<ErrorBoundary><CryptoConverterPage /></ErrorBoundary>} />
               </Routes>
+              </Suspense>
             </DashboardProvider>
           </BrowserRouter>
         </BalanceProvider>

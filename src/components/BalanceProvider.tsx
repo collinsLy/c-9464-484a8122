@@ -1,5 +1,4 @@
-
-import { useEffect, ReactNode } from 'react';
+import { useEffect, ReactNode, useMemo, useCallback } from 'react';
 import { useBalanceStore } from '@/lib/balance-store';
 import { auth } from '@/lib/firebase';
 import { UserService } from '@/lib/firebase-service';
@@ -27,7 +26,7 @@ export const BalanceProvider = ({ children }: BalanceProviderProps) => {
 
           // Update the store with real-time data
           const store = useBalanceStore.getState();
-          
+
           // Process USDT balance
           let usdtBalance = 0;
           if (userData.assets?.USDT && userData.assets.USDT.amount > 0) {
@@ -41,7 +40,7 @@ export const BalanceProvider = ({ children }: BalanceProviderProps) => {
           // Calculate total portfolio value with current prices
           let totalValue = usdtBalance;
           const userAssets = userData.assets || {};
-          
+
           Object.entries(userAssets).forEach(([symbol, data]: [string, any]) => {
             if (symbol === 'USDT') return;
             const amount = data.amount || 0;
@@ -81,16 +80,16 @@ export const BalanceProvider = ({ children }: BalanceProviderProps) => {
       try {
         const baseAssets = ['BTC', 'ETH', 'USDC', 'BNB', 'DOGE', 'SOL', 'XRP', 'WLD', 'ADA', 'DOT', 'LINK', 'MATIC'];
         const symbolsQuery = baseAssets.map(s => `${s}USDT`);
-        
+
         const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
         const data = await response.json();
-        
+
         const prices: Record<string, number> = { USDT: 1 };
         data.forEach((item: any) => {
           const symbol = item.symbol.replace('USDT', '');
           prices[symbol] = parseFloat(item.price);
         });
-        
+
         updateAssetPrices(prices);
       } catch (error) {
         console.error('Error updating prices:', error);
