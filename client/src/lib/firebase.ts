@@ -1,5 +1,5 @@
 
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, OAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
@@ -10,11 +10,12 @@ const firebaseConfig = {
   projectId: "vertev-tradings",
   storageBucket: "vertev-tradings.firebasestorage.app",
   messagingSenderId: "47392604150",
-  appId: "1:47392604150:web:1405bfcdac7efad4e411d7",
-  measurementId: "G-TLR3LCX09J"
+  appId: "1:47392604150:web:8415f94d1fb59f15e411d7",
+  measurementId: "G-38CPJQV72W"
 };
 
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase app only if it doesn't exist
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);

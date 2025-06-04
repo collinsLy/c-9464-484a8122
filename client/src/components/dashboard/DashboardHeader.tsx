@@ -24,107 +24,67 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
     let unsubscribeUser: (() => void) | null = null;
     let unsubscribeNotifications: (() => void) | null = null;
 
-    // Fetch user data and notifications
-    const fetchUserDataAndNotifications = async () => {
+    const setupSubscriptions = async () => {
       try {
         const currentUser = auth.currentUser;
         const uid = currentUser?.uid || localStorage.getItem('userId');
         
-        if (!uid) return;
+        if (!uid) {
+          console.log('No user ID found, setting default state');
+          setUserName('User');
+          setUserAvatar('');
+          setNotifications([]);
+          return;
+        }
 
         // Subscribe to user data from Firestore
-        const userRef = doc(db, 'users', uid);
-        unsubscribeUser = onSnapshot(userRef, (doc) => {
-          if (doc.exists()) {
-            const userData = doc.data();
-            setUserName(userData.fullName || userData.displayName || 'User');
-            setUserAvatar(userData.profilePhoto || userData.photoURL || '');
-          }
-        });
-        
-        // Subscribe to notifications collection with error handling
-        const notificationsQuery = query(
-          collection(db, 'p2pNotifications'),
-          where('userId', '==', uid),
-          orderBy('createdAt', 'desc')
-        );
-        
-        unsubscribeNotifications = onSnapshot(notificationsQuery, (snapshot) => {
-          try {
-            const notificationsList = snapshot.docs.map(doc => ({
-              id: doc.id,
-              ...doc.data(),
-              message: doc.data().message || doc.data().title || 'New notification',
-              time: doc.data().createdAt || new Date().toISOString(),
-              read: doc.data().read || false
-            }));
-            
-            // Set notifications or fallback to welcome notification
-            if (notificationsList.length > 0) {
-              setNotifications(notificationsList);
-              
-              // Play notification sound for new unread notifications (only once)
-              const hasUnread = notificationsList.some(notification => !notification.read);
-              if (hasUnread && notifications.length === 0) {
-                NotificationService.playSound('notification', 0.3);
-              }
+        try {
+          const userRef = doc(db, 'users', uid);
+          unsubscribeUser = onSnapshot(userRef, (doc) => {
+            if (doc.exists()) {
+              const userData = doc.data();
+              setUserName(userData.fullName || userData.displayName || 'User');
+              setUserAvatar(userData.profilePhoto || userData.photoURL || '');
             } else {
-              // Fallback: check general notifications collection
-              const generalNotificationsQuery = query(
-                collection(db, 'notifications'),
-                where('userId', '==', uid),
-                orderBy('timestamp', 'desc')
-              );
-              
-              getDocs(generalNotificationsQuery).then(generalSnapshot => {
-                if (!generalSnapshot.empty) {
-                  const generalNotifications = generalSnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                    message: doc.data().message || doc.data().body || doc.data().title || 'New notification',
-                    time: doc.data().timestamp || doc.data().createdAt || new Date().toISOString(),
-                    read: doc.data().isRead !== undefined ? doc.data().isRead : doc.data().read || false
-                  }));
-                  setNotifications(generalNotifications);
-                } else {
-                  // Welcome notification for new users
-                  setNotifications([
-                    { 
-                      id: 'welcome', 
-                      message: 'Welcome to Vertex Trading Platform! 🚀', 
-                      read: false, 
-                      time: new Date().toISOString() 
-                    }
-                  ]);
-                }
-              }).catch(error => {
-                console.error('Error fetching general notifications:', error);
-                // Set empty notifications on error
-                setNotifications([]);
-              });
+              setUserName('User');
+              setUserAvatar('');
             }
-          } catch (error) {
-            console.error('Error processing notifications:', error);
+          }, (error) => {
+            console.error('Error listening to user data:', error);
+            setUserName('User');
+            setUserAvatar('');
+          });
+        } catch (error) {
+          console.error('Error setting up user subscription:', error);
+          setUserName('User');
+          setUserAvatar('');
+        }
+        
+        // Set a simple welcome notification to avoid infinite loops
+        setNotifications([
+          { 
+            id: 'welcome', 
+            message: 'Welcome to Vertex Trading Platform!', 
+            read: false, 
+            time: new Date().toISOString() 
           }
-        }, (error) => {
-          console.error('Error listening to notifications:', error);
-          // Set empty notifications array on error
-          setNotifications([]);
-        });
+        ]);
         
       } catch (error) {
-        console.error('Error setting up notifications:', error);
+        console.error('Error setting up subscriptions:', error);
+        setUserName('User');
+        setUserAvatar('');
+        setNotifications([]);
       }
     };
 
-    fetchUserDataAndNotifications();
+    setupSubscriptions();
 
     // Cleanup function
     return () => {
       if (unsubscribeUser) unsubscribeUser();
-      if (unsubscribeNotifications) unsubscribeNotifications();
     };
-  }, []);
+  }, []); // Empty dependency array to run only once
 
   const handleSignOut = () => {
     // Clear local authentication

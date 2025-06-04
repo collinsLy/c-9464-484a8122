@@ -1,0 +1,51 @@
+chunk-WERSD76P.js?v=8f3c9e85:14032 The above error occurred in the <PopperAnchor> component:
+
+    at https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.repli…ner/workspace/node_modules/.vite/deps/chunk-YALNOHSQ.js?v=8f3c9e85:1929:13
+    at https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.repli…space/node_modules/.vite/deps/@radix-ui_react-popover.js?v=8f3c9e85:117:13
+    at Provider (https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.repli…unner/workspace/node_modules/.vite/deps/chunk-PLT6GTVM.js?v=8f3c9e85:38:15)
+    at Provider (https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.repli…unner/workspace/node_modules/.vite/deps/chunk-PLT6GTVM.js?v=8f3c9e85:38:15)
+    at Popper (https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.repli…ner/workspace/node_modules/.vite/deps/chunk-YALNOHSQ.js?v=8f3c9e85:1921:11)
+    at Popover (https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.repli…rkspace/node_modules/.vite/deps/@radix-ui_react-popover.js?v=8f3c9e85:66:5)
+    at div
+    at header
+    at DashboardHeader (https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.replit.dev/src/components/dashboard/DashboardHeader.tsx:31:35)
+    at div
+    at div
+    at DashboardProvider (https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.replit.dev/src/components/dashboard/DashboardLayout.tsx:38:37)
+    at DashboardLayout (https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.replit.dev/src/components/dashboard/DashboardLayout.tsx:61:43)
+    at AssetsPage (https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.replit.dev/src/pages/AssetsPage.tsx:37:7)
+    at ErrorBoundary (https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.replit.dev/src/components/ErrorBoundary.tsx:8:5)
+    at RenderedRoute (https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.repli…r/workspace/node_modules/.vite/deps/react-router-dom.js?v=8f3c9e85:5455:26)
+    at Routes (https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.repli…er/workspace/node_modules/.vite/deps/react-router-dom.js?v=8f3c9e85:6188:3)
+    at Suspense
+    at DashboardProvider (https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.replit.dev/src/components/dashboard/DashboardLayout.tsx:38:37)
+    at Router (https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.repli…r/workspace/node_modules/.vite/deps/react-router-dom.js?v=8f3c9e85:6131:13)
+    at BrowserRouter (https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.repli…er/workspace/node_modules/.vite/deps/react-router-dom.js?v=8f3c9e85:9149:3)
+    at BalanceProvider (https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.replit.dev/src/components/BalanceProvider.tsx:22:35)
+    at Provider (https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.repli…unner/workspace/node_modules/.vite/deps/chunk-PLT6GTVM.js?v=8f3c9e85:38:15)
+    at TooltipProvider (https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.repli…rkspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=8f3c9e85:64:5)
+    at QueryClientProvider (https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.repli…rkspace/node_modules/.vite/deps/@tanstack_react-query.js?v=8f3c9e85:2805:3)
+    at V (https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.repli…e/runner/workspace/node_modules/.vite/deps/next-themes.js?v=8f3c9e85:44:25)
+    at J (https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.repli…e/runner/workspace/node_modules/.vite/deps/next-themes.js?v=8f3c9e85:42:18)
+    at ThemeProvider (https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.replit.dev/src/components/theme-provider.tsx:19:33)
+    at ErrorBoundary (https://e327b8d6-e1f4-4ee1-b419-82a286780560-00-131xx1m9pnpc7.janeway.replit.dev/src/components/ErrorBoundary.tsx:8:5)
+    at App
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+ErrorBoundary.tsx:32 Error caught by boundary: Error: Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.
+    at checkForNestedUpdates (chunk-WERSD76P.js?v=8f3c9e85:19659:19)
+    at scheduleUpdateOnFiber (chunk-WERSD76P.js?v=8f3c9e85:18533:11)
+    at dispatchSetState (chunk-WERSD76P.js?v=8f3c9e85:12403:15)
+    at chunk-YALNOHSQ.js?v=8f3c9e85:1934:15
+    at commitHookEffectListMount (chunk-WERSD76P.js?v=8f3c9e85:16915:34)
+    at commitPassiveMountOnFiber (chunk-WERSD76P.js?v=8f3c9e85:18156:19)
+    at commitPassiveMountEffects_complete (chunk-WERSD76P.js?v=8f3c9e85:18129:17)
+    at commitPassiveMountEffects_begin (chunk-WERSD76P.js?v=8f3c9e85:18119:15)
+    at commitPassiveMountEffects (chunk-WERSD76P.js?v=8f3c9e85:18109:11)
+    at flushPassiveEffectsImpl (chunk-WERSD76P.js?v=8f3c9e85:19490:11) 
+{componentStack: '\n    at https://e327b8d6-e1f4-4ee1-b419-82a2867805…/src/components/ErrorBoundary.tsx:8:5)\n    at App'}
+
+firebase_firestore.js?v=8f3c9e85:2147 
+ POST https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/chann…Ut8r75A&SID=cJtxJJ-RdRAEqI0x7mZA5Q&RID=4523&TYPE=terminate&zx=b2kt77bdkh0j 400 (Bad Request)
+﻿
+
