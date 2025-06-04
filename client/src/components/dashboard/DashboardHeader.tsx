@@ -21,70 +21,18 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    let unsubscribeUser: (() => void) | null = null;
-    let unsubscribeNotifications: (() => void) | null = null;
-
-    const setupSubscriptions = async () => {
-      try {
-        const currentUser = auth.currentUser;
-        const uid = currentUser?.uid || localStorage.getItem('userId');
-        
-        if (!uid) {
-          console.log('No user ID found, setting default state');
-          setUserName('User');
-          setUserAvatar('');
-          setNotifications([]);
-          return;
-        }
-
-        // Subscribe to user data from Firestore
-        try {
-          const userRef = doc(db, 'users', uid);
-          unsubscribeUser = onSnapshot(userRef, (doc) => {
-            if (doc.exists()) {
-              const userData = doc.data();
-              setUserName(userData.fullName || userData.displayName || 'User');
-              setUserAvatar(userData.profilePhoto || userData.photoURL || '');
-            } else {
-              setUserName('User');
-              setUserAvatar('');
-            }
-          }, (error) => {
-            console.error('Error listening to user data:', error);
-            setUserName('User');
-            setUserAvatar('');
-          });
-        } catch (error) {
-          console.error('Error setting up user subscription:', error);
-          setUserName('User');
-          setUserAvatar('');
-        }
-        
-        // Set a simple welcome notification to avoid infinite loops
-        setNotifications([
-          { 
-            id: 'welcome', 
-            message: 'Welcome to Vertex Trading Platform!', 
-            read: false, 
-            time: new Date().toISOString() 
-          }
-        ]);
-        
-      } catch (error) {
-        console.error('Error setting up subscriptions:', error);
-        setUserName('User');
-        setUserAvatar('');
-        setNotifications([]);
+    // Set static values to prevent infinite loops
+    setUserName('Trader');
+    setUserAvatar('');
+    setNotifications([
+      { 
+        id: 'welcome', 
+        message: 'Welcome to Vertex Trading Platform!', 
+        read: false, 
+        time: new Date().toISOString() 
       }
-    };
-
-    setupSubscriptions();
-
-    // Cleanup function
-    return () => {
-      if (unsubscribeUser) unsubscribeUser();
-    };
-  }, []); // Empty dependency array to run only once
+    ]);
+  }, []);
 
   const handleSignOut = () => {
     // Clear local authentication
