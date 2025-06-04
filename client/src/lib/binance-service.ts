@@ -1,11 +1,13 @@
 // Binance service for fetching market data
 class BinanceService {
   private baseUrl = 'https://api.binance.com/api/v3';
+  private apiKey = 'NiWE5jWE2QH5j627FT8BWbzYOuM1MaEQdAYoXqrWcn3NgpS4rTal6e9OTuCFBOoL';
 
   private async fetchWithHeaders(url: string) {
     const headers = {
       'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'X-MBX-APIKEY': this.apiKey
     };
     return fetch(url, {
       method: 'GET',

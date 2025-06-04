@@ -71,70 +71,50 @@ export function PortfolioAnalytics() {
     'OTHER': '#9CA3AF'
   };
 
-  // Optimized price fetching with smooth updates
+  // Fetch real prices from backend proxy
   useEffect(() => {
     let isMounted = true;
     let timeoutId: NodeJS.Timeout;
-    const UPDATE_INTERVAL = 5000; // 5 seconds between updates
-    const CHANGE_THRESHOLD = 0.001; // 0.1% change threshold
 
     const fetchPrices = async () => {
       try {
-        const symbols = baseAssets
-          .map(asset => asset.symbol)
-          .filter(symbol => symbol !== 'USDT');
-
-        const symbolsQuery = symbols.map(s => `${s}USDT`);
-        const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
+        const response = await fetch('/api/binance/prices');
+        if (!response.ok) {
+          throw new Error('Failed to fetch prices');
+        }
+        
         const data = await response.json();
-
+        
         if (!isMounted) return;
 
-        const newPrices: Record<string, number> = {};
+        const newPrices: Record<string, number> = { 'USDT': 1.00, 'USDC': 1.00 };
+        
+        // Filter for symbols we track
+        const trackedSymbols = baseAssets.map(asset => `${asset.symbol}USDT`);
+        
         data.forEach((item: any) => {
-          const symbol = item.symbol.replace('USDT', '');
-          newPrices[symbol] = parseFloat(item.price);
-        });
-        newPrices['USDT'] = 1;
-
-        // Deep compare before updating to prevent unnecessary renders
-        const hasSignificantChanges = Object.entries(newPrices).some(
-          ([key, value]) => {
-            const oldPrice = assetPrices[key];
-            return !oldPrice || Math.abs((value - oldPrice) / oldPrice) > CHANGE_THRESHOLD;
+          if (trackedSymbols.includes(item.symbol)) {
+            const symbol = item.symbol.replace('USDT', '');
+            newPrices[symbol] = parseFloat(item.price);
           }
-        );
+        });
 
-        if (hasSignificantChanges) {
-          setAssetPrices(prev => {
-            // Implement smooth price transitions
-            const smoothedPrices: Record<string, number> = {};
-            Object.entries(newPrices).forEach(([key, value]) => {
-              const oldPrice = prev[key];
-              smoothedPrices[key] = oldPrice 
-                ? oldPrice + (value - oldPrice) * 0.3 
-                : value;
-            });
-            return smoothedPrices;
-          });
-        }
-
-        if (isLoading) {
-          setIsLoading(false);
-        }
+        setAssetPrices(newPrices);
+        setIsLoading(false);
       } catch (error) {
-        console.error('Error fetching asset prices:', error);
+        console.error('Error updating prices:', error);
+        setIsLoading(false);
       }
     };
 
     fetchPrices();
-    timeoutId = setInterval(fetchPrices, UPDATE_INTERVAL);
+    timeoutId = setInterval(fetchPrices, 30000); // Update every 30 seconds
 
     return () => {
       isMounted = false;
       clearInterval(timeoutId);
     };
-  }, [userAssets, isLoading]);
+  }, []);
 
   // Calculate total portfolio value and update allocation data
   const calculatePortfolioValue = (assets: Record<string, any>, prices: Record<string, number>) => {
