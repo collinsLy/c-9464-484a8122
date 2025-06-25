@@ -39,7 +39,7 @@ const Hero = () => {
 
           <Dialog open={openAccount} onOpenChange={setOpenAccount}>
             <DialogTrigger asChild>
-              <Button className="px-8 py-6 text-lg bg-white text-black hover:bg-white/90 flex items-center gap-2">
+              <Button className="px-8 py-6 text-lg bg-primary text-primary-foreground hover:bg-primary/90 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5" />
                 Start Trading Now
               </Button>

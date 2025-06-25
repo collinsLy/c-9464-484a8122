@@ -32,8 +32,38 @@
   }
 
   :root {
-    --background: 0 0% 100%;
-    --foreground: 20 14.3% 4.1%;
+    --background: 215 15% 7%;
+    --foreground: 0 0% 98%;
+    --card: 215 15% 8%;
+    --card-foreground: 0 0% 98%;
+    --popover: 215 15% 8%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 215 15% 7%;
+    --secondary: 215 15% 12%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 215 15% 12%;
+    --muted-foreground: 215 5% 64%;
+    --accent: 215 15% 12%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 215 15% 15%;
+    --input: 215 15% 15%;
+    --ring: 215 20% 65%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --sidebar-background: 215 15% 7%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 210 40% 98%;
+    --sidebar-primary-foreground: 215 15% 7%;
+    --sidebar-accent: 215 15% 12%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 215 15% 15%;
+    --sidebar-ring: 215 20% 65%;
     --radius: 1.2rem;
     --vh: 1vh;
   }
@@ -119,7 +149,7 @@
   animation: slideIn 0.3s ease-out forwards;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
   border-left: 4px solid #F2FF44;
-  background-color: rgba(30, 30, 40, 0.95);
+  background-color: hsl(var(--card));
 }
 
 @keyframes slideIn {
@@ -219,12 +249,12 @@
 }
 
 .smooth-scroll::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
+  background: hsl(var(--muted));
   border-radius: 3px;
 }
 
 .smooth-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: hsl(var(--border));
   border-radius: 3px;
 }
 
@@ -267,7 +297,7 @@
 
 /* Component Classes */
 .glass-effect {
-  @apply bg-white/5 backdrop-blur-lg border border-white/10;
+  @apply bg-card/50 backdrop-blur-lg border border-border;
 }
 
 .hover-lift {

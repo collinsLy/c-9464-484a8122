@@ -1,98 +1,34 @@
 # Vertex Trading Platform
 
-## Overview
+## Project Overview
+A comprehensive cryptocurrency trading platform migrated from Lovable to Replit environment. The platform includes trading features for spot, futures, P2P, automated trading bots, market analysis, and user management.
 
-This is a comprehensive cryptocurrency trading platform built with a modern full-stack architecture. The application provides demo and live trading capabilities, automated trading bots, portfolio management, and various crypto-related services including P2P trading, staking, and social trading features.
+## Recent Changes
+- **2024-12-25**: Successfully migrated from Lovable to Replit
+- **2024-12-25**: Updated background color to #0f1115 across entire application
+- **2024-12-25**: Installed all required dependencies (React Router, Firebase, Supabase, Radix UI, etc.)
+- **2024-12-25**: Fixed CSS variables and theme system for dark mode consistency
 
-## System Architecture
-
-The application follows a monorepo structure with clear separation between client, server, and shared components:
-
-- **Frontend**: React-based SPA with TypeScript, using Vite as the build tool
+## Project Architecture
+- **Frontend**: React 18 with TypeScript, Vite build system
+- **UI Framework**: shadcn/ui with Radix UI components
+- **Styling**: Tailwind CSS with custom CSS variables for theming
+- **State Management**: React Query for server state
+- **Routing**: React Router DOM
+- **Authentication**: Firebase Auth
+- **Database**: Supabase integration
 - **Backend**: Express.js server with TypeScript
-- **Database**: PostgreSQL with Drizzle ORM for type-safe database operations
-- **Authentication**: Firebase Authentication integration
-- **State Management**: React Query for server state, React Context for client state
-- **UI Framework**: Shadcn/ui components with Tailwind CSS styling
-- **Real-time Data**: Integration with Binance API, CoinGecko API, and TradingView widgets
-
-## Key Components
-
-### Frontend Architecture
-- **React 18** with TypeScript for type safety
-- **Vite** for fast development and optimized builds
-- **Tailwind CSS** with custom design system using CSS variables
-- **Shadcn/ui** component library for consistent UI patterns
-- **React Query** for efficient data fetching and caching
-- **React Router** for client-side routing
-- **Progressive Web App** features with service worker registration
-
-### Backend Architecture
-- **Express.js** server with TypeScript
-- **Drizzle ORM** for database operations with PostgreSQL
-- **Session-based** middleware for request logging
-- **Modular routing** system with centralized route registration
-- **Storage abstraction** layer supporting both in-memory and database persistence
-
-### Database Schema
-- **Users table**: Basic user authentication and profile information
-- **PostgreSQL**: Primary database with Drizzle migrations
-- **Connection**: Neon Database serverless PostgreSQL instance
-
-### UI/UX Design Decisions
-- **Dark theme** optimized design with glassmorphism effects
-- **Mobile-first** responsive design with touch optimization
-- **Accessibility** considerations with proper ARIA labels and keyboard navigation
-- **Performance** optimizations including code splitting and lazy loading
-
-## Data Flow
-
-1. **Authentication Flow**: Firebase handles user authentication with custom user profiles stored in PostgreSQL
-2. **Trading Data**: Real-time market data fetched from external APIs (Binance, CoinGecko)
-3. **Demo Mode**: Local storage for demo trading with simulated balances
-4. **Real Trading**: Firebase integration for user data persistence
-5. **API Integration**: Multiple external APIs for market data, news, and trading functionality
-
-## External Dependencies
-
-### Core APIs
-- **Binance API**: Real-time cryptocurrency prices and market data
-- **CoinGecko API**: Comprehensive crypto market information
-- **TradingView**: Advanced charting widgets and technical analysis tools
-- **Firebase**: Authentication, Firestore database, and cloud storage
-
-### UI Libraries
-- **Radix UI**: Accessible primitive components (@radix-ui/react-*)
-- **Lucide React**: Icon library for consistent iconography
-- **Recharts**: Data visualization and charting components
-- **React Hook Form**: Form state management with validation
-
-### Development Tools
-- **ESBuild**: Fast JavaScript bundler for production builds
-- **TypeScript**: Static type checking across the entire codebase
-- **PostCSS**: CSS processing with Tailwind CSS integration
-
-## Deployment Strategy
-
-The application is configured for deployment on Replit with:
-
-- **Development**: `npm run dev` runs the Express server with Vite dev middleware
-- **Production Build**: `npm run build` creates optimized client and server bundles
-- **Production Server**: `npm run start` serves the built application
-- **Database**: PostgreSQL module configured in .replit for database provisioning
-- **Port Configuration**: Server runs on port 5000 with external port 80 mapping
-- **Autoscale Deployment**: Configured for automatic scaling based on traffic
-
-### Build Process
-1. Vite builds the client-side React application
-2. ESBuild bundles the server with external package dependencies
-3. Static assets are served from the dist/public directory
-4. API routes are prefixed with /api for clear separation
-
-## Changelog
-
-- June 25, 2025. Initial setup
 
 ## User Preferences
+- Background color preference: #0f1115 (dark theme)
+- Design system: shadcn/ui components preferred
+- Responsive design focus for mobile and desktop
 
-Preferred communication style: Simple, everyday language.
+## Key Features
+- Spot and futures trading
+- P2P marketplace
+- Automated trading bots
+- Market analysis and charts
+- User account management
+- Real-time notifications
+- Mobile-responsive design
