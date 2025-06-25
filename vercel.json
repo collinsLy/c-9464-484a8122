@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "npm run vercel-build",
+  "buildCommand": "vite build",
   "outputDirectory": "dist/public",
   "functions": {
     "api/*.ts": {
@@ -14,7 +14,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/dist/public/$1"
+      "dest": "/index.html"
     }
   ]
 }
