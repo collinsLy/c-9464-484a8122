@@ -12,6 +12,8 @@ A comprehensive cryptocurrency trading platform migrated from Lovable to Replit 
 - **2024-12-25**: Renamed to "Vertex Deposit Checkpoint" with advanced loading animation
 - **2024-12-25**: Added Vertex logo to header with gradient effects and SSL security indicator
 - **2024-12-25**: Updated payment gateway iframe to "Vertex Deposit Checkpoint" with Vertex logo loading animation
+- **2024-12-25**: Configured Vercel deployment with serverless functions and static build setup
+- **2024-12-25**: Updated payment gateway iframe to "Vertex Deposit Checkpoint" with Vertex logo loading animation
 
 ## Project Architecture
 - **Frontend**: React 18 with TypeScript, Vite build system
