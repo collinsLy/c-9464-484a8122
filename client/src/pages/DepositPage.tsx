@@ -598,7 +598,6 @@ const DepositPage = () => {
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold text-white tracking-tight">Vertex Deposit Checkpoint</h3>
-                    <p className="text-[#F2FF44]/80 text-sm font-medium">Secure Payment Gateway</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -639,25 +638,20 @@ const DepositPage = () => {
                           <img 
                             src="/favicon.svg" 
                             alt="Vertex Logo" 
-                            className="w-8 h-8 animate-pulse"
-                            style={{
-                              filter: 'brightness(1.2) drop-shadow(0 0 8px rgba(242, 255, 68, 0.3))'
-                            }}
+                            className="w-8 h-8"
                           />
                         </div>
                         {/* Glow effect */}
                         <div className="absolute inset-0 w-24 h-24 bg-[#F2FF44]/10 rounded-full blur-xl animate-pulse"></div>
                       </div>
 
-                      {/* Loading Text */}
+                      {/* Loading Animation */}
                       <div className="text-center space-y-3">
-                        <h4 className="text-white font-bold text-2xl tracking-wide">Loading Vertex Deposit Checkpoint</h4>
                         <div className="flex items-center justify-center gap-2">
                           <div className="w-2 h-2 bg-[#F2FF44] rounded-full animate-bounce"></div>
                           <div className="w-2 h-2 bg-[#F2FF44] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
                           <div className="w-2 h-2 bg-[#F2FF44] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                         </div>
-                        <p className="text-white/60 text-lg font-medium">Connecting to secure payment gateway</p>
                         <div className="bg-[#F2FF44]/10 px-4 py-2 rounded-full border border-[#F2FF44]/20 inline-block">
                           <p className="text-[#F2FF44] text-sm font-medium">🔒 SSL Encrypted Connection</p>
                         </div>
