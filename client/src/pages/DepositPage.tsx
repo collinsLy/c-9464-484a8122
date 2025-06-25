@@ -587,54 +587,86 @@ const DepositPage = () => {
         </div>
 
         {showPaymentIframe && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-background/95 border border-white/10 rounded-lg w-full max-w-4xl h-[80vh] flex flex-col">
-              <div className="flex justify-between items-center p-4 border-b border-white/10">
-                <div>
-                  <div className="flex items-center gap-3">
-                    <img src="/favicon.svg" alt="Vertex Logo" className="w-6 h-6" />
-                    <h3 className="text-xl font-medium text-white">Vertex Deposit Checkpoint</h3>
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <div className="bg-gradient-to-br from-[#0f1115] to-[#1a1d23] border border-[#F2FF44]/20 rounded-2xl w-full max-w-5xl h-[85vh] flex flex-col shadow-2xl shadow-[#F2FF44]/10">
+              {/* Modern Header */}
+              <div className="flex justify-between items-center p-6 border-b border-[#F2FF44]/10 bg-gradient-to-r from-[#F2FF44]/5 to-transparent">
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-[#F2FF44] rounded-full blur-sm opacity-20"></div>
+                    <img src="/favicon.svg" alt="Vertex Logo" className="relative w-8 h-8 filter brightness-110" />
                   </div>
-                  {referenceNumber && (
-                    <p className="text-sm text-white/70 mt-1">Reference: {referenceNumber}</p>
-                  )}
+                  <div>
+                    <h3 className="text-2xl font-bold text-white tracking-tight">Vertex Deposit Checkpoint</h3>
+                    <p className="text-[#F2FF44]/80 text-sm font-medium">Secure Payment Gateway</p>
+                  </div>
                 </div>
-                <button 
-                  onClick={() => {
-                    setShowPaymentIframe(false);
-                    setIsIframeLoading(false);
-                    setReferenceNumber("");
-                  }}
-                  className="text-white/70 hover:text-white"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
-                </button>
+                <div className="flex items-center gap-4">
+                  {referenceNumber && (
+                    <div className="bg-[#F2FF44]/10 px-3 py-1 rounded-lg border border-[#F2FF44]/20">
+                      <p className="text-xs text-[#F2FF44] font-mono">REF: {referenceNumber}</p>
+                    </div>
+                  )}
+                  <button 
+                    onClick={() => {
+                      setShowPaymentIframe(false);
+                      setIsIframeLoading(false);
+                      setReferenceNumber("");
+                    }}
+                    className="p-2 rounded-full bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all duration-200"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
               </div>
+
+              {/* Content Area */}
               <div className="flex-1 overflow-hidden relative">
                 {isIframeLoading && (
-                  <div className="absolute inset-0 bg-background/95 flex flex-col items-center justify-center z-10">
-                    <div className="flex flex-col items-center gap-4">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#0f1115] via-[#1a1d23] to-[#0f1115] flex flex-col items-center justify-center z-10">
+                    <div className="flex flex-col items-center gap-8">
+                      {/* Advanced Loading Animation */}
                       <div className="relative">
-                        <img 
-                          src="/favicon.svg" 
-                          alt="Vertex Logo" 
-                          className="w-16 h-16 animate-spin"
-                          style={{
-                            animation: 'spin 2s linear infinite'
-                          }}
-                        />
-                        <div className="absolute inset-0 rounded-full border-2 border-[#F2FF44]/20 border-t-[#F2FF44] animate-spin"></div>
+                        {/* Outer rotating ring */}
+                        <div className="absolute inset-0 w-24 h-24 border-4 border-[#F2FF44]/20 border-t-[#F2FF44] rounded-full animate-spin"></div>
+                        {/* Middle pulsing ring */}
+                        <div className="absolute inset-2 w-20 h-20 border-2 border-[#F2FF44]/30 border-r-transparent rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '3s' }}></div>
+                        {/* Inner logo */}
+                        <div className="absolute inset-6 w-12 h-12 flex items-center justify-center">
+                          <img 
+                            src="/favicon.svg" 
+                            alt="Vertex Logo" 
+                            className="w-8 h-8 animate-pulse"
+                            style={{
+                              filter: 'brightness(1.2) drop-shadow(0 0 8px rgba(242, 255, 68, 0.3))'
+                            }}
+                          />
+                        </div>
+                        {/* Glow effect */}
+                        <div className="absolute inset-0 w-24 h-24 bg-[#F2FF44]/10 rounded-full blur-xl animate-pulse"></div>
                       </div>
-                      <div className="text-center">
-                        <h4 className="text-white font-medium text-lg">Loading Vertex Deposit Checkpoint</h4>
-                        <p className="text-white/70 text-sm mt-1">Connecting to secure payment gateway...</p>
+
+                      {/* Loading Text */}
+                      <div className="text-center space-y-3">
+                        <h4 className="text-white font-bold text-2xl tracking-wide">Loading Vertex Deposit Checkpoint</h4>
+                        <div className="flex items-center justify-center gap-2">
+                          <div className="w-2 h-2 bg-[#F2FF44] rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-[#F2FF44] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                          <div className="w-2 h-2 bg-[#F2FF44] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                        </div>
+                        <p className="text-white/60 text-lg font-medium">Connecting to secure payment gateway</p>
+                        <div className="bg-[#F2FF44]/10 px-4 py-2 rounded-full border border-[#F2FF44]/20 inline-block">
+                          <p className="text-[#F2FF44] text-sm font-medium">🔒 SSL Encrypted Connection</p>
+                        </div>
                       </div>
                     </div>
                   </div>
                 )}
+                
+                {/* Payment iframe */}
                 <iframe 
                   src={(() => {
                     const url = isDemoMode 
@@ -644,13 +676,13 @@ const DepositPage = () => {
                     console.log('User data for payment:', userData); // Debug log
                     return url;
                   })()} 
-                  className="w-full h-full border-0"
+                  className="w-full h-full border-0 rounded-b-2xl"
                   title="Vertex Deposit Checkpoint"
                   sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
                   onLoad={() => {
                     setTimeout(() => {
                       setIsIframeLoading(false);
-                    }, 1500); // Show loading for 1.5 seconds minimum
+                    }, 2000); // Show loading for 2 seconds minimum for better UX
                   }}
                 ></iframe>
               </div>
