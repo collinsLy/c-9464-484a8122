@@ -626,35 +626,40 @@ const DepositPage = () => {
               <div className="flex-1 overflow-hidden relative">
                 {isIframeLoading && (
                   <div className="absolute inset-0 bg-gradient-to-br from-[#0f1115] via-[#1a1d23] to-[#0f1115] flex flex-col items-center justify-center z-10">
-                    <div className="flex flex-col items-center gap-8">
+                    <div className="flex flex-col items-center gap-4">
                       {/* Advanced Loading Animation */}
-                      <div className="relative">
-                        {/* Outer rotating ring */}
-                        <div className="absolute inset-0 w-24 h-24 border-4 border-[#F2FF44]/20 border-t-[#F2FF44] rounded-full animate-spin"></div>
-                        {/* Middle pulsing ring */}
-                        <div className="absolute inset-2 w-20 h-20 border-2 border-[#F2FF44]/30 border-r-transparent rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '3s' }}></div>
-                        {/* Inner logo */}
-                        <div className="absolute inset-6 w-12 h-12 flex items-center justify-center">
-                          <img 
-                            src="/favicon.svg" 
-                            alt="Vertex Logo" 
-                            className="w-8 h-8"
-                          />
+                      <div className="relative flex flex-col items-center">
+                        {/* Spinning rings and logo */}
+                        <div className="relative">
+                          {/* Outer rotating ring */}
+                          <div className="absolute inset-0 w-24 h-24 border-4 border-[#F2FF44]/20 border-t-[#F2FF44] rounded-full animate-spin"></div>
+                          {/* Middle pulsing ring */}
+                          <div className="absolute inset-2 w-20 h-20 border-2 border-[#F2FF44]/30 border-r-transparent rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '3s' }}></div>
+                          {/* Inner logo */}
+                          <div className="absolute inset-6 w-12 h-12 flex items-center justify-center">
+                            <img 
+                              src="/favicon.svg" 
+                              alt="Vertex Logo" 
+                              className="w-8 h-8"
+                            />
+                          </div>
+                          {/* Glow effect */}
+                          <div className="absolute inset-0 w-24 h-24 bg-[#F2FF44]/10 rounded-full blur-xl animate-pulse"></div>
                         </div>
-                        {/* Glow effect */}
-                        <div className="absolute inset-0 w-24 h-24 bg-[#F2FF44]/10 rounded-full blur-xl animate-pulse"></div>
-                      </div>
-
-                      {/* Loading Animation */}
-                      <div className="text-center space-y-3">
-                        <div className="flex items-center justify-center gap-2">
+                        
+                        {/* Bouncing dots positioned below logo */}
+                        <div className="flex items-center justify-center gap-2 mt-8">
                           <div className="w-2 h-2 bg-[#F2FF44] rounded-full animate-bounce"></div>
                           <div className="w-2 h-2 bg-[#F2FF44] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
                           <div className="w-2 h-2 bg-[#F2FF44] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                         </div>
-                        <div className="bg-[#F2FF44]/10 px-4 py-2 rounded-full border border-[#F2FF44]/20 inline-block">
-                          <p className="text-[#F2FF44] text-sm font-medium">🔒 SSL Encrypted Connection</p>
-                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* SSL indicator at bottom */}
+                    <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
+                      <div className="bg-[#F2FF44]/10 px-4 py-2 rounded-full border border-[#F2FF44]/20">
+                        <p className="text-[#F2FF44] text-sm font-medium">🔒 SSL Encrypted Connection</p>
                       </div>
                     </div>
                   </div>
