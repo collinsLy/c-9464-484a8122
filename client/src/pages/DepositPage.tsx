@@ -34,6 +34,7 @@ const DepositPage = () => {
   const [kshAmount, setKshAmount] = useState(0);
   const [userData, setUserData] = useState(null);
   const [referenceNumber, setReferenceNumber] = useState("");
+  const [isIframeLoading, setIsIframeLoading] = useState(false);
   const conversionRate = 135;
 
   // Generate unique reference number
@@ -510,6 +511,7 @@ const DepositPage = () => {
                             console.error('Error fetching user data:', error);
                           }
                         }
+                        setIsIframeLoading(true);
                         setShowPaymentIframe(true);
                       }}
                     >
@@ -589,7 +591,10 @@ const DepositPage = () => {
             <div className="bg-background/95 border border-white/10 rounded-lg w-full max-w-4xl h-[80vh] flex flex-col">
               <div className="flex justify-between items-center p-4 border-b border-white/10">
                 <div>
-                  <h3 className="text-xl font-medium text-white">Payment Gateway</h3>
+                  <div className="flex items-center gap-3">
+                    <img src="/favicon.svg" alt="Vertex Logo" className="w-6 h-6" />
+                    <h3 className="text-xl font-medium text-white">Vertex Deposit Checkpoint</h3>
+                  </div>
                   {referenceNumber && (
                     <p className="text-sm text-white/70 mt-1">Reference: {referenceNumber}</p>
                   )}
@@ -597,6 +602,7 @@ const DepositPage = () => {
                 <button 
                   onClick={() => {
                     setShowPaymentIframe(false);
+                    setIsIframeLoading(false);
                     setReferenceNumber("");
                   }}
                   className="text-white/70 hover:text-white"
@@ -607,7 +613,28 @@ const DepositPage = () => {
                   </svg>
                 </button>
               </div>
-              <div className="flex-1 overflow-hidden">
+              <div className="flex-1 overflow-hidden relative">
+                {isIframeLoading && (
+                  <div className="absolute inset-0 bg-background/95 flex flex-col items-center justify-center z-10">
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="relative">
+                        <img 
+                          src="/favicon.svg" 
+                          alt="Vertex Logo" 
+                          className="w-16 h-16 animate-spin"
+                          style={{
+                            animation: 'spin 2s linear infinite'
+                          }}
+                        />
+                        <div className="absolute inset-0 rounded-full border-2 border-[#F2FF44]/20 border-t-[#F2FF44] animate-spin"></div>
+                      </div>
+                      <div className="text-center">
+                        <h4 className="text-white font-medium text-lg">Loading Vertex Deposit Checkpoint</h4>
+                        <p className="text-white/70 text-sm mt-1">Connecting to secure payment gateway...</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <iframe 
                   src={(() => {
                     const url = isDemoMode 
@@ -618,8 +645,13 @@ const DepositPage = () => {
                     return url;
                   })()} 
                   className="w-full h-full border-0"
-                  title="Payment Gateway"
+                  title="Vertex Deposit Checkpoint"
                   sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                  onLoad={() => {
+                    setTimeout(() => {
+                      setIsIframeLoading(false);
+                    }, 1500); // Show loading for 1.5 seconds minimum
+                  }}
                 ></iframe>
               </div>
             </div>

@@ -8,6 +8,7 @@ A comprehensive cryptocurrency trading platform migrated from Lovable to Replit 
 - **2024-12-25**: Updated background color to #0f1115 across entire application
 - **2024-12-25**: Installed all required dependencies (React Router, Firebase, Supabase, Radix UI, etc.)
 - **2024-12-25**: Fixed CSS variables and theme system for dark mode consistency
+- **2024-12-25**: Updated payment gateway iframe to "Vertex Deposit Checkpoint" with Vertex logo loading animation
 
 ## Project Architecture
 - **Frontend**: React 18 with TypeScript, Vite build system
