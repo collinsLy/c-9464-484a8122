@@ -8,6 +8,7 @@ import { UserService } from "@/lib/user-service";
 import { doc, runTransaction, setDoc } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
 import { NotificationService } from "@/lib/notification-service";
+import { NumericalUidService } from "@/lib/numerical-uid-service";
 import { cn } from "@/lib/utils";
 
 interface UidTransferProps {
@@ -32,8 +33,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
     const fetchCurrentUserNumericalUid = async () => {
       if (currentUserId) {
         try {
-          const { numericalUidService } = await import('@/lib/numerical-uid-service');
-          const numericalUid = await numericalUidService.getNumericalUid(currentUserId);
+          const numericalUid = await NumericalUidService.getNumericalUid(currentUserId);
           setCurrentUserNumericalUid(numericalUid);
         } catch (error) {
           console.error('Error fetching numerical UID:', error);
@@ -55,7 +55,6 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
 
     setIsValidatingUid(true);
     try {
-      const { numericalUidService } = await import('@/lib/numerical-uid-service');
       const numericalUid = parseInt(recipientUid.trim());
       
       if (isNaN(numericalUid)) {
@@ -68,7 +67,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
         return;
       }
 
-      const userData = await numericalUidService.getUserDataByNumericalUid(numericalUid);
+      const userData = await NumericalUidService.getUserDataByNumericalUid(numericalUid);
       
       if (userData) {
         setRecipientInfo({
@@ -315,7 +314,9 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
       return false;
     }
 
-    if (recipientUid === currentUserId) {
+    // Check if trying to send to self using numerical UID
+    const recipientNumericalUid = parseInt(recipientUid.trim());
+    if (!isNaN(recipientNumericalUid) && recipientNumericalUid === currentUserNumericalUid) {
       toast({
         title: "Invalid Transfer",
         description: "You cannot send funds to yourself",
@@ -369,9 +370,23 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
     try {
       // Convert amount to number
       const transferAmount = parseFloat(amount);
+      const numericalUid = parseInt(recipientUid.trim());
+
+      // Convert numerical UID to Firebase UID
+      const recipientFirebaseUid = await NumericalUidService.getFirebaseUidFromNumerical(numericalUid);
+
+      if (!recipientFirebaseUid) {
+        toast({
+          title: "User Not Found",
+          description: "No user exists with the provided UID",
+          variant: "destructive"
+        });
+        setIsLoading(false);
+        return;
+      }
 
       // Check if recipient exists
-      const recipientData = await UserService.getUserData(recipientUid);
+      const recipientData = await UserService.getUserData(recipientFirebaseUid);
 
       if (!recipientData) {
         toast({
@@ -385,7 +400,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
 
       // Get references to both user documents
       const senderRef = doc(db, 'users', currentUserId!);
-      const recipientRef = doc(db, 'users', recipientUid);
+      const recipientRef = doc(db, 'users', recipientFirebaseUid);
 
       // Use a transaction to ensure atomic updates
       await runTransaction(db, async (transaction) => {
