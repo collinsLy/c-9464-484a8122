@@ -1,5 +1,5 @@
 
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
 
 // Test email configuration
 const testEmailService = async () => {
