@@ -214,7 +214,7 @@ const WithdrawPage = () => {
         return;
       }
 
-    
+
       // Get fresh data before proceeding
       const senderData = await UserService.getUserData(uid);
       const recipientDataFresh = await UserService.getUserData(recipientUid);
@@ -948,7 +948,8 @@ const WithdrawPage = () => {
         console.log(`Updating USDT in assets to: ${Math.max(0, newCryptoAmount)}`);
       } else if (selectedCrypto === 'BTC') {
         // Special handling for BTC - deduct BNB for gas fees
-        const updatedUserAssets = { ...userAssets };
+        const```python
+updatedUserAssets = { ...userAssets };
         const newBtcAmount = cryptoBalance -cryptoAmountValue;
         const gasFeeInBnb = getGasFee(selectedCrypto, network);
         const currentBnbBalance = Number(userAssets.BNB?.amount) || 0;
@@ -1092,6 +1093,32 @@ const WithdrawPage = () => {
               await UserService.updateUserData(uid, { 
                 transactions: finalTransactions 
               });
+              
+              // Send email notification for withdrawal
+              try {
+                if (userData?.email) {
+                  const emailResponse = await fetch('/api/send-transaction-email', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      email: userData.email,
+                      username: userData?.fullName || userData.email || 'User',
+                      type: 'withdrawal',
+                      amount: estimatedUsdValue,
+                    }),
+                  });
+
+                  if (emailResponse.ok) {
+                    console.log('Withdrawal email sent successfully');
+                  } else {
+                    console.error('Failed to send withdrawal email');
+                  }
+                }
+              } catch (error) {
+                console.error('Error sending withdrawal email:', error);
+              }
 
               toast({
                 title: "Withdrawal Completed",
@@ -2306,6 +2333,7 @@ const WithdrawPage = () => {
         />
       )}
 
+      {/* Show All Coins Dialog */}
       {/* Show All Coins Dialog */}
       <Dialog open={showAllCoinsDialog} onOpenChange={setShowAllCoinsDialog}>
           <DialogContent className="bg-background/95 backdrop-blur-lg border-white/10 text-white p-6">
