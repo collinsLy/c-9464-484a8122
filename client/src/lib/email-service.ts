@@ -4,9 +4,12 @@ class EmailNotificationService {
   async sendTransactionEmail(
     email: string,
     username: string,
-    type: 'withdrawal' | 'deposit' | 'transfer',
+    type: 'withdrawal' | 'deposit' | 'transfer' | 'conversion',
     amount: number,
-    receiver?: string
+    receiver?: string,
+    fromCurrency?: string,
+    toCurrency?: string,
+    conversionRate?: number
   ) {
     try {
       const response = await fetch(`${this.baseUrl}/api/send-transaction-email`, {
@@ -20,6 +23,9 @@ class EmailNotificationService {
           type,
           amount,
           receiver,
+          fromCurrency,
+          toCurrency,
+          conversionRate,
         }),
       });
 
@@ -58,6 +64,39 @@ class EmailNotificationService {
       console.error('Error sending welcome email:', error);
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
+  }
+
+  // Convenience methods for specific transaction types
+  async sendWithdrawalEmail(email: string, username: string, amount: number) {
+    return this.sendTransactionEmail(email, username, 'withdrawal', amount);
+  }
+
+  async sendDepositEmail(email: string, username: string, amount: number) {
+    return this.sendTransactionEmail(email, username, 'deposit', amount);
+  }
+
+  async sendTransferEmail(email: string, username: string, amount: number, receiver: string) {
+    return this.sendTransactionEmail(email, username, 'transfer', amount, receiver);
+  }
+
+  async sendConversionEmail(
+    email: string, 
+    username: string, 
+    amount: number, 
+    fromCurrency: string, 
+    toCurrency: string, 
+    conversionRate: number
+  ) {
+    return this.sendTransactionEmail(
+      email, 
+      username, 
+      'conversion', 
+      amount, 
+      undefined, 
+      fromCurrency, 
+      toCurrency, 
+      conversionRate
+    );
   }
 
   async testEmailService() {
