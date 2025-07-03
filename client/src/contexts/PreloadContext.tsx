@@ -15,7 +15,6 @@ interface Portfolio {
   assets: Asset[];
   totalValue: number;
   usdtBalance: number;
-  previousDayBalance: number;
   dailyChange: number;
   profitLoss: number;
   profitLossPercent: number;
@@ -123,7 +122,7 @@ export const PreloadProvider = ({ children }: { children: ReactNode }) => {
       const profitLossPercent = initialBalance > 0 ? (totalProfitLoss / initialBalance) * 100 : 0;
 
       // Calculate daily change
-      const previousDayBalance = userData.previousDayBalance || totalValue;
+      const previousDayBalance = userData.previousDayBalance || 0;
       const dailyChange = previousDayBalance > 0 
         ? ((totalValue - previousDayBalance) / previousDayBalance) * 100 
         : 0;
@@ -132,7 +131,6 @@ export const PreloadProvider = ({ children }: { children: ReactNode }) => {
         assets,
         totalValue,
         usdtBalance,
-        previousDayBalance,
         dailyChange,
         profitLoss: totalProfitLoss,
         profitLossPercent,
@@ -145,7 +143,6 @@ export const PreloadProvider = ({ children }: { children: ReactNode }) => {
         assets: [],
         totalValue: 0,
         usdtBalance: 0,
-        previousDayBalance: 0,
         dailyChange: 0,
         profitLoss: 0,
         profitLossPercent: 0,

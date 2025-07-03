@@ -14,16 +14,127 @@ interface AccountOverviewProps {
 const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   const { toast } = useToast();
   const { portfolio, isLoading } = usePreload();
-
+  
   // Add state for real-time data similar to AssetsPage
   const [balance, setBalance] = useState(0);
   const [previousDayBalance, setPreviousDayBalance] = useState(0);
   const [totalPortfolioValue, setTotalPortfolioValue] = useState(0);
+  const [assetPrices, setAssetPrices] = useState<Record<string, number>>({});
   const [userAssets, setUserAssets] = useState<Record<string, any>>({});
   const [dataReady, setDataReady] = useState(false);
   const [pricesLoaded, setPricesLoaded] = useState(false);
 
-  // No need for separate price fetching - use preloaded data
+  // Base assets list similar to AssetsPage
+  const baseAssets = [
+    { symbol: "BTC", name: "Bitcoin" },
+    { symbol: "ETH", name: "Ethereum" },
+    { symbol: "USDT", name: "TetherUS" },
+    { symbol: "USDC", name: "USD Coin" },
+    { symbol: "BNB", name: "Binance Coin" },
+    { symbol: "DOGE", name: "Dogecoin" },
+    { symbol: "SOL", name: "Solana" },
+    { symbol: "XRP", name: "Ripple" },
+    { symbol: "WLD", name: "Worldcoin" },
+    { symbol: "ADA", name: "Cardano" },
+    { symbol: "DOT", name: "Polkadot" },
+    { symbol: "LINK", name: "Chainlink" },
+    { symbol: "MATIC", name: "Polygon" }
+  ];
+
+  // Fetch initial prices when component mounts (similar to AssetsPage)
+  useEffect(() => {
+    let isMounted = true;
+    
+    const fetchInitialPrices = async () => {
+      try {
+        const symbols = baseAssets
+          .map(asset => asset.symbol)
+          .filter(symbol => symbol !== 'USDT');
+        
+        const symbolsQuery = symbols.map(s => `${s}USDT`);
+        const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
+        const data = await response.json();
+        
+        const prices: Record<string, number> = { USDT: 1 };
+        data.forEach((item: any) => {
+          const symbol = item.symbol.replace('USDT', '');
+          prices[symbol] = parseFloat(item.price);
+        });
+        
+        if (isMounted) {
+          setAssetPrices(prices);
+          setPricesLoaded(true);
+          
+          // Calculate portfolio value if we have user assets
+          if (Object.keys(userAssets).length > 0) {
+            calculatePortfolioValue(userAssets, prices, balance);
+            setDataReady(true);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching initial prices:', error);
+        if (isMounted) {
+          setPricesLoaded(true);
+          setDataReady(true);
+        }
+      }
+    };
+
+    fetchInitialPrices();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Periodic price updates (similar to AssetsPage)
+  useEffect(() => {
+    if (!pricesLoaded) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const symbols = baseAssets
+          .map(asset => asset.symbol)
+          .filter(symbol => symbol !== 'USDT');
+        
+        const symbolsQuery = symbols.map(s => `${s}USDT`);
+        const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
+        const data = await response.json();
+        
+        const prices: Record<string, number> = { USDT: 1 };
+        data.forEach((item: any) => {
+          const symbol = item.symbol.replace('USDT', '');
+          prices[symbol] = parseFloat(item.price);
+        });
+        
+        setAssetPrices(prices);
+        calculatePortfolioValue(userAssets, prices, balance);
+      } catch (error) {
+        console.error('Error updating prices:', error);
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [pricesLoaded, userAssets, balance]);
+
+  // Calculate total portfolio value with current prices (similar to AssetsPage)
+  const calculatePortfolioValue = (assets: Record<string, any>, prices: Record<string, number>, usdtBalance: number) => {
+    // Always include USDT balance in the total
+    let total = usdtBalance;
+    
+    // Add value of all other assets
+    if (assets) {
+      Object.entries(assets).forEach(([symbol, data]) => {
+        if (symbol === 'USDT') return; // Skip USDT as it's already included in balance
+        const amount = data.amount || 0;
+        const price = prices[symbol] || 0;
+        const valueInUsdt = amount * price;
+        total += valueInUsdt;
+      });
+    }
+    
+    setTotalPortfolioValue(total);
+  };
 
   // Subscribe to user data (similar to AssetsPage)
   useEffect(() => {
@@ -47,30 +158,17 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         const parsedBalance = typeof userData.balance === 'string' ? parseFloat(userData.balance) : userData.balance;
         setBalance(parsedBalance || 0);
         setUserAssets(userData.assets || {});
-
+        
         // Calculate portfolio value only if prices are loaded
-        if (!isLoading && portfolio?.prices) {
-          const prices = portfolio.prices;
-          let total = parsedBalance || 0;
-
-          if (userData.assets) {
-            Object.entries(userData.assets).forEach(([symbol, data]) => {
-              if (symbol === 'USDT') return;
-              const amount = data.amount || 0;
-              const price = prices[symbol] || 0;
-              const valueInUsdt = amount * price;
-              total += valueInUsdt;
-            });
-          }
-
-          setTotalPortfolioValue(total);
+        if (pricesLoaded && Object.keys(assetPrices).length > 0) {
+          calculatePortfolioValue(userData.assets || {}, assetPrices, parsedBalance || 0);
           setDataReady(true);
         }
       }
     });
 
     return () => unsubscribe();
-  }, [isLoading, portfolio?.prices, isDemoMode]);
+  }, [assetPrices, pricesLoaded, isDemoMode]);
 
   // Demo mode handling
   if (isDemoMode) {
