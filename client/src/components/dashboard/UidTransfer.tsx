@@ -33,7 +33,15 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
     const fetchCurrentUserNumericalUid = async () => {
       if (currentUserId) {
         try {
-          const numericalUid = await NumericalUidService.getNumericalUid(currentUserId);
+          let numericalUid = await NumericalUidService.getNumericalUid(currentUserId);
+          
+          // If no UID exists, create one
+          if (!numericalUid) {
+            console.log('No numerical UID found for current user, creating one...');
+            numericalUid = await NumericalUidService.createNumericalUidMapping(currentUserId);
+            console.log('Created numerical UID:', numericalUid);
+          }
+          
           setCurrentUserNumericalUid(numericalUid);
         } catch (error) {
           console.error('Error fetching numerical UID:', error);
@@ -67,7 +75,9 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
         return;
       }
 
+      console.log('Validating numerical UID:', numericalUid);
       const userData = await NumericalUidService.getUserDataByNumericalUid(numericalUid);
+      console.log('User data result:', userData);
       
       if (userData) {
         setRecipientInfo({
@@ -715,6 +725,11 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
         </CardTitle>
         <CardDescription>
           Send funds directly to another user using their UID
+          {currentUserNumericalUid && (
+            <div className="mt-2 text-xs text-blue-400">
+              Your UID: {currentUserNumericalUid}
+            </div>
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
