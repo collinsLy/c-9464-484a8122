@@ -663,23 +663,35 @@ const WithdrawPage = () => {
       // Send email notification for withdrawal using Firebase Auth user
       try {
         const currentUser = auth.currentUser;
-        const idToken = await currentUser?.getIdToken();
         
-        if (idToken) {
+        if (currentUser?.email) {
+          const requestBody = {
+            email: currentUser.email,
+            username: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
+            type: 'withdrawal',
+            amount: amountValue
+          };
+          
+          console.log('Sending fiat withdrawal email:', requestBody);
+          
           const emailResponse = await fetch('/api/send-transaction-email', {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${idToken}`
+              'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-              type: 'withdrawal',
-              amount: amountValue
-            })
+            body: JSON.stringify(requestBody)
           });
 
-          if (!emailResponse.ok) {
-            console.error('Failed to send withdrawal email notification');
+          const emailResult = await emailResponse.json();
+          
+          if (emailResponse.ok && emailResult.success) {
+            console.log('Fiat withdrawal email sent successfully');
+            toast({
+              title: "Email Sent",
+              description: `Withdrawal confirmation email has been sent to ${currentUser.email}`,
+            });
+          } else {
+            console.error('Failed to send fiat withdrawal email:', emailResult);
           }
         }
       } catch (error) {
@@ -1133,17 +1145,23 @@ const WithdrawPage = () => {
 
                 if (currentUser?.email) {
                   console.log('Sending withdrawal email to Firebase Auth email:', currentUser.email);
+                  
+                  // Properly format the request body to match the API endpoint expectations
+                  const requestBody = {
+                    email: currentUser.email,
+                    username: currentUser.displayName || userData?.fullName || currentUser.email?.split('@')[0] || 'User',
+                    type: 'withdrawal',
+                    amount: estimatedUsdValue
+                  };
+                  
+                  console.log('Email request body:', requestBody);
+                  
                   const emailResponse = await fetch('/api/send-transaction-email', {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                      email: currentUser.email,
-                      username: currentUser.displayName || userData?.fullName || currentUser.email || 'User',
-                      type: 'withdrawal',
-                      amount: estimatedUsdValue,
-                    }),
+                    body: JSON.stringify(requestBody),
                   });
 
                   const emailResult = await emailResponse.json();
@@ -1157,9 +1175,10 @@ const WithdrawPage = () => {
                     });
                   } else {
                     console.error('Failed to send withdrawal email:', emailResult);
+                    console.error('Email response status:', emailResponse.status);
                     toast({
                       title: "Email Error",
-                      description: "Failed to send confirmation email. Please check your email settings.",
+                      description: `Failed to send confirmation email: ${emailResult.error || 'Unknown error'}`,
                       variant: "destructive",
                     });
                   }
