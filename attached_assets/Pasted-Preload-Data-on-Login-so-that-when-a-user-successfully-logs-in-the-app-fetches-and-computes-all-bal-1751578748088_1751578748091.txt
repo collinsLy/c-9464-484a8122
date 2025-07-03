@@ -1,0 +1,115 @@
+Preload Data on Login so that when a user successfully logs in, the app fetches and computes all balance and price data in advance — before rendering pages like dashboard or assets.
+
+✅ What You Need
+Authentication hook (e.g. from Firebase)
+
+A global data store (React Context or Zustand or even React state at App level)
+
+A preloadBalancesAndPrices function to compute and store everything
+
+✅ Step-by-Step Implementation
+✅ 1. Create Global Context (or Zustand) to Store Portfolio Data
+tsx
+Copy
+Edit
+// PortfolioContext.tsx
+import React, { createContext, useContext, useState } from 'react';
+
+const PortfolioContext = createContext(null);
+
+export const PortfolioProvider = ({ children }) => {
+  const [portfolio, setPortfolio] = useState(null);
+
+  return (
+    <PortfolioContext.Provider value={{ portfolio, setPortfolio }}>
+      {children}
+    </PortfolioContext.Provider>
+  );
+};
+
+export const usePortfolioContext = () => useContext(PortfolioContext);
+✅ 2. Wrap Your App with This Provider
+tsx
+Copy
+Edit
+// App.tsx or _app.tsx (Next.js)
+import { PortfolioProvider } from './context/PortfolioContext';
+
+function App({ Component, pageProps }) {
+  return (
+    <PortfolioProvider>
+      <Component {...pageProps} />
+    </PortfolioProvider>
+  );
+}
+✅ 3. Add Preload Logic After Login
+tsx
+Copy
+Edit
+// useAuth.tsx or inside App.tsx (wherever you track login)
+import { useEffect } from 'react';
+import { useAuth } from './useAuth'; // Firebase auth hook
+import { usePortfolioContext } from './context/PortfolioContext';
+import { fetchUserBalances, fetchPrices } from './api';
+
+export const usePreloadPortfolio = () => {
+  const { user } = useAuth();
+  const { setPortfolio } = usePortfolioContext();
+
+  useEffect(() => {
+    if (!user) return;
+
+    const preload = async () => {
+      const balances = await fetchUserBalances(user.uid); // [{symbol, amount}]
+      const prices = await fetchPrices(); // { BTC: 109000, ETH: 2500, ... }
+
+      const assets = balances.map(asset => {
+        const price = prices[asset.symbol] || 0;
+        return {
+          ...asset,
+          price,
+          value: price * asset.amount,
+        };
+      });
+
+      const totalValue = assets.reduce((sum, asset) => sum + asset.value, 0);
+      setPortfolio({ assets, totalValue });
+    };
+
+    preload();
+  }, [user]);
+};
+You can call this hook inside your main App or DashboardLayout:
+
+tsx
+Copy
+Edit
+usePreloadPortfolio();
+✅ 4. Use Preloaded Portfolio in Pages (e.g., AssetsPage.tsx)
+tsx
+Copy
+Edit
+import { usePortfolioContext } from '../context/PortfolioContext';
+
+export default function AssetsPage() {
+  const { portfolio } = usePortfolioContext();
+
+  if (!portfolio) return <div>Loading...</div>;
+
+  return (
+    <div>
+      <h2>Total Portfolio Value: {portfolio.totalValue.toFixed(2)} USDT</h2>
+      {portfolio.assets.map((asset, index) => (
+        <div key={index}>
+          {asset.symbol}: {asset.amount} × {asset.price} = {asset.value.toFixed(2)} USDT
+        </div>
+      ))}
+    </div>
+  );
+}
+🎯 Result:
+When a user logs in, all price and balance calculations happen immediately.
+
+All pages now just “read” from the context — no delay, no flicker.
+
+Portfolio info is ready before you even visit the assets page.
