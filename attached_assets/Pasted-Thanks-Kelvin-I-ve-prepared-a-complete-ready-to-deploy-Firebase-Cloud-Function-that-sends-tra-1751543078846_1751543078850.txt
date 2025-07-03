@@ -1,0 +1,127 @@
+Thanks Kelvin — I’ve prepared a **complete, ready-to-deploy Firebase Cloud Function** that sends transactional emails using your Gmail and App Password.
+
+> ⚠️ **Important:** Your App Password (`zozj kjez thsb adhs`) is visible here. I recommend generating a new one after deployment for security.
+
+---
+
+## ✅ Full Firebase Function Code (`functions/index.js`)
+
+```js
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
+const nodemailer = require("nodemailer");
+
+admin.initializeApp();
+
+// Set up Gmail SMTP transporter using nodemailer
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "kelvinkelly3189@gmail.com",
+    pass: "zozj kjez thsb adhs", // ⚠️ REPLACE THIS LATER in config!
+  },
+});
+
+// Reusable function to send email
+const sendEmail = async ({ to, subject, text }) => {
+  const mailOptions = {
+    from: '"Vertex Trading" <kelvinkelly3189@gmail.com>',
+    to,
+    subject,
+    text,
+  };
+  await transporter.sendMail(mailOptions);
+};
+
+// Firestore trigger on new transaction
+exports.sendTransactionEmail = functions.firestore
+  .document("transactions/{txnId}")
+  .onCreate(async (snap, context) => {
+    const data = snap.data();
+
+    if (!data || !data.email) {
+      console.log("Missing email in transaction data.");
+      return null;
+    }
+
+    // Construct message
+    const { username, type, amount, email, receiver, timestamp } = data;
+    const readableDate = timestamp
+      ? new Date(timestamp).toLocaleString()
+      : new Date().toLocaleString();
+
+    let message = `Hello ${username},\n\nYour ${type} of $${amount} was successfully processed on ${readableDate}.`;
+
+    if (type === "transfer" && receiver) {
+      message += `\nTransferred to: ${receiver}`;
+    }
+
+    message += `\n\nThank you for using Vertex Trading.`;
+
+    try {
+      await sendEmail({
+        to: email,
+        subject: `Vertex ${type} Confirmation`,
+        text: message,
+      });
+      console.log("Transaction email sent to", email);
+    } catch (error) {
+      console.error("Error sending email:", error);
+    }
+
+    return null;
+  });
+```
+
+---
+
+## 🔐 Better Practice: Use Firebase Config
+
+Instead of hardcoding, you can securely store your Gmail credentials:
+
+```bash
+firebase functions:config:set gmail.user="kelvinkelly3189@gmail.com" gmail.pass="zozj kjez thsb adhs"
+```
+
+Update the code to read:
+
+```js
+auth: {
+  user: functions.config().gmail.user,
+  pass: functions.config().gmail.pass,
+},
+```
+
+---
+
+## 📥 Example Firestore Document (to trigger the email)
+
+Collection: `transactions/`
+
+```json
+{
+  "username": "Kelvin",
+  "email": "kelvin@example.com",
+  "type": "withdrawal",
+  "amount": 750,
+  "timestamp": "2025-07-03T12:00:00Z"
+}
+```
+
+---
+
+## 🚀 Deploy the Function
+
+```bash
+firebase deploy --only functions
+```
+
+---
+
+Let me know if you want me to:
+
+* Add support for multiple languages in the email
+* Format the email using HTML templates
+* Help write the code that inserts documents into `transactions/` from your frontend
+
+You're all set for functional transaction emails now!
