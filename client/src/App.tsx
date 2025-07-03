@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { DashboardProvider } from "@/components/dashboard/DashboardLayout";
+import { PreloadProvider } from "@/contexts/PreloadContext";
 import { lazy, Suspense } from "react";
 
 // Lazy load main pages to improve initial loading
@@ -72,13 +73,14 @@ const queryClient = new QueryClient({
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <DashboardProvider>
-            <Suspense fallback={<LoadingComponent />}>
-              <Routes>
+      <PreloadProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <DashboardProvider>
+              <Suspense fallback={<LoadingComponent />}>
+                <Routes>
                 <Route path="/" element={<ErrorBoundary><Index /></ErrorBoundary>} />
                 <Route path="/dashboard" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
                 <Route path="/spot-markets" element={<ErrorBoundary><SpotMarketsPage /></ErrorBoundary>} />
@@ -115,11 +117,12 @@ const App = () => (
                 <Route path="/risk-analysis" element={<ErrorBoundary><RiskAnalysisPage /></ErrorBoundary>} />
                 <Route path="/ai-assistant" element={<ErrorBoundary><AITradingAssistantPage /></ErrorBoundary>} />
                 <Route path="/crypto-converter" element={<ErrorBoundary><CryptoConverterPage /></ErrorBoundary>} />
-              </Routes>
-            </Suspense>
-          </DashboardProvider>
-        </BrowserRouter>
-      </TooltipProvider>
+                </Routes>
+              </Suspense>
+            </DashboardProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </PreloadProvider>
     </QueryClientProvider>
   </ErrorBoundary>
 );
