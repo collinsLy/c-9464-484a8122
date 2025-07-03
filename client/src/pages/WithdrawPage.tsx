@@ -663,7 +663,7 @@ const WithdrawPage = () => {
       // Send email notification for withdrawal using Firebase Auth user
       try {
         const currentUser = auth.currentUser;
-        
+
         if (currentUser?.email) {
           const requestBody = {
             email: currentUser.email,
@@ -671,9 +671,9 @@ const WithdrawPage = () => {
             type: 'withdrawal',
             amount: amountValue
           };
-          
+
           console.log('Sending fiat withdrawal email:', requestBody);
-          
+
           const emailResponse = await fetch('/api/send-transaction-email', {
             method: 'POST',
             headers: {
@@ -683,7 +683,7 @@ const WithdrawPage = () => {
           });
 
           const emailResult = await emailResponse.json();
-          
+
           if (emailResponse.ok && emailResult.success) {
             console.log('Fiat withdrawal email sent successfully');
             toast({
@@ -1130,12 +1130,12 @@ const WithdrawPage = () => {
               await UserService.updateUserData(uid, { 
                 transactions: finalTransactions 
               });
-              
+
               // Send email notification for withdrawal using Firebase Auth user
               try {
                 const { auth } = await import('@/lib/firebase');
                 const currentUser = auth.currentUser;
-                
+
                 console.log('Checking Firebase Auth user for email:', {
                   userId: currentUser?.uid,
                   email: currentUser?.email,
@@ -1145,7 +1145,7 @@ const WithdrawPage = () => {
 
                 if (currentUser?.email) {
                   console.log('Sending withdrawal email to Firebase Auth email:', currentUser.email);
-                  
+
                   // Properly format the request body to match the API endpoint expectations
                   const requestBody = {
                     email: currentUser.email,
@@ -1153,9 +1153,9 @@ const WithdrawPage = () => {
                     type: 'withdrawal',
                     amount: estimatedUsdValue
                   };
-                  
+
                   console.log('Email request body:', requestBody);
-                  
+
                   const emailResponse = await fetch('/api/send-transaction-email', {
                     method: 'POST',
                     headers: {
@@ -1810,8 +1810,7 @@ const WithdrawPage = () => {
                           step="0.00000001"
                           className={`bg-background/40 border-white/10 text-white pr-16 ${
                             cryptoAmount && parseFloat(cryptoAmount) > (userCryptoBalances[selectedCrypto] || 0) 
-                              ? 'border-red-500 focus-visible:ring-red-500' 
-                              : ''
+                              ? 'border-red-500 focus-visible:ring-red-500' : ''
                           }`}
                           placeholder="0.00"
                         />
@@ -1862,7 +1861,7 @@ const WithdrawPage = () => {
 
                     <Button 
                       className="w-full bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34] h-12 text-lg mt-4"
-                      onClick={handleWithdraw}
+                      onClick={handleCryptoWithdraw}
                       disabled={
                         !walletAddress || 
                         !isValidWalletAddress(walletAddress, selectedCrypto, network) ||
