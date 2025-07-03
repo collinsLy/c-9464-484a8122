@@ -14,10 +14,16 @@ const NumericalUidDisplay = () => {
     const fetchNumericalUid = async () => {
       if (auth.currentUser?.uid) {
         try {
-          const uid = await NumericalUidService.getNumericalUid(auth.currentUser.uid);
+          let uid = await NumericalUidService.getNumericalUid(auth.currentUser.uid);
+          
+          // If no UID exists, create one
+          if (!uid) {
+            uid = await NumericalUidService.createNumericalUidMapping(auth.currentUser.uid);
+          }
+          
           setNumericalUid(uid);
         } catch (error) {
-          console.error('Error fetching numerical UID:', error);
+          console.error('Error fetching/creating numerical UID:', error);
         } finally {
           setLoading(false);
         }

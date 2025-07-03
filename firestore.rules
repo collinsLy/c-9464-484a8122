@@ -150,6 +150,16 @@ service cloud.firestore {
       allow delete: if isOwner(userId);
     }
 
+    // UID mappings for numerical UID system
+    match /uid_mappings/{firebaseUid} {
+      allow read, write: if isAuthenticated() && request.auth.uid == firebaseUid;
+    }
+    
+    match /numerical_uid_mappings/{numericalUid} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
     // Allow authenticated users to read and write their own data (fallback rule)
     match /{document=**} {
       allow read, write: if request.auth != null;
