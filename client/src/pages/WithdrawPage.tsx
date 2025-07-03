@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {auth} from "@/lib/firebase"; // Assuming firebase auth is imported here
 import QRCodeScanner from '@/components/QRCodeScanner'; // Added import for QRCodeScanner
+import { NumericalUidService } from '@/lib/numerical-uid-service';
 
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 
@@ -81,19 +82,30 @@ const WithdrawPage = () => {
       return;
     }
 
-    // Check if trying to send to self
-    if (recipientUid === userUid) {
-      setUidValidationError("You cannot send funds to yourself");
-      setRecipientData(null);
-      return;
-    }
-
     setIsValidatingUid(true);
     setUidValidationError("");
 
     try {
-      // Check if recipient exists
-      const userData = await UserService.getUserData(recipientUid);
+      const numericalUid = parseInt(recipientUid.trim());
+      
+      if (isNaN(numericalUid)) {
+        setUidValidationError("Please enter a valid numerical UID");
+        setRecipientData(null);
+        setIsValidatingUid(false);
+        return;
+      }
+
+      // Get current user's numerical UID to check if trying to send to self
+      const currentUserNumericalUid = await NumericalUidService.getNumericalUid(userUid);
+      if (numericalUid === currentUserNumericalUid) {
+        setUidValidationError("You cannot send funds to yourself");
+        setRecipientData(null);
+        setIsValidatingUid(false);
+        return;
+      }
+
+      // Convert numerical UID to Firebase UID and get user data
+      const userData = await NumericalUidService.getUserDataByNumericalUid(numericalUid);
 
       if (!userData) {
         setUidValidationError("No user found with this UID");
@@ -217,7 +229,16 @@ const WithdrawPage = () => {
 
       // Get fresh data before proceeding
       const senderData = await UserService.getUserData(uid);
-      const recipientDataFresh = await UserService.getUserData(recipientUid);
+      
+      // Convert numerical UID to Firebase UID
+      const numericalUid = parseInt(recipientUid.trim());
+      const recipientFirebaseUid = await NumericalUidService.getFirebaseUidFromNumerical(numericalUid);
+      
+      if (!recipientFirebaseUid) {
+        throw new Error("Could not find recipient with that UID");
+      }
+      
+      const recipientDataFresh = await UserService.getUserData(recipientFirebaseUid);
 
       if (!senderData || !recipientDataFresh) {
         throw new Error("Could not retrieve user data");
@@ -328,7 +349,7 @@ const WithdrawPage = () => {
       });
 
       // Update recipient data
-      await UserService.updateUserData(recipientUid, {
+      await UserService.updateUserData(recipientFirebaseUid, {
         assets: updatedRecipientAssets,
         transactions: arrayUnion(recipientTransaction)
       });
