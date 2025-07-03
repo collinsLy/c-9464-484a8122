@@ -7,7 +7,7 @@ const testEmailService = async () => {
   
   try {
     // Create transporter with your Gmail credentials
-    const transporter = nodemailer.createTransporter({
+    const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: 'kelvinkelly3189@gmail.com',
