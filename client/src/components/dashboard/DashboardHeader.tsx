@@ -45,8 +45,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
         // Subscribe to notifications collection with error handling
         const notificationsQuery = query(
           collection(db, 'p2pNotifications'),
-          where('userId', '==', uid),
-          orderBy('createdAt', 'desc')
+          where('userId', '==', uid)
         );
         
         unsubscribeNotifications = onSnapshot(notificationsQuery, (snapshot) => {
@@ -57,7 +56,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
               message: doc.data().message || doc.data().title || 'New notification',
               time: doc.data().createdAt || new Date().toISOString(),
               read: doc.data().read || false
-            }));
+            })).sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
             
             // Set notifications or fallback to welcome notification
             if (notificationsList.length > 0) {

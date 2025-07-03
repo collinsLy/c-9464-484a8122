@@ -1095,7 +1095,15 @@ const WithdrawPage = () => {
               
               // Send email notification for withdrawal
               try {
+                console.log('Checking email data for withdrawal notification:', {
+                  hasEmail: !!userData?.email,
+                  email: userData?.email,
+                  username: userData?.fullName || userData.email || 'User',
+                  amount: estimatedUsdValue
+                });
+
                 if (userData?.email) {
+                  console.log('Sending withdrawal email to:', userData.email);
                   const emailResponse = await fetch('/api/send-transaction-email', {
                     method: 'POST',
                     headers: {
@@ -1109,14 +1117,38 @@ const WithdrawPage = () => {
                     }),
                   });
 
-                  if (emailResponse.ok) {
-                    console.log('Withdrawal email sent successfully');
+                  const emailResult = await emailResponse.json();
+                  console.log('Email API response:', emailResult);
+
+                  if (emailResponse.ok && emailResult.success) {
+                    console.log('Withdrawal email sent successfully:', emailResult.messageId);
+                    toast({
+                      title: "Email Sent",
+                      description: "Withdrawal confirmation email has been sent to your email address.",
+                    });
                   } else {
-                    console.error('Failed to send withdrawal email');
+                    console.error('Failed to send withdrawal email:', emailResult);
+                    toast({
+                      title: "Email Error",
+                      description: "Failed to send confirmation email. Please check your email settings.",
+                      variant: "destructive",
+                    });
                   }
+                } else {
+                  console.log('No email address found in user data');
+                  toast({
+                    title: "Email Not Found",
+                    description: "Please add an email address to your profile to receive transaction confirmations.",
+                    variant: "destructive",
+                  });
                 }
               } catch (error) {
                 console.error('Error sending withdrawal email:', error);
+                toast({
+                  title: "Email Error",
+                  description: "An error occurred while sending the confirmation email.",
+                  variant: "destructive",
+                });
               }
 
               toast({
