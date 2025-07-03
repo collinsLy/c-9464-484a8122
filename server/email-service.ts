@@ -464,40 +464,6 @@ export class EmailService {
       </body>
       </html>
     `;
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>${this.brandName} - ${title}</title>
-          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-          <style>
-              :root {
-                  --primary-color: #008080;
-                  --primary-light: #20b2aa;
-                  --primary-dark: #006666;
-                  --accent-color: #f2ff44;
-                  --text-primary: #181a20;
-                  --text-secondary: #474d57;
-                  --text-muted: #707a8a;
-                  --background: #f7f8fa;
-                  --surface: #ffffff;
-                  --surface-secondary: #f8fffe;
-                  --border: #eaecef;
-                  --border-light: #f1f4f6;
-                  --success: #10b981;
-                  --warning: #f59e0b;
-                  --error: #ef4444;
-                  --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-                  --radius: 12px;
-                  --radius-lg: 16px;
-              }
-
-              * {
-                  margin: 0;
-                  padding: 0;
-                  box-sizing: border-box;
-              }
-              
-              body {
-                  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                   line-height: 1.6;
                   color: var(--text-primary);
                   background: var(--background);
