@@ -98,6 +98,372 @@ export class EmailService {
       <!DOCTYPE html>
       <html lang="en">
       <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="color-scheme" content="light dark">
+        <meta name="supported-color-schemes" content="light dark">
+        <title>${title}</title>
+        <style>
+          /* Reset and Base Styles */
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #ffffff;
+            background: #0a0a0a;
+          }
+          
+          /* Email Container */
+          .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+          }
+          
+          /* Header Section */
+          .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+          }
+          
+          .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 3s ease-in-out infinite;
+          }
+          
+          @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+          }
+          
+          .logo {
+            font-size: 32px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 10px;
+            text-shadow: 
+              0 0 10px rgba(255, 255, 255, 0.5),
+              0 0 20px rgba(102, 126, 234, 0.5),
+              0 0 30px rgba(102, 126, 234, 0.3);
+            position: relative;
+            z-index: 1;
+          }
+          
+          .status-badge {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            padding: 8px 20px;
+            display: inline-block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            position: relative;
+            z-index: 1;
+          }
+          
+          /* Content Section */
+          .content {
+            padding: 40px 30px;
+            background: #1a1a1a;
+            position: relative;
+          }
+          
+          .content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.5), transparent);
+          }
+          
+          .greeting {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+          }
+          
+          .message {
+            font-size: 16px;
+            color: #b3b3b3;
+            margin-bottom: 30px;
+            line-height: 1.8;
+          }
+          
+          /* Transaction Details Card */
+          .transaction-card {
+            background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+              0 10px 30px rgba(0, 0, 0, 0.3),
+              0 0 20px rgba(102, 126, 234, 0.1);
+          }
+          
+          .transaction-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+            background-size: 200% 100%;
+            animation: shimmer 2s linear infinite;
+          }
+          
+          @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+          }
+          
+          .transaction-icon {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+          }
+          
+          .transaction-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+          }
+          
+          .transaction-amount {
+            font-size: 32px;
+            font-weight: 800;
+            color: #00ff88;
+            text-shadow: 
+              0 0 10px rgba(0, 255, 136, 0.5),
+              0 0 20px rgba(0, 255, 136, 0.3);
+            margin-bottom: 15px;
+          }
+          
+          /* Glow Button */
+          .glow-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            text-decoration: none;
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 700;
+            text-align: center;
+            box-shadow: 
+              0 0 20px rgba(102, 126, 234, 0.4),
+              0 0 40px rgba(102, 126, 234, 0.2),
+              0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+          }
+          
+          .glow-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+          }
+          
+          .glow-button:hover::before {
+            left: 100%;
+          }
+          
+          .glow-button:hover {
+            box-shadow: 
+              0 0 30px rgba(102, 126, 234, 0.6),
+              0 0 60px rgba(102, 126, 234, 0.4),
+              0 15px 40px rgba(0, 0, 0, 0.4);
+            transform: translateY(-2px);
+          }
+          
+          .button-container {
+            text-align: center;
+            margin: 30px 0;
+          }
+          
+          /* Security Notice */
+          .security-notice {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 25px 0;
+            color: #ffc107;
+            font-size: 14px;
+            box-shadow: 0 0 15px rgba(255, 193, 7, 0.1);
+          }
+          
+          .security-notice strong {
+            color: #ffffff;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+          }
+          
+          /* Footer */
+          .footer {
+            background: #0a0a0a;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid rgba(102, 126, 234, 0.2);
+          }
+          
+          .footer-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+          }
+          
+          .footer-links {
+            margin-bottom: 20px;
+          }
+          
+          .footer-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+          }
+          
+          .footer-links a:hover {
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+          }
+          
+          .copyright {
+            font-size: 12px;
+            color: #444;
+            margin-top: 20px;
+          }
+          
+          /* Responsive Design */
+          @media (max-width: 600px) {
+            .email-container {
+              margin: 0 10px;
+            }
+            
+            .header,
+            .content,
+            .footer {
+              padding: 25px 20px;
+            }
+            
+            .logo {
+              font-size: 28px;
+            }
+            
+            .greeting {
+              font-size: 20px;
+            }
+            
+            .transaction-amount {
+              font-size: 24px;
+            }
+            
+            .glow-button {
+              padding: 16px 30px;
+              font-size: 14px;
+            }
+          }
+          
+          /* Dark Mode Enhancements */
+          @media (prefers-color-scheme: dark) {
+            .email-container {
+              background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            }
+            
+            .content {
+              background: #1a1a1a;
+            }
+            
+            .footer {
+              background: #0a0a0a;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="email-container">
+          <!-- Header Section -->
+          <div class="header">
+            <div class="logo">VERTEX TRADING</div>
+            <div class="status-badge">${statusIcon} ${transactionType.toUpperCase()}</div>
+          </div>
+          
+          <!-- Content Section -->
+          <div class="content">
+            <h1 class="greeting">Hello ${username}!</h1>
+            <p class="message">${message}</p>
+            
+            <!-- Transaction Card -->
+            <div class="transaction-card">
+              <div class="transaction-icon">${statusIcon}</div>
+              <div class="transaction-title">${title}</div>
+              <div class="transaction-amount">Transaction Confirmed</div>
+            </div>
+            
+            <!-- Action Button -->
+            <div class="button-container">
+              <a href="#" class="glow-button">${buttonText}</a>
+            </div>
+            
+            <!-- Security Notice -->
+            <div class="security-notice">
+              <strong>Security Notice:</strong> This email contains sensitive transaction information. 
+              Please verify all details and contact support if you notice any discrepancies.
+            </div>
+          </div>
+          
+          <!-- Footer Section -->
+          <div class="footer">
+            <p class="footer-text">Stay connected with Vertex Trading</p>
+            <div class="footer-links">
+              <a href="#">Dashboard</a>
+              <a href="#">Support</a>
+              <a href="#">Settings</a>
+            </div>
+            <p class="copyright">© ${currentYear} Vertex Trading. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>${this.brandName} - ${title}</title>
