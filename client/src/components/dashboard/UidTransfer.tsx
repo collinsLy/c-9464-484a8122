@@ -468,14 +468,15 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
         console.error("Error creating notification:", error);
       }
 
-      // Send email notification for transfer
+      // Send email notification to both sender and receiver
       try {
         const { auth } = await import('@/lib/firebase');
         const currentUser = auth.currentUser;
         
+        // Send email to sender
         if (currentUser?.email) {
           console.log('Sending transfer email to sender:', currentUser.email);
-          const emailResponse = await fetch('/api/send-transaction-email', {
+          const senderEmailResponse = await fetch('/api/send-transaction-email', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -485,18 +486,42 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
               username: currentUser.displayName || 'User',
               type: 'transfer',
               amount: transferAmount * (assetPrices[selectedCrypto] || 1),
-              receiver: recipientData.fullName || 'User'
+              receiver: recipientData.fullName || recipientData.email || 'User'
             }),
           });
 
-          if (emailResponse.ok) {
-            console.log('Transfer email sent successfully');
+          if (senderEmailResponse.ok) {
+            console.log('Transfer email sent successfully to sender');
           } else {
-            console.error('Failed to send transfer email');
+            console.error('Failed to send transfer email to sender');
+          }
+        }
+
+        // Send email to receiver if they have an email
+        if (recipientData.email) {
+          console.log('Sending transfer email to receiver:', recipientData.email);
+          const receiverEmailResponse = await fetch('/api/send-transaction-email', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: recipientData.email,
+              username: recipientData.fullName || 'User',
+              type: 'transfer',
+              amount: transferAmount * (assetPrices[selectedCrypto] || 1),
+              receiver: currentUser?.displayName || currentUser?.email || 'User'
+            }),
+          });
+
+          if (receiverEmailResponse.ok) {
+            console.log('Transfer email sent successfully to receiver');
+          } else {
+            console.error('Failed to send transfer email to receiver');
           }
         }
       } catch (error) {
-        console.error('Error sending transfer email:', error);
+        console.error('Error sending transfer emails:', error);
       }
 
       // Show success message

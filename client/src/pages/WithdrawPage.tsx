@@ -339,6 +339,61 @@ const WithdrawPage = () => {
         [selectedCrypto]: newSenderBalance
       }));
 
+      // Send email notifications to both sender and receiver
+      try {
+        const currentUser = auth.currentUser;
+        
+        // Send email to sender
+        if (currentUser?.email) {
+          console.log('Sending transfer email to sender:', currentUser.email);
+          const senderEmailResponse = await fetch('/api/send-transaction-email', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: currentUser.email,
+              username: currentUser.displayName || senderData.fullName || 'User',
+              type: 'transfer',
+              amount: estimatedUsdValue,
+              receiver: recipientDataFresh.fullName || recipientDataFresh.email || 'User'
+            }),
+          });
+
+          if (senderEmailResponse.ok) {
+            console.log('Transfer email sent successfully to sender');
+          } else {
+            console.error('Failed to send transfer email to sender');
+          }
+        }
+
+        // Send email to receiver if they have an email
+        if (recipientDataFresh.email) {
+          console.log('Sending transfer email to receiver:', recipientDataFresh.email);
+          const receiverEmailResponse = await fetch('/api/send-transaction-email', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: recipientDataFresh.email,
+              username: recipientDataFresh.fullName || 'User',
+              type: 'transfer',
+              amount: estimatedUsdValue,
+              receiver: currentUser?.displayName || senderData.fullName || currentUser?.email || 'User'
+            }),
+          });
+
+          if (receiverEmailResponse.ok) {
+            console.log('Transfer email sent successfully to receiver');
+          } else {
+            console.error('Failed to send transfer email to receiver');
+          }
+        }
+      } catch (error) {
+        console.error('Error sending transfer emails:', error);
+      }
+
       // Show success message and close confirmation dialog
       setIsConfirmDialogOpen(false);
       setIsTransferSuccessDialogOpen(true);

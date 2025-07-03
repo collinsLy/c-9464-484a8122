@@ -4,6 +4,11 @@
 A comprehensive cryptocurrency trading platform migrated from Lovable to Replit environment. The platform includes trading features for spot, futures, P2P, automated trading bots, market analysis, and user management.
 
 ## Recent Changes
+- **2025-01-03**: Changed email template background from dark theme to white background for better readability
+- **2025-01-03**: Updated logo to use user's custom V-Systems logo (orange V design) instead of default logo
+- **2025-01-03**: Applied new white theme color scheme (#ffffff background, #ff7a00 orange accents)
+- **2025-01-03**: Fixed transfer email notifications to send to both sender and receiver
+- **2025-01-03**: Updated both UidTransfer component and WithdrawPage to send emails to both parties in transfers
 - **2025-01-03**: Successfully implemented modern email template design based on vertex-email-glow reference repository
 - **2025-01-03**: Updated email templates with clean card-based layout using HSL color scheme (dark theme)
 - **2025-01-03**: Implemented professional header with V-Systems logo and brand name

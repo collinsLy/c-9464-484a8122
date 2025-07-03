@@ -102,75 +102,75 @@ export class EmailService {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>${title}</title>
       </head>
-      <body style="background-color: hsl(215, 25%, 8%); color: hsl(0, 0%, 100%); font-family: Arial, sans-serif; margin: 0; padding: 40px 20px; min-height: 100vh;">
-        <div style="max-width: 600px; margin: 0 auto; background-color: hsl(215, 20%, 12%); border-radius: 12px; overflow: hidden; border: 1px solid hsl(215, 15%, 20%);">
+      <body style="background-color: #f5f5f5; color: #333333; font-family: Arial, sans-serif; margin: 0; padding: 40px 20px; min-height: 100vh;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
           
           <!-- Header -->
-          <div style="padding: 30px; border-bottom: 1px solid hsl(215, 15%, 20%); display: flex; align-items: center; gap: 15px;">
-            <img src="https://cryptologos.cc/logos/v-systems-vsys-logo.svg?v=040" alt="Vertex Trading Logo" style="height: 40px; width: auto;" />
-            <h1 style="margin: 0; font-size: 24px; font-weight: bold; color: hsl(0, 0%, 100%);">${this.brandName}</h1>
+          <div style="padding: 30px; border-bottom: 1px solid #e0e0e0; text-align: center;">
+            <img src="https://vertex-trading.replit.app/attached_assets/v-systems-vsys-logo-removebg-preview_1751572641756.png" alt="Vertex Trading Logo" style="height: 50px; width: auto; margin-bottom: 15px;" />
+            <h1 style="margin: 0; font-size: 24px; font-weight: bold; color: #1a1a1a;">${this.brandName}</h1>
           </div>
           
           <!-- Content -->
           <div style="padding: 30px;">
-            <h2 style="margin: 0 0 20px 0; font-size: 28px; font-weight: bold; color: hsl(0, 0%, 100%);">${title}</h2>
+            <h2 style="margin: 0 0 20px 0; font-size: 28px; font-weight: bold; color: #1a1a1a;">${title}</h2>
             
-            <p style="margin: 0 0 30px 0; font-size: 16px; color: hsl(0, 0%, 70%); line-height: 1.6;">Dear ${username},</p>
+            <p style="margin: 0 0 30px 0; font-size: 16px; color: #555555; line-height: 1.6;">Dear ${username},</p>
             
-            <p style="margin: 0 0 30px 0; font-size: 16px; color: hsl(0, 0%, 70%); line-height: 1.6;">${message}</p>
+            <p style="margin: 0 0 30px 0; font-size: 16px; color: #555555; line-height: 1.6;">${message}</p>
             
             <!-- Status Badge -->
-            <div style="display: inline-block; padding: 8px 16px; background-color: hsl(120, 60%, 50%); color: hsl(0, 0%, 100%); border-radius: 20px; font-size: 14px; font-weight: bold; margin-bottom: 30px;">
+            <div style="display: inline-block; padding: 8px 16px; background-color: #4caf50; color: #ffffff; border-radius: 20px; font-size: 14px; font-weight: bold; margin-bottom: 30px;">
               COMPLETED
             </div>
             
             <!-- Transaction Details -->
-            <div style="background-color: hsl(215, 15%, 18%); border: 1px solid hsl(215, 15%, 20%); border-radius: 8px; padding: 25px; margin-bottom: 30px;">
-              <h3 style="margin: 0 0 20px 0; font-size: 18px; color: hsl(60, 100%, 50%); font-weight: bold;">Transaction Details</h3>
+            <div style="background-color: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px; padding: 25px; margin-bottom: 30px;">
+              <h3 style="margin: 0 0 20px 0; font-size: 18px; color: #ff7a00; font-weight: bold;">Transaction Details</h3>
               
               <table style="width: 100%; border-collapse: collapse;">
                 <tr>
-                  <td style="padding: 10px 0; font-size: 14px; color: hsl(0, 0%, 70%); border-bottom: 1px solid hsl(215, 15%, 25%);">Transaction ID:</td>
-                  <td style="padding: 10px 0; font-size: 14px; color: hsl(0, 0%, 100%); text-align: right; font-family: monospace; border-bottom: 1px solid hsl(215, 15%, 25%);">VTX-${Date.now()}</td>
+                  <td style="padding: 10px 0; font-size: 14px; color: #666666; border-bottom: 1px solid #e0e0e0;">Transaction ID:</td>
+                  <td style="padding: 10px 0; font-size: 14px; color: #1a1a1a; text-align: right; font-family: monospace; border-bottom: 1px solid #e0e0e0;">VTX-${Date.now()}</td>
                 </tr>
                 <tr>
-                  <td style="padding: 10px 0; font-size: 14px; color: hsl(0, 0%, 70%); border-bottom: 1px solid hsl(215, 15%, 25%);">Type:</td>
-                  <td style="padding: 10px 0; font-size: 14px; color: hsl(0, 0%, 100%); text-align: right; font-family: monospace; border-bottom: 1px solid hsl(215, 15%, 25%); text-transform: capitalize;">${transactionType}</td>
+                  <td style="padding: 10px 0; font-size: 14px; color: #666666; border-bottom: 1px solid #e0e0e0;">Type:</td>
+                  <td style="padding: 10px 0; font-size: 14px; color: #1a1a1a; text-align: right; font-family: monospace; border-bottom: 1px solid #e0e0e0; text-transform: capitalize;">${transactionType}</td>
                 </tr>
                 ${amount ? `
                 <tr>
-                  <td style="padding: 10px 0; font-size: 14px; color: hsl(0, 0%, 70%); border-bottom: 1px solid hsl(215, 15%, 25%);">Amount:</td>
-                  <td style="padding: 10px 0; font-size: 14px; color: hsl(60, 100%, 50%); text-align: right; font-family: monospace; border-bottom: 1px solid hsl(215, 15%, 25%); font-weight: bold;">$${amount.toLocaleString()}</td>
+                  <td style="padding: 10px 0; font-size: 14px; color: #666666; border-bottom: 1px solid #e0e0e0;">Amount:</td>
+                  <td style="padding: 10px 0; font-size: 14px; color: #ff7a00; text-align: right; font-family: monospace; border-bottom: 1px solid #e0e0e0; font-weight: bold;">$${amount.toLocaleString()}</td>
                 </tr>
                 ` : ''}
                 <tr>
-                  <td style="padding: 10px 0; font-size: 14px; color: hsl(0, 0%, 70%); border-bottom: 1px solid hsl(215, 15%, 25%);">Status:</td>
-                  <td style="padding: 10px 0; font-size: 14px; color: hsl(120, 60%, 50%); text-align: right; font-family: monospace; border-bottom: 1px solid hsl(215, 15%, 25%); font-weight: bold;">Completed</td>
+                  <td style="padding: 10px 0; font-size: 14px; color: #666666; border-bottom: 1px solid #e0e0e0;">Status:</td>
+                  <td style="padding: 10px 0; font-size: 14px; color: #4caf50; text-align: right; font-family: monospace; border-bottom: 1px solid #e0e0e0; font-weight: bold;">Completed</td>
                 </tr>
                 <tr>
-                  <td style="padding: 15px 0 5px 0; font-size: 16px; color: hsl(60, 100%, 50%); font-weight: bold;">Timestamp:</td>
-                  <td style="padding: 15px 0 5px 0; font-size: 16px; color: hsl(60, 100%, 50%); text-align: right; font-family: monospace; font-weight: bold;">${new Date().toLocaleString()}</td>
+                  <td style="padding: 15px 0 5px 0; font-size: 16px; color: #1a1a1a; font-weight: bold;">Timestamp:</td>
+                  <td style="padding: 15px 0 5px 0; font-size: 16px; color: #1a1a1a; text-align: right; font-family: monospace; font-weight: bold;">${new Date().toLocaleString()}</td>
                 </tr>
               </table>
             </div>
             
-            <p style="margin: 30px 0 0 0; font-size: 16px; color: hsl(0, 0%, 70%); line-height: 1.6;">
+            <p style="margin: 30px 0 0 0; font-size: 16px; color: #555555; line-height: 1.6;">
               Thank you for choosing ${this.brandName}. Your transaction has been processed successfully.
             </p>
             
             <!-- CTA Button -->
             <div style="text-align: center; margin-top: 30px;">
-              <a href="#" style="display: inline-block; padding: 15px 30px; background-color: hsl(60, 100%, 50%); color: hsl(215, 25%, 8%); text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">${buttonText}</a>
+              <a href="https://vertex-trading.replit.app" style="display: inline-block; padding: 15px 30px; background: linear-gradient(135deg, #ff7a00 0%, #ff9a40 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 12px rgba(255, 122, 0, 0.3);">${buttonText}</a>
             </div>
           </div>
           
           <!-- Footer -->
-          <div style="padding: 30px; border-top: 1px solid hsl(215, 15%, 20%); background-color: hsl(215, 15%, 15%); text-align: center;">
-            <p style="margin: 0 0 15px 0; font-size: 14px; color: hsl(0, 0%, 70%); line-height: 1.5;">
+          <div style="padding: 30px; border-top: 1px solid #e0e0e0; background-color: #f9f9f9; text-align: center;">
+            <p style="margin: 0 0 15px 0; font-size: 14px; color: #666666; line-height: 1.5;">
               This email was sent by ${this.brandName}. For support, please contact us at 
-              <a href="mailto:support@vertextrading.com" style="color: hsl(60, 100%, 50%); text-decoration: none;">support@vertextrading.com</a>
+              <a href="mailto:support@vertextrading.com" style="color: #ff7a00; text-decoration: none;">support@vertextrading.com</a>
             </p>
-            <p style="margin: 0; font-size: 12px; color: hsl(0, 0%, 50%);">© ${currentYear} ${this.brandName}. All rights reserved.</p>
+            <p style="margin: 0; font-size: 12px; color: #999999;">© ${currentYear} ${this.brandName}. All rights reserved.</p>
           </div>
         </div>
       </body>
