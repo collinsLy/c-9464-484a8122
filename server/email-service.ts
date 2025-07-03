@@ -92,7 +92,8 @@ export class EmailService {
     buttonText: string,
     transactionType: TransactionType,
     amount?: number,
-    currency?: string
+    currency?: string,
+    isReceiver?: boolean
   ): string {
     const statusIcon = this.getStatusIcon(transactionType);
     const currentYear = new Date().getFullYear();
@@ -124,7 +125,7 @@ export class EmailService {
             
             <!-- Status Badge -->
             <div style="display: inline-block; padding: 8px 16px; background-color: #4caf50; color: #ffffff; border-radius: 20px; font-size: 14px; font-weight: bold; margin-bottom: 30px;">
-              COMPLETED
+              ${transactionType === 'transfer' && isReceiver ? 'FUNDS RECEIVED' : 'COMPLETED'}
             </div>
             
             <!-- Transaction Details -->
@@ -138,7 +139,7 @@ export class EmailService {
                 </tr>
                 <tr>
                   <td style="padding: 10px 0; font-size: 14px; color: #666666; border-bottom: 1px solid #e0e0e0;">Type:</td>
-                  <td style="padding: 10px 0; font-size: 14px; color: #1a1a1a; text-align: right; font-family: monospace; border-bottom: 1px solid #e0e0e0; text-transform: capitalize;">${transactionType}</td>
+                  <td style="padding: 10px 0; font-size: 14px; color: #1a1a1a; text-align: right; font-family: monospace; border-bottom: 1px solid #e0e0e0; text-transform: capitalize;">${transactionType === 'transfer' ? (isReceiver ? 'Transfer Received' : 'Transfer Sent') : transactionType}</td>
                 </tr>
                 ${amount ? `
                 <tr>
@@ -207,11 +208,13 @@ export class EmailService {
         transactionType: 'deposit' as const,
       },
       transfer: {
-        subject: `${this.brandName} Transfer ${isReceiver ? 'Received' : 'Confirmation'}`,
+        subject: isReceiver 
+          ? `${this.brandName} - Funds Received`
+          : `${this.brandName} - Transfer Sent Successfully`,
         message: isReceiver 
-          ? `You have received ${amount.toLocaleString()} ${currency} from ${receiver}. The funds are now available in your ${this.brandName} account.`
-          : `Your transfer of ${amount.toLocaleString()} ${currency} to ${receiver} has been successfully completed and processed.`,
-        buttonText: isReceiver ? 'View Balance' : 'View Transfer Details',
+          ? `Great news! You have received ${amount.toLocaleString()} ${currency} from ${receiver}. The funds have been added to your ${this.brandName} account and are available for immediate use.`
+          : `Your transfer of ${amount.toLocaleString()} ${currency} to ${receiver} has been successfully completed. The funds have been deducted from your account and transferred to the recipient.`,
+        buttonText: isReceiver ? 'View Your Balance' : 'View Transfer History',
         transactionType: 'transfer' as const,
       },
       conversion: {
@@ -230,7 +233,8 @@ export class EmailService {
       template.buttonText,
       template.transactionType,
       amount,
-      currency
+      currency,
+      isReceiver
     );
 
     return {
