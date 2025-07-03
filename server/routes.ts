@@ -10,10 +10,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/send-transaction-email", async (req, res) => {
     try {
       const { to, email, username, type, amount, currency, receiver, fromCurrency, toCurrency, conversionRate } = req.body;
-      
+
       // Support both 'to' and 'email' for the recipient field
       const recipientEmail = to || email;
-      
+
       if (!recipientEmail || !username || !type || !amount || !currency) {
         return res.status(400).json({ 
           success: false, 
@@ -32,7 +32,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         toCurrency,
         conversionRate
       });
-      
+
       res.json(result);
     } catch (error) {
       console.error("Transaction email error:", error);
@@ -63,10 +63,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/send-welcome-email", async (req, res) => {
     try {
       const { to, email, username } = req.body;
-      
+
       // Support both 'to' and 'email' for the recipient field
       const recipientEmail = to || email;
-      
+
       if (!recipientEmail || !username) {
         return res.status(400).json({ 
           success: false, 
@@ -108,9 +108,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { endpoint } = req.params;
       const queryString = new URLSearchParams(req.query as any).toString();
       const url = `https://api.binance.com/api/v3/${endpoint}${queryString ? `?${queryString}` : ''}`;
-      
+
       console.log(`Proxying request to: ${url}`);
-      
+
       const response = await fetch(url, {
         headers: {
           'Accept': 'application/json',

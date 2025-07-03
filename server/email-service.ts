@@ -142,7 +142,7 @@ export class EmailService {
                 ${amount ? `
                 <tr>
                   <td style="padding: 10px 0; font-size: 14px; color: #666666; border-bottom: 1px solid #e0e0e0;">Amount:</td>
-                  <td style="padding: 10px 0; font-size: 14px; color: #ff7a00; text-align: right; font-family: monospace; border-bottom: 1px solid #e0e0e0; font-weight: bold;">${amount.toLocaleString()} ${currency || ''}</td>
+                  <td style="padding: 10px 0; font-size: 14px; color: #ff7a00; text-align: right; font-family: monospace; border-bottom: 1px solid #e0e0e0; font-weight: bold;">${amount.toLocaleString()} ${currency}</td>
                 </tr>
                 ` : ''}
                 <tr>

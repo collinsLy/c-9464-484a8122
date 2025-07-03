@@ -68,7 +68,7 @@ const WithdrawPage = () => {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [isProcessingTransfer, setIsProcessingTransfer] = useState(false);
   const [isTransferSuccessDialogOpen, setIsTransferSuccessDialogOpen] = useState(false);
-  
+
   // Add numerical UID state
   const [currentUserNumericalUid, setCurrentUserNumericalUid] = useState<number | null>(null);
 
@@ -84,14 +84,14 @@ const WithdrawPage = () => {
       if (currentUserId) {
         try {
           let numericalUid = await NumericalUidService.getNumericalUid(currentUserId);
-          
+
           // If no UID exists, create one
           if (!numericalUid) {
             console.log('No numerical UID found for current user, creating one...');
             numericalUid = await NumericalUidService.createNumericalUidMapping(currentUserId);
             console.log('Created numerical UID:', numericalUid);
           }
-          
+
           setCurrentUserNumericalUid(numericalUid);
         } catch (error) {
           console.error('Error fetching numerical UID:', error);
@@ -115,7 +115,7 @@ const WithdrawPage = () => {
 
     try {
       const numericalUid = parseInt(recipientUid.trim());
-      
+
       if (isNaN(numericalUid)) {
         setUidValidationError("Please enter a valid numerical UID");
         setRecipientData(null);
@@ -257,15 +257,15 @@ const WithdrawPage = () => {
 
       // Get fresh data before proceeding
       const senderData = await UserService.getUserData(uid);
-      
+
       // Convert numerical UID to Firebase UID
       const numericalUid = parseInt(recipientUid.trim());
       const recipientFirebaseUid = await NumericalUidService.getFirebaseUidFromNumerical(numericalUid);
-      
+
       if (!recipientFirebaseUid) {
         throw new Error("Could not find recipient with that UID");
       }
-      
+
       const recipientDataFresh = await UserService.getUserData(recipientFirebaseUid);
 
       if (!senderData || !recipientDataFresh) {
@@ -277,7 +277,7 @@ const WithdrawPage = () => {
 
       // Get sender's assets
       const senderAssets = senderData.assets || {};
-      
+
       // Handle USDT balance specially - check both locations
       let senderBalance = 0;
       if (selectedCrypto === 'USDT') {
@@ -320,7 +320,7 @@ const WithdrawPage = () => {
 
       // Update sender's assets
       const updatedSenderAssets = { ...senderAssets };
-      
+
       // Handle USDT updates specially
       if (selectedCrypto === 'USDT') {
         // Always update USDT in assets
@@ -405,12 +405,12 @@ const WithdrawPage = () => {
         assets: updatedSenderAssets,
         transactions: arrayUnion(senderTransaction)
       };
-      
+
       // If transferring USDT and balance was in main field, clear main balance
       if (selectedCrypto === 'USDT' && typeof senderData.balance === 'number' && senderData.balance > 0) {
         senderUpdateData.balance = 0; // Clear main balance since USDT is now in assets
       }
-      
+
       await UserService.updateUserData(uid, senderUpdateData);
 
       // Update recipient data
@@ -428,7 +428,7 @@ const WithdrawPage = () => {
       // Send email notifications to both sender and receiver
       try {
         const currentUser = auth.currentUser;
-        
+
         // Send email to sender
         if (currentUser?.email) {
           console.log('Sending transfer email to sender:', currentUser.email);
@@ -442,7 +442,7 @@ const WithdrawPage = () => {
               username: currentUser.displayName || senderData.fullName || 'User',
               type: 'transfer',
               amount: cryptoAmountValue,
-              currency: 'USDT',
+              currency: selectedCrypto,
               receiver: recipientDataFresh.fullName || recipientDataFresh.email || 'User'
             }),
           });
@@ -454,21 +454,21 @@ const WithdrawPage = () => {
           }
         }
 
-        // Send email to receiver if they have an email
-        if (recipientDataFresh.email) {
-          console.log('Sending transfer email to receiver:', recipientDataFresh.email);
-          const receiverEmailResponse = await fetch('/api/send-transaction-email', {
+        // Send email to recipient
+        if (recipientDataFresh?.email) {
+          console.log('Sending transfer email to recipient:', recipientDataFresh.email);
+          const recipientEmailResponse = await fetch('/api/send-transaction-email', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
               email: recipientDataFresh.email,
-              username: recipientDataFresh.fullName || 'User',
+              username: recipientDataFresh.fullName || recipientDataFresh.email?.split('@')[0] || 'User',
               type: 'transfer',
               amount: cryptoAmountValue,
-              currency: 'USDT',
-              receiver: currentUser?.displayName || senderData.fullName || currentUser?.email || 'User'
+              currency: selectedCrypto,
+              receiver: senderData.fullName || currentUser.email || 'User'
             }),
           });
 
@@ -2421,7 +2421,7 @@ const WithdrawPage = () => {
                             <div className="flex items-center justify-center">
                               <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zmzm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                               </svg>
                               Processing...
                             </div>
