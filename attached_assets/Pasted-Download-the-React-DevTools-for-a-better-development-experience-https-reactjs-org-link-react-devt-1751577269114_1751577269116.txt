@@ -1,0 +1,221 @@
+Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+sounds/deposit.mp3:1 
+            
+            
+           Failed to load resource: the server responded with a status of 416 (Requested Range Not Satisfiable)Understand this error
+sounds/warning.mp3:1 
+            
+            
+           Failed to load resource: the server responded with a status of 416 (Requested Range Not Satisfiable)Understand this error
+sounds/transfer.mp3:1 
+            
+            
+           Failed to load resource: the server responded with a status of 416 (Requested Range Not Satisfiable)Understand this error
+preload-service.ts:56 🚀 Starting preload for user: 5uKZPhNIsWRU90RtyETuxPgt6T02
+sounds/error.mp3:1 
+            
+            
+           Failed to load resource: the server responded with a status of 416 (Requested Range Not Satisfiable)Understand this error
+api-proxy.ts:16 Error fetching Binance data (ticker/price?symbol=BTCUSDT): SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+fetchBinanceData @ api-proxy.ts:16Understand this error
+preload-service.ts:132 Error fetching price for BTCUSDT: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+(anonymous) @ preload-service.ts:132Understand this error
+sounds/success.mp3:1 
+            
+            
+           Failed to load resource: the server responded with a status of 416 (Requested Range Not Satisfiable)Understand this error
+api-proxy.ts:16 Error fetching Binance data (ticker/price?symbol=BNBUSDT): SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+fetchBinanceData @ api-proxy.ts:16Understand this error
+preload-service.ts:132 Error fetching price for BNBUSDT: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+(anonymous) @ preload-service.ts:132Understand this error
+api-proxy.ts:16 Error fetching Binance data (ticker/price?symbol=SOLUSDT): SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+fetchBinanceData @ api-proxy.ts:16Understand this error
+preload-service.ts:132 Error fetching price for SOLUSDT: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+(anonymous) @ preload-service.ts:132Understand this error
+api-proxy.ts:16 Error fetching Binance data (ticker/price?symbol=ETHUSDT): SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+fetchBinanceData @ api-proxy.ts:16Understand this error
+preload-service.ts:132 Error fetching price for ETHUSDT: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+(anonymous) @ preload-service.ts:132Understand this error
+api-proxy.ts:16 Error fetching Binance data (ticker/price?symbol=ADAUSDT): SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+fetchBinanceData @ api-proxy.ts:16Understand this error
+preload-service.ts:132 Error fetching price for ADAUSDT: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+(anonymous) @ preload-service.ts:132Understand this error
+preload-service.ts:74 ✅ Preload completed successfully
+Dashboard.tsx:135 Current active tab: dashboard
+sounds/warning.mp3:1 
+            
+            
+           Failed to load resource: the server responded with a status of 416 (Requested Range Not Satisfiable)Understand this error
+Dashboard.tsx:100 Error listening for notifications: FirebaseError: The query requires an index. You can create it here: https://console.firebase.google.com/v1/r/project/vertev-tradings/firestore/indexes?create_composite=ClVwcm9qZWN0cy92ZXJ0ZXYtdHJhZGluZ3MvZGF0YWJhc2VzLyhkZWZhdWx0KS9jb2xsZWN0aW9uR3JvdXBzL25vdGlmaWNhdGlvbnMvaW5kZXhlcy9fEAEaCgoGaXNSZWFkEAEaCgoGdXNlcklkEAEaDQoJdGltZXN0YW1wEAIaDAoIX19uYW1lX18QAg
+(anonymous) @ Dashboard.tsx:100Understand this error
+56106.34d16a1a21d47c7d9965.js:20 2025-07-03T21:12:52.825Z:Property:The state with a data type: unknown does not match a schema
+v @ 56106.34d16a1a21d47c7d9965.js:20Understand this warning
+dashboard:1 Access to fetch at 'https://api.binance.com/api/v3/ticker/price?symbols=[%22SOLUSDT%22,%22DOTUSDT%22,%22ADAUSDT%22,%22ETHUSDT%22,%22MATICUSDT%22,%22XRPUSDT%22,%22LINKUSDT%22,%22BNBUSDT%22,%22WLDUSDT%22,%22DOGEUSDT%22,%22USDCUSDT%22,%22BTCUSDT%22]' from origin 'https://95408c27-e252-46d8-96f5-a14775ef19b9-00-3uigs2np0a7e3.spock.replit.dev' has been blocked by CORS policy: Request header field cache-control is not allowed by Access-Control-Allow-Headers in preflight response.Understand this error
+api.binance.com/api/v3/ticker/price?symbols=[%22SOLUSDT%22,%22DOTUSDT%22,%22ADAUSDT%22,%22ETHUSDT%22,%22MATICUSDT%22,%22XRPUSDT%22,%22LINKUSDT%22,%22BNBUSDT%22,%22WLDUSDT%22,%22DOGEUSDT%22,%22USDCUSDT%22,%22BTCUSDT%22]:1 
+            
+            
+           Failed to load resource: net::ERR_FAILEDUnderstand this error
+AccountOverview.tsx:90 Error fetching initial prices: TypeError: Failed to fetch
+    at fetchInitialPrices (AccountOverview.tsx:68:32)
+    at AccountOverview.tsx:101:5
+    at commitHookEffectListMount (chunk-UPELNCPK.js?v=efc1d8e7:16915:34)
+    at commitPassiveMountOnFiber (chunk-UPELNCPK.js?v=efc1d8e7:18156:19)
+    at commitPassiveMountEffects_complete (chunk-UPELNCPK.js?v=efc1d8e7:18129:17)
+    at commitPassiveMountEffects_begin (chunk-UPELNCPK.js?v=efc1d8e7:18119:15)
+    at commitPassiveMountEffects (chunk-UPELNCPK.js?v=efc1d8e7:18109:11)
+    at flushPassiveEffectsImpl (chunk-UPELNCPK.js?v=efc1d8e7:19490:11)
+    at flushPassiveEffects (chunk-UPELNCPK.js?v=efc1d8e7:19447:22)
+    at performSyncWorkOnRoot (chunk-UPELNCPK.js?v=efc1d8e7:18868:11)
+fetchInitialPrices @ AccountOverview.tsx:90Understand this error
+PortfolioAnalytics.tsx:281 User assets: {SOL: {…}, DOT: {…}, ADA: {…}, ETH: {…}, MATIC: {…}, …}
+PortfolioAnalytics.tsx:171 Asset USDC: Amount 193.60000000000002 × Price 0 = 0 USDT
+PortfolioAnalytics.tsx:196 Total portfolio value: 544 USDT
+assets:1 Access to fetch at 'https://api.binance.com/api/v3/ticker/price?symbols=[%22BTCUSDT%22,%22ETHUSDT%22,%22USDTUSDT%22,%22USDCUSDT%22,%22BNBUSDT%22,%22DOGEUSDT%22,%22SOLUSDT%22,%22XRPUSDT%22,%22WLDUSDT%22,%22ADAUSDT%22,%22DOTUSDT%22,%22LINKUSDT%22,%22MATICUSDT%22]' from origin 'https://95408c27-e252-46d8-96f5-a14775ef19b9-00-3uigs2np0a7e3.spock.replit.dev' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+AssetsPage.tsx:252 
+            
+            
+           GET https://api.binance.com/api/v3/ticker/price?symbols=[%22BTCUSDT%22,%22ETHUSDT%22,%22USDTUSDT%22,%22USDCUSDT%22,%22BNBUSDT%22,%22DOGEUSDT%22,%22SOLUSDT%22,%22XRPUSDT%22,%22WLDUSDT%22,%22ADAUSDT%22,%22DOTUSDT%22,%22LINKUSDT%22,%22MATICUSDT%22] net::ERR_FAILED 400 (Bad Request)
+fetchPrices @ AssetsPage.tsx:252
+(anonymous) @ AssetsPage.tsx:266
+commitHookEffectListMount @ chunk-UPELNCPK.js?v=efc1d8e7:16915
+commitPassiveMountOnFiber @ chunk-UPELNCPK.js?v=efc1d8e7:18156
+commitPassiveMountEffects_complete @ chunk-UPELNCPK.js?v=efc1d8e7:18129
+commitPassiveMountEffects_begin @ chunk-UPELNCPK.js?v=efc1d8e7:18119
+commitPassiveMountEffects @ chunk-UPELNCPK.js?v=efc1d8e7:18109
+flushPassiveEffectsImpl @ chunk-UPELNCPK.js?v=efc1d8e7:19490
+flushPassiveEffects @ chunk-UPELNCPK.js?v=efc1d8e7:19447
+performSyncWorkOnRoot @ chunk-UPELNCPK.js?v=efc1d8e7:18868
+flushSyncCallbacks @ chunk-UPELNCPK.js?v=efc1d8e7:9119
+commitRootImpl @ chunk-UPELNCPK.js?v=efc1d8e7:19432
+commitRoot @ chunk-UPELNCPK.js?v=efc1d8e7:19277
+finishConcurrentRender @ chunk-UPELNCPK.js?v=efc1d8e7:18805
+performConcurrentWorkOnRoot @ chunk-UPELNCPK.js?v=efc1d8e7:18718
+workLoop @ chunk-UPELNCPK.js?v=efc1d8e7:197
+flushWork @ chunk-UPELNCPK.js?v=efc1d8e7:176
+performWorkUntilDeadline @ chunk-UPELNCPK.js?v=efc1d8e7:384Understand this error
+AssetsPage.tsx:262 Error fetching prices: TypeError: Failed to fetch
+    at fetchPrices (AssetsPage.tsx:252:32)
+    at AssetsPage.tsx:266:5
+    at commitHookEffectListMount (chunk-UPELNCPK.js?v=efc1d8e7:16915:34)
+    at commitPassiveMountOnFiber (chunk-UPELNCPK.js?v=efc1d8e7:18156:19)
+    at commitPassiveMountEffects_complete (chunk-UPELNCPK.js?v=efc1d8e7:18129:17)
+    at commitPassiveMountEffects_begin (chunk-UPELNCPK.js?v=efc1d8e7:18119:15)
+    at commitPassiveMountEffects (chunk-UPELNCPK.js?v=efc1d8e7:18109:11)
+    at flushPassiveEffectsImpl (chunk-UPELNCPK.js?v=efc1d8e7:19490:11)
+    at flushPassiveEffects (chunk-UPELNCPK.js?v=efc1d8e7:19447:22)
+    at performSyncWorkOnRoot (chunk-UPELNCPK.js?v=efc1d8e7:18868:11)
+fetchPrices @ AssetsPage.tsx:262
+await in fetchPrices
+(anonymous) @ AssetsPage.tsx:266
+commitHookEffectListMount @ chunk-UPELNCPK.js?v=efc1d8e7:16915
+commitPassiveMountOnFiber @ chunk-UPELNCPK.js?v=efc1d8e7:18156
+commitPassiveMountEffects_complete @ chunk-UPELNCPK.js?v=efc1d8e7:18129
+commitPassiveMountEffects_begin @ chunk-UPELNCPK.js?v=efc1d8e7:18119
+commitPassiveMountEffects @ chunk-UPELNCPK.js?v=efc1d8e7:18109
+flushPassiveEffectsImpl @ chunk-UPELNCPK.js?v=efc1d8e7:19490
+flushPassiveEffects @ chunk-UPELNCPK.js?v=efc1d8e7:19447
+performSyncWorkOnRoot @ chunk-UPELNCPK.js?v=efc1d8e7:18868
+flushSyncCallbacks @ chunk-UPELNCPK.js?v=efc1d8e7:9119
+commitRootImpl @ chunk-UPELNCPK.js?v=efc1d8e7:19432
+commitRoot @ chunk-UPELNCPK.js?v=efc1d8e7:19277
+finishConcurrentRender @ chunk-UPELNCPK.js?v=efc1d8e7:18805
+performConcurrentWorkOnRoot @ chunk-UPELNCPK.js?v=efc1d8e7:18718
+workLoop @ chunk-UPELNCPK.js?v=efc1d8e7:197
+flushWork @ chunk-UPELNCPK.js?v=efc1d8e7:176
+performWorkUntilDeadline @ chunk-UPELNCPK.js?v=efc1d8e7:384Understand this error
+PortfolioAnalytics.tsx:281 User assets: {SOL: {…}, DOT: {…}, ADA: {…}, ETH: {…}, MATIC: {…}, …}
+PortfolioAnalytics.tsx:171 Asset USDC: Amount 193.60000000000002 × Price 0.9997 = 193.54192000000003 USDT
+PortfolioAnalytics.tsx:196 Total portfolio value: 737.54192 USDT
+assets:1 Access to fetch at 'https://api.binance.com/api/v3/ticker/price?symbols=[%22BTCUSDT%22,%22ETHUSDT%22,%22USDTUSDT%22,%22USDCUSDT%22,%22BNBUSDT%22,%22DOGEUSDT%22,%22SOLUSDT%22,%22XRPUSDT%22,%22WLDUSDT%22,%22ADAUSDT%22,%22DOTUSDT%22,%22LINKUSDT%22,%22MATICUSDT%22]' from origin 'https://95408c27-e252-46d8-96f5-a14775ef19b9-00-3uigs2np0a7e3.spock.replit.dev' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+AssetsPage.tsx:252 
+            
+            
+           GET https://api.binance.com/api/v3/ticker/price?symbols=[%22BTCUSDT%22,%22ETHUSDT%22,%22USDTUSDT%22,%22USDCUSDT%22,%22BNBUSDT%22,%22DOGEUSDT%22,%22SOLUSDT%22,%22XRPUSDT%22,%22WLDUSDT%22,%22ADAUSDT%22,%22DOTUSDT%22,%22LINKUSDT%22,%22MATICUSDT%22] net::ERR_FAILED 400 (Bad Request)
+fetchPrices @ AssetsPage.tsx:252
+setInterval
+(anonymous) @ AssetsPage.tsx:267
+commitHookEffectListMount @ chunk-UPELNCPK.js?v=efc1d8e7:16915
+commitPassiveMountOnFiber @ chunk-UPELNCPK.js?v=efc1d8e7:18156
+commitPassiveMountEffects_complete @ chunk-UPELNCPK.js?v=efc1d8e7:18129
+commitPassiveMountEffects_begin @ chunk-UPELNCPK.js?v=efc1d8e7:18119
+commitPassiveMountEffects @ chunk-UPELNCPK.js?v=efc1d8e7:18109
+flushPassiveEffectsImpl @ chunk-UPELNCPK.js?v=efc1d8e7:19490
+flushPassiveEffects @ chunk-UPELNCPK.js?v=efc1d8e7:19447
+performSyncWorkOnRoot @ chunk-UPELNCPK.js?v=efc1d8e7:18868
+flushSyncCallbacks @ chunk-UPELNCPK.js?v=efc1d8e7:9119
+commitRootImpl @ chunk-UPELNCPK.js?v=efc1d8e7:19432
+commitRoot @ chunk-UPELNCPK.js?v=efc1d8e7:19277
+finishConcurrentRender @ chunk-UPELNCPK.js?v=efc1d8e7:18805
+performConcurrentWorkOnRoot @ chunk-UPELNCPK.js?v=efc1d8e7:18718
+workLoop @ chunk-UPELNCPK.js?v=efc1d8e7:197
+flushWork @ chunk-UPELNCPK.js?v=efc1d8e7:176
+performWorkUntilDeadline @ chunk-UPELNCPK.js?v=efc1d8e7:384Understand this error
+AssetsPage.tsx:262 Error fetching prices: TypeError: Failed to fetch
+    at fetchPrices (AssetsPage.tsx:252:32)
+fetchPrices @ AssetsPage.tsx:262
+setInterval
+(anonymous) @ AssetsPage.tsx:267
+commitHookEffectListMount @ chunk-UPELNCPK.js?v=efc1d8e7:16915
+commitPassiveMountOnFiber @ chunk-UPELNCPK.js?v=efc1d8e7:18156
+commitPassiveMountEffects_complete @ chunk-UPELNCPK.js?v=efc1d8e7:18129
+commitPassiveMountEffects_begin @ chunk-UPELNCPK.js?v=efc1d8e7:18119
+commitPassiveMountEffects @ chunk-UPELNCPK.js?v=efc1d8e7:18109
+flushPassiveEffectsImpl @ chunk-UPELNCPK.js?v=efc1d8e7:19490
+flushPassiveEffects @ chunk-UPELNCPK.js?v=efc1d8e7:19447
+performSyncWorkOnRoot @ chunk-UPELNCPK.js?v=efc1d8e7:18868
+flushSyncCallbacks @ chunk-UPELNCPK.js?v=efc1d8e7:9119
+commitRootImpl @ chunk-UPELNCPK.js?v=efc1d8e7:19432
+commitRoot @ chunk-UPELNCPK.js?v=efc1d8e7:19277
+finishConcurrentRender @ chunk-UPELNCPK.js?v=efc1d8e7:18805
+performConcurrentWorkOnRoot @ chunk-UPELNCPK.js?v=efc1d8e7:18718
+workLoop @ chunk-UPELNCPK.js?v=efc1d8e7:197
+flushWork @ chunk-UPELNCPK.js?v=efc1d8e7:176
+performWorkUntilDeadline @ chunk-UPELNCPK.js?v=efc1d8e7:384Understand this error
+assets:1 Access to fetch at 'https://api.binance.com/api/v3/ticker/price?symbols=[%22BTCUSDT%22,%22ETHUSDT%22,%22USDTUSDT%22,%22USDCUSDT%22,%22BNBUSDT%22,%22DOGEUSDT%22,%22SOLUSDT%22,%22XRPUSDT%22,%22WLDUSDT%22,%22ADAUSDT%22,%22DOTUSDT%22,%22LINKUSDT%22,%22MATICUSDT%22]' from origin 'https://95408c27-e252-46d8-96f5-a14775ef19b9-00-3uigs2np0a7e3.spock.replit.dev' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.Understand this error
+AssetsPage.tsx:252 
+            
+            
+           GET https://api.binance.com/api/v3/ticker/price?symbols=[%22BTCUSDT%22,%22ETHUSDT%22,%22USDTUSDT%22,%22USDCUSDT%22,%22BNBUSDT%22,%22DOGEUSDT%22,%22SOLUSDT%22,%22XRPUSDT%22,%22WLDUSDT%22,%22ADAUSDT%22,%22DOTUSDT%22,%22LINKUSDT%22,%22MATICUSDT%22] net::ERR_FAILED 400 (Bad Request)
+fetchPrices @ AssetsPage.tsx:252
+setInterval
+(anonymous) @ AssetsPage.tsx:267
+commitHookEffectListMount @ chunk-UPELNCPK.js?v=efc1d8e7:16915
+commitPassiveMountOnFiber @ chunk-UPELNCPK.js?v=efc1d8e7:18156
+commitPassiveMountEffects_complete @ chunk-UPELNCPK.js?v=efc1d8e7:18129
+commitPassiveMountEffects_begin @ chunk-UPELNCPK.js?v=efc1d8e7:18119
+commitPassiveMountEffects @ chunk-UPELNCPK.js?v=efc1d8e7:18109
+flushPassiveEffectsImpl @ chunk-UPELNCPK.js?v=efc1d8e7:19490
+flushPassiveEffects @ chunk-UPELNCPK.js?v=efc1d8e7:19447
+performSyncWorkOnRoot @ chunk-UPELNCPK.js?v=efc1d8e7:18868
+flushSyncCallbacks @ chunk-UPELNCPK.js?v=efc1d8e7:9119
+commitRootImpl @ chunk-UPELNCPK.js?v=efc1d8e7:19432
+commitRoot @ chunk-UPELNCPK.js?v=efc1d8e7:19277
+finishConcurrentRender @ chunk-UPELNCPK.js?v=efc1d8e7:18805
+performConcurrentWorkOnRoot @ chunk-UPELNCPK.js?v=efc1d8e7:18718
+workLoop @ chunk-UPELNCPK.js?v=efc1d8e7:197
+flushWork @ chunk-UPELNCPK.js?v=efc1d8e7:176
+performWorkUntilDeadline @ chunk-UPELNCPK.js?v=efc1d8e7:384Understand this error
+AssetsPage.tsx:262 Error fetching prices: TypeError: Failed to fetch
+    at fetchPrices (AssetsPage.tsx:252:32)
+fetchPrices @ AssetsPage.tsx:262
+setInterval
+(anonymous) @ AssetsPage.tsx:267
+commitHookEffectListMount @ chunk-UPELNCPK.js?v=efc1d8e7:16915
+commitPassiveMountOnFiber @ chunk-UPELNCPK.js?v=efc1d8e7:18156
+commitPassiveMountEffects_complete @ chunk-UPELNCPK.js?v=efc1d8e7:18129
+commitPassiveMountEffects_begin @ chunk-UPELNCPK.js?v=efc1d8e7:18119
+commitPassiveMountEffects @ chunk-UPELNCPK.js?v=efc1d8e7:18109
+flushPassiveEffectsImpl @ chunk-UPELNCPK.js?v=efc1d8e7:19490
+flushPassiveEffects @ chunk-UPELNCPK.js?v=efc1d8e7:19447
+performSyncWorkOnRoot @ chunk-UPELNCPK.js?v=efc1d8e7:18868
+flushSyncCallbacks @ chunk-UPELNCPK.js?v=efc1d8e7:9119
+commitRootImpl @ chunk-UPELNCPK.js?v=efc1d8e7:19432
+commitRoot @ chunk-UPELNCPK.js?v=efc1d8e7:19277
+finishConcurrentRender @ chunk-UPELNCPK.js?v=efc1d8e7:18805
+performConcurrentWorkOnRoot @ chunk-UPELNCPK.js?v=efc1d8e7:18718
+workLoop @ chunk-UPELNCPK.js?v=efc1d8e7:197
+flushWork @ chunk-UPELNCPK.js?v=efc1d8e7:176
+performWorkUntilDeadline @ chunk-UPELNCPK.js?v=efc1d8e7:384Understand this error
+PortfolioAnalytics.tsx:281 User assets: {SOL: {…}, DOT: {…}, ADA: {…}, ETH: {…}, MATIC: {…}, …}
+PortfolioAnalytics.tsx:171 Asset USDC: Amount 193.60000000000002 × Price 0.9997 = 193.54192000000003 USDT
+PortfolioAnalytics.tsx:196 Total portfolio value: 737.54192 USDT
