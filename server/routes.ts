@@ -9,22 +9,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Email notification endpoints
   app.post("/api/send-transaction-email", async (req, res) => {
     try {
-      const { email, username, type, amount, receiver } = req.body;
+      const { to, email, username, type, amount, receiver, fromCurrency, toCurrency, conversionRate } = req.body;
       
-      if (!email || !username || !type || !amount) {
+      // Support both 'to' and 'email' for the recipient field
+      const recipientEmail = to || email;
+      
+      if (!recipientEmail || !username || !type || !amount) {
         return res.status(400).json({ 
           success: false, 
           error: "Missing required fields: email, username, type, amount" 
         });
       }
 
-      const result = await emailService.sendTransactionEmail(
-        email, 
-        username, 
-        type, 
-        amount, 
-        receiver
-      );
+      const result = await emailService.sendTransactionEmail({
+        to: recipientEmail,
+        username,
+        type,
+        amount,
+        receiver,
+        fromCurrency,
+        toCurrency,
+        conversionRate
+      });
       
       res.json(result);
     } catch (error) {
@@ -36,12 +42,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Test endpoint for email service
   app.get("/api/test-email", async (req, res) => {
     try {
-      const result = await emailService.sendTransactionEmail(
-        'test@example.com',
-        'Test User',
-        'withdrawal',
-        1000
-      );
+      const result = await emailService.sendTransactionEmail({
+        to: 'test@example.com',
+        username: 'Test User',
+        type: 'withdrawal',
+        amount: 1000
+      });
       res.json({ 
         message: 'Email test completed', 
         result: result 
@@ -54,16 +60,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/send-welcome-email", async (req, res) => {
     try {
-      const { email, username } = req.body;
+      const { to, email, username } = req.body;
       
-      if (!email || !username) {
+      // Support both 'to' and 'email' for the recipient field
+      const recipientEmail = to || email;
+      
+      if (!recipientEmail || !username) {
         return res.status(400).json({ 
           success: false, 
           error: "Missing required fields: email, username" 
         });
       }
 
-      const result = await emailService.sendWelcomeEmail(email, username);
+      const result = await emailService.sendWelcomeEmail({
+        to: recipientEmail,
+        username
+      });
       res.json(result);
     } catch (error) {
       console.error("Welcome email error:", error);
@@ -74,12 +86,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Test email endpoint
   app.post("/api/test-email", async (req, res) => {
     try {
-      const result = await emailService.sendTransactionEmail(
-        "test@example.com",
-        "Test User",
-        "withdrawal",
-        100.50
-      );
+      const result = await emailService.sendTransactionEmail({
+        to: "test@example.com",
+        username: "Test User",
+        type: "withdrawal",
+        amount: 100.50
+      });
       res.json(result);
     } catch (error) {
       console.error("Test email error:", error);
