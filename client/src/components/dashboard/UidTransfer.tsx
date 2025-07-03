@@ -55,7 +55,33 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
   // Fetch current prices for all assets
   useEffect(() => {
     const fetchPrices = async () => {
+      try {
+        const symbols = ['BTC', 'ETH', 'BNB', 'SOL', 'ADA', 'DOGE', 'XRP', 'DOT', 'LINK', 'MATIC'];
+        const symbolsQuery = symbols.map(s => `${s}USDT`);
+        const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
+        const data = await response.json();
 
+        const prices: Record<string, number> = {};
+        data.forEach((item: any) => {
+          const symbol = item.symbol.replace('USDT', '');
+          prices[symbol] = parseFloat(item.price);
+        });
+        // Add USDT and USDC with value of 1
+        prices['USDT'] = 1;
+        prices['USDC'] = 1;
+
+        console.log("Fetched crypto prices:", prices);
+        setAssetPrices(prices);
+      } catch (error) {
+        console.error('Error fetching asset prices:', error);
+      }
+    };
+
+    fetchPrices();
+    // Update prices every 30 seconds
+    const interval = setInterval(fetchPrices, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Validate recipient UID function
   const validateRecipientUid = async () => {
@@ -110,90 +136,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
     }
   };
 
-  const handleTransfer = async () => {
-    if (!currentUserId || !recipientUid.trim() || !amount.trim()) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const transferAmount = parseFloat(amount);
-    if (isNaN(transferAmount) || transferAmount <= 0) {
-      toast({
-        title: "Invalid Amount",
-        description: "Please enter a valid amount",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (transferAmount > currentBalance) {
-      toast({
-        title: "Insufficient Balance",
-        description: "You don't have enough balance for this transfer",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const numericalUid = parseInt(recipientUid.trim());
-      await UserService.transferFunds(currentUserId, numericalUid, transferAmount);
-
-      toast({
-        title: "Transfer Successful",
-        description: `Successfully transferred $${transferAmount} to UID ${numericalUid}`,
-      });
-
-      setRecipientUid("");
-      setAmount("");
-      setRecipientInfo(null);
-      if (onTransferComplete) {
-        onTransferComplete();
-      }
-    } catch (error) {
-      console.error('Transfer error:', error);
-      toast({
-        title: "Transfer Failed",
-        description: error instanceof Error ? error.message : "Failed to transfer funds",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-      try {
-        const symbols = ['BTC', 'ETH', 'BNB', 'SOL', 'ADA', 'DOGE', 'XRP', 'DOT', 'LINK', 'MATIC'];
-        const symbolsQuery = symbols.map(s => `${s}USDT`);
-        const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
-        const data = await response.json();
-
-        const prices: Record<string, number> = {};
-        data.forEach((item: any) => {
-          const symbol = item.symbol.replace('USDT', '');
-          prices[symbol] = parseFloat(item.price);
-        });
-        // Add USDT and USDC with value of 1
-        prices['USDT'] = 1;
-        prices['USDC'] = 1;
-
-        console.log("Fetched crypto prices:", prices);
-        setAssetPrices(prices);
-      } catch (error) {
-        console.error('Error fetching asset prices:', error);
-      }
-    };
-
-    fetchPrices();
-    // Update prices every 30 seconds
-    const interval = setInterval(fetchPrices, 30000);
-    return () => clearInterval(interval);
-  }, []);
+  
 
   // Fetch user's assets and balances
   const [userBalances, setUserBalances] = useState<Record<string, number>>({});
