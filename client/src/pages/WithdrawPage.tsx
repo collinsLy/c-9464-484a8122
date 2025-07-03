@@ -660,6 +660,32 @@ const WithdrawPage = () => {
         transactions: arrayUnion(transaction)
       });
 
+      // Send email notification for withdrawal using Firebase Auth user
+      try {
+        const currentUser = auth.currentUser;
+        const idToken = await currentUser?.getIdToken();
+        
+        if (idToken) {
+          const emailResponse = await fetch('/api/send-transaction-email', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${idToken}`
+            },
+            body: JSON.stringify({
+              type: 'withdrawal',
+              amount: amountValue
+            })
+          });
+
+          if (!emailResponse.ok) {
+            console.error('Failed to send withdrawal email notification');
+          }
+        }
+      } catch (error) {
+        console.error('Error sending withdrawal email:', error);
+      }
+
       setIsSuccessDialogOpen(true);
 
       toast({

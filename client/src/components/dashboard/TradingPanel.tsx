@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { auth } from "@/lib/firebase";
 
 interface TradingPanelProps {
   symbol: string;
@@ -28,6 +29,34 @@ const TradingPanel = ({ symbol, isDemoMode = false }: TradingPanelProps) => {
   };
   
   const currentPrice = currentPrices[symbol as keyof typeof currentPrices] || 0;
+
+  const sendTransactionEmail = async (type: string, amount: number) => {
+    try {
+      const idToken = await auth.currentUser?.getIdToken();
+      if (!idToken) {
+        console.error('User not authenticated');
+        return;
+      }
+
+      const response = await fetch('/api/send-transaction-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
+        body: JSON.stringify({
+          type,
+          amount: parseFloat(calculateTotal())
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send transaction email');
+      }
+    } catch (error) {
+      console.error('Error sending transaction email:', error);
+    }
+  };
   
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAmount(e.target.value);
@@ -43,7 +72,7 @@ const TradingPanel = ({ symbol, isDemoMode = false }: TradingPanelProps) => {
     return (amountVal * priceVal).toFixed(2);
   };
   
-  const handleBuy = () => {
+  const handleBuy = async () => {
     const total = calculateTotal();
     
     if (!amount || parseFloat(amount) <= 0) {
@@ -60,12 +89,16 @@ const TradingPanel = ({ symbol, isDemoMode = false }: TradingPanelProps) => {
       description: `Successfully bought ${amount} ${symbol.substring(0, 3)} for $${total}`,
       variant: "default",
     });
+
+    if (!isDemoMode) {
+      await sendTransactionEmail('buy', parseFloat(total));
+    }
     
     setAmount("");
     setPrice("");
   };
   
-  const handleSell = () => {
+  const handleSell = async () => {
     const total = calculateTotal();
     
     if (!amount || parseFloat(amount) <= 0) {
@@ -82,6 +115,10 @@ const TradingPanel = ({ symbol, isDemoMode = false }: TradingPanelProps) => {
       description: `Successfully sold ${amount} ${symbol.substring(0, 3)} for $${total}`,
       variant: "default",
     });
+
+    if (!isDemoMode) {
+      await sendTransactionEmail('sell', parseFloat(total));
+    }
     
     setAmount("");
     setPrice("");
