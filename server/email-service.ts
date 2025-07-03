@@ -14,7 +14,7 @@ class EmailService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
-    this.transporter = nodemailer.createTransporter(EMAIL_CONFIG);
+    this.transporter = nodemailer.createTransport(EMAIL_CONFIG);
   }
 
   async sendTransactionEmail(
@@ -58,7 +58,7 @@ class EmailService {
       return { success: true, messageId: result.messageId };
     } catch (error) {
       console.error('Error sending email:', error);
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -86,7 +86,7 @@ class EmailService {
       return { success: true, messageId: result.messageId };
     } catch (error) {
       console.error('Error sending welcome email:', error);
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 }
