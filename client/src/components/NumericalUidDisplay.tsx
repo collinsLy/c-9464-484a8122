@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { auth } from '@/lib/firebase';
-import { numericalUidService } from '@/lib/numerical-uid-service';
+import { NumericalUidService } from '@/lib/numerical-uid-service';
 
 const NumericalUidDisplay = () => {
   const [numericalUid, setNumericalUid] = useState<number | null>(null);
@@ -14,7 +14,7 @@ const NumericalUidDisplay = () => {
     const fetchNumericalUid = async () => {
       if (auth.currentUser?.uid) {
         try {
-          const uid = await numericalUidService.getNumericalUid(auth.currentUser.uid);
+          const uid = await NumericalUidService.getNumericalUid(auth.currentUser.uid);
           setNumericalUid(uid);
         } catch (error) {
           console.error('Error fetching numerical UID:', error);
