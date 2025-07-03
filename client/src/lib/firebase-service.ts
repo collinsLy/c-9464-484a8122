@@ -11,8 +11,15 @@ export class UserService {
     profilePhoto?: string
   }) {
     try {
+      // Import numerical UID service
+      const { numericalUidService } = await import('./numerical-uid-service');
+      
+      // Generate numerical UID for the user
+      const numericalUid = await numericalUidService.createNumericalUidMapping(userId);
+      
       await setDoc(doc(db, 'users', userId), {
         ...userData,
+        numericalUid,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         tradingHistory: [],

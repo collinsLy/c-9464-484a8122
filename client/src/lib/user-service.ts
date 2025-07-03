@@ -62,11 +62,25 @@ export class UserService {
     }
   }
   
-  static async transferFunds(senderId: string, recipientId: string, amount: number): Promise<void> {
+  static async transferFunds(senderId: string, recipientId: string | number, amount: number): Promise<void> {
     try {
+      let recipientFirebaseUid: string;
+      
+      // If recipientId is a number, it's a numerical UID - convert to Firebase UID
+      if (typeof recipientId === 'number') {
+        const { numericalUidService } = await import('./numerical-uid-service');
+        const firebaseUid = await numericalUidService.getFirebaseUidFromNumerical(recipientId);
+        if (!firebaseUid) {
+          throw new Error('Recipient not found with the provided numerical UID');
+        }
+        recipientFirebaseUid = firebaseUid;
+      } else {
+        recipientFirebaseUid = recipientId;
+      }
+      
       // Get references to both user documents
       const senderRef = doc(db, 'users', senderId);
-      const recipientRef = doc(db, 'users', recipientId);
+      const recipientRef = doc(db, 'users', recipientFirebaseUid);
       
       // Use a transaction to ensure atomic updates
       await updateDoc(senderRef, {

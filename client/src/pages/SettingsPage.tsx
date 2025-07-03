@@ -24,6 +24,7 @@ import { toast } from "@/components/ui/use-toast";
 import AvatarCollection, { avatarOptions } from "@/components/AvatarCollection"; // Import avatarOptions
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { EmailNotificationDemo } from "@/components/EmailNotificationDemo";
+import NumericalUidDisplay from '@/components/NumericalUidDisplay';
 
 
 const SettingsPage = () => {
@@ -72,7 +73,7 @@ const SettingsPage = () => {
 
             setInitialValues(profileData);
             profileForm.reset(profileData);
-            
+
             // Set the selected avatar ID from the user data
             setSelectedAvatarId(userData.avatarId || "default");
 
@@ -165,7 +166,7 @@ const SettingsPage = () => {
     } catch (error: any) {
       console.error("Error updating password:", error);
       let errorMessage = "Failed to update password";
-      
+
       if (error.code === 'auth/wrong-password') {
         errorMessage = "Current password is incorrect";
       } else if (error.code === 'auth/weak-password') {
@@ -739,9 +740,9 @@ const SettingsPage = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <Separator className="bg-white/10 my-4" />
-                
+
                 {/* Email Testing Section */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">Email Testing & Configuration</h3>
@@ -750,7 +751,7 @@ const SettingsPage = () => {
                   </p>
                   <EmailNotificationDemo />
                 </div>
-                
+
                 <div className="space-y-4">
                   <Button 
                     variant="outline"
@@ -884,10 +885,10 @@ const SettingsPage = () => {
                 selectedAvatarId={selectedAvatarId} 
                 onSelectAvatar={(avatar) => {
                   setSelectedAvatarId(avatar.id);
-                  
+
                   // Update the form value
                   profileForm.setValue('avatarId', avatar.id);
-                  
+
                   // Save avatar change immediately
                   const user = auth.currentUser;
                   if (user) {

@@ -19,14 +19,145 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
   const [recipientUid, setRecipientUid] = useState("");
   const [amount, setAmount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isValidatingUid, setIsValidatingUid] = useState(false);
+  const [recipientInfo, setRecipientInfo] = useState<any>(null);
+  const [currentUserNumericalUid, setCurrentUserNumericalUid] = useState<number | null>(null);
   const currentUserId = auth.currentUser?.uid || null;
   const [selectedCrypto, setSelectedCrypto] = useState("USDT");
   const [assetPrices, setAssetPrices] = useState<Record<string, number>>({});
   const [userAssets, setUserAssets] = useState<Record<string, any>>({});
 
+  // Fetch current user's numerical UID
+  useEffect(() => {
+    const fetchCurrentUserNumericalUid = async () => {
+      if (currentUserId) {
+        try {
+          const { numericalUidService } = await import('@/lib/numerical-uid-service');
+          const numericalUid = await numericalUidService.getNumericalUid(currentUserId);
+          setCurrentUserNumericalUid(numericalUid);
+        } catch (error) {
+          console.error('Error fetching numerical UID:', error);
+        }
+      }
+    };
+
+    fetchCurrentUserNumericalUid();
+  }, [currentUserId]);
+
   // Fetch current prices for all assets
   useEffect(() => {
     const fetchPrices = async () => {
+
+
+  // Validate recipient UID function
+  const validateRecipientUid = async () => {
+    if (!recipientUid.trim()) return;
+
+    setIsValidatingUid(true);
+    try {
+      const { numericalUidService } = await import('@/lib/numerical-uid-service');
+      const numericalUid = parseInt(recipientUid.trim());
+      
+      if (isNaN(numericalUid)) {
+        toast({
+          title: "Invalid UID",
+          description: "Please enter a valid numerical UID",
+          variant: "destructive"
+        });
+        setRecipientInfo(null);
+        return;
+      }
+
+      const userData = await numericalUidService.getUserDataByNumericalUid(numericalUid);
+      
+      if (userData) {
+        setRecipientInfo({
+          numericalUid,
+          fullName: userData.fullName || 'Unknown User',
+          email: userData.email
+        });
+        toast({
+          title: "User Found",
+          description: `Recipient: ${userData.fullName || 'Unknown User'}`,
+        });
+      } else {
+        setRecipientInfo(null);
+        toast({
+          title: "User Not Found",
+          description: "No user found with this UID",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error validating UID:', error);
+      setRecipientInfo(null);
+      toast({
+        title: "Validation Error",
+        description: "Failed to validate UID",
+        variant: "destructive"
+      });
+    } finally {
+      setIsValidatingUid(false);
+    }
+  };
+
+  const handleTransfer = async () => {
+    if (!currentUserId || !recipientUid.trim() || !amount.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const transferAmount = parseFloat(amount);
+    if (isNaN(transferAmount) || transferAmount <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid amount",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (transferAmount > currentBalance) {
+      toast({
+        title: "Insufficient Balance",
+        description: "You don't have enough balance for this transfer",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const numericalUid = parseInt(recipientUid.trim());
+      await UserService.transferFunds(currentUserId, numericalUid, transferAmount);
+      
+      toast({
+        title: "Transfer Successful",
+        description: `Successfully transferred $${transferAmount} to UID ${numericalUid}`,
+      });
+      
+      setRecipientUid("");
+      setAmount("");
+      setRecipientInfo(null);
+      if (onTransferComplete) {
+        onTransferComplete();
+      }
+    } catch (error) {
+      console.error('Transfer error:', error);
+      toast({
+        title: "Transfer Failed",
+        description: error instanceof Error ? error.message : "Failed to transfer funds",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
       try {
         const symbols = ['BTC', 'ETH', 'BNB', 'SOL', 'ADA', 'DOGE', 'XRP', 'DOT', 'LINK', 'MATIC'];
         const symbolsQuery = symbols.map(s => `${s}USDT`);
@@ -573,14 +704,46 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="recipientUid">Recipient UID</Label>
+          <Label htmlFor="recipientUid">Recipient UID (Numerical)</Label>
           <Input
             id="recipientUid"
-            placeholder="Enter recipient's UID"
+            placeholder="Enter recipient's numerical UID (e.g., 123456789)"
             value={recipientUid}
-            onChange={(e) => setRecipientUid(e.target.value)}
+            onChange={(e) => {
+              setRecipientUid(e.target.value);
+              setRecipientInfo(null); // Clear recipient info when input changes
+            }}
             className="bg-white/5 border-white/10"
+            type="number"
           />
+          {recipientUid && (
+            <div className="flex items-center mt-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={validateRecipientUid}
+                disabled={isValidatingUid}
+                className="text-xs"
+              >
+                {isValidatingUid ? 
+                  <div className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Validating...
+                  </div> : 
+                  'Validate UID'
+                }
+              </Button>
+            </div>
+          )}
+          {recipientInfo && (
+            <div className="bg-green-500/10 border border-green-500/20 rounded-md p-2 mt-2">
+              <p className="text-sm text-green-400">✓ Recipient found: {recipientInfo.fullName}</p>
+              <p className="text-xs text-white/60">{recipientInfo.email}</p>
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -715,19 +878,22 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
         </Button>
 
         <div className="bg-white/5 p-3 rounded-md mt-4 text-sm">
-          <p className="font-medium mb-2">Your UID: {currentUserId}</p>
-          <p>Share this UID with others who want to send you funds.</p>
+          <p className="font-medium mb-2">Your UID: {currentUserNumericalUid || "Loading..."}</p>
+          <p>Share this numerical UID with others who want to send you funds.</p>
           <Button 
             variant="ghost" 
             size="sm" 
             className="mt-2 text-xs"
             onClick={() => {
-              navigator.clipboard.writeText(currentUserId || "");
-              toast({
-                title: "Copied!",
-                description: "Your UID has been copied to clipboard",
-              });
+              if (currentUserNumericalUid) {
+                navigator.clipboard.writeText(currentUserNumericalUid.toString());
+                toast({
+                  title: "Copied!",
+                  description: "Your numerical UID has been copied to clipboard",
+                });
+              }
             }}
+            disabled={!currentUserNumericalUid}
           >
             Copy UID
           </Button>
