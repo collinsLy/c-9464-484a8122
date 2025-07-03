@@ -21,6 +21,8 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   const [previousDayBalance, setPreviousDayBalance] = useState(0);
   const [assetPrices, setAssetPrices] = useState<Record<string, number>>({});
   const [userAssets, setUserAssets] = useState<Record<string, any>>({});
+  const [isCalculating, setIsCalculating] = useState(false);
+  const [dataReady, setDataReady] = useState(false);
 
   // Calculate total portfolio value with current prices
   const calculatePortfolioValue = (assets: Record<string, any>, prices: Record<string, number>, usdtBalance: number) => {
@@ -41,80 +43,100 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
     setTotalBalance(total);
   };
 
-  // Fetch current prices for assets with increased debounce and memoization
+  // Fetch prices once when component mounts and user assets are available
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    const FETCH_INTERVAL = 3000; // 3 seconds
-    const CHANGE_THRESHOLD = 0.001; // 0.1%
-
-    const fetchPrices = async () => {
+    let isMounted = true;
+    
+    const fetchInitialPrices = async () => {
+      if (Object.keys(userAssets).length === 0) return;
+      
+      setIsCalculating(true);
+      
       try {
         const symbols = Object.keys(userAssets)
           .filter(symbol => symbol !== 'USDT');
 
         if (symbols.length === 0) {
-          calculatePortfolioValue(userAssets, {}, balance);
+          calculatePortfolioValue(userAssets, { USDT: 1 }, balance);
+          setDataReady(true);
           return;
         }
 
         const symbolsQuery = symbols.map(s => `${s}USDT`);
         const controller = new AbortController();
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => {
-            controller.abort();
-            reject(new Error('Timeout'));
-          }, 2000)
-        );
-
-        const fetchPromise = fetch(
+        
+        const response = await fetch(
           `https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`,
-          { signal: controller.signal }
+          { 
+            signal: controller.signal,
+            headers: { 'Cache-Control': 'no-cache' }
+          }
         );
+        
+        const data = await response.json();
 
-        const response = await Promise.race([fetchPromise, timeoutPromise]);
-        const data = await (response as Response).json();
-
-        const newPrices: Record<string, number> = {};
+        const newPrices: Record<string, number> = { USDT: 1 };
         data.forEach((item: any) => {
           const symbol = item.symbol.replace('USDT', '');
           newPrices[symbol] = parseFloat(item.price);
         });
-        newPrices['USDT'] = 1;
 
-        // Deep compare prices to prevent unnecessary updates
-        const hasSignificantChanges = Object.entries(newPrices).some(
-          ([key, value]) => {
-            const oldPrice = assetPrices[key];
-            return !oldPrice || Math.abs((value - oldPrice) / oldPrice) > CHANGE_THRESHOLD;
-          }
-        );
-
-        if (hasSignificantChanges) {
-          setAssetPrices(prev => {
-            // Smooth transition between old and new prices
-            const smoothedPrices: Record<string, number> = {};
-            Object.entries(newPrices).forEach(([key, value]) => {
-              const oldPrice = prev[key];
-              smoothedPrices[key] = oldPrice 
-                ? oldPrice + (value - oldPrice) * 0.3 // Gradual transition
-                : value;
-            });
-            return smoothedPrices;
-          });
-
-          // Only calculate portfolio value if prices changed significantly
+        if (isMounted) {
+          setAssetPrices(newPrices);
           calculatePortfolioValue(userAssets, newPrices, balance);
+          setDataReady(true);
         }
       } catch (error) {
-        console.error('Error fetching asset prices:', error);
+        console.error('Error fetching initial prices:', error);
+        if (isMounted) {
+          setDataReady(true);
+        }
+      } finally {
+        if (isMounted) {
+          setIsCalculating(false);
+        }
       }
     };
 
-    if (Object.keys(userAssets).length > 0) {
-      const debounceTimer = setTimeout(fetchPrices, 3000); // Increased to 3 seconds
-      return () => clearTimeout(debounceTimer);
-    }
+    fetchInitialPrices();
+
+    return () => {
+      isMounted = false;
+    };
   }, [userAssets, balance]);
+
+  // Periodic price updates (less frequent, only when data is ready)
+  useEffect(() => {
+    if (!dataReady || Object.keys(userAssets).length === 0) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const symbols = Object.keys(userAssets)
+          .filter(symbol => symbol !== 'USDT');
+
+        if (symbols.length === 0) return;
+
+        const symbolsQuery = symbols.map(s => `${s}USDT`);
+        const response = await fetch(
+          `https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`
+        );
+        const data = await response.json();
+
+        const newPrices: Record<string, number> = { USDT: 1 };
+        data.forEach((item: any) => {
+          const symbol = item.symbol.replace('USDT', '');
+          newPrices[symbol] = parseFloat(item.price);
+        });
+
+        setAssetPrices(newPrices);
+        calculatePortfolioValue(userAssets, newPrices, balance);
+      } catch (error) {
+        console.error('Error updating prices:', error);
+      }
+    }, 30000); // Update every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [dataReady, userAssets, balance]);
 
   useEffect(() => {
     if (isDemoMode) {
@@ -142,6 +164,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
       if (!userData) {
         console.error('No user data found');
         setIsLoading(false);
+        setDataReady(true);
         return;
       }
 
@@ -172,8 +195,10 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         // Store user assets for portfolio calculation
         setUserAssets(userData.assets || {});
 
-        // Calculate portfolio value including all assets
-        calculatePortfolioValue(userData.assets || {}, assetPrices, parsedBalance);
+        // Only calculate if we have prices ready
+        if (Object.keys(assetPrices).length > 0) {
+          calculatePortfolioValue(userData.assets || {}, assetPrices, parsedBalance);
+        }
       }
 
       setIsLoading(false);
@@ -217,17 +242,12 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
           <CardContent className="p-4">
             <div className="text-sm md:text-lg text-[#7a7a7a]">Total Balance</div>
             <div className="text-xl md:text-2xl font-bold flex items-center">
-              {isLoading ? (
+              {isLoading || !dataReady ? (
                 <span className="text-white/60">Loading...</span>
               ) : (
-                <div className="relative">
-                  <span className={`transition-opacity duration-200 ${Object.keys(assetPrices).length === 0 ? 'opacity-50' : 'opacity-100'}`}>
-                    ${totalBalance.toFixed(2)}
-                  </span>
-                  {Object.keys(assetPrices).length === 0 && (
-                    <span className="absolute top-0 left-0 ml-1 animate-pulse text-white/60">*</span>
-                  )}
-                </div>
+                <span className="transition-opacity duration-300 ease-in-out">
+                  ${totalBalance.toFixed(2)}
+                </span>
               )}
             </div>
             <div className="flex items-center text-xs md:text-sm">
@@ -251,7 +271,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
           <CardContent className="p-4">
             <div className="text-sm md:text-lg text-[#7a7a7a]">Available Cash</div>
             <div className="text-xl md:text-2xl font-bold flex items-center">
-              {isLoading ? (
+              {isLoading || !dataReady ? (
                 <span className="text-white/60">Loading...</span>
               ) : (
                 `$${balance.toFixed(2)}`
@@ -282,7 +302,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
           <CardContent className="p-4">
             <div className="text-sm md:text-lg text-[#7a7a7a]">Profit / Loss</div>
             <div className={`text-xl md:text-2xl font-bold flex items-center ${profitLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-              {isLoading ? (
+              {isLoading || !dataReady ? (
                 <span className="text-white/60">Loading...</span>
               ) : (
                 `${profitLoss >= 0 ? '+' : ''}$${profitLoss.toFixed(2)}`
