@@ -1,13 +1,22 @@
-
 // This file serves as a proxy for API calls to prevent CORS issues
 // and to keep API keys secure on the server side
 
-export const fetchBinanceData = async (endpoint: string) => {
+export const fetchBinanceData = async (endpoint: string, params: Record<string, any> = {}) => {
   try {
-    const response = await fetch(`/api/v3/${endpoint}`);
+    const queryString = new URLSearchParams(params).toString();
+    const url = `/api/v3/${endpoint}${queryString ? `?${queryString}` : ''}`;
+
+    const response = await fetch(url);
 
     if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const text = await response.text();
+      console.error(`Invalid response format for ${endpoint}:`, text);
+      throw new Error(`Invalid response format: expected JSON but got ${contentType}`);
     }
 
     const data = await response.json();

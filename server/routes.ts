@@ -106,6 +106,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const queryString = new URLSearchParams(req.query as any).toString();
       const url = `https://api.binance.com/api/v3/${endpoint}${queryString ? `?${queryString}` : ''}`;
       
+      console.log(`Proxying request to: ${url}`);
+      
       const response = await fetch(url, {
         headers: {
           'Accept': 'application/json',
@@ -114,8 +116,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       if (!response.ok) {
+        console.error(`Binance API error: ${response.status} - ${response.statusText}`);
         return res.status(response.status).json({ 
-          error: `Binance API error: ${response.status}` 
+          error: `Binance API error: ${response.status}`,
+          details: response.statusText
+        });
+      }
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error(`Invalid response format from Binance API:`, text);
+        return res.status(502).json({ 
+          error: "Invalid response format from Binance API",
+          details: "Expected JSON but received HTML or other format"
         });
       }
 

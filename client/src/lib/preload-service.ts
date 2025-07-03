@@ -49,12 +49,12 @@ class PreloadService {
 
   public async preloadUserData(userId: string): Promise<void> {
     if (this.isPreloading) return;
-    
+
     this.isPreloading = true;
-    
+
     try {
       console.log('🚀 Starting preload for user:', userId);
-      
+
       // Preload user data in parallel
       const [userBalance, userProfile, prices, marketData] = await Promise.all([
         this.preloadUserBalance(userId),
@@ -72,10 +72,10 @@ class PreloadService {
       };
 
       console.log('✅ Preload completed successfully');
-      
+
       // Notify all callbacks
       this.preloadCallbacks.forEach(callback => callback(this.preloadedData!));
-      
+
     } catch (error) {
       console.error('❌ Preload failed:', error);
     } finally {
@@ -104,7 +104,7 @@ class PreloadService {
   private async preloadPrices(): Promise<Map<string, number>> {
     const prices = new Map<string, number>();
     const symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'SOLUSDT'];
-    
+
     try {
       // Check cache first
       const cachedPrices = this.getCachedPrices(symbols);
@@ -118,19 +118,20 @@ class PreloadService {
       // Fetch from API if not cached
       const pricePromises = symbols.map(async (symbol) => {
         try {
-          const data = await fetchBinanceData(`ticker/price?symbol=${symbol}`);
-          const price = parseFloat(data.price);
-          
-          // Cache the price
-          this.priceCache[symbol] = {
-            price,
-            timestamp: Date.now()
-          };
-          
-          return { symbol, price };
+          const data = await fetchBinanceData(`ticker/price`, { symbol });
+          if (data && data.price) {
+            this.priceCache[symbol] = {
+              price: parseFloat(data.price),
+              timestamp: Date.now()
+            };
+          }
         } catch (error) {
           console.error(`Error fetching price for ${symbol}:`, error);
-          return { symbol, price: 0 };
+          // Set a fallback price to prevent cascading failures
+          this.priceCache[symbol] = {
+            price: 0,
+            timestamp: Date.now()
+          };
         }
       });
 
@@ -195,7 +196,7 @@ class PreloadService {
 
   public isDataStale(): boolean {
     if (!this.preloadedData) return true;
-    
+
     const now = new Date();
     const timeDiff = now.getTime() - this.preloadedData.lastUpdated.getTime();
     return timeDiff > this.CACHE_DURATION;

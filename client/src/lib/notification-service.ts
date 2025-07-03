@@ -75,7 +75,7 @@ export class NotificationService {
       const cryptoAmount = transaction.cryptoAmount || null;
       const cryptoType = transaction.crypto || null;
       const amount = transaction.amount || null;
-      
+
       let notificationMessage = "Your withdrawal has been submitted and is being processed";
       if (cryptoAmount && cryptoType) {
         notificationMessage = `Your withdrawal of ${cryptoAmount} ${cryptoType} is being processed`;
@@ -86,7 +86,7 @@ export class NotificationService {
       // Store notification in Firebase for the notification icon
       const { addDoc, collection } = await import('firebase/firestore');
       const { db } = await import('@/lib/firebase');
-      
+
       // Store in both collections for better compatibility
       const notificationData = {
         userId: userId,
@@ -104,7 +104,7 @@ export class NotificationService {
 
       // Add to notifications collection
       await addDoc(collection(db, 'notifications'), notificationData);
-      
+
       // Also add to p2pNotifications collection for header compatibility
       await addDoc(collection(db, 'p2pNotifications'), notificationData);
 
@@ -171,12 +171,12 @@ export class NotificationService {
       const sound = SOUND_EFFECTS[type];
       if (sound) {
         sound.currentTime = 0;
-        
+
         // Set custom volume if provided
         if (volume !== undefined && volume >= 0 && volume <= 1) {
           sound.volume = volume;
         }
-        
+
         // Try to play the sound
         sound.play().catch(error => {
           console.error('Error playing notification sound:', error);
@@ -225,7 +225,7 @@ export class NotificationService {
     try {
       const { addDoc, collection } = await import('firebase/firestore');
       const { db } = await import('@/lib/firebase');
-      
+
       await addDoc(collection(db, 'notifications'), {
         userId: userId,
         type: type,
@@ -368,6 +368,38 @@ export class NotificationService {
       }
     } catch (error) {
       console.error("Error showing notification:", error);
+    }
+  }
+
+  private static async playSound(type: keyof typeof SOUND_EFFECTS, volume?: number): Promise<void> {
+    try {
+      // Stop and reset any currently playing sounds
+      Object.values(SOUND_EFFECTS).forEach(audio => {
+        audio.pause();
+        audio.currentTime = 0;
+      });
+  
+      const sound = SOUND_EFFECTS[type];
+      if (sound) {
+        sound.currentTime = 0;
+  
+        // Set custom volume if provided
+        if (volume !== undefined && volume >= 0 && volume <= 1) {
+          sound.volume = volume;
+        }
+  
+        // Check if user has interacted with the document
+        if (document.visibilityState === 'visible') {
+          await sound.play();
+        } else {
+          console.warn('Audio playback prevented due to lack of user interaction.');
+        }
+      }
+    } catch (error) {
+      // Silently handle audio permission errors
+      if (error.name !== 'NotAllowedError') {
+        console.error('Error playing notification sound:', error);
+      }
     }
   }
 }
