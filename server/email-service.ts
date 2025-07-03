@@ -60,7 +60,7 @@ export class EmailService {
       ...config,
     };
 
-    this.transporter = nodemailer.createTransporter(emailConfig);
+    this.transporter = nodemailer.createTransport(emailConfig);
     this.verifyConnection();
   }
 
