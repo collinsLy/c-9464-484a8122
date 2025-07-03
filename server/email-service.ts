@@ -14,7 +14,7 @@ class EmailService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
-    this.transporter = nodemailer.createTransporter(EMAIL_CONFIG);
+    this.transporter = nodemailer.createTransport(EMAIL_CONFIG);
   }
 
   async sendTransactionEmail(
