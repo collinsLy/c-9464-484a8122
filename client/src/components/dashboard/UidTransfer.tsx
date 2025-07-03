@@ -34,14 +34,14 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
       if (currentUserId) {
         try {
           let numericalUid = await NumericalUidService.getNumericalUid(currentUserId);
-          
+
           // If no UID exists, create one
           if (!numericalUid) {
             console.log('No numerical UID found for current user, creating one...');
             numericalUid = await NumericalUidService.createNumericalUidMapping(currentUserId);
             console.log('Created numerical UID:', numericalUid);
           }
-          
+
           setCurrentUserNumericalUid(numericalUid);
         } catch (error) {
           console.error('Error fetching numerical UID:', error);
@@ -64,7 +64,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
     setIsValidatingUid(true);
     try {
       const numericalUid = parseInt(recipientUid.trim());
-      
+
       if (isNaN(numericalUid)) {
         toast({
           title: "Invalid UID",
@@ -78,7 +78,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
       console.log('Validating numerical UID:', numericalUid);
       const userData = await NumericalUidService.getUserDataByNumericalUid(numericalUid);
       console.log('User data result:', userData);
-      
+
       if (userData) {
         setRecipientInfo({
           numericalUid,
@@ -143,12 +143,12 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
     try {
       const numericalUid = parseInt(recipientUid.trim());
       await UserService.transferFunds(currentUserId, numericalUid, transferAmount);
-      
+
       toast({
         title: "Transfer Successful",
         description: `Successfully transferred $${transferAmount} to UID ${numericalUid}`,
       });
-      
+
       setRecipientUid("");
       setAmount("");
       setRecipientInfo(null);
@@ -628,8 +628,8 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
       try {
         const { auth } = await import('@/lib/firebase');
         const currentUser = auth.currentUser;
-        
-        // Send email to sender
+
+        // Send email to sender if they have an email
         if (currentUser?.email) {
           console.log('Sending transfer email to sender:', currentUser.email);
           const senderEmailResponse = await fetch('/api/send-transaction-email', {
@@ -643,7 +643,8 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
               type: 'transfer',
               amount: transferAmount,
               currency: selectedCrypto,
-              receiver: recipientData.fullName || recipientData.email || 'User'
+              receiver: recipientData.fullName || recipientData.email || 'User',
+              isReceiver: false
             }),
           });
 
@@ -909,7 +910,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
           {isLoading ? "Processing..." : "Transfer Funds"}
         </Button>
 
-        
+
       </CardContent>
     </Card>
   );

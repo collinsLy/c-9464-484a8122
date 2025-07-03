@@ -443,7 +443,8 @@ const WithdrawPage = () => {
               type: 'transfer',
               amount: cryptoAmountValue,
               currency: selectedCrypto,
-              receiver: recipientDataFresh.fullName || recipientDataFresh.email || 'User'
+              receiver: recipientDataFresh.fullName || recipientDataFresh.email || 'User',
+              isReceiver: false
             }),
           });
 
@@ -468,11 +469,12 @@ const WithdrawPage = () => {
               type: 'transfer',
               amount: cryptoAmountValue,
               currency: selectedCrypto,
-              receiver: senderData.fullName || currentUser.email || 'User'
+              receiver: senderData.fullName || currentUser.email || 'User',
+              isReceiver: true
             }),
           });
 
-          if (receiverEmailResponse.ok) {
+          if (recipientEmailResponse.ok) {
             console.log('Transfer email sent successfully to receiver');
           } else {
             console.error('Failed to send transfer email to receiver');

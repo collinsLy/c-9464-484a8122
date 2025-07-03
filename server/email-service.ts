@@ -33,6 +33,7 @@ const TransactionEmailSchema = z.object({
   fromCurrency: z.string().optional(),
   toCurrency: z.string().optional(),
   conversionRate: z.number().positive().optional(),
+  isReceiver: z.boolean().optional(),
 });
 
 const WelcomeEmailSchema = z.object({
@@ -188,7 +189,8 @@ export class EmailService {
     receiver?: string,
     fromCurrency?: string,
     toCurrency?: string,
-    conversionRate?: number
+    conversionRate?: number,
+    isReceiver?: boolean
   ): EmailTemplate {
     const timestamp = new Date().toLocaleString();
     const templates = {
@@ -205,9 +207,11 @@ export class EmailService {
         transactionType: 'deposit' as const,
       },
       transfer: {
-        subject: `${this.brandName} Transfer Confirmation`,
-        message: `Your transfer of ${amount.toLocaleString()} ${currency} to ${receiver} has been successfully completed and processed.`,
-        buttonText: 'View Transfer Details',
+        subject: `${this.brandName} Transfer ${isReceiver ? 'Received' : 'Confirmation'}`,
+        message: isReceiver 
+          ? `You have received ${amount.toLocaleString()} ${currency} from ${receiver}. The funds are now available in your ${this.brandName} account.`
+          : `Your transfer of ${amount.toLocaleString()} ${currency} to ${receiver} has been successfully completed and processed.`,
+        buttonText: isReceiver ? 'View Balance' : 'View Transfer Details',
         transactionType: 'transfer' as const,
       },
       conversion: {
@@ -239,7 +243,7 @@ export class EmailService {
   async sendTransactionEmail(data: z.infer<typeof TransactionEmailSchema>): Promise<{ success: boolean; messageId?: string; error?: string }> {
     try {
       const validatedData = TransactionEmailSchema.parse(data);
-      const { to, username, type, amount, currency, receiver, fromCurrency, toCurrency, conversionRate } = validatedData;
+      const { to, username, type, amount, currency, receiver, fromCurrency, toCurrency, conversionRate, isReceiver } = validatedData;
 
       const template = this.createEmailTemplate(
         username,
@@ -249,7 +253,8 @@ export class EmailService {
         receiver,
         fromCurrency,
         toCurrency,
-        conversionRate
+        conversionRate,
+        isReceiver
       );
 
       const mailOptions = {
