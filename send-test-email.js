@@ -11,7 +11,7 @@ async function testEmailService() {
   
   try {
     // Create transporter with the same config as the email service
-    const transporter = nodemailer.createTransporter({
+    const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER || 'kelvinkelly3189@gmail.com',
