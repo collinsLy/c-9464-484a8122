@@ -877,27 +877,7 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
           {isLoading ? "Processing..." : "Transfer Funds"}
         </Button>
 
-        <div className="bg-white/5 p-3 rounded-md mt-4 text-sm">
-          <p className="font-medium mb-2">Your UID: {currentUserNumericalUid || "Loading..."}</p>
-          <p>Share this numerical UID with others who want to send you funds.</p>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="mt-2 text-xs"
-            onClick={() => {
-              if (currentUserNumericalUid) {
-                navigator.clipboard.writeText(currentUserNumericalUid.toString());
-                toast({
-                  title: "Copied!",
-                  description: "Your numerical UID has been copied to clipboard",
-                });
-              }
-            }}
-            disabled={!currentUserNumericalUid}
-          >
-            Copy UID
-          </Button>
-        </div>
+        
       </CardContent>
     </Card>
   );
