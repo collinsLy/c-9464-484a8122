@@ -107,7 +107,7 @@ export class EmailService {
           
           <!-- Header -->
           <div style="padding: 30px; border-bottom: 1px solid #e0e0e0; text-align: center;">
-            <img src="https://vertex-trading.replit.app/attached_assets/v-systems-vsys-logo-removebg-preview_1751572641756.png" alt="Vertex Trading Logo" style="height: 50px; width: auto; margin-bottom: 15px;" />
+            <img src="https://cryptologos.cc/logos/v-systems-vsys-logo.svg?v=040" alt="V-Systems Logo" style="height: 50px; width: auto; margin-bottom: 15px;" />
             <h1 style="margin: 0; font-size: 24px; font-weight: bold; color: #1a1a1a;">${this.brandName}</h1>
           </div>
           
