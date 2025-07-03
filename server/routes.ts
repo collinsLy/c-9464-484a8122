@@ -9,15 +9,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Email notification endpoints
   app.post("/api/send-transaction-email", async (req, res) => {
     try {
-      const { to, email, username, type, amount, receiver, fromCurrency, toCurrency, conversionRate } = req.body;
+      const { to, email, username, type, amount, currency, receiver, fromCurrency, toCurrency, conversionRate } = req.body;
       
       // Support both 'to' and 'email' for the recipient field
       const recipientEmail = to || email;
       
-      if (!recipientEmail || !username || !type || !amount) {
+      if (!recipientEmail || !username || !type || !amount || !currency) {
         return res.status(400).json({ 
           success: false, 
-          error: "Missing required fields: email, username, type, amount" 
+          error: "Missing required fields: email, username, type, amount, currency" 
         });
       }
 
@@ -26,6 +26,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         username,
         type,
         amount,
+        currency,
         receiver,
         fromCurrency,
         toCurrency,
@@ -46,7 +47,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         to: 'test@example.com',
         username: 'Test User',
         type: 'withdrawal',
-        amount: 1000
+        amount: 1000,
+        currency: 'USDT'
       });
       res.json({ 
         message: 'Email test completed', 
@@ -90,7 +92,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         to: "test@example.com",
         username: "Test User",
         type: "withdrawal",
-        amount: 100.50
+        amount: 100.50,
+        currency: "USDT"
       });
       res.json(result);
     } catch (error) {

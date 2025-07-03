@@ -4,6 +4,10 @@
 A comprehensive cryptocurrency trading platform migrated from Lovable to Replit environment. The platform includes trading features for spot, futures, P2P, automated trading bots, market analysis, and user management.
 
 ## Recent Changes
+- **2025-01-03**: Fixed transaction email currency display to show actual cryptocurrency instead of hardcoded USD
+- **2025-01-03**: Updated email service schema to require currency parameter for all transaction emails
+- **2025-01-03**: Modified all email calls throughout the application to include proper cryptocurrency symbol (USDT, BTC, etc.)
+- **2025-01-03**: Updated transaction email templates to display "Amount: 10 USDT" instead of "Amount: $10"
 - **2025-01-03**: Successfully completed migration from Replit Agent to Replit environment
 - **2025-01-03**: Fixed UID transfer logic for receiving funds - converted numerical UID to Firebase UID properly
 - **2025-01-03**: Added automatic numerical UID creation for users when not present

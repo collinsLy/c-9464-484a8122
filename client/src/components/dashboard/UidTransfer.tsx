@@ -641,7 +641,8 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
               email: currentUser.email,
               username: currentUser.displayName || 'User',
               type: 'transfer',
-              amount: transferAmount * (assetPrices[selectedCrypto] || 1),
+              amount: transferAmount,
+              currency: selectedCrypto,
               receiver: recipientData.fullName || recipientData.email || 'User'
             }),
           });
@@ -665,7 +666,8 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
               email: recipientData.email,
               username: recipientData.fullName || 'User',
               type: 'transfer',
-              amount: transferAmount * (assetPrices[selectedCrypto] || 1),
+              amount: transferAmount,
+              currency: selectedCrypto,
               receiver: currentUser?.displayName || currentUser?.email || 'User'
             }),
           });

@@ -45,8 +45,11 @@ const TradingPanel = ({ symbol, isDemoMode = false }: TradingPanelProps) => {
           'Authorization': `Bearer ${idToken}`
         },
         body: JSON.stringify({
+          email: auth.currentUser?.email || 'user@example.com',
+          username: auth.currentUser?.displayName || 'User',
           type,
-          amount: parseFloat(calculateTotal())
+          amount: parseFloat(calculateTotal()),
+          currency: 'USD'
         })
       });
 

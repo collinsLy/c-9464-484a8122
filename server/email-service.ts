@@ -28,6 +28,7 @@ const TransactionEmailSchema = z.object({
   username: z.string().min(1, 'Username is required'),
   type: z.enum(['withdrawal', 'deposit', 'transfer', 'conversion']),
   amount: z.number().positive('Amount must be positive'),
+  currency: z.string().min(1, 'Currency is required'),
   receiver: z.string().optional(),
   fromCurrency: z.string().optional(),
   toCurrency: z.string().optional(),
@@ -89,7 +90,8 @@ export class EmailService {
     message: string,
     buttonText: string,
     transactionType: TransactionType,
-    amount?: number
+    amount?: number,
+    currency?: string
   ): string {
     const statusIcon = this.getStatusIcon(transactionType);
     const currentYear = new Date().getFullYear();
@@ -140,7 +142,7 @@ export class EmailService {
                 ${amount ? `
                 <tr>
                   <td style="padding: 10px 0; font-size: 14px; color: #666666; border-bottom: 1px solid #e0e0e0;">Amount:</td>
-                  <td style="padding: 10px 0; font-size: 14px; color: #ff7a00; text-align: right; font-family: monospace; border-bottom: 1px solid #e0e0e0; font-weight: bold;">$${amount.toLocaleString()}</td>
+                  <td style="padding: 10px 0; font-size: 14px; color: #ff7a00; text-align: right; font-family: monospace; border-bottom: 1px solid #e0e0e0; font-weight: bold;">${amount.toLocaleString()} ${currency || ''}</td>
                 </tr>
                 ` : ''}
                 <tr>
@@ -182,6 +184,7 @@ export class EmailService {
     username: string,
     type: TransactionType,
     amount: number,
+    currency: string,
     receiver?: string,
     fromCurrency?: string,
     toCurrency?: string,
@@ -191,19 +194,19 @@ export class EmailService {
     const templates = {
       withdrawal: {
         subject: `${this.brandName} Withdrawal Confirmation`,
-        message: `Your withdrawal of $${amount.toLocaleString()} has been successfully processed and is now being transferred to your designated account. The funds should arrive within 1-3 business days.`,
+        message: `Your withdrawal of ${amount.toLocaleString()} ${currency} has been successfully processed and is now being transferred to your designated account. The funds should arrive within 1-3 business days.`,
         buttonText: 'View Transaction History',
         transactionType: 'withdrawal' as const,
       },
       deposit: {
         subject: `${this.brandName} Deposit Confirmation`,
-        message: `Your deposit of $${amount.toLocaleString()} is now available in your ${this.brandName} account. You can start trading immediately with your deposited funds.`,
+        message: `Your deposit of ${amount.toLocaleString()} ${currency} is now available in your ${this.brandName} account. You can start trading immediately with your deposited funds.`,
         buttonText: 'Start Trading Now',
         transactionType: 'deposit' as const,
       },
       transfer: {
         subject: `${this.brandName} Transfer Confirmation`,
-        message: `Your transfer of $${amount.toLocaleString()} to ${receiver} has been successfully completed and processed.`,
+        message: `Your transfer of ${amount.toLocaleString()} ${currency} to ${receiver} has been successfully completed and processed.`,
         buttonText: 'View Transfer Details',
         transactionType: 'transfer' as const,
       },
@@ -222,7 +225,8 @@ export class EmailService {
       template.message,
       template.buttonText,
       template.transactionType,
-      amount
+      amount,
+      currency
     );
 
     return {
@@ -235,12 +239,13 @@ export class EmailService {
   async sendTransactionEmail(data: z.infer<typeof TransactionEmailSchema>): Promise<{ success: boolean; messageId?: string; error?: string }> {
     try {
       const validatedData = TransactionEmailSchema.parse(data);
-      const { to, username, type, amount, receiver, fromCurrency, toCurrency, conversionRate } = validatedData;
+      const { to, username, type, amount, currency, receiver, fromCurrency, toCurrency, conversionRate } = validatedData;
 
       const template = this.createEmailTemplate(
         username,
         type,
         amount,
+        currency,
         receiver,
         fromCurrency,
         toCurrency,

@@ -6,6 +6,7 @@ class EmailNotificationService {
     username: string,
     type: 'withdrawal' | 'deposit' | 'transfer' | 'conversion',
     amount: number,
+    currency: string,
     receiver?: string,
     fromCurrency?: string,
     toCurrency?: string,
@@ -22,6 +23,7 @@ class EmailNotificationService {
           username,
           type,
           amount,
+          currency,
           receiver,
           fromCurrency,
           toCurrency,
@@ -67,16 +69,16 @@ class EmailNotificationService {
   }
 
   // Convenience methods for specific transaction types
-  async sendWithdrawalEmail(email: string, username: string, amount: number) {
-    return this.sendTransactionEmail(email, username, 'withdrawal', amount);
+  async sendWithdrawalEmail(email: string, username: string, amount: number, currency: string) {
+    return this.sendTransactionEmail(email, username, 'withdrawal', amount, currency);
   }
 
-  async sendDepositEmail(email: string, username: string, amount: number) {
-    return this.sendTransactionEmail(email, username, 'deposit', amount);
+  async sendDepositEmail(email: string, username: string, amount: number, currency: string) {
+    return this.sendTransactionEmail(email, username, 'deposit', amount, currency);
   }
 
-  async sendTransferEmail(email: string, username: string, amount: number, receiver: string) {
-    return this.sendTransactionEmail(email, username, 'transfer', amount, receiver);
+  async sendTransferEmail(email: string, username: string, amount: number, currency: string, receiver: string) {
+    return this.sendTransactionEmail(email, username, 'transfer', amount, currency, receiver);
   }
 
   async sendConversionEmail(
@@ -92,7 +94,8 @@ class EmailNotificationService {
       username, 
       'conversion', 
       amount, 
-      undefined, 
+      fromCurrency, // Use fromCurrency as the main currency
+      undefined, // receiver (not applicable for conversion)
       fromCurrency, 
       toCurrency, 
       conversionRate

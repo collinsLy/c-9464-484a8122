@@ -441,7 +441,8 @@ const WithdrawPage = () => {
               email: currentUser.email,
               username: currentUser.displayName || senderData.fullName || 'User',
               type: 'transfer',
-              amount: estimatedUsdValue,
+              amount: cryptoAmountValue,
+              currency: 'USDT',
               receiver: recipientDataFresh.fullName || recipientDataFresh.email || 'User'
             }),
           });
@@ -465,7 +466,8 @@ const WithdrawPage = () => {
               email: recipientDataFresh.email,
               username: recipientDataFresh.fullName || 'User',
               type: 'transfer',
-              amount: estimatedUsdValue,
+              amount: cryptoAmountValue,
+              currency: 'USDT',
               receiver: currentUser?.displayName || senderData.fullName || currentUser?.email || 'User'
             }),
           });
@@ -810,7 +812,8 @@ const WithdrawPage = () => {
             email: currentUser.email,
             username: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
             type: 'withdrawal',
-            amount: amountValue
+            amount: amountValue,
+            currency: 'USD'
           };
 
           console.log('Sending fiat withdrawal email:', requestBody);
@@ -1292,7 +1295,8 @@ const WithdrawPage = () => {
                     email: currentUser.email,
                     username: currentUser.displayName || userData?.fullName || currentUser.email?.split('@')[0] || 'User',
                     type: 'withdrawal',
-                    amount: estimatedUsdValue
+                    amount: parseFloat(cryptoAmount),
+                    currency: selectedCrypto
                   };
 
                   console.log('Email request body:', requestBody);
