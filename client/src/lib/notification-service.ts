@@ -371,37 +371,7 @@ export class NotificationService {
     }
   }
 
-  private static async playSound(type: keyof typeof SOUND_EFFECTS, volume?: number): Promise<void> {
-    try {
-      // Stop and reset any currently playing sounds
-      Object.values(SOUND_EFFECTS).forEach(audio => {
-        audio.pause();
-        audio.currentTime = 0;
-      });
   
-      const sound = SOUND_EFFECTS[type];
-      if (sound) {
-        sound.currentTime = 0;
-  
-        // Set custom volume if provided
-        if (volume !== undefined && volume >= 0 && volume <= 1) {
-          sound.volume = volume;
-        }
-  
-        // Check if user has interacted with the document
-        if (document.visibilityState === 'visible') {
-          await sound.play();
-        } else {
-          console.warn('Audio playback prevented due to lack of user interaction.');
-        }
-      }
-    } catch (error) {
-      // Silently handle audio permission errors
-      if (error.name !== 'NotAllowedError') {
-        console.error('Error playing notification sound:', error);
-      }
-    }
-  }
 }
 
 export default NotificationService;
