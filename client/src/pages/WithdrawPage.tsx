@@ -1093,25 +1093,28 @@ const WithdrawPage = () => {
                 transactions: finalTransactions 
               });
               
-              // Send email notification for withdrawal
+              // Send email notification for withdrawal using Firebase Auth user
               try {
-                console.log('Checking email data for withdrawal notification:', {
-                  hasEmail: !!userData?.email,
-                  email: userData?.email,
-                  username: userData?.fullName || userData.email || 'User',
+                const { auth } = await import('@/lib/firebase');
+                const currentUser = auth.currentUser;
+                
+                console.log('Checking Firebase Auth user for email:', {
+                  userId: currentUser?.uid,
+                  email: currentUser?.email,
+                  displayName: currentUser?.displayName,
                   amount: estimatedUsdValue
                 });
 
-                if (userData?.email) {
-                  console.log('Sending withdrawal email to:', userData.email);
+                if (currentUser?.email) {
+                  console.log('Sending withdrawal email to Firebase Auth email:', currentUser.email);
                   const emailResponse = await fetch('/api/send-transaction-email', {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                      email: userData.email,
-                      username: userData?.fullName || userData.email || 'User',
+                      email: currentUser.email,
+                      username: currentUser.displayName || userData?.fullName || currentUser.email || 'User',
                       type: 'withdrawal',
                       amount: estimatedUsdValue,
                     }),
@@ -1124,7 +1127,7 @@ const WithdrawPage = () => {
                     console.log('Withdrawal email sent successfully:', emailResult.messageId);
                     toast({
                       title: "Email Sent",
-                      description: "Withdrawal confirmation email has been sent to your email address.",
+                      description: `Withdrawal confirmation email has been sent to ${currentUser.email}`,
                     });
                   } else {
                     console.error('Failed to send withdrawal email:', emailResult);
@@ -1135,10 +1138,10 @@ const WithdrawPage = () => {
                     });
                   }
                 } else {
-                  console.log('No email address found in user data');
+                  console.log('No email address found in Firebase Auth user');
                   toast({
                     title: "Email Not Found",
-                    description: "Please add an email address to your profile to receive transaction confirmations.",
+                    description: "Please ensure your account has an email address to receive transaction confirmations.",
                     variant: "destructive",
                   });
                 }

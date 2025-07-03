@@ -468,6 +468,37 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
         console.error("Error creating notification:", error);
       }
 
+      // Send email notification for transfer
+      try {
+        const { auth } = await import('@/lib/firebase');
+        const currentUser = auth.currentUser;
+        
+        if (currentUser?.email) {
+          console.log('Sending transfer email to sender:', currentUser.email);
+          const emailResponse = await fetch('/api/send-transaction-email', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: currentUser.email,
+              username: currentUser.displayName || 'User',
+              type: 'transfer',
+              amount: transferAmount * (assetPrices[selectedCrypto] || 1),
+              receiver: recipientData.fullName || 'User'
+            }),
+          });
+
+          if (emailResponse.ok) {
+            console.log('Transfer email sent successfully');
+          } else {
+            console.error('Failed to send transfer email');
+          }
+        }
+      } catch (error) {
+        console.error('Error sending transfer email:', error);
+      }
+
       // Show success message
       toast({
         title: "Transfer Successful",
