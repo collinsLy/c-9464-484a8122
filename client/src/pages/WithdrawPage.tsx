@@ -948,8 +948,7 @@ const WithdrawPage = () => {
         console.log(`Updating USDT in assets to: ${Math.max(0, newCryptoAmount)}`);
       } else if (selectedCrypto === 'BTC') {
         // Special handling for BTC - deduct BNB for gas fees
-        const```python
-updatedUserAssets = { ...userAssets };
+        const updatedUserAssets = { ...userAssets };
         const newBtcAmount = cryptoBalance -cryptoAmountValue;
         const gasFeeInBnb = getGasFee(selectedCrypto, network);
         const currentBnbBalance = Number(userAssets.BNB?.amount) || 0;
