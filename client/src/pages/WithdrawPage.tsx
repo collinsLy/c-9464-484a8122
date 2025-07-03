@@ -249,7 +249,26 @@ const WithdrawPage = () => {
 
       // Get sender's assets
       const senderAssets = senderData.assets || {};
-      const senderBalance = senderAssets[selectedCrypto]?.amount || 0;
+      
+      // Handle USDT balance specially - check both locations
+      let senderBalance = 0;
+      if (selectedCrypto === 'USDT') {
+        // First check assets.USDT (new location)
+        if (senderAssets.USDT && senderAssets.USDT.amount !== undefined) {
+          senderBalance = Number(senderAssets.USDT.amount);
+          console.log(`Sender USDT from assets: ${senderBalance}`);
+        } else if (typeof senderData.balance === 'number') {
+          // Fallback to main balance field (legacy location)
+          senderBalance = senderData.balance;
+          console.log(`Sender USDT from main balance: ${senderBalance}`);
+        } else if (typeof senderData.balance === 'string') {
+          senderBalance = parseFloat(senderData.balance) || 0;
+          console.log(`Sender USDT from main balance (string): ${senderBalance}`);
+        }
+      } else {
+        // For other cryptocurrencies, use assets
+        senderBalance = senderAssets[selectedCrypto]?.amount || 0;
+      }
 
       // Verify sender has enough balance
       if (senderBalance < cryptoAmountValue) {
@@ -273,10 +292,21 @@ const WithdrawPage = () => {
 
       // Update sender's assets
       const updatedSenderAssets = { ...senderAssets };
-      updatedSenderAssets[selectedCrypto] = {
-        ...updatedSenderAssets[selectedCrypto],
-        amount: newSenderBalance
-      };
+      
+      // Handle USDT updates specially
+      if (selectedCrypto === 'USDT') {
+        // Always update USDT in assets
+        updatedSenderAssets.USDT = {
+          ...updatedSenderAssets.USDT,
+          amount: newSenderBalance,
+          name: 'USDT'
+        };
+      } else {
+        updatedSenderAssets[selectedCrypto] = {
+          ...updatedSenderAssets[selectedCrypto],
+          amount: newSenderBalance
+        };
+      }
 
       // Update recipient's assets
       const updatedRecipientAssets = { ...recipientAssets };
@@ -343,10 +373,17 @@ const WithdrawPage = () => {
       };
 
       // Update sender data
-      await UserService.updateUserData(uid, {
+      const senderUpdateData: any = {
         assets: updatedSenderAssets,
         transactions: arrayUnion(senderTransaction)
-      });
+      };
+      
+      // If transferring USDT and balance was in main field, clear main balance
+      if (selectedCrypto === 'USDT' && typeof senderData.balance === 'number' && senderData.balance > 0) {
+        senderUpdateData.balance = 0; // Clear main balance since USDT is now in assets
+      }
+      
+      await UserService.updateUserData(uid, senderUpdateData);
 
       // Update recipient data
       await UserService.updateUserData(recipientFirebaseUid, {
