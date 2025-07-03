@@ -1,0 +1,102 @@
+Current active tab: dashboard
+preload-service.ts:56 🚀 Starting preload for user: 5uKZPhNIsWRU90RtyETuxPgt6T02
+api-proxy.ts:16 Error fetching Binance data (ticker/price?symbol=BTCUSDT): SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+fetchBinanceData @ api-proxy.ts:16
+await in fetchBinanceData
+(anonymous) @ preload-service.ts:121
+preloadPrices @ preload-service.ts:119
+preloadUserData @ preload-service.ts:62
+(anonymous) @ preload-service.ts:43
+(anonymous) @ firebase_auth.js?v=efc1d8e7:2749
+Promise.then
+registerStateListener @ firebase_auth.js?v=efc1d8e7:2745
+onAuthStateChanged @ firebase_auth.js?v=efc1d8e7:2605
+onAuthStateChanged @ firebase_auth.js?v=efc1d8e7:5125
+initializeAuthListener @ preload-service.ts:41
+PreloadService @ preload-service.ts:30
+getInstance @ preload-service.ts:35
+(anonymous) @ preload-service.ts:211Understand this error
+preload-service.ts:132 Error fetching price for BTCUSDT: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+(anonymous) @ preload-service.ts:132
+await in (anonymous)
+preloadPrices @ preload-service.ts:119
+preloadUserData @ preload-service.ts:62
+(anonymous) @ preload-service.ts:43
+(anonymous) @ firebase_auth.js?v=efc1d8e7:2749
+Promise.then
+registerStateListener @ firebase_auth.js?v=efc1d8e7:2745
+onAuthStateChanged @ firebase_auth.js?v=efc1d8e7:2605
+onAuthStateChanged @ firebase_auth.js?v=efc1d8e7:5125
+initializeAuthListener @ preload-service.ts:41
+PreloadService @ preload-service.ts:30
+getInstance @ preload-service.ts:35
+(anonymous) @ preload-service.ts:211Understand this error
+api-proxy.ts:16 Error fetching Binance data (ticker/price?symbol=ADAUSDT): SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+fetchBinanceData @ api-proxy.ts:16
+await in fetchBinanceData
+(anonymous) @ preload-service.ts:121
+preloadPrices @ preload-service.ts:119
+preloadUserData @ preload-service.ts:62
+(anonymous) @ preload-service.ts:43
+(anonymous) @ firebase_auth.js?v=efc1d8e7:2749
+Promise.then
+registerStateListener @ firebase_auth.js?v=efc1d8e7:2745
+onAuthStateChanged @ firebase_auth.js?v=efc1d8e7:2605
+onAuthStateChanged @ firebase_auth.js?v=efc1d8e7:5125
+initializeAuthListener @ preload-service.ts:41
+PreloadService @ preload-service.ts:30
+getInstance @ preload-service.ts:35
+(anonymous) @ preload-service.ts:211Understand this error
+preload-service.ts:132 Error fetching price for ADAUSDT: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+(anonymous) @ preload-service.ts:132
+await in (anonymous)
+preloadPrices @ preload-service.ts:119
+preloadUserData @ preload-service.ts:62
+(anonymous) @ preload-service.ts:43
+(anonymous) @ firebase_auth.js?v=efc1d8e7:2749
+Promise.then
+registerStateListener @ firebase_auth.js?v=efc1d8e7:2745
+onAuthStateChanged @ firebase_auth.js?v=efc1d8e7:2605
+onAuthStateChanged @ firebase_auth.js?v=efc1d8e7:5125
+initializeAuthListener @ preload-service.ts:41
+PreloadService @ preload-service.ts:30
+getInstance @ preload-service.ts:35
+(anonymous) @ preload-service.ts:211Understand this error
+notification-service.ts:182 Error playing notification sound: NotAllowedError: play() failed because the user didn't interact with the document first. https://goo.gl/xX8pDD
+(anonymous) @ notification-service.ts:182
+Promise.catch
+playSound @ notification-service.ts:181
+(anonymous) @ DashboardHeader.tsx:68
+next @ firebase_firestore.js?v=efc1d8e7:17659
+(anonymous) @ firebase_firestore.js?v=efc1d8e7:14957
+setTimeout
+Mu @ firebase_firestore.js?v=efc1d8e7:14956
+next @ firebase_firestore.js?v=efc1d8e7:14947
+qa @ firebase_firestore.js?v=efc1d8e7:13809
+Ma @ firebase_firestore.js?v=efc1d8e7:13786
+__PRIVATE_eventManagerOnWatchChange @ firebase_firestore.js?v=efc1d8e7:13734
+__PRIVATE_syncEngineEmitNewSnapsAndNotifyLocalStore @ firebase_firestore.js?v=efc1d8e7:14495
+await in __PRIVATE_syncEngineEmitNewSnapsAndNotifyLocalStore
+__PRIVATE_syncEngineApplyRemoteEvent @ firebase_firestore.js?v=efc1d8e7:14332
+await in __PRIVATE_syncEngineApplyRemoteEvent
+__PRIVATE_raiseWatchSnapshot @ firebase_firestore.js?v=efc1d8e7:13273
+__PRIVATE_onWatchStreamChange @ firebase_firestore.js?v=efc1d8e7:13274
+await in __PRIVATE_onWatchStreamChange
+onNext @ firebase_firestore.js?v=efc1d8e7:12900
+(anonymous) @ firebase_firestore.js?v=efc1d8e7:12859
+(anonymous) @ firebase_firestore.js?v=efc1d8e7:12879
+(anonymous) @ firebase_firestore.js?v=efc1d8e7:15918
+(anonymous) @ firebase_firestore.js?v=efc1d8e7:15949
+Promise.then
+_c @ firebase_firestore.js?v=efc1d8e7:15949
+enqueue @ firebase_firestore.js?v=efc1d8e7:15918
+enqueueAndForget @ firebase_firestore.js?v=efc1d8e7:15900
+(anonymous) @ firebase_firestore.js?v=efc1d8e7:12879
+(anonymous) @ firebase_firestore.js?v=efc1d8e7:12859
+c_ @ firebase_firestore.js?v=efc1d8e7:12472
+(anonymous) @ firebase_firestore.js?v=efc1d8e7:12612
+(anonymous) @ firebase_firestore.js?v=efc1d8e7:12575
+ab @ firebase_firestore.js?v=efc1d8e7:950
+F2 @ firebase_firestore.js?v=efc1d8e7:920
+Z2.ta @ firebase_firestore.js?v=efc1d8e7:2540
+Rb @ firebase_fire...
