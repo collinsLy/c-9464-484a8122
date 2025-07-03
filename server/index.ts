@@ -3,14 +3,23 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeApp, cert } from 'firebase-admin/app';
 
-// Initialize Firebase Admin SDK
-initializeApp({
-  credential: cert({
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
-  })
-});
+// Initialize Firebase Admin SDK only if credentials are provided
+if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
+  try {
+    initializeApp({
+      credential: cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
+      })
+    });
+    console.log('Firebase Admin SDK initialized successfully');
+  } catch (error) {
+    console.warn('Firebase Admin SDK initialization failed:', error);
+  }
+} else {
+  console.log('Firebase Admin SDK not initialized - missing credentials');
+}
 
 const app = express();
 app.use(express.json());
