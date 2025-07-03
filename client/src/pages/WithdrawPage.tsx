@@ -68,10 +68,38 @@ const WithdrawPage = () => {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [isProcessingTransfer, setIsProcessingTransfer] = useState(false);
   const [isTransferSuccessDialogOpen, setIsTransferSuccessDialogOpen] = useState(false);
+  
+  // Add numerical UID state
+  const [currentUserNumericalUid, setCurrentUserNumericalUid] = useState<number | null>(null);
 
   // Get current user UID when component loads
   useEffect(() => {
     setUserUid(auth.currentUser?.uid || "");
+  }, []);
+
+  // Fetch and create numerical UID for current user
+  useEffect(() => {
+    const fetchCurrentUserNumericalUid = async () => {
+      const currentUserId = auth.currentUser?.uid;
+      if (currentUserId) {
+        try {
+          let numericalUid = await NumericalUidService.getNumericalUid(currentUserId);
+          
+          // If no UID exists, create one
+          if (!numericalUid) {
+            console.log('No numerical UID found for current user, creating one...');
+            numericalUid = await NumericalUidService.createNumericalUidMapping(currentUserId);
+            console.log('Created numerical UID:', numericalUid);
+          }
+          
+          setCurrentUserNumericalUid(numericalUid);
+        } catch (error) {
+          console.error('Error fetching numerical UID:', error);
+        }
+      }
+    };
+
+    fetchCurrentUserNumericalUid();
   }, []);
 
   // Validate recipient UID
@@ -2456,24 +2484,27 @@ const WithdrawPage = () => {
                 size="sm" 
                 className="ml-2 text-xs"
                 onClick={() => {
-                  navigator.clipboard.writeText(userUid);
-                  toast({
-                    title: "Copied!",
-                    description: "Your UID has been copied to clipboard",
-                  });
+                  if (currentUserNumericalUid) {
+                    navigator.clipboard.writeText(currentUserNumericalUid.toString());
+                    toast({
+                      title: "Copied!",
+                      description: "Your numerical UID has been copied to clipboard",
+                    });
+                  }
                 }}
+                disabled={!currentUserNumericalUid}
               >
                 <Copy className="h-4 w-4 mr-1" />
                 Copy
               </Button>
             </CardTitle>
             <CardDescription>
-              Share this UID with others who want to send you funds
+              Share this numerical UID with others who want to send you funds
             </CardDescription>
           </CardHeader>
           <CardContent>
             <code className="block w-full p-3 bg-background/60 border border-white/10 rounded-md font-mono text-sm">
-              {userUid || "Loading..."}
+              {currentUserNumericalUid ? currentUserNumericalUid.toString() : "Loading..."}
             </code>
           </CardContent>
         </Card>
