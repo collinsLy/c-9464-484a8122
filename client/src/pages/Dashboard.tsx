@@ -60,11 +60,11 @@ const Dashboard = () => {
     }
 
     // Listen for new notifications
+    // Simplified query to avoid composite index requirement
     const notificationsQuery = query(
       collection(db, 'notifications'),
       where('userId', '==', userId),
       where('isRead', '==', false),
-      orderBy('timestamp', 'desc'),
       limit(10)
     );
 

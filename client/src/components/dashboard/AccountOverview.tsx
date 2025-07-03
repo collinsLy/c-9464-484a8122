@@ -66,7 +66,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         const controller = new AbortController();
         
         const response = await fetch(
-          `https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`,
+          `/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`,
           { 
             signal: controller.signal,
             headers: { 'Cache-Control': 'no-cache' }

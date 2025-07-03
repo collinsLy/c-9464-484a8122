@@ -99,6 +99,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Binance API proxy endpoints
+  app.get("/api/v3/:endpoint", async (req, res) => {
+    try {
+      const { endpoint } = req.params;
+      const queryString = new URLSearchParams(req.query as any).toString();
+      const url = `https://api.binance.com/api/v3/${endpoint}${queryString ? `?${queryString}` : ''}`;
+      
+      const response = await fetch(url, {
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'Vertex-Trading-App/1.0'
+        }
+      });
+
+      if (!response.ok) {
+        return res.status(response.status).json({ 
+          error: `Binance API error: ${response.status}` 
+        });
+      }
+
+      const data = await response.json();
+      res.json(data);
+    } catch (error) {
+      console.error("Binance proxy error:", error);
+      res.status(500).json({ 
+        error: "Failed to fetch from Binance API",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

@@ -7,6 +7,21 @@ import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, Tooltip, L
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PortfolioAnalytics } from "@/components/dashboard/PortfolioAnalytics";
 
+// Centralized function to fetch prices using the proxy endpoint
+const fetchPricesFromProxy = async (symbols: string[]) => {
+  const symbolsQuery = symbols.map(s => `${s}USDT`);
+  const response = await fetch(`/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
+  const data = await response.json();
+  
+  const prices: Record<string, number> = { USDT: 1 };
+  data.forEach((item: { symbol: string; price: string }) => {
+    const symbol = item.symbol.replace('USDT', '');
+    prices[symbol] = parseFloat(item.price);
+  });
+  
+  return prices;
+};
+
 const AssetsPage = () => {
   const [balance, setBalance] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -148,7 +163,7 @@ const AssetsPage = () => {
     return () => unsubscribe();
   }, [assetPrices]);
 
-  const [prices, setPrices] = useState({});
+  const [prices, setPrices] = useState<Record<string, number>>({});
   
   // Base assets list that will be shown to all users
   const baseAssets = [
@@ -249,11 +264,11 @@ const AssetsPage = () => {
     const fetchPrices = async () => {
       try {
         const symbols = baseAssets.map(asset => `${asset.symbol}USDT`);
-        const response = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=' + JSON.stringify(symbols));
+        const response = await fetch('/api/v3/ticker/price?symbols=' + JSON.stringify(symbols));
         const data = await response.json();
         
-        const newPrices = {};
-        data.forEach(item => {
+        const newPrices: Record<string, number> = {};
+        data.forEach((item: { symbol: string; price: string }) => {
           const symbol = item.symbol.replace('USDT', '');
           newPrices[symbol] = parseFloat(item.price);
         });
