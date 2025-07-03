@@ -1,20 +1,20 @@
 
 import nodemailer from 'nodemailer';
 
-// Email configuration
-const EMAIL_CONFIG = {
-  service: 'gmail',
-  auth: {
-    user: 'kelvinkelly3189@gmail.com',
-    pass: 'zozj kjez thsb adhs' // App password
-  }
-};
-
 class EmailService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
-    this.transporter = nodemailer.createTransport(EMAIL_CONFIG);
+    // Use environment variables for email configuration
+    const emailConfig = {
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER || 'kelvinkelly3189@gmail.com',
+        pass: process.env.EMAIL_PASS || 'zozj kjez thsb adhs'
+      }
+    };
+
+    this.transporter = nodemailer.createTransport(emailConfig);
   }
 
   async sendTransactionEmail(
@@ -58,7 +58,7 @@ class EmailService {
       return { success: true, messageId: result.messageId };
     } catch (error) {
       console.error('Error sending email:', error);
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -86,7 +86,7 @@ class EmailService {
       return { success: true, messageId: result.messageId };
     } catch (error) {
       console.error('Error sending welcome email:', error);
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 }

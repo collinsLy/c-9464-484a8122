@@ -5,6 +5,9 @@ A comprehensive cryptocurrency trading platform migrated from Lovable to Replit 
 
 ## Recent Changes
 - **2025-01-03**: Successfully completed migration from Replit Agent to Replit environment
+- **2025-01-03**: Fixed email notification system with proper environment variable configuration
+- **2025-01-03**: Verified email service working correctly with successful test email delivery
+- **2025-01-03**: Fixed preview refresh loops by disabling WebSocket connections and TradingView scripts
 - **2025-01-03**: Optimized application loading performance with lazy loading for all routes
 - **2025-01-03**: Fixed React Query configuration TypeScript errors for better error handling
 - **2025-01-03**: Implemented Suspense wrapper for improved loading states

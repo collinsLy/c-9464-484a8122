@@ -9,28 +9,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Email notification endpoints
   app.post("/api/send-transaction-email", async (req, res) => {
     try {
-      const authHeader = req.headers.authorization;
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ success: false, error: 'Unauthorized' });
-      }
-
-      const idToken = authHeader.split('Bearer ')[1];
-      const decodedToken = await getAuth().verifyIdToken(idToken);
-      const uid = decodedToken.uid;
-      const userRecord = await getAuth().getUser(uid);
-
-      const { type, amount, receiver } = req.body;
+      const { email, username, type, amount, receiver } = req.body;
       
-      if (!type || !amount) {
+      if (!email || !username || !type || !amount) {
         return res.status(400).json({ 
           success: false, 
-          error: "Missing required fields: type, amount" 
+          error: "Missing required fields: email, username, type, amount" 
         });
       }
 
       const result = await emailService.sendTransactionEmail(
-        userRecord.email || '', 
-        userRecord.displayName || userRecord.email?.split('@')[0] || 'User', 
+        email, 
+        username, 
         type, 
         amount, 
         receiver
@@ -40,6 +30,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Transaction email error:", error);
       res.status(500).json({ success: false, error: "Internal server error" });
+    }
+  });
+
+  // Test endpoint for email service
+  app.get("/api/test-email", async (req, res) => {
+    try {
+      const result = await emailService.sendTransactionEmail(
+        'test@example.com',
+        'Test User',
+        'withdrawal',
+        1000
+      );
+      res.json({ 
+        message: 'Email test completed', 
+        result: result 
+      });
+    } catch (error) {
+      console.error("Email test error:", error);
+      res.status(500).json({ success: false, error: "Email test failed" });
     }
   });
 
