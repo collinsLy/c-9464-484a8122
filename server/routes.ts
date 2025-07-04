@@ -116,6 +116,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Comprehensive email delivery test
+  app.post("/api/test-email-delivery", async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ error: "Email address required" });
+      }
+
+      console.log('🧪 Testing email delivery to:', email);
+
+      // Test connection first
+      const connectionTest = await emailService.testConnection();
+      
+      // Send test emails to multiple addresses
+      const results = [];
+      
+      // Primary test
+      const primaryResult = await emailService.sendWelcomeEmail({
+        to: email,
+        username: "Test User"
+      });
+      results.push({ type: 'primary', email, result: primaryResult });
+
+      // Test with backup addresses if primary fails
+      if (!primaryResult.success) {
+        const backupEmails = [
+          'kelvinkelly3189@gmail.com', // Your own email
+          'test.vertex.trading@gmail.com' // Backup test email
+        ];
+
+        for (const backupEmail of backupEmails) {
+          if (backupEmail !== email) {
+            const backupResult = await emailService.sendWelcomeEmail({
+              to: backupEmail,
+              username: "Backup Test User"
+            });
+            results.push({ type: 'backup', email: backupEmail, result: backupResult });
+          }
+        }
+      }
+
+      res.json({
+        connectionTest,
+        results,
+        message: "Email delivery test completed",
+        troubleshooting: {
+          checkSpamFolder: "Check your spam/junk folder",
+          gmailBlocking: "Some email providers may block Gmail SMTP",
+          rateLimiting: "Gmail may rate-limit emails",
+          appPassword: "Ensure Gmail app password is correct"
+        }
+      });
+    } catch (error) {
+      console.error("Email delivery test error:", error);
+      res.status(500).json({ success: false, error: "Internal server error" });
+    }
+  });
+
   // Test email endpoint
   app.post("/api/test-email", async (req, res) => {
     try {

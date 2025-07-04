@@ -301,10 +301,15 @@ export class EmailService {
     }
   }
 
-  async sendWelcomeEmail(data: z.infer<typeof WelcomeEmailSchema>): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  async sendWelcomeEmail(data: z.infer<typeof WelcomeEmailSchema>): Promise<{ success: boolean; messageId?: string; error?: string; deliveryInfo?: any }> {
     try {
       console.log('📧 Attempting to send welcome email to:', data.to || data.email);
       const { to, username } = WelcomeEmailSchema.parse(data);
+
+      // Test connection first
+      console.log('🔍 Testing SMTP connection...');
+      await this.transporter.verify();
+      console.log('✅ SMTP connection verified');
 
       const htmlContent = this.createModernTemplate(
         'Welcome to Vertex Trading',
@@ -320,26 +325,63 @@ export class EmailService {
         to,
         subject: `Welcome to ${this.brandName} - Verify Your Account`,
         html: htmlContent,
+        text: `Welcome to ${this.brandName}!\n\nWelcome ${username}! We're excited to have you join our community of traders. Your account has been successfully created and is ready to use.\n\nTo get started, please verify your email address using the verification link sent by Firebase Authentication, then return to your dashboard to begin trading.\n\nThank you for choosing ${this.brandName}.\n\nBest regards,\nThe ${this.brandName} Team`,
         headers: {
           'X-Priority': '1',
           'X-MSMail-Priority': 'High',
           'Importance': 'high',
           'Return-Path': this.fromEmail,
+          'Message-ID': `<${Date.now()}-${Math.random().toString(36).substr(2, 9)}@${this.fromEmail.split('@')[1]}>`,
         },
+        dsn: {
+          id: `vtx-${Date.now()}`,
+          return: 'headers',
+          notify: ['failure', 'delay', 'success'],
+          recipient: this.fromEmail
+        }
       };
 
-      console.log('📧 Sending welcome email with options:', { to, subject: mailOptions.subject, from: mailOptions.from });
+      console.log('📧 Sending welcome email with options:', { 
+        to, 
+        subject: mailOptions.subject, 
+        from: mailOptions.from,
+        messageId: mailOptions.headers['Message-ID']
+      });
+      
       const result = await this.transporter.sendMail(mailOptions);
-      console.log(`✅ Welcome email sent successfully to ${to}: ${result.messageId}`);
+      
+      console.log(`✅ Welcome email sent successfully to ${to}`);
+      console.log(`📬 Message ID: ${result.messageId}`);
+      console.log(`📊 Response: ${result.response}`);
+      console.log(`🎯 Accepted: ${JSON.stringify(result.accepted)}`);
+      console.log(`❌ Rejected: ${JSON.stringify(result.rejected)}`);
+      console.log(`⏳ Pending: ${JSON.stringify(result.pending)}`);
       
       return {
         success: true,
         messageId: result.messageId,
+        deliveryInfo: {
+          response: result.response,
+          accepted: result.accepted,
+          rejected: result.rejected,
+          pending: result.pending
+        }
       };
 
     } catch (error) {
       console.error('❌ Failed to send welcome email:', error);
       console.error('❌ Error details:', error instanceof Error ? error.stack : error);
+      
+      // Check specific error types
+      if (error instanceof Error) {
+        if (error.message.includes('Invalid login')) {
+          console.error('🔐 Authentication failed - check Gmail app password');
+        } else if (error.message.includes('Daily sending quota exceeded')) {
+          console.error('📊 Gmail sending limit reached');
+        } else if (error.message.includes('Recipient address rejected')) {
+          console.error('📧 Invalid recipient email address');
+        }
+      }
       
       return {
         success: false,
