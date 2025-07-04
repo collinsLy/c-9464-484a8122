@@ -3,6 +3,7 @@ import { toast } from "@/components/ui/use-toast";
 // Types for notifications
 export interface NotificationOptions {
   showToast?: boolean;
+  playTransactionSound?: boolean;
   body?: string;
   icon?: string;
   priority?: 'low' | 'normal' | 'high';
@@ -27,6 +28,38 @@ export type NotificationType =
 
 
 export class NotificationService {
+  // Apple Pay transaction sound - using Web Audio API for crisp sound
+  private static createApplePaySound(): void {
+    try {
+      // Create AudioContext for precise sound generation
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      
+      // Create oscillator for the characteristic Apple Pay "ding" sound
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      // Connect nodes
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      // Apple Pay characteristic frequencies and timing
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.1);
+      
+      // Volume envelope for clean sound
+      gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.01);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+      
+      // Play the sound
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.3);
+      
+    } catch (error) {
+      console.error('Error playing Apple Pay transaction sound:', error);
+    }
+  }
+
   // Check if browser supports notifications
   static isNotificationSupported(): boolean {
     return 'Notification' in window;
@@ -49,6 +82,9 @@ export class NotificationService {
   // Send a withdrawal notification
   static async sendWithdrawalNotification(userId: string, transaction: any): Promise<void> {
     try {
+      // Play Apple Pay transaction sound
+      this.createApplePaySound();
+
       // Create notification message
       const cryptoAmount = transaction.cryptoAmount || null;
       const cryptoType = transaction.crypto || null;
@@ -111,8 +147,13 @@ export class NotificationService {
     amount: number,
     currency: string, 
     senderName: string, 
-    options: NotificationOptions = { showToast: true }
+    options: NotificationOptions = { showToast: true, playTransactionSound: true }
   ) {
+    // Play Apple Pay transaction sound for money received
+    if (options.playTransactionSound) {
+      this.createApplePaySound();
+    }
+
     // Show toast notification
     if (options.showToast) {
       toast({
@@ -170,6 +211,12 @@ export class NotificationService {
     userId?: string
   ): Promise<void> {
     try {
+      // Play Apple Pay transaction sound for financial transaction types
+      const transactionTypes = ['ORDER_FILLED', 'BALANCE_UPDATED', 'DEPOSIT_CONFIRMED', 'WITHDRAWAL_PROCESSING', 'P2P_TRANSACTION_UPDATE'];
+      if (transactionTypes.includes(type) && options.playTransactionSound !== false) {
+        this.createApplePaySound();
+      }
+
       // Store notification in Firebase if userId is provided
       if (userId) {
         await this.storeNotificationInFirebase(userId, type, title, message);

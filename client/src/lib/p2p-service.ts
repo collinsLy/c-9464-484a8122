@@ -605,7 +605,13 @@ class P2PService {
               offer.fiatCurrency
             );
             
-            // Sound notification removed
+            // Play Apple Pay transaction sound for successful P2P payment
+            NotificationService.notifyFundReceived(
+              offer.price,
+              offer.fiatCurrency,
+              'P2P Transaction',
+              { playTransactionSound: true }
+            );
           }
         }
       } catch (updateError) {
