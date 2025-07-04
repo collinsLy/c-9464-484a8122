@@ -32,7 +32,7 @@ const PreloadContext = createContext<PreloadContextType | null>(null);
 
 export const PreloadProvider = ({ children }: { children: ReactNode }) => {
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState<string | null>(null);
 
   const fetchPrices = async (): Promise<Record<string, number>> => {
