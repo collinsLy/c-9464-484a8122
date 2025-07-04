@@ -789,36 +789,79 @@ const WithdrawPage = () => {
         throw new Error('User data not found');
       }
 
-      // Check USDT balance (fiat withdrawals use USDT balance)
-      let currentBalance = 0;
+      // Calculate total portfolio value for fiat withdrawals
+      let totalPortfolioValue = 0;
+      
+      // Add USDT balance first
       if (userData.assets?.USDT && userData.assets.USDT.amount !== undefined) {
-        currentBalance = Number(userData.assets.USDT.amount);
+        totalPortfolioValue += Number(userData.assets.USDT.amount);
       } else if (typeof userData.balance === 'number') {
-        currentBalance = userData.balance;
+        totalPortfolioValue += userData.balance;
       } else if (typeof userData.balance === 'string') {
-        currentBalance = parseFloat(userData.balance) || 0;
+        totalPortfolioValue += parseFloat(userData.balance) || 0;
       }
 
-      console.log('Current USDT balance:', currentBalance);
+      // Add value of other assets (convert to USDT equivalent)
+      if (userData.assets) {
+        const assetPrices = {
+          'BTC': 66000, 'ETH': 3500, 'BNB': 657, 'SOL': 150, 'USDC': 1,
+          'DOGE': 0.15, 'XRP': 0.58, 'ADA': 0.45, 'DOT': 7.5, 'LINK': 18,
+          'MATIC': 0.65, 'WLD': 3.5
+        };
 
-      if (currentBalance < amountValue) {
+        Object.entries(userData.assets).forEach(([symbol, data]: [string, any]) => {
+          if (symbol !== 'USDT' && data.amount && data.amount > 0) {
+            const price = assetPrices[symbol as keyof typeof assetPrices] || 0;
+            const valueInUsdt = data.amount * price;
+            totalPortfolioValue += valueInUsdt;
+            console.log(`Asset ${symbol}: ${data.amount} × ${price} = ${valueInUsdt} USDT`);
+          }
+        });
+      }
+
+      console.log('Total portfolio value for fiat withdrawal:', totalPortfolioValue);
+
+      if (totalPortfolioValue < amountValue) {
         toast({
           title: "Insufficient Balance",
-          description: `Your USDT balance ($${currentBalance.toFixed(2)}) is insufficient for this withdrawal`,
+          description: `Your total portfolio value ($${totalPortfolioValue.toFixed(2)}) is insufficient for this withdrawal`,
           variant: "destructive",
         });
         return;
       }
 
-      // Update balance
-      const newBalance = currentBalance - amountValue;
-
-      // Update user assets
+      // For fiat withdrawals, we'll deduct proportionally from all assets
       const updatedAssets = { ...userData.assets };
-      if (!updatedAssets.USDT) {
-        updatedAssets.USDT = { amount: newBalance, name: 'USDT' };
-      } else {
-        updatedAssets.USDT = { ...updatedAssets.USDT, amount: newBalance };
+      const deductionRatio = amountValue / totalPortfolioValue;
+
+      // Deduct from each asset proportionally
+      Object.entries(updatedAssets).forEach(([symbol, data]: [string, any]) => {
+        if (data.amount && data.amount > 0) {
+          const assetPrices = {
+            'BTC': 66000, 'ETH': 3500, 'BNB': 657, 'SOL': 150, 'USDC': 1, 'USDT': 1,
+            'DOGE': 0.15, 'XRP': 0.58, 'ADA': 0.45, 'DOT': 7.5, 'LINK': 18,
+            'MATIC': 0.65, 'WLD': 3.5
+          };
+          
+          const price = assetPrices[symbol as keyof typeof assetPrices] || 1;
+          const assetValueInUsdt = data.amount * price;
+          const deductionAmount = assetValueInUsdt * deductionRatio;
+          const newAmount = Math.max(0, data.amount - (deductionAmount / price));
+          
+          updatedAssets[symbol] = {
+            ...data,
+            amount: newAmount
+          };
+          
+          console.log(`Deducted from ${symbol}: ${data.amount} → ${newAmount}`);
+        }
+      });
+
+      // Also update main balance if it exists
+      let balanceUpdate = {};
+      if (typeof userData.balance === 'number' && userData.balance > 0) {
+        const mainBalanceDeduction = userData.balance * deductionRatio;
+        balanceUpdate = { balance: Math.max(0, userData.balance - mainBalanceDeduction) };
       }
 
       const transaction = {
@@ -837,10 +880,10 @@ const WithdrawPage = () => {
         }
       };
 
-      // Update user data with new balance and transaction
+      // Update user data with proportionally reduced assets and transaction
       await UserService.updateUserData(uid, {
         assets: updatedAssets,
-        balance: 0, // Clear legacy balance field
+        ...balanceUpdate,
         transactions: arrayUnion(transaction)
       });
 
