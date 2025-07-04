@@ -1802,7 +1802,6 @@ const WithdrawPage = () => {
                                       freshBalance = Number(userData.assets.USDT.amount);
                                       console.log(`USDT from assets: ${freshBalance}`);
                                     }
-                                  ```text
                                   } 
                                   // Standard handling for other assets
                                   else if (userData.assets && userData.assets[crypto.symbol]) {
