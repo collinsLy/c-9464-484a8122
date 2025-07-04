@@ -164,7 +164,7 @@ export class EmailService {
             
             <!-- CTA Button -->
             <div style="text-align: center; margin-top: 30px;">
-              <a href="${transactionType === 'transfer' && isReceiver ? 'https://vertextradingscom.vercel.app/' : 'https://vertex-trading.replit.app'}" style="display: inline-block; padding: 15px 30px; background: linear-gradient(135deg, #ff7a00 0%, #ff9a40 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 12px rgba(255, 122, 0, 0.3);">${buttonText}</a>
+              <a href="https://vertextradingscom.vercel.app/" style="display: inline-block; padding: 15px 30px; background: linear-gradient(135deg, #ff7a00 0%, #ff9a40 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 12px rgba(255, 122, 0, 0.3);">${buttonText}</a>
             </div>
           </div>
           

@@ -33,6 +33,8 @@ const WithdrawPage = () => {
   const [network, setNetwork] = useState("NATIVE");
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
   const [successWithdrawalAmount, setSuccessWithdrawalAmount] = useState("");
+  const [successTransferAmount, setSuccessTransferAmount] = useState("");
+  const [successTransferCrypto, setSuccessTransferCrypto] = useState("");
   const [userCryptoBalances, setUserCryptoBalances] = useState<Record<string, number>>({
     USDT: 0,
     BTC: 0,
@@ -484,6 +486,10 @@ const WithdrawPage = () => {
       } catch (error) {
         console.error('Error sending transfer emails:', error);
       }
+
+      // Store transfer amount and crypto for success dialog before clearing form
+      setSuccessTransferAmount(cryptoAmountValue.toString());
+      setSuccessTransferCrypto(selectedCrypto);
 
       // Show success message and close confirmation dialog
       setIsConfirmDialogOpen(false);
@@ -2538,7 +2544,7 @@ const WithdrawPage = () => {
                         <Check className="w-8 h-8 text-black" />
                       </div>
                       <h2 className="text-2xl font-bold">Transfer Successful</h2>
-                      <p className="text-3xl font-bold">{cryptoAmount} {selectedCrypto}</p>
+                      <p className="text-3xl font-bold">{successTransferAmount} {successTransferCrypto}</p>
 
                       <div className="w-full bg-white/10 rounded-lg p-4 space-y-2">
                         <div className="flex justify-between">
