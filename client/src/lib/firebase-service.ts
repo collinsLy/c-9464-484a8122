@@ -178,6 +178,90 @@ export class UserBalanceService {
     }
   }
 
+  // Get total portfolio balance including all assets converted to USDT
+  static async getTotalPortfolioBalance(userId: string): Promise<number> {
+    try {
+      const userData = await UserService.getUserData(userId);
+      if (!userData) return 0;
+
+      // Get current asset prices
+      const assets = userData.assets || {};
+      const assetSymbols = Object.keys(assets).filter(symbol => symbol !== 'USDT');
+      
+      let totalValue = 0;
+      
+      // Add USDT balance from main balance field
+      const usdtBalance = userData.balance || 0;
+      totalValue += usdtBalance;
+      
+      // Add USDT from assets if exists
+      if (assets.USDT?.amount) {
+        totalValue += Number(assets.USDT.amount);
+      }
+
+      // If no other assets, return USDT balance
+      if (assetSymbols.length === 0) {
+        return totalValue;
+      }
+
+      // Fetch current prices for non-USDT assets
+      const symbolsQuery = assetSymbols.map(s => `${s}USDT`);
+      const response = await fetch(`/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
+      const priceData = await response.json();
+      
+      const prices: Record<string, number> = { USDT: 1 };
+      priceData.forEach((item: { symbol: string; price: string }) => {
+        const symbol = item.symbol.replace('USDT', '');
+        prices[symbol] = parseFloat(item.price);
+      });
+
+      // Calculate value of other assets
+      Object.entries(assets).forEach(([symbol, data]) => {
+        if (symbol === 'USDT') return; // Already included above
+        const amount = (data as any).amount || 0;
+        const price = prices[symbol] || 0;
+        const valueInUsdt = amount * price;
+        totalValue += valueInUsdt;
+      });
+
+      console.log(`Total portfolio balance for trading: $${totalValue.toFixed(2)}`);
+      return totalValue;
+    } catch (error) {
+      console.error('Error getting total portfolio balance:', error);
+      // Fallback to regular balance if portfolio calculation fails
+      return this.getUserBalance(userId);
+    }
+  }
+
+  static subscribeToPortfolioBalance(userId: string, callback: (balance: number) => void) {
+    if (!userId) {
+      console.error('No userId provided for portfolio balance subscription');
+      return () => {};
+    }
+
+    const userRef = doc(db, 'users', userId);
+    return onSnapshot(userRef, async (snapshot) => {
+      if (!snapshot.exists()) {
+        console.log('No user document found for portfolio balance');
+        callback(0);
+        return;
+      }
+      
+      try {
+        const totalBalance = await this.getTotalPortfolioBalance(userId);
+        callback(totalBalance);
+      } catch (error) {
+        console.error('Error calculating portfolio balance:', error);
+        const userData = snapshot.data();
+        const fallbackBalance = userData?.balance ?? 0;
+        callback(typeof fallbackBalance === 'number' ? fallbackBalance : parseFloat(String(fallbackBalance)) || 0);
+      }
+    }, (error) => {
+      console.error('Portfolio balance subscription error:', error);
+      callback(0);
+    });
+  }
+
   static async updateUserBalance(userId: string, newBalance: number) {
     try {
       await UserService.updateUserData(userId, { balance: newBalance });
