@@ -108,18 +108,18 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
     const requiredBalance = minimumBalanceRequired[bot.id as keyof typeof minimumBalanceRequired];
 
     try {
-      const currentBalance = await UserBalanceService.getUserBalance(uid);
+      const currentBalance = await UserBalanceService.getUSDTBalance(uid);
       if (currentBalance < requiredBalance) {
-        toast.error("Insufficient Funds", {
-          description: `You need a minimum balance of $${requiredBalance} to activate the ${bot.type} bot. Please deposit funds to continue.`,
+        toast.error("Insufficient USDT Funds", {
+          description: `You need a minimum balance of ${requiredBalance} USDT to activate the ${bot.type} bot. Please deposit USDT to continue.`,
         });
         return;
       }
 
-      // Deduct the trade amount from user's balance
+      // Deduct the trade amount from user's USDT balance
       const tradeAmount = requiredBalance;
       const newBalance = currentBalance - tradeAmount;
-      await UserBalanceService.updateUserBalance(uid, newBalance);
+      await UserBalanceService.updateUSDTBalance(uid, newBalance);
 
       toast.success(`Bot Activated`, {
         description: `${bot.type} bot has been successfully activated with real funds.`,
@@ -134,15 +134,15 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
       const profitLoss = tradeAmount * profitMultiplier;
 
       if (isWin) {
-        // Add profit to user's balance
+        // Add profit to user's USDT balance
         const finalBalance = newBalance + (tradeAmount * 1.8);
-        await UserBalanceService.updateUserBalance(uid, finalBalance);
+        await UserBalanceService.updateUSDTBalance(uid, finalBalance);
         toast.success(`Trade Won!`, {
-          description: `Profit: $${(tradeAmount * 0.8).toFixed(2)}. New Balance: $${finalBalance.toFixed(2)}`,
+          description: `Profit: ${(tradeAmount * 0.8).toFixed(2)} USDT. New Balance: ${finalBalance.toFixed(2)} USDT`,
         });
       } else {
         toast.error(`Trade Lost`, {
-          description: `Loss: $${tradeAmount.toFixed(2)}. New Balance: $${newBalance.toFixed(2)}`,
+          description: `Loss: ${tradeAmount.toFixed(2)} USDT. New Balance: ${newBalance.toFixed(2)} USDT`,
         });
       }
     } catch (error) {

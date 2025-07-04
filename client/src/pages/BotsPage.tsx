@@ -53,7 +53,7 @@ const BotsPage = () => {
     const uid = localStorage.getItem('userId');
     if (!uid) return;
 
-    const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
+    const unsubscribe = UserBalanceService.subscribeToUSDTBalance(uid, (newBalance) => {
       setUserBalance(newBalance);
     });
 
@@ -70,22 +70,22 @@ const BotsPage = () => {
     }
 
     try {
-      const currentBalance = await UserBalanceService.getUserBalance(uid);
+      const currentBalance = await UserBalanceService.getUSDTBalance(uid);
       const requiredBalance = bot.price;
 
       if (currentBalance < requiredBalance) {
-        toast.error("Insufficient Balance", {
-          description: `You need a minimum balance of $${requiredBalance} to use the ${bot.type} bot.`,
+        toast.error("Insufficient USDT Balance", {
+          description: `You need a minimum balance of ${requiredBalance} USDT to use the ${bot.type} bot.`,
         });
         return;
       }
 
       toast.success(`${bot.type} Bot Activated`, {
-        description: `Your ${bot.type} bot is now trading ${bot.pair} with real funds.`,
+        description: `Your ${bot.type} bot is now trading ${bot.pair} with USDT funds.`,
       });
     } catch (error) {
       toast.error("Error", {
-        description: "Failed to verify balance. Please try again.",
+        description: "Failed to verify USDT balance. Please try again.",
       });
     }
   };
