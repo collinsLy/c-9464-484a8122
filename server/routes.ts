@@ -9,7 +9,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Email notification endpoints
   app.post("/api/send-transaction-email", async (req, res) => {
     try {
-      const { to, email, username, type, amount, currency, receiver, fromCurrency, toCurrency, conversionRate } = req.body;
+      const { to, email, username, type, amount, currency, receiver, fromCurrency, toCurrency, conversionRate, isReceiver } = req.body;
 
       // Support both 'to' and 'email' for the recipient field
       const recipientEmail = to || email;
@@ -30,7 +30,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         receiver,
         fromCurrency,
         toCurrency,
-        conversionRate
+        conversionRate,
+        isReceiver
       });
 
       res.json(result);

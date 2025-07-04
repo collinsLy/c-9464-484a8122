@@ -4,6 +4,9 @@
 A comprehensive cryptocurrency trading platform migrated from Lovable to Replit environment. The platform includes trading features for spot, futures, P2P, automated trading bots, market analysis, and user management.
 
 ## Recent Changes
+- **2025-01-04**: Fixed transfer email issue where both sender and receiver were getting identical "Transfer Sent" emails
+- **2025-01-04**: Updated server route to properly pass isReceiver parameter to email service
+- **2025-01-04**: Now sender receives "Transfer Sent Successfully" and receiver gets "Funds Received" emails correctly
 - **2025-01-03**: Fixed transaction email currency display to show actual cryptocurrency instead of hardcoded USD
 - **2025-01-03**: Updated email service schema to require currency parameter for all transaction emails
 - **2025-01-03**: Modified all email calls throughout the application to include proper cryptocurrency symbol (USDT, BTC, etc.)
