@@ -96,7 +96,7 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
       }
 
       try {
-        const currentBalance = await UserBalanceService.getTotalPortfolioBalance(uid);
+        const currentBalance = await UserBalanceService.getUserBalance(uid);
         if (currentBalance < tradeAmount) {
           toast.error("Insufficient Balance", {
             description: `You need a minimum balance of $${tradeAmount} to use the ${bot.type} bot.`,
