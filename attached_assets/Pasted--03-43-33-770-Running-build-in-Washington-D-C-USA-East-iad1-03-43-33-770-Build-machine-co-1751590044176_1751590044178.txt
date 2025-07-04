@@ -1,0 +1,278 @@
+[03:43:33.770] Running build in Washington, D.C., USA (East) – iad1
+[03:43:33.770] Build machine configuration: 2 cores, 8 GB
+[03:43:33.802] Retrieving list of deployment files...
+[03:43:34.362] Downloading 345 deployment files...
+[03:43:37.616] Skipping build cache since Node.js version changed from "22.x" to "18.x"
+[03:43:37.838] Running "vercel build"
+[03:43:38.843] Vercel CLI 44.2.10
+[03:43:39.578] > Installing Builder: @vercel/node@3.0.7
+[03:43:52.099] Installing dependencies...
+[03:43:53.048] npm warn EBADENGINE Unsupported engine {
+[03:43:53.048] npm warn EBADENGINE   package: 'react-router@7.6.2',
+[03:43:53.049] npm warn EBADENGINE   required: { node: '>=20.0.0' },
+[03:43:53.050] npm warn EBADENGINE   current: { node: 'v18.20.6', npm: '10.8.2' }
+[03:43:53.050] npm warn EBADENGINE }
+[03:43:53.050] npm warn EBADENGINE Unsupported engine {
+[03:43:53.050] npm warn EBADENGINE   package: 'react-router-dom@7.6.2',
+[03:43:53.051] npm warn EBADENGINE   required: { node: '>=20.0.0' },
+[03:43:53.051] npm warn EBADENGINE   current: { node: 'v18.20.6', npm: '10.8.2' }
+[03:43:53.051] npm warn EBADENGINE }
+[03:43:59.363] npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+[03:43:59.577] npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+[03:44:12.263] 
+[03:44:12.263] added 853 packages in 20s
+[03:44:12.264] 
+[03:44:12.264] 83 packages are looking for funding
+[03:44:12.264]   run `npm fund` for details
+[03:44:12.499] 
+[03:44:12.500] > rest-express@1.0.0 vercel-build
+[03:44:12.500] > vite build
+[03:44:12.500] 
+[03:44:12.967] [36mvite v5.4.19 [32mbuilding for production...[36m[39m
+[03:44:13.026] transforming...
+[03:44:27.345] [32m✓[39m 3205 modules transformed.
+[03:44:28.217] rendering chunks...
+[03:44:29.056] [1m[33m[plugin:vite:reporter][39m[22m [33m[plugin vite:reporter] 
+[03:44:29.057] (!) /vercel/path0/node_modules/firebase/firestore/dist/esm/index.esm.js is dynamically imported by /vercel/path0/client/src/lib/notification-service.ts, /vercel/path0/client/src/lib/notification-service.ts but also statically imported by /vercel/path0/client/src/components/OpenAccountForm.tsx, /vercel/path0/client/src/components/PhoneAuthForm.tsx, /vercel/path0/client/src/components/SignInForm.tsx, /vercel/path0/client/src/components/dashboard/DashboardHeader.tsx, /vercel/path0/client/src/components/trading/Credit3DCard.tsx, /vercel/path0/client/src/components/trading/VertexCardApplication.tsx, /vercel/path0/client/src/hooks/useCountdown.ts, /vercel/path0/client/src/lib/firebase-service.ts, /vercel/path0/client/src/lib/firebase.ts, /vercel/path0/client/src/lib/numerical-uid-service.ts, /vercel/path0/client/src/lib/p2p-service.ts, /vercel/path0/client/src/lib/trader-service.ts, /vercel/path0/client/src/lib/user-service.ts, /vercel/path0/client/src/pages/Dashboard.tsx, /vercel/path0/client/src/pages/P2PPage.tsx, /vercel/path0/client/src/pages/SettingsPage.tsx, /vercel/path0/client/src/pages/SupportPage.tsx, /vercel/path0/client/src/pages/VertexCardPage.tsx, /vercel/path0/client/src/pages/WithdrawPage.tsx, dynamic import will not move module into another chunk.
+[03:44:29.057] [39m
+[03:44:29.057] [1m[33m[plugin:vite:reporter][39m[22m [33m[plugin vite:reporter] 
+[03:44:29.057] (!) /vercel/path0/client/src/lib/firebase.ts is dynamically imported by /vercel/path0/client/src/lib/notification-service.ts, /vercel/path0/client/src/lib/notification-service.ts, /vercel/path0/client/src/pages/WithdrawPage.tsx but also statically imported by /vercel/path0/client/src/components/NumericalUidDisplay.tsx, /vercel/path0/client/src/components/OpenAccountForm.tsx, /vercel/path0/client/src/components/PhoneAuthForm.tsx, /vercel/path0/client/src/components/SignInForm.tsx, /vercel/path0/client/src/components/dashboard/DashboardHeader.tsx, /vercel/path0/client/src/components/dashboard/TransactionHistory.tsx, /vercel/path0/client/src/components/trading/Credit3DCard.tsx, /vercel/path0/client/src/components/trading/CryptoConverter.tsx, /vercel/path0/client/src/components/trading/VertexCardApplication.tsx, /vercel/path0/client/src/contexts/PreloadContext.tsx, /vercel/path0/client/src/hooks/useCountdown.ts, /vercel/path0/client/src/lib/firebase-service.ts, /vercel/path0/client/src/lib/numerical-uid-service.ts, /vercel/path0/client/src/lib/p2p-service.ts, /vercel/path0/client/src/lib/trader-service.ts, /vercel/path0/client/src/lib/user-service.ts, /vercel/path0/client/src/pages/Dashboard.tsx, /vercel/path0/client/src/pages/DepositPage.tsx, /vercel/path0/client/src/pages/P2PPage.tsx, /vercel/path0/client/src/pages/SettingsPage.tsx, /vercel/path0/client/src/pages/SupportPage.tsx, /vercel/path0/client/src/pages/VertexCardPage.tsx, /vercel/path0/client/src/pages/WithdrawPage.tsx, dynamic import will not move module into another chunk.
+[03:44:29.057] [39m
+[03:44:29.125] computing gzip size...
+[03:44:29.204] [2m../dist/public/[22m[32mindex.html                                   [39m[1m[2m    0.63 kB[22m[1m[22m[2m │ gzip:   0.38 kB[22m
+[03:44:29.204] [2m../dist/public/[22m[2massets/[22m[35mindex-DlAGTRu7.css                    [39m[1m[2m   90.33 kB[22m[1m[22m[2m │ gzip:  15.47 kB[22m
+[03:44:29.205] [2m../dist/public/[22m[2massets/[22m[36mskeleton-C4HmF-7B.js                  [39m[1m[2m    0.17 kB[22m[1m[22m[2m │ gzip:   0.16 kB[22m
+[03:44:29.205] [2m../dist/public/[22m[2massets/[22m[36mcheck-BdeoH_JF.js                     [39m[1m[2m    0.29 kB[22m[1m[22m[2m │ gzip:   0.24 kB[22m
+[03:44:29.205] [2m../dist/public/[22m[2massets/[22m[36mcircle-Dt4ZKBLl.js                    [39m[1m[2m    0.30 kB[22m[1m[22m[2m │ gzip:   0.24 kB[22m
+[03:44:29.205] [2m../dist/public/[22m[2massets/[22m[36mplay-8_bRxk1g.js                      [39m[1m[2m    0.30 kB[22m[1m[22m[2m │ gzip:   0.25 kB[22m
+[03:44:29.205] [2m../dist/public/[22m[2massets/[22m[36mloader-circle-C24iRaOM.js             [39m[1m[2m    0.31 kB[22m[1m[22m[2m │ gzip:   0.26 kB[22m
+[03:44:29.207] [2m../dist/public/[22m[2massets/[22m[36mBarChart-DumlULGB.js                  [39m[1m[2m    0.32 kB[22m[1m[22m[2m │ gzip:   0.23 kB[22m
+[03:44:29.207] [2m../dist/public/[22m[2massets/[22m[36mplus-D7FR14jz.js                      [39m[1m[2m    0.32 kB[22m[1m[22m[2m │ gzip:   0.25 kB[22m
+[03:44:29.207] [2m../dist/public/[22m[2massets/[22m[36mfilter-Bn1eWjtF.js                    [39m[1m[2m    0.33 kB[22m[1m[22m[2m │ gzip:   0.26 kB[22m
+[03:44:29.208] [2m../dist/public/[22m[2massets/[22m[36mclock-DY084Al3.js                     [39m[1m[2m    0.35 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+[03:44:29.208] [2m../dist/public/[22m[2massets/[22m[36minfo-B6Lz6Sp8.js                      [39m[1m[2m    0.37 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+[03:44:29.208] [2m../dist/public/[22m[2massets/[22m[36mlock-Dgi5Q3J8.js                      [39m[1m[2m    0.38 kB[22m[1m[22m[2m │ gzip:   0.29 kB[22m
+[03:44:29.208] [2m../dist/public/[22m[2massets/[22m[36mtrending-down-CVUhe3bO.js             [39m[1m[2m    0.38 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+[03:44:29.208] [2m../dist/public/[22m[2massets/[22m[36mdollar-sign-BI0ONrU-.js               [39m[1m[2m    0.39 kB[22m[1m[22m[2m │ gzip:   0.30 kB[22m
+[03:44:29.208] [2m../dist/public/[22m[2massets/[22m[36mcopy-D5-KUSQg.js                      [39m[1m[2m    0.41 kB[22m[1m[22m[2m │ gzip:   0.31 kB[22m
+[03:44:29.209] [2m../dist/public/[22m[2massets/[22m[36mglobe-DWnzEYx3.js                     [39m[1m[2m    0.41 kB[22m[1m[22m[2m │ gzip:   0.29 kB[22m
+[03:44:29.209] [2m../dist/public/[22m[2massets/[22m[36mcircle-alert-Dnp92l0V.js              [39m[1m[2m    0.42 kB[22m[1m[22m[2m │ gzip:   0.29 kB[22m
+[03:44:29.209] [2m../dist/public/[22m[2massets/[22m[36mexternal-link-Bi4eq9-3.js             [39m[1m[2m    0.42 kB[22m[1m[22m[2m │ gzip:   0.30 kB[22m
+[03:44:29.209] [2m../dist/public/[22m[2massets/[22m[36meye-BLBjadxr.js                       [39m[1m[2m    0.43 kB[22m[1m[22m[2m │ gzip:   0.31 kB[22m
+[03:44:29.209] [2m../dist/public/[22m[2massets/[22m[36mtriangle-alert-CQ-jQofS.js            [39m[1m[2m    0.43 kB[22m[1m[22m[2m │ gzip:   0.31 kB[22m
+[03:44:29.209] [2m../dist/public/[22m[2massets/[22m[36mshield-CL4XaB_K.js                    [39m[1m[2m    0.44 kB[22m[1m[22m[2m │ gzip:   0.33 kB[22m
+[03:44:29.209] [2m../dist/public/[22m[2massets/[22m[36mrefresh-cw-CnzjpUcf.js                [39m[1m[2m    0.49 kB[22m[1m[22m[2m │ gzip:   0.33 kB[22m
+[03:44:29.209] [2m../dist/public/[22m[2massets/[22m[36mbot-DxRx0fnj.js                       [39m[1m[2m    0.50 kB[22m[1m[22m[2m │ gzip:   0.33 kB[22m
+[03:44:29.209] [2m../dist/public/[22m[2massets/[22m[36mfile-text-C1LSTb-6.js                 [39m[1m[2m    0.50 kB[22m[1m[22m[2m │ gzip:   0.32 kB[22m
+[03:44:29.209] [2m../dist/public/[22m[2massets/[22m[36mlayout-grid-CLmtwOAT.js               [39m[1m[2m    0.51 kB[22m[1m[22m[2m │ gzip:   0.30 kB[22m
+[03:44:29.209] [2m../dist/public/[22m[2massets/[22m[36marrow-up-yGwyYInc.js                  [39m[1m[2m    0.61 kB[22m[1m[22m[2m │ gzip:   0.31 kB[22m
+[03:44:29.209] [2m../dist/public/[22m[2massets/[22m[36marrow-up-right-Do1UAEJ3.js            [39m[1m[2m    0.62 kB[22m[1m[22m[2m │ gzip:   0.32 kB[22m
+[03:44:29.210] [2m../dist/public/[22m[2massets/[22m[36mcalculator-B6mvKq_A.js                [39m[1m[2m    0.70 kB[22m[1m[22m[2m │ gzip:   0.39 kB[22m
+[03:44:29.210] [2m../dist/public/[22m[2massets/[22m[36msliders-horizontal-DK6Ookfx.js        [39m[1m[2m    0.75 kB[22m[1m[22m[2m │ gzip:   0.37 kB[22m
+[03:44:29.210] [2m../dist/public/[22m[2massets/[22m[36mbots-BM8qgV3l.js                      [39m[1m[2m    1.16 kB[22m[1m[22m[2m │ gzip:   0.51 kB[22m
+[03:44:29.210] [2m../dist/public/[22m[2massets/[22m[36mTradingViewChart-e2fCiisI.js          [39m[1m[2m    1.34 kB[22m[1m[22m[2m │ gzip:   0.80 kB[22m
+[03:44:29.210] [2m../dist/public/[22m[2massets/[22m[36mBinanceNewListingsPage-DRGTjIj5.js    [39m[1m[2m    1.43 kB[22m[1m[22m[2m │ gzip:   0.72 kB[22m
+[03:44:29.210] [2m../dist/public/[22m[2massets/[22m[36mtable-3o_u2t-d.js                     [39m[1m[2m    1.49 kB[22m[1m[22m[2m │ gzip:   0.51 kB[22m
+[03:44:29.210] [2m../dist/public/[22m[2massets/[22m[36mMarketChart-wus4dNHe.js               [39m[1m[2m    1.49 kB[22m[1m[22m[2m │ gzip:   0.68 kB[22m
+[03:44:29.210] [2m../dist/public/[22m[2massets/[22m[36mFuturesMarketsPage-Cv-S3BsS.js        [39m[1m[2m    1.62 kB[22m[1m[22m[2m │ gzip:   0.72 kB[22m
+[03:44:29.210] [2m../dist/public/[22m[2massets/[22m[36mTopMoversPage-CN9RuHhp.js             [39m[1m[2m    1.62 kB[22m[1m[22m[2m │ gzip:   0.71 kB[22m
+[03:44:29.210] [2m../dist/public/[22m[2massets/[22m[36mSpotMarketsPage-CuyG4-EX.js           [39m[1m[2m    1.62 kB[22m[1m[22m[2m │ gzip:   0.72 kB[22m
+[03:44:29.210] [2m../dist/public/[22m[2massets/[22m[36mSpotTradingPage-rZkM_Me1.js           [39m[1m[2m    1.65 kB[22m[1m[22m[2m │ gzip:   0.75 kB[22m
+[03:44:29.210] [2m../dist/public/[22m[2massets/[22m[36mnumerical-uid-service-DXJg8Jik.js     [39m[1m[2m    1.73 kB[22m[1m[22m[2m │ gzip:   0.62 kB[22m
+[03:44:29.210] [2m../dist/public/[22m[2massets/[22m[36mcoingecko-Fi6D4sCI.js                 [39m[1m[2m    1.75 kB[22m[1m[22m[2m │ gzip:   0.95 kB[22m
+[03:44:29.210] [2m../dist/public/[22m[2massets/[22m[36mMarginTradingPage-B71PTiGB.js         [39m[1m[2m    1.85 kB[22m[1m[22m[2m │ gzip:   0.78 kB[22m
+[03:44:29.210] [2m../dist/public/[22m[2massets/[22m[36mHistoryPage-Db1YfFjn.js               [39m[1m[2m    2.14 kB[22m[1m[22m[2m │ gzip:   0.77 kB[22m
+[03:44:29.210] [2m../dist/public/[22m[2massets/[22m[36mQRCodeScanner-5n8FozYu.js             [39m[1m[2m    2.19 kB[22m[1m[22m[2m │ gzip:   1.16 kB[22m
+[03:44:29.210] [2m../dist/public/[22m[2massets/[22m[36mlabel-ClBfxdnv.js                     [39m[1m[2m    2.31 kB[22m[1m[22m[2m │ gzip:   1.13 kB[22m
+[03:44:29.210] [2m../dist/public/[22m[2massets/[22m[36mseparator-CCUQR7Sz.js                 [39m[1m[2m    2.42 kB[22m[1m[22m[2m │ gzip:   1.14 kB[22m
+[03:44:29.210] [2m../dist/public/[22m[2massets/[22m[36mReferralsPage-BUtuXieg.js             [39m[1m[2m    2.72 kB[22m[1m[22m[2m │ gzip:   0.86 kB[22m
+[03:44:29.210] [2m../dist/public/[22m[2massets/[22m[36mpayment-icons-pNvWXL0B.js             [39m[1m[2m    2.86 kB[22m[1m[22m[2m │ gzip:   1.14 kB[22m
+[03:44:29.210] [2m../dist/public/[22m[2massets/[22m[36mStrategiesPage-BzmLfgmQ.js            [39m[1m[2m    3.08 kB[22m[1m[22m[2m │ gzip:   0.92 kB[22m
+[03:44:29.210] [2m../dist/public/[22m[2massets/[22m[36mLivePriceTicker-CX-Z43_9.js           [39m[1m[2m    3.27 kB[22m[1m[22m[2m │ gzip:   1.40 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mDexScreenerPage-Kago0CQg.js           [39m[1m[2m    3.40 kB[22m[1m[22m[2m │ gzip:   1.26 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mfirebase-service-C072zXh_.js          [39m[1m[2m    3.55 kB[22m[1m[22m[2m │ gzip:   1.27 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mprogress-D-Nwgx46.js                  [39m[1m[2m    3.68 kB[22m[1m[22m[2m │ gzip:   1.69 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mTradingPanel-D5BmIdLn.js              [39m[1m[2m    3.89 kB[22m[1m[22m[2m │ gzip:   1.39 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mCryptoConverterPage-DHJH9Nfk.js       [39m[1m[2m    4.08 kB[22m[1m[22m[2m │ gzip:   1.15 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mBotCard-gx0QXlO8.js                   [39m[1m[2m    4.25 kB[22m[1m[22m[2m │ gzip:   1.60 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mSupportPage-BArBk7jH.js               [39m[1m[2m    4.31 kB[22m[1m[22m[2m │ gzip:   1.82 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mswitch-C3G4wO-j.js                    [39m[1m[2m    5.27 kB[22m[1m[22m[2m │ gzip:   2.38 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mCryptoTicker-FsJHc6ce.js              [39m[1m[2m    5.56 kB[22m[1m[22m[2m │ gzip:   2.26 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mBotsPage-BRjaW5e8.js                  [39m[1m[2m    5.75 kB[22m[1m[22m[2m │ gzip:   1.88 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mDemoPage-Zudlxqa8.js                  [39m[1m[2m    8.69 kB[22m[1m[22m[2m │ gzip:   3.17 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mMarketOverview-gxhS0tZK.js            [39m[1m[2m    9.15 kB[22m[1m[22m[2m │ gzip:   3.28 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mCoinFuturesPage-CFVZsjmZ.js           [39m[1m[2m   10.07 kB[22m[1m[22m[2m │ gzip:   2.43 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36museQuery-Cq1ZAQSa.js                  [39m[1m[2m   10.26 kB[22m[1m[22m[2m │ gzip:   3.63 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mOptionsPage-DQsbh_SN.js               [39m[1m[2m   11.26 kB[22m[1m[22m[2m │ gzip:   2.41 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mMarketPage-DpuUbGpC.js                [39m[1m[2m   11.38 kB[22m[1m[22m[2m │ gzip:   3.02 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mslider-CzyUn9u9.js                    [39m[1m[2m   12.12 kB[22m[1m[22m[2m │ gzip:   4.84 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mtabs-CNYENJLt.js                      [39m[1m[2m   12.43 kB[22m[1m[22m[2m │ gzip:   4.69 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mLeaderboardPage-BRdS_UH5.js           [39m[1m[2m   12.80 kB[22m[1m[22m[2m │ gzip:   2.63 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mradio-group-D0WXrKRE.js               [39m[1m[2m   13.25 kB[22m[1m[22m[2m │ gzip:   5.07 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mCryptoConverter-DhQ2RYJl.js           [39m[1m[2m   13.58 kB[22m[1m[22m[2m │ gzip:   4.87 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36maccordion-DpB9oyxL.js                 [39m[1m[2m   15.15 kB[22m[1m[22m[2m │ gzip:   4.64 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mSocialTradingPage-BW4ivCWl.js         [39m[1m[2m   15.68 kB[22m[1m[22m[2m │ gzip:   3.40 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mAutoInvestPage-eB1G8wgX.js            [39m[1m[2m   16.61 kB[22m[1m[22m[2m │ gzip:   3.54 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mAITradingAssistantPage-CT2v5Xq9.js    [39m[1m[2m   17.35 kB[22m[1m[22m[2m │ gzip:   5.10 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mSimpleEarnPage-rYHGO2Z7.js            [39m[1m[2m   17.56 kB[22m[1m[22m[2m │ gzip:   2.85 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mUSDTFuturesPage-9JUZIsmL.js           [39m[1m[2m   18.46 kB[22m[1m[22m[2m │ gzip:   4.03 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mdialog-D7VTbXib.js                    [39m[1m[2m   19.09 kB[22m[1m[22m[2m │ gzip:   6.59 kB[22m
+[03:44:29.211] [2m../dist/public/[22m[2massets/[22m[36mDepositPage-Bag51X6a.js               [39m[1m[2m   22.48 kB[22m[1m[22m[2m │ gzip:   5.79 kB[22m
+[03:44:29.212] [2m../dist/public/[22m[2massets/[22m[36mStakingPage-C-M-YNNN.js               [39m[1m[2m   23.34 kB[22m[1m[22m[2m │ gzip:   3.85 kB[22m
+[03:44:29.212] [2m../dist/public/[22m[2massets/[22m[36mStrategyTradingPage-CZlqYUga.js       [39m[1m[2m   23.54 kB[22m[1m[22m[2m │ gzip:   4.54 kB[22m
+[03:44:29.212] [2m../dist/public/[22m[2massets/[22m[36mLiquidityFarmingPage-B9f0lTvJ.js      [39m[1m[2m   24.09 kB[22m[1m[22m[2m │ gzip:   4.50 kB[22m
+[03:44:29.212] [2m../dist/public/[22m[2massets/[22m[36mDashboard-DhBNQFHz.js                 [39m[1m[2m   25.98 kB[22m[1m[22m[2m │ gzip:   6.95 kB[22m
+[03:44:29.212] [2m../dist/public/[22m[2massets/[22m[36mform-Rygg9NKg.js                      [39m[1m[2m   26.97 kB[22m[1m[22m[2m │ gzip:  10.05 kB[22m
+[03:44:29.212] [2m../dist/public/[22m[2massets/[22m[36mVertexCardPage-D9eWhubD.js            [39m[1m[2m   31.66 kB[22m[1m[22m[2m │ gzip:   8.04 kB[22m
+[03:44:29.212] [2m../dist/public/[22m[2massets/[22m[36mApiManagementPage-DQGa4P8B.js         [39m[1m[2m   33.08 kB[22m[1m[22m[2m │ gzip:   5.75 kB[22m
+[03:44:29.212] [2m../dist/public/[22m[2massets/[22m[36mRiskAnalysisPage-DP95mUO-.js          [39m[1m[2m   33.42 kB[22m[1m[22m[2m │ gzip:   8.86 kB[22m
+[03:44:29.212] [2m../dist/public/[22m[2massets/[22m[36mselect-qkyOaNua.js                    [39m[1m[2m   36.94 kB[22m[1m[22m[2m │ gzip:  12.86 kB[22m
+[03:44:29.212] [2m../dist/public/[22m[2massets/[22m[36mSettingsPage-C2KOn5Iq.js              [39m[1m[2m   36.99 kB[22m[1m[22m[2m │ gzip:   9.88 kB[22m
+[03:44:29.212] [2m../dist/public/[22m[2massets/[22m[36mWithdrawPage-CRPnSauY.js              [39m[1m[2m   53.34 kB[22m[1m[22m[2m │ gzip:  12.33 kB[22m
+[03:44:29.212] [2m../dist/public/[22m[2massets/[22m[36mAssetsPage-JgpvymF0.js                [39m[1m[2m   54.91 kB[22m[1m[22m[2m │ gzip:  13.89 kB[22m
+[03:44:29.212] [2m../dist/public/[22m[2massets/[22m[36mTransactionHistory-BmFAwyKn.js        [39m[1m[2m   78.09 kB[22m[1m[22m[2m │ gzip:  19.87 kB[22m
+[03:44:29.212] [2m../dist/public/[22m[2massets/[22m[36mP2PPage-BPiIfqQL.js                   [39m[1m[2m  104.02 kB[22m[1m[22m[2m │ gzip:  21.10 kB[22m
+[03:44:29.212] [2m../dist/public/[22m[2massets/[22m[36msupabase-BCuGfBrz.js                  [39m[1m[2m  116.24 kB[22m[1m[22m[2m │ gzip:  31.82 kB[22m
+[03:44:29.212] [2m../dist/public/[22m[2massets/[22m[36mAlertsPage-N52k5Lf4.js                [39m[1m[2m  183.73 kB[22m[1m[22m[2m │ gzip:  43.24 kB[22m
+[03:44:29.212] [2m../dist/public/[22m[2massets/[22m[36mIndex-DD60WNQm.js                     [39m[1m[2m  209.15 kB[22m[1m[22m[2m │ gzip:  60.18 kB[22m
+[03:44:29.212] [2m../dist/public/[22m[2massets/[22m[36mgenerateCategoricalChart-DM6JF6QO.js  [39m[1m[2m  367.93 kB[22m[1m[22m[2m │ gzip: 101.79 kB[22m
+[03:44:29.212] [2m../dist/public/[22m[2massets/[22m[36mindex-BgJj7lIP.js                     [39m[1m[33m1,020.32 kB[39m[22m[2m │ gzip: 275.66 kB[22m
+[03:44:29.212] [32m✓ built in 16.22s[39m
+[03:44:29.212] [33m
+[03:44:29.212] (!) Some chunks are larger than 500 kB after minification. Consider:
+[03:44:29.212] - Using dynamic import() to code-split the application
+[03:44:29.212] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[03:44:29.212] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[03:44:29.326] Detected `package-lock.json` generated by npm 7+
+[03:44:29.327] Running "npm run vercel-build"
+[03:44:29.529] 
+[03:44:29.530] > rest-express@1.0.0 vercel-build
+[03:44:29.530] > vite build
+[03:44:29.530] 
+[03:44:29.750] [36mvite v5.4.19 [32mbuilding for production...[36m[39m
+[03:44:29.799] transforming...
+[03:44:44.246] [32m✓[39m 3205 modules transformed.
+[03:44:45.032] rendering chunks...
+[03:44:45.857] [1m[33m[plugin:vite:reporter][39m[22m [33m[plugin vite:reporter] 
+[03:44:45.857] (!) /vercel/path0/node_modules/firebase/firestore/dist/esm/index.esm.js is dynamically imported by /vercel/path0/client/src/lib/notification-service.ts, /vercel/path0/client/src/lib/notification-service.ts but also statically imported by /vercel/path0/client/src/components/OpenAccountForm.tsx, /vercel/path0/client/src/components/PhoneAuthForm.tsx, /vercel/path0/client/src/components/SignInForm.tsx, /vercel/path0/client/src/components/dashboard/DashboardHeader.tsx, /vercel/path0/client/src/components/trading/Credit3DCard.tsx, /vercel/path0/client/src/components/trading/VertexCardApplication.tsx, /vercel/path0/client/src/hooks/useCountdown.ts, /vercel/path0/client/src/lib/firebase-service.ts, /vercel/path0/client/src/lib/firebase.ts, /vercel/path0/client/src/lib/numerical-uid-service.ts, /vercel/path0/client/src/lib/p2p-service.ts, /vercel/path0/client/src/lib/trader-service.ts, /vercel/path0/client/src/lib/user-service.ts, /vercel/path0/client/src/pages/Dashboard.tsx, /vercel/path0/client/src/pages/P2PPage.tsx, /vercel/path0/client/src/pages/SettingsPage.tsx, /vercel/path0/client/src/pages/SupportPage.tsx, /vercel/path0/client/src/pages/VertexCardPage.tsx, /vercel/path0/client/src/pages/WithdrawPage.tsx, dynamic import will not move module into another chunk.
+[03:44:45.857] [39m
+[03:44:45.857] [1m[33m[plugin:vite:reporter][39m[22m [33m[plugin vite:reporter] 
+[03:44:45.857] (!) /vercel/path0/client/src/lib/firebase.ts is dynamically imported by /vercel/path0/client/src/lib/notification-service.ts, /vercel/path0/client/src/lib/notification-service.ts, /vercel/path0/client/src/pages/WithdrawPage.tsx but also statically imported by /vercel/path0/client/src/components/NumericalUidDisplay.tsx, /vercel/path0/client/src/components/OpenAccountForm.tsx, /vercel/path0/client/src/components/PhoneAuthForm.tsx, /vercel/path0/client/src/components/SignInForm.tsx, /vercel/path0/client/src/components/dashboard/DashboardHeader.tsx, /vercel/path0/client/src/components/dashboard/TransactionHistory.tsx, /vercel/path0/client/src/components/trading/Credit3DCard.tsx, /vercel/path0/client/src/components/trading/CryptoConverter.tsx, /vercel/path0/client/src/components/trading/VertexCardApplication.tsx, /vercel/path0/client/src/contexts/PreloadContext.tsx, /vercel/path0/client/src/hooks/useCountdown.ts, /vercel/path0/client/src/lib/firebase-service.ts, /vercel/path0/client/src/lib/numerical-uid-service.ts, /vercel/path0/client/src/lib/p2p-service.ts, /vercel/path0/client/src/lib/trader-service.ts, /vercel/path0/client/src/lib/user-service.ts, /vercel/path0/client/src/pages/Dashboard.tsx, /vercel/path0/client/src/pages/DepositPage.tsx, /vercel/path0/client/src/pages/P2PPage.tsx, /vercel/path0/client/src/pages/SettingsPage.tsx, /vercel/path0/client/src/pages/SupportPage.tsx, /vercel/path0/client/src/pages/VertexCardPage.tsx, /vercel/path0/client/src/pages/WithdrawPage.tsx, dynamic import will not move module into another chunk.
+[03:44:45.857] [39m
+[03:44:45.920] computing gzip size...
+[03:44:45.996] [2m../dist/public/[22m[32mindex.html                                   [39m[1m[2m    0.63 kB[22m[1m[22m[2m │ gzip:   0.38 kB[22m
+[03:44:45.996] [2m../dist/public/[22m[2massets/[22m[35mindex-DlAGTRu7.css                    [39m[1m[2m   90.33 kB[22m[1m[22m[2m │ gzip:  15.47 kB[22m
+[03:44:45.996] [2m../dist/public/[22m[2massets/[22m[36mskeleton-C4HmF-7B.js                  [39m[1m[2m    0.17 kB[22m[1m[22m[2m │ gzip:   0.16 kB[22m
+[03:44:45.996] [2m../dist/public/[22m[2massets/[22m[36mcheck-BdeoH_JF.js                     [39m[1m[2m    0.29 kB[22m[1m[22m[2m │ gzip:   0.24 kB[22m
+[03:44:45.996] [2m../dist/public/[22m[2massets/[22m[36mcircle-Dt4ZKBLl.js                    [39m[1m[2m    0.30 kB[22m[1m[22m[2m │ gzip:   0.24 kB[22m
+[03:44:45.997] [2m../dist/public/[22m[2massets/[22m[36mplay-8_bRxk1g.js                      [39m[1m[2m    0.30 kB[22m[1m[22m[2m │ gzip:   0.25 kB[22m
+[03:44:46.005] [2m../dist/public/[22m[2massets/[22m[36mloader-circle-C24iRaOM.js             [39m[1m[2m    0.31 kB[22m[1m[22m[2m │ gzip:   0.26 kB[22m
+[03:44:46.005] [2m../dist/public/[22m[2massets/[22m[36mBarChart-DumlULGB.js                  [39m[1m[2m    0.32 kB[22m[1m[22m[2m │ gzip:   0.23 kB[22m
+[03:44:46.005] [2m../dist/public/[22m[2massets/[22m[36mplus-D7FR14jz.js                      [39m[1m[2m    0.32 kB[22m[1m[22m[2m │ gzip:   0.25 kB[22m
+[03:44:46.005] [2m../dist/public/[22m[2massets/[22m[36mfilter-Bn1eWjtF.js                    [39m[1m[2m    0.33 kB[22m[1m[22m[2m │ gzip:   0.26 kB[22m
+[03:44:46.005] [2m../dist/public/[22m[2massets/[22m[36mclock-DY084Al3.js                     [39m[1m[2m    0.35 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+[03:44:46.005] [2m../dist/public/[22m[2massets/[22m[36minfo-B6Lz6Sp8.js                      [39m[1m[2m    0.37 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+[03:44:46.006] [2m../dist/public/[22m[2massets/[22m[36mlock-Dgi5Q3J8.js                      [39m[1m[2m    0.38 kB[22m[1m[22m[2m │ gzip:   0.29 kB[22m
+[03:44:46.006] [2m../dist/public/[22m[2massets/[22m[36mtrending-down-CVUhe3bO.js             [39m[1m[2m    0.38 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+[03:44:46.006] [2m../dist/public/[22m[2massets/[22m[36mdollar-sign-BI0ONrU-.js               [39m[1m[2m    0.39 kB[22m[1m[22m[2m │ gzip:   0.30 kB[22m
+[03:44:46.006] [2m../dist/public/[22m[2massets/[22m[36mcopy-D5-KUSQg.js                      [39m[1m[2m    0.41 kB[22m[1m[22m[2m │ gzip:   0.31 kB[22m
+[03:44:46.006] [2m../dist/public/[22m[2massets/[22m[36mglobe-DWnzEYx3.js                     [39m[1m[2m    0.41 kB[22m[1m[22m[2m │ gzip:   0.29 kB[22m
+[03:44:46.006] [2m../dist/public/[22m[2massets/[22m[36mcircle-alert-Dnp92l0V.js              [39m[1m[2m    0.42 kB[22m[1m[22m[2m │ gzip:   0.29 kB[22m
+[03:44:46.006] [2m../dist/public/[22m[2massets/[22m[36mexternal-link-Bi4eq9-3.js             [39m[1m[2m    0.42 kB[22m[1m[22m[2m │ gzip:   0.30 kB[22m
+[03:44:46.006] [2m../dist/public/[22m[2massets/[22m[36meye-BLBjadxr.js                       [39m[1m[2m    0.43 kB[22m[1m[22m[2m │ gzip:   0.31 kB[22m
+[03:44:46.006] [2m../dist/public/[22m[2massets/[22m[36mtriangle-alert-CQ-jQofS.js            [39m[1m[2m    0.43 kB[22m[1m[22m[2m │ gzip:   0.31 kB[22m
+[03:44:46.006] [2m../dist/public/[22m[2massets/[22m[36mshield-CL4XaB_K.js                    [39m[1m[2m    0.44 kB[22m[1m[22m[2m │ gzip:   0.33 kB[22m
+[03:44:46.006] [2m../dist/public/[22m[2massets/[22m[36mrefresh-cw-CnzjpUcf.js                [39m[1m[2m    0.49 kB[22m[1m[22m[2m │ gzip:   0.33 kB[22m
+[03:44:46.006] [2m../dist/public/[22m[2massets/[22m[36mbot-DxRx0fnj.js                       [39m[1m[2m    0.50 kB[22m[1m[22m[2m │ gzip:   0.33 kB[22m
+[03:44:46.006] [2m../dist/public/[22m[2massets/[22m[36mfile-text-C1LSTb-6.js                 [39m[1m[2m    0.50 kB[22m[1m[22m[2m │ gzip:   0.32 kB[22m
+[03:44:46.006] [2m../dist/public/[22m[2massets/[22m[36mlayout-grid-CLmtwOAT.js               [39m[1m[2m    0.51 kB[22m[1m[22m[2m │ gzip:   0.30 kB[22m
+[03:44:46.006] [2m../dist/public/[22m[2massets/[22m[36marrow-up-yGwyYInc.js                  [39m[1m[2m    0.61 kB[22m[1m[22m[2m │ gzip:   0.31 kB[22m
+[03:44:46.006] [2m../dist/public/[22m[2massets/[22m[36marrow-up-right-Do1UAEJ3.js            [39m[1m[2m    0.62 kB[22m[1m[22m[2m │ gzip:   0.32 kB[22m
+[03:44:46.007] [2m../dist/public/[22m[2massets/[22m[36mcalculator-B6mvKq_A.js                [39m[1m[2m    0.70 kB[22m[1m[22m[2m │ gzip:   0.39 kB[22m
+[03:44:46.007] [2m../dist/public/[22m[2massets/[22m[36msliders-horizontal-DK6Ookfx.js        [39m[1m[2m    0.75 kB[22m[1m[22m[2m │ gzip:   0.37 kB[22m
+[03:44:46.007] [2m../dist/public/[22m[2massets/[22m[36mbots-BM8qgV3l.js                      [39m[1m[2m    1.16 kB[22m[1m[22m[2m │ gzip:   0.51 kB[22m
+[03:44:46.007] [2m../dist/public/[22m[2massets/[22m[36mTradingViewChart-e2fCiisI.js          [39m[1m[2m    1.34 kB[22m[1m[22m[2m │ gzip:   0.80 kB[22m
+[03:44:46.007] [2m../dist/public/[22m[2massets/[22m[36mBinanceNewListingsPage-DRGTjIj5.js    [39m[1m[2m    1.43 kB[22m[1m[22m[2m │ gzip:   0.72 kB[22m
+[03:44:46.007] [2m../dist/public/[22m[2massets/[22m[36mtable-3o_u2t-d.js                     [39m[1m[2m    1.49 kB[22m[1m[22m[2m │ gzip:   0.51 kB[22m
+[03:44:46.007] [2m../dist/public/[22m[2massets/[22m[36mMarketChart-wus4dNHe.js               [39m[1m[2m    1.49 kB[22m[1m[22m[2m │ gzip:   0.68 kB[22m
+[03:44:46.007] [2m../dist/public/[22m[2massets/[22m[36mFuturesMarketsPage-Cv-S3BsS.js        [39m[1m[2m    1.62 kB[22m[1m[22m[2m │ gzip:   0.72 kB[22m
+[03:44:46.007] [2m../dist/public/[22m[2massets/[22m[36mTopMoversPage-CN9RuHhp.js             [39m[1m[2m    1.62 kB[22m[1m[22m[2m │ gzip:   0.71 kB[22m
+[03:44:46.007] [2m../dist/public/[22m[2massets/[22m[36mSpotMarketsPage-CuyG4-EX.js           [39m[1m[2m    1.62 kB[22m[1m[22m[2m │ gzip:   0.72 kB[22m
+[03:44:46.007] [2m../dist/public/[22m[2massets/[22m[36mSpotTradingPage-rZkM_Me1.js           [39m[1m[2m    1.65 kB[22m[1m[22m[2m │ gzip:   0.75 kB[22m
+[03:44:46.008] [2m../dist/public/[22m[2massets/[22m[36mnumerical-uid-service-DXJg8Jik.js     [39m[1m[2m    1.73 kB[22m[1m[22m[2m │ gzip:   0.62 kB[22m
+[03:44:46.008] [2m../dist/public/[22m[2massets/[22m[36mcoingecko-Fi6D4sCI.js                 [39m[1m[2m    1.75 kB[22m[1m[22m[2m │ gzip:   0.95 kB[22m
+[03:44:46.008] [2m../dist/public/[22m[2massets/[22m[36mMarginTradingPage-B71PTiGB.js         [39m[1m[2m    1.85 kB[22m[1m[22m[2m │ gzip:   0.78 kB[22m
+[03:44:46.008] [2m../dist/public/[22m[2massets/[22m[36mHistoryPage-Db1YfFjn.js               [39m[1m[2m    2.14 kB[22m[1m[22m[2m │ gzip:   0.77 kB[22m
+[03:44:46.008] [2m../dist/public/[22m[2massets/[22m[36mQRCodeScanner-5n8FozYu.js             [39m[1m[2m    2.19 kB[22m[1m[22m[2m │ gzip:   1.16 kB[22m
+[03:44:46.008] [2m../dist/public/[22m[2massets/[22m[36mlabel-ClBfxdnv.js                     [39m[1m[2m    2.31 kB[22m[1m[22m[2m │ gzip:   1.13 kB[22m
+[03:44:46.008] [2m../dist/public/[22m[2massets/[22m[36mseparator-CCUQR7Sz.js                 [39m[1m[2m    2.42 kB[22m[1m[22m[2m │ gzip:   1.14 kB[22m
+[03:44:46.011] [2m../dist/public/[22m[2massets/[22m[36mReferralsPage-BUtuXieg.js             [39m[1m[2m    2.72 kB[22m[1m[22m[2m │ gzip:   0.86 kB[22m
+[03:44:46.011] [2m../dist/public/[22m[2massets/[22m[36mpayment-icons-pNvWXL0B.js             [39m[1m[2m    2.86 kB[22m[1m[22m[2m │ gzip:   1.14 kB[22m
+[03:44:46.011] [2m../dist/public/[22m[2massets/[22m[36mStrategiesPage-BzmLfgmQ.js            [39m[1m[2m    3.08 kB[22m[1m[22m[2m │ gzip:   0.92 kB[22m
+[03:44:46.011] [2m../dist/public/[22m[2massets/[22m[36mLivePriceTicker-CX-Z43_9.js           [39m[1m[2m    3.27 kB[22m[1m[22m[2m │ gzip:   1.40 kB[22m
+[03:44:46.011] [2m../dist/public/[22m[2massets/[22m[36mDexScreenerPage-Kago0CQg.js           [39m[1m[2m    3.40 kB[22m[1m[22m[2m │ gzip:   1.26 kB[22m
+[03:44:46.011] [2m../dist/public/[22m[2massets/[22m[36mfirebase-service-C072zXh_.js          [39m[1m[2m    3.55 kB[22m[1m[22m[2m │ gzip:   1.27 kB[22m
+[03:44:46.011] [2m../dist/public/[22m[2massets/[22m[36mprogress-D-Nwgx46.js                  [39m[1m[2m    3.68 kB[22m[1m[22m[2m │ gzip:   1.69 kB[22m
+[03:44:46.011] [2m../dist/public/[22m[2massets/[22m[36mTradingPanel-D5BmIdLn.js              [39m[1m[2m    3.89 kB[22m[1m[22m[2m │ gzip:   1.39 kB[22m
+[03:44:46.011] [2m../dist/public/[22m[2massets/[22m[36mCryptoConverterPage-DHJH9Nfk.js       [39m[1m[2m    4.08 kB[22m[1m[22m[2m │ gzip:   1.15 kB[22m
+[03:44:46.012] [2m../dist/public/[22m[2massets/[22m[36mBotCard-gx0QXlO8.js                   [39m[1m[2m    4.25 kB[22m[1m[22m[2m │ gzip:   1.60 kB[22m
+[03:44:46.012] [2m../dist/public/[22m[2massets/[22m[36mSupportPage-BArBk7jH.js               [39m[1m[2m    4.31 kB[22m[1m[22m[2m │ gzip:   1.82 kB[22m
+[03:44:46.012] [2m../dist/public/[22m[2massets/[22m[36mswitch-C3G4wO-j.js                    [39m[1m[2m    5.27 kB[22m[1m[22m[2m │ gzip:   2.38 kB[22m
+[03:44:46.012] [2m../dist/public/[22m[2massets/[22m[36mCryptoTicker-FsJHc6ce.js              [39m[1m[2m    5.56 kB[22m[1m[22m[2m │ gzip:   2.26 kB[22m
+[03:44:46.012] [2m../dist/public/[22m[2massets/[22m[36mBotsPage-BRjaW5e8.js                  [39m[1m[2m    5.75 kB[22m[1m[22m[2m │ gzip:   1.88 kB[22m
+[03:44:46.012] [2m../dist/public/[22m[2massets/[22m[36mDemoPage-Zudlxqa8.js                  [39m[1m[2m    8.69 kB[22m[1m[22m[2m │ gzip:   3.17 kB[22m
+[03:44:46.012] [2m../dist/public/[22m[2massets/[22m[36mMarketOverview-gxhS0tZK.js            [39m[1m[2m    9.15 kB[22m[1m[22m[2m │ gzip:   3.28 kB[22m
+[03:44:46.012] [2m../dist/public/[22m[2massets/[22m[36mCoinFuturesPage-CFVZsjmZ.js           [39m[1m[2m   10.07 kB[22m[1m[22m[2m │ gzip:   2.43 kB[22m
+[03:44:46.012] [2m../dist/public/[22m[2massets/[22m[36museQuery-Cq1ZAQSa.js                  [39m[1m[2m   10.26 kB[22m[1m[22m[2m │ gzip:   3.63 kB[22m
+[03:44:46.012] [2m../dist/public/[22m[2massets/[22m[36mOptionsPage-DQsbh_SN.js               [39m[1m[2m   11.26 kB[22m[1m[22m[2m │ gzip:   2.41 kB[22m
+[03:44:46.012] [2m../dist/public/[22m[2massets/[22m[36mMarketPage-DpuUbGpC.js                [39m[1m[2m   11.38 kB[22m[1m[22m[2m │ gzip:   3.02 kB[22m
+[03:44:46.012] [2m../dist/public/[22m[2massets/[22m[36mslider-CzyUn9u9.js                    [39m[1m[2m   12.12 kB[22m[1m[22m[2m │ gzip:   4.84 kB[22m
+[03:44:46.012] [2m../dist/public/[22m[2massets/[22m[36mtabs-CNYENJLt.js                      [39m[1m[2m   12.43 kB[22m[1m[22m[2m │ gzip:   4.69 kB[22m
+[03:44:46.012] [2m../dist/public/[22m[2massets/[22m[36mLeaderboardPage-BRdS_UH5.js           [39m[1m[2m   12.80 kB[22m[1m[22m[2m │ gzip:   2.63 kB[22m
+[03:44:46.012] [2m../dist/public/[22m[2massets/[22m[36mradio-group-D0WXrKRE.js               [39m[1m[2m   13.25 kB[22m[1m[22m[2m │ gzip:   5.07 kB[22m
+[03:44:46.012] [2m../dist/public/[22m[2massets/[22m[36mCryptoConverter-DhQ2RYJl.js           [39m[1m[2m   13.58 kB[22m[1m[22m[2m │ gzip:   4.87 kB[22m
+[03:44:46.013] [2m../dist/public/[22m[2massets/[22m[36maccordion-DpB9oyxL.js                 [39m[1m[2m   15.15 kB[22m[1m[22m[2m │ gzip:   4.64 kB[22m
+[03:44:46.013] [2m../dist/public/[22m[2massets/[22m[36mSocialTradingPage-BW4ivCWl.js         [39m[1m[2m   15.68 kB[22m[1m[22m[2m │ gzip:   3.40 kB[22m
+[03:44:46.013] [2m../dist/public/[22m[2massets/[22m[36mAutoInvestPage-eB1G8wgX.js            [39m[1m[2m   16.61 kB[22m[1m[22m[2m │ gzip:   3.54 kB[22m
+[03:44:46.013] [2m../dist/public/[22m[2massets/[22m[36mAITradingAssistantPage-CT2v5Xq9.js    [39m[1m[2m   17.35 kB[22m[1m[22m[2m │ gzip:   5.10 kB[22m
+[03:44:46.013] [2m../dist/public/[22m[2massets/[22m[36mSimpleEarnPage-rYHGO2Z7.js            [39m[1m[2m   17.56 kB[22m[1m[22m[2m │ gzip:   2.85 kB[22m
+[03:44:46.013] [2m../dist/public/[22m[2massets/[22m[36mUSDTFuturesPage-9JUZIsmL.js           [39m[1m[2m   18.46 kB[22m[1m[22m[2m │ gzip:   4.03 kB[22m
+[03:44:46.013] [2m../dist/public/[22m[2massets/[22m[36mdialog-D7VTbXib.js                    [39m[1m[2m   19.09 kB[22m[1m[22m[2m │ gzip:   6.59 kB[22m
+[03:44:46.013] [2m../dist/public/[22m[2massets/[22m[36mDepositPage-Bag51X6a.js               [39m[1m[2m   22.48 kB[22m[1m[22m[2m │ gzip:   5.79 kB[22m
+[03:44:46.013] [2m../dist/public/[22m[2massets/[22m[36mStakingPage-C-M-YNNN.js               [39m[1m[2m   23.34 kB[22m[1m[22m[2m │ gzip:   3.85 kB[22m
+[03:44:46.013] [2m../dist/public/[22m[2massets/[22m[36mStrategyTradingPage-CZlqYUga.js       [39m[1m[2m   23.54 kB[22m[1m[22m[2m │ gzip:   4.54 kB[22m
+[03:44:46.014] [2m../dist/public/[22m[2massets/[22m[36mLiquidityFarmingPage-B9f0lTvJ.js      [39m[1m[2m   24.09 kB[22m[1m[22m[2m │ gzip:   4.50 kB[22m
+[03:44:46.014] [2m../dist/public/[22m[2massets/[22m[36mDashboard-DhBNQFHz.js                 [39m[1m[2m   25.98 kB[22m[1m[22m[2m │ gzip:   6.95 kB[22m
+[03:44:46.014] [2m../dist/public/[22m[2massets/[22m[36mform-Rygg9NKg.js                      [39m[1m[2m   26.97 kB[22m[1m[22m[2m │ gzip:  10.05 kB[22m
+[03:44:46.014] [2m../dist/public/[22m[2massets/[22m[36mVertexCardPage-D9eWhubD.js            [39m[1m[2m   31.66 kB[22m[1m[22m[2m │ gzip:   8.04 kB[22m
+[03:44:46.015] [2m../dist/public/[22m[2massets/[22m[36mApiManagementPage-DQGa4P8B.js         [39m[1m[2m   33.08 kB[22m[1m[22m[2m │ gzip:   5.75 kB[22m
+[03:44:46.015] [2m../dist/public/[22m[2massets/[22m[36mRiskAnalysisPage-DP95mUO-.js          [39m[1m[2m   33.42 kB[22m[1m[22m[2m │ gzip:   8.86 kB[22m
+[03:44:46.015] [2m../dist/public/[22m[2massets/[22m[36mselect-qkyOaNua.js                    [39m[1m[2m   36.94 kB[22m[1m[22m[2m │ gzip:  12.86 kB[22m
+[03:44:46.015] [2m../dist/public/[22m[2massets/[22m[36mSettingsPage-C2KOn5Iq.js              [39m[1m[2m   36.99 kB[22m[1m[22m[2m │ gzip:   9.88 kB[22m
+[03:44:46.015] [2m../dist/public/[22m[2massets/[22m[36mWithdrawPage-CRPnSauY.js              [39m[1m[2m   53.34 kB[22m[1m[22m[2m │ gzip:  12.33 kB[22m
+[03:44:46.015] [2m../dist/public/[22m[2massets/[22m[36mAssetsPage-JgpvymF0.js                [39m[1m[2m   54.91 kB[22m[1m[22m[2m │ gzip:  13.89 kB[22m
+[03:44:46.015] [2m../dist/public/[22m[2massets/[22m[36mTransactionHistory-BmFAwyKn.js        [39m[1m[2m   78.09 kB[22m[1m[22m[2m │ gzip:  19.87 kB[22m
+[03:44:46.015] [2m../dist/public/[22m[2massets/[22m[36mP2PPage-BPiIfqQL.js                   [39m[1m[2m  104.02 kB[22m[1m[22m[2m │ gzip:  21.10 kB[22m
+[03:44:46.015] [2m../dist/public/[22m[2massets/[22m[36msupabase-BCuGfBrz.js                  [39m[1m[2m  116.24 kB[22m[1m[22m[2m │ gzip:  31.82 kB[22m
+[03:44:46.015] [2m../dist/public/[22m[2massets/[22m[36mAlertsPage-N52k5Lf4.js                [39m[1m[2m  183.73 kB[22m[1m[22m[2m │ gzip:  43.24 kB[22m
+[03:44:46.015] [2m../dist/public/[22m[2massets/[22m[36mIndex-DD60WNQm.js                     [39m[1m[2m  209.15 kB[22m[1m[22m[2m │ gzip:  60.18 kB[22m
+[03:44:46.015] [2m../dist/public/[22m[2massets/[22m[36mgenerateCategoricalChart-DM6JF6QO.js  [39m[1m[2m  367.93 kB[22m[1m[22m[2m │ gzip: 101.79 kB[22m
+[03:44:46.015] [2m../dist/public/[22m[2massets/[22m[36mindex-BgJj7lIP.js                     [39m[1m[33m1,020.32 kB[39m[22m[2m │ gzip: 275.66 kB[22m
+[03:44:46.015] [32m✓ built in 16.23s[39m
+[03:44:46.016] [33m
+[03:44:46.016] (!) Some chunks are larger than 500 kB after minification. Consider:
+[03:44:46.016] - Using dynamic import() to code-split the application
+[03:44:46.016] - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+[03:44:46.016] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[03:44:46.318] Using TypeScript 5.6.3 (local user-provided)
+[03:44:52.742] api/index.ts(4,18): error TS2307: Cannot find module 'cors' or its corresponding type declarations.
+[03:44:52.742] api/index.ts(25,7): error TS2353: Object literal may only specify known properties, and 'crypto' does not exist in type '{ to: string; type: "withdrawal" | "deposit" | "transfer" | "conversion"; username: string; amount: number; currency: string; isReceiver?: boolean | undefined; receiver?: string | undefined; fromCurrency?: string | undefined; toCurrency?: string | undefined; conversionRate?: number | undefined; }'.
+[03:44:52.742] api/index.ts(31,51): error TS18046: 'error' is of type 'unknown'.
+[03:44:52.742] 
+[03:44:54.281] Build Completed in /vercel/output [1m]
+[03:44:54.404] Deploying outputs...
+[03:44:58.298] 
+[03:44:58.648] Deployment completed
+[03:45:33.208] Uploading build cache [130.68 MB]...
+[03:45:35.418] Build cache uploaded: 2.209s
+[03:45:37.670] Exiting build container
