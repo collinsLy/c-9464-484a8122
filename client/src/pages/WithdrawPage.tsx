@@ -698,10 +698,15 @@ const WithdrawPage = () => {
     const minAmount = isWalletMethod ? 20 : 50;
     const maxAmount = 50000; // Maximum withdrawal amount per day
 
-    // Import NotificationService if it's not already used elsewhere in this file
-    const { NotificationService } = await import('@/lib/notification-service');
+    console.log('Fiat withdrawal attempt:', {
+      amount: amountValue,
+      paymentMethod: selectedPaymentMethod,
+      accountDetails: accountDetails,
+      minAmount,
+      maxAmount
+    });
 
-    if (!amount || amountValue <= 0) {
+    if (!amount || amountValue <= 0 || isNaN(amountValue)) {
       toast({
         title: "Invalid Amount",
         description: "Please enter a valid withdrawal amount",
@@ -735,20 +740,21 @@ const WithdrawPage = () => {
 
     switch (selectedPaymentMethod) {
       case "bank":
-        if (!accountDetails.bankName || !accountDetails.accountNumber || !accountDetails.accountName || !accountDetails.swiftCode) {
+        if (!accountDetails.bankName?.trim() || !accountDetails.accountNumber?.trim() || 
+            !accountDetails.accountName?.trim() || !accountDetails.swiftCode?.trim()) {
           isValid = false;
           missingField = "bank account";
         }
         break;
       case "paypal":
-        if (!accountDetails.paypalEmail) {
+        if (!accountDetails.paypalEmail?.trim()) {
           isValid = false;
           missingField = "PayPal email";
         }
         break;
       case "mpesa":
       case "airtel":
-        if (!accountDetails.mobileNumber) {
+        if (!accountDetails.mobileNumber?.trim()) {
           isValid = false;
           missingField = "mobile number";
         }
@@ -764,7 +770,7 @@ const WithdrawPage = () => {
       return;
     }
 
-    const uid = localStorage.getItem('userId');
+    const uid = auth.currentUser?.uid || localStorage.getItem('userId');
     if (!uid) {
       toast({
         title: "Authentication Error",
@@ -775,18 +781,45 @@ const WithdrawPage = () => {
     }
 
     try {
-      const currentBalance = await UserBalanceService.getUserBalance(uid);
+      console.log('Checking user balance for UID:', uid);
+      
+      // Get user data to check USDT balance
+      const userData = await UserService.getUserData(uid);
+      if (!userData) {
+        throw new Error('User data not found');
+      }
+
+      // Check USDT balance (fiat withdrawals use USDT balance)
+      let currentBalance = 0;
+      if (userData.assets?.USDT && userData.assets.USDT.amount !== undefined) {
+        currentBalance = Number(userData.assets.USDT.amount);
+      } else if (typeof userData.balance === 'number') {
+        currentBalance = userData.balance;
+      } else if (typeof userData.balance === 'string') {
+        currentBalance = parseFloat(userData.balance) || 0;
+      }
+
+      console.log('Current USDT balance:', currentBalance);
+
       if (currentBalance < amountValue) {
         toast({
           title: "Insufficient Balance",
-          description: `Your balance ($${currentBalance.toFixed(2)}) is insufficient for this withdrawal`,
+          description: `Your USDT balance ($${currentBalance.toFixed(2)}) is insufficient for this withdrawal`,
           variant: "destructive",
         });
         return;
       }
 
+      // Update balance
       const newBalance = currentBalance - amountValue;
-      await UserBalanceService.updateUserBalance(uid, newBalance);
+      
+      // Update user assets
+      const updatedAssets = { ...userData.assets };
+      if (!updatedAssets.USDT) {
+        updatedAssets.USDT = { amount: newBalance, name: 'USDT' };
+      } else {
+        updatedAssets.USDT = { ...updatedAssets.USDT, amount: newBalance };
+      }
 
       const transaction = {
         type: 'Withdrawal',
@@ -795,24 +828,32 @@ const WithdrawPage = () => {
         status: 'Completed',
         timestamp: new Date().toISOString(),
         txId: `TX${Date.now()}`,
+        direction: 'out',
         details: {
           paymentMethod: selectedPaymentMethod,
+          processingStartTime: new Date().toISOString(),
+          completionTime: new Date().toISOString(),
           ...accountDetails
         }
       };
 
+      // Update user data with new balance and transaction
       await UserService.updateUserData(uid, {
+        assets: updatedAssets,
+        balance: 0, // Clear legacy balance field
         transactions: arrayUnion(transaction)
       });
 
-      // Send email notification for withdrawal using Firebase Auth user
+      console.log('User data updated successfully');
+
+      // Send email notification
       try {
         const currentUser = auth.currentUser;
 
         if (currentUser?.email) {
           const requestBody = {
             email: currentUser.email,
-            username: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
+            username: currentUser.displayName || userData.fullName || currentUser.email?.split('@')[0] || 'User',
             type: 'withdrawal',
             amount: amountValue,
             currency: 'USD'
@@ -844,6 +885,17 @@ const WithdrawPage = () => {
         console.error('Error sending withdrawal email:', error);
       }
 
+      // Clear form
+      setAmount("");
+      setAccountDetails({
+        bankName: "",
+        accountNumber: "",
+        accountName: "",
+        swiftCode: "",
+        paypalEmail: "",
+        mobileNumber: "",
+      });
+
       setIsSuccessDialogOpen(true);
 
       toast({
@@ -851,15 +903,21 @@ const WithdrawPage = () => {
         description: `Your withdrawal of $${amountValue.toFixed(2)} has been processed`,
       });
 
-      // Add notification for mobile money withdrawals
+      // Import and use notification service for mobile money
       if (isWalletMethod) {
-        await NotificationService.sendWithdrawalNotification(uid, transaction);
+        try {
+          const { NotificationService } = await import('@/lib/notification-service');
+          await NotificationService.sendWithdrawalNotification(uid, transaction);
+        } catch (notificationError) {
+          console.error('Error sending notification:', notificationError);
+        }
       }
+
     } catch (error) {
       console.error('Withdrawal error:', error);
       toast({
         title: "Withdrawal Failed",
-        description: "An error occurred while processing your withdrawal",
+        description: error instanceof Error ? error.message : "An error occurred while processing your withdrawal",
         variant: "destructive",
       });
     }
