@@ -782,7 +782,7 @@ const WithdrawPage = () => {
 
     try {
       console.log('Checking user balance for UID:', uid);
-      
+
       // Get user data to check USDT balance
       const userData = await UserService.getUserData(uid);
       if (!userData) {
@@ -812,7 +812,7 @@ const WithdrawPage = () => {
 
       // Update balance
       const newBalance = currentBalance - amountValue;
-      
+
       // Update user assets
       const updatedAssets = { ...userData.assets };
       if (!updatedAssets.USDT) {
@@ -1802,6 +1802,7 @@ const WithdrawPage = () => {
                                       freshBalance = Number(userData.assets.USDT.amount);
                                       console.log(`USDT from assets: ${freshBalance}`);
                                     }
+                                  ```text
                                   } 
                                   // Standard handling for other assets
                                   else if (userData.assets && userData.assets[crypto.symbol]) {
