@@ -58,7 +58,7 @@ const Hero = () => {
             <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <CountdownDisplay />
+                <CountdownDisplay initialDays={7} />
               </div>
               <h3 className="text-2xl font-bold text-white">New User Welcome Bonus</h3>
               <p className="text-white/70 text-lg">Deposit $15 or more and receive a <span className="text-accent font-semibold">$5 welcome bonus</span> instantly!</p>
