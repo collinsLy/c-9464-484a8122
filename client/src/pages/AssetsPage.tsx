@@ -112,13 +112,23 @@ const AssetsPage = () => {
 
   // Calculate total portfolio value with current prices
   const calculatePortfolioValue = (assets: Record<string, any>, prices: Record<string, number>, usdtBalance: number) => {
-    // Always include USDT balance in the total
-    let total = usdtBalance;
+    let total = 0;
+    
+    // Get total USDT amount from both sources
+    let totalUsdtAmount = usdtBalance; // Main balance field
+    
+    // Add USDT from assets if it exists (this is the new location)
+    if (assets && assets.USDT && assets.USDT.amount !== undefined) {
+      totalUsdtAmount += Number(assets.USDT.amount);
+    }
+    
+    // Add USDT value to total
+    total += totalUsdtAmount;
     
     // Add value of all other assets
     if (assets) {
       Object.entries(assets).forEach(([symbol, data]) => {
-        if (symbol === 'USDT') return; // Skip USDT as it's already included in balance
+        if (symbol === 'USDT') return; // Skip USDT as it's already included above
         const amount = data.amount || 0;
         const price = prices[symbol] || 0;
         const valueInUsdt = amount * price;
@@ -185,8 +195,8 @@ const AssetsPage = () => {
       name: "USDT",
       symbol: "USDT",
       fullName: "TetherUS",
-      balance: balance,
-      amount: balance.toFixed(8)
+      balance: balance + (userAssets.USDT?.amount || 0),
+      amount: (balance + (userAssets.USDT?.amount || 0)).toFixed(8)
     },
     {
       name: "USDC",
@@ -309,6 +319,17 @@ const AssetsPage = () => {
     // Check if user has this asset
     const userAsset = userAssets[asset.symbol];
     
+    // Special handling for USDT - combine both balance sources
+    if (asset.symbol === 'USDT') {
+      const totalUsdtAmount = balance + (userAsset?.amount || 0);
+      return {
+        ...asset,
+        amount: totalUsdtAmount.toFixed(8),
+        balance: totalUsdtAmount, // USDT price is always 1
+        price: 1
+      };
+    }
+    
     return {
       ...asset,
       // Override amount and balance if user has this asset
@@ -365,11 +386,11 @@ const AssetsPage = () => {
                 
                 <div className="grid grid-cols-2 gap-4 pt-2">
                   <div className="bg-white/5 rounded-lg p-3">
-                    <div className="text-lg font-semibold">{balance.toFixed(2)} USDT</div>
+                    <div className="text-lg font-semibold">{(balance + (userAssets.USDT?.amount || 0)).toFixed(2)} USDT</div>
                     <div className="text-sm text-white/60">Available Balance</div>
                   </div>
                   <div className="bg-white/5 rounded-lg p-3">
-                    <div className="text-lg font-semibold">${(totalPortfolioValue - balance).toFixed(2)}</div>
+                    <div className="text-lg font-semibold">${(totalPortfolioValue - balance - (userAssets.USDT?.amount || 0)).toFixed(2)}</div>
                     <div className="text-sm text-white/60">In Other Assets</div>
                   </div>
                 </div>
