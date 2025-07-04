@@ -4,6 +4,9 @@
 A comprehensive cryptocurrency trading platform migrated from Lovable to Replit environment. The platform includes trading features for spot, futures, P2P, automated trading bots, market analysis, and user management.
 
 ## Recent Changes
+- **2025-01-04**: Fixed Vercel deployment email template issue - removed simple template and updated api/index.ts to use modern email design
+- **2025-01-04**: Deleted unnecessary server/email-service-standalone.ts file that was causing template confusion
+- **2025-01-04**: Ensured all transaction emails in Vercel deployment now use the sophisticated template with V-Systems logo
 - **2025-01-04**: Successfully completed migration from Replit Agent to Replit environment
 - **2025-01-04**: Updated branding logo to user's custom V logo throughout the platform (navbar, sidebar, favicon)
 - **2025-01-04**: Fixed PreloadContext loading issues that were causing infinite loading states
