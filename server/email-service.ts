@@ -308,8 +308,8 @@ export class EmailService {
       const htmlContent = this.createModernTemplate(
         'Welcome to Vertex Trading',
         username,
-        `Welcome to ${this.brandName}! We're excited to have you join our community of traders. Your account has been successfully created and is ready to use.`,
-        'Get Started Trading',
+        `Welcome to ${this.brandName}! We're excited to have you join our community of traders. Your account has been successfully created and is ready to use. To get started, please verify your email address using the verification link sent by Firebase Authentication, then return to your dashboard to begin trading.`,
+        'Access Your Dashboard',
         'deposit'
       );
 
@@ -317,8 +317,14 @@ export class EmailService {
         from: `"${this.brandName}" <${this.fromEmail}>`,
         replyTo: `"${this.brandName} Support" <support@vertextrading.com>`,
         to,
-        subject: `Welcome to ${this.brandName}`,
+        subject: `Welcome to ${this.brandName} - Verify Your Account`,
         html: htmlContent,
+        headers: {
+          'X-Priority': '1',
+          'X-MSMail-Priority': 'High',
+          'Importance': 'high',
+          'Return-Path': this.fromEmail,
+        },
       };
 
       const result = await this.transporter.sendMail(mailOptions);

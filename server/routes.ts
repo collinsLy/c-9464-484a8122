@@ -89,14 +89,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Test email endpoint
   app.post("/api/test-email", async (req, res) => {
     try {
-      const result = await emailService.sendTransactionEmail({
+      const transactionResult = await emailService.sendTransactionEmail({
         to: "test@example.com",
         username: "Test User",
         type: "withdrawal",
         amount: 100.50,
         currency: "USDT"
       });
-      res.json(result);
+
+      const welcomeResult = await emailService.sendWelcomeEmail({
+        to: "test@example.com",
+        username: "Test User"
+      });
+
+      res.json({ 
+        transactionEmail: transactionResult,
+        welcomeEmail: welcomeResult,
+        message: "Both email types tested"
+      });
     } catch (error) {
       console.error("Test email error:", error);
       res.status(500).json({ success: false, error: "Internal server error" });

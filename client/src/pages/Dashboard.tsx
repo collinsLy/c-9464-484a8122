@@ -3,10 +3,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import AccountOverview from "@/components/dashboard/AccountOverview";
+import AssetsList from "@/components/dashboard/AssetsList";
 import MarketChart from "@/components/dashboard/MarketChart";
 import { CryptoConverter } from '@/components/trading/CryptoConverter';
 import { CopyTrading } from '@/components/trading/CopyTrading';
-import AssetsList from "@/components/dashboard/AssetsList";
 import TransactionHistory from "@/components/dashboard/TransactionHistory";
 import TradingPanel from "@/components/dashboard/TradingPanel";
 import AutomatedTrading from "@/components/dashboard/AutomatedTrading";
@@ -16,6 +16,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { auth, db } from "@/lib/firebase";
 import { collection, query, where, onSnapshot, orderBy, limit, Timestamp, doc, updateDoc } from "firebase/firestore";
 import { NotificationService } from "@/lib/notification-service";
+import EmailVerificationStatus from "@/components/EmailVerificationStatus";
 
 
 const Dashboard = () => {
@@ -143,7 +144,7 @@ const Dashboard = () => {
           <>
             {/* Account Summary Component */}
             <AccountOverview isDemoMode={false} />
-            
+
             {/* Trading Charts and Assets - Collapsible on mobile */}
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-3 sm:gap-6">
               <div className="xl:col-span-3">
@@ -288,6 +289,7 @@ const Dashboard = () => {
     <DashboardLayout>
       {/* Dynamic Content based on active tab */}
       <div className="w-full space-y-4 sm:space-y-6">
+      <EmailVerificationStatus />
         {renderContent()}
       </div>
     </DashboardLayout>

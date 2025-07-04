@@ -126,9 +126,32 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
 
         localStorage.setItem('showWelcome', 'true');
 
+        // Send welcome email for new Google users
+        try {
+          const response = await fetch(`${window.location.origin}/api/send-welcome-email`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: user.email,
+              username: user.displayName,
+            }),
+          });
+
+          const emailResult = await response.json();
+          if (emailResult.success) {
+            console.log('Welcome email sent successfully:', emailResult.messageId);
+          } else {
+            console.error('Failed to send welcome email:', emailResult.error);
+          }
+        } catch (error) {
+          console.error('Error sending welcome email:', error);
+        }
+
         toast({
           title: "Account created",
-          description: "Your account has been created successfully.",
+          description: "Your account has been created successfully. Check your email for a welcome message.",
         });
       } else {
         toast({
@@ -182,9 +205,32 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
 
         localStorage.setItem('showWelcome', 'true');
 
+        // Send welcome email for new Apple users
+        try {
+          const response = await fetch(`${window.location.origin}/api/send-welcome-email`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: user.email,
+              username: user.displayName,
+            }),
+          });
+
+          const emailResult = await response.json();
+          if (emailResult.success) {
+            console.log('Welcome email sent successfully:', emailResult.messageId);
+          } else {
+            console.error('Failed to send welcome email:', emailResult.error);
+          }
+        } catch (error) {
+          console.error('Error sending welcome email:', error);
+        }
+
         toast({
           title: "Account created",
-          description: "Your account has been created successfully.",
+          description: "Your account has been created successfully. Check your email for a welcome message.",
         });
       } else {
         toast({
