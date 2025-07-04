@@ -4,11 +4,7 @@ import { getDatabase, ref, push, set, onValue, remove, query, orderByChild, equa
 import { toast } from 'sonner';
 import { getCoinPrice, getCoingeckoIdFromSymbol } from './api/coingecko';
 
-// Play alert sound
-const playAlertSound = () => {
-  const audio = new Audio('/sounds/alert.mp3');
-  audio.play().catch(error => console.error('Error playing sound:', error));
-};
+// Alert sound functionality removed
 
 class AlertServiceClass {
   private db = getDatabase();
@@ -165,8 +161,6 @@ class AlertServiceClass {
                   `Alert triggered: ${symbol} is now ${condition} $${targetPrice}`,
                   { duration: 6000 }
                 );
-                
-                playAlertSound();
               }
             }
           } catch (error) {

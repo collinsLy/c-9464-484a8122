@@ -3,8 +3,6 @@ import { toast } from "@/components/ui/use-toast";
 // Types for notifications
 export interface NotificationOptions {
   showToast?: boolean;
-  playSound?: boolean;
-  soundType?: keyof typeof SOUND_PATHS | string;
   body?: string;
   icon?: string;
   priority?: 'low' | 'normal' | 'high';
@@ -26,21 +24,7 @@ export type NotificationType =
   | 'DEPOSIT_CONFIRMED'
   | 'SYSTEM_ALERT';
 
-// Sound effect paths
-const SOUND_PATHS = {
-  transfer: '/sounds/transfer.mp3',
-  deposit: '/sounds/deposit.mp3',
-  success: '/sounds/success.mp3',
-  warning: '/sounds/warning.mp3',
-  error: '/sounds/error.mp3',
-  payment_success: '/sounds/payment_success.mp3',
-  alert: '/sounds/alert.mp3',
-  notification: '/sounds/alert.mp3',
-  withdraw: '/sounds/warning.mp3',
-};
 
-// Lazy-loaded sound effects cache
-const SOUND_EFFECTS: Record<string, HTMLAudioElement> = {};
 
 export class NotificationService {
   // Check if browser supports notifications
@@ -65,9 +49,6 @@ export class NotificationService {
   // Send a withdrawal notification
   static async sendWithdrawalNotification(userId: string, transaction: any): Promise<void> {
     try {
-      // Play payment success sound
-      this.playSound('payment_success');
-
       // Create notification message
       const cryptoAmount = transaction.cryptoAmount || null;
       const cryptoType = transaction.crypto || null;
@@ -130,21 +111,16 @@ export class NotificationService {
     amount: number,
     currency: string, 
     senderName: string, 
-    options: NotificationOptions = { showToast: true, playSound: true, soundType: 'payment_success' }
+    options: NotificationOptions = { showToast: true }
   ) {
     // Show toast notification
     if (options.showToast) {
       toast({
         title: `Received ${amount} ${currency}`,
         description: `${senderName} sent you ${amount} ${currency}`,
-        variant: "success",
+        variant: "default",
         className: "notification-toast",
       });
-    }
-
-    // Play sound notification
-    if (options.playSound && options.soundType) {
-      this.playSound(options.soundType);
     }
 
     // Show browser notification if permission granted
@@ -156,62 +132,7 @@ export class NotificationService {
     }
   }
 
-  // Play a sound effect with optional volume control (lazy loading)
-  static playSound(type: keyof typeof SOUND_PATHS, volume?: number): void {
-    try {
-      // Get or create the audio object
-      if (!SOUND_EFFECTS[type]) {
-        SOUND_EFFECTS[type] = new Audio(SOUND_PATHS[type]);
-        SOUND_EFFECTS[type].volume = 0.5; // Default volume
-      }
 
-      const sound = SOUND_EFFECTS[type];
-      if (sound) {
-        // Stop any currently playing instance
-        sound.pause();
-        sound.currentTime = 0;
-
-        // Set custom volume if provided
-        if (volume !== undefined && volume >= 0 && volume <= 1) {
-          sound.volume = volume;
-        }
-
-        // Try to play the sound
-        sound.play().catch(error => {
-          console.error('Error playing notification sound:', error);
-        });
-      }
-    } catch (error) {
-      console.error('Error playing notification sound:', error);
-    }
-  }
-
-  // Set volume for all sounds
-  static setVolume(volume: number): void {
-    const normalizedVolume = Math.max(0, Math.min(1, volume));
-    Object.values(SOUND_EFFECTS).forEach(audio => {
-      audio.volume = normalizedVolume;
-    });
-  }
-
-  // Test all sound effects (for development)
-  static testSounds(): void {
-    console.log('Testing notification sounds...');
-    const soundTypes: (keyof typeof SOUND_EFFECTS)[] = ['transfer', 'deposit', 'success', 'warning', 'error'];
-
-    let index = 0;
-    const playNext = () => {
-      if (index < soundTypes.length) {
-        const soundType = soundTypes[index];
-        console.log(`Playing ${soundType} sound...`);
-        this.playSound(soundType);
-        index++;
-        setTimeout(playNext, 1500); // Play each sound with 1.5 second delay
-      }
-    };
-
-    playNext();
-  }
 
   // Store notification in Firebase
   static async storeNotificationInFirebase(
@@ -249,33 +170,6 @@ export class NotificationService {
     userId?: string
   ): Promise<void> {
     try {
-      // Determine sound type based on notification type
-      let soundType = options.soundType;
-      if (!soundType) {
-        switch (type) {
-          case 'ORDER_FILLED':
-          case 'P2P_TRANSACTION_UPDATE':
-            soundType = 'payment_success';
-            break;
-          case 'PRICE_THRESHOLD_HIT':
-            soundType = 'alert';
-            break;
-          case 'BALANCE_UPDATED':
-          case 'DEPOSIT_CONFIRMED':
-            soundType = 'success';
-            break;
-          case 'WITHDRAWAL_PROCESSING':
-            soundType = 'warning';
-            break;
-          case 'SUSPICIOUS_LOGIN':
-          case 'SYSTEM_ALERT':
-            soundType = 'error';
-            break;
-          default:
-            soundType = 'notification';
-        }
-      }
-
       // Store notification in Firebase if userId is provided
       if (userId) {
         await this.storeNotificationInFirebase(userId, type, title, message);
@@ -286,14 +180,9 @@ export class NotificationService {
         toast({
           title,
           description: message,
-          variant: type.includes('ERROR') || type === 'SUSPICIOUS_LOGIN' ? "destructive" : "success",
+          variant: type.includes('ERROR') || type === 'SUSPICIOUS_LOGIN' ? "destructive" : "default",
           className: "notification-toast",
         });
-      }
-
-      // Play sound
-      if (options.playSound !== false) {
-        this.playSound(soundType);
       }
 
       // Show browser notification
@@ -316,7 +205,7 @@ export class NotificationService {
       'ORDER_FILLED',
       'Order Filled! 🎉',
       `Your order for ${amount} ${symbol} was filled at $${price.toFixed(2)}`,
-      { soundType: 'payment_success' }
+      {}
     );
   }
 
@@ -325,7 +214,7 @@ export class NotificationService {
       'PRICE_THRESHOLD_HIT',
       `Price Alert: ${symbol} 📈`,
       `${symbol} has reached your target price of $${threshold}. Current price: $${price}`,
-      { soundType: 'alert', priority: 'high' }
+      { priority: 'high' }
     );
   }
 
@@ -334,7 +223,7 @@ export class NotificationService {
       'MARKET_MAINTENANCE',
       'System Maintenance 🔧',
       message,
-      { soundType: 'warning', persistent: true }
+      { persistent: true }
     );
   }
 
@@ -343,7 +232,7 @@ export class NotificationService {
       'SUSPICIOUS_LOGIN',
       'Security Alert! 🚨',
       message,
-      { soundType: 'error', priority: 'high', persistent: true }
+      { priority: 'high', persistent: true }
     );
   }
 

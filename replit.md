@@ -4,6 +4,8 @@
 A comprehensive cryptocurrency trading platform migrated from Lovable to Replit environment. The platform includes trading features for spot, futures, P2P, automated trading bots, market analysis, and user management.
 
 ## Recent Changes
+- **2025-01-04**: Removed all sound notifications from the application as requested by user
+- **2025-01-04**: Disabled audio alerts in notification service, alert service, P2P components, and dashboard header
 - **2025-01-04**: Successfully completed migration from Replit Agent to Replit environment 
 - **2025-01-04**: Added TradingView chart component to Hero section with real-time BTCUSD chart from Binance
 - **2025-01-04**: Verified application runs cleanly with proper client/server separation and security

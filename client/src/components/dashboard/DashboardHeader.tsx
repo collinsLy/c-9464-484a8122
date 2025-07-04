@@ -62,11 +62,8 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
             if (notificationsList.length > 0) {
               setNotifications(notificationsList);
               
-              // Play notification sound for new unread notifications (only once)
+              // Check for unread notifications
               const hasUnread = notificationsList.some(notification => !notification.read);
-              if (hasUnread && notifications.length === 0) {
-                NotificationService.playSound('notification', 0.3);
-              }
             } else {
               // Fallback: check general notifications collection
               const generalNotificationsQuery = query(

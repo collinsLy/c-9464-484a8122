@@ -605,12 +605,7 @@ class P2PService {
               offer.fiatCurrency
             );
             
-            // Play notification sound
-            try {
-              NotificationService.playSound('payment_success', 0.5);
-            } catch (soundError) {
-              console.error("Error playing notification sound:", soundError);
-            }
+            // Sound notification removed
           }
         }
       } catch (updateError) {
@@ -671,8 +666,7 @@ class P2PService {
         // Add the notification to the Firestore collection
         const docRef = await addDoc(collection(db, this.NOTIFICATIONS_COLLECTION), notification);
         
-        // Try to play a notification sound using NotificationService
-        NotificationService.playSound('alert', 0.3);
+        // Notification sound functionality removed
         
         // Try to show a desktop notification if supported
         NotificationService.showNotification("New P2P Order", {
@@ -703,9 +697,7 @@ class P2PService {
   }
   
   // Method to get user's notifications
-  // Track last notification sound time to prevent too frequent sounds
-  private lastNotificationSoundTime: number = 0;
-  private readonly NOTIFICATION_SOUND_COOLDOWN = 10000; // 10 seconds cooldown
+  // Sound notification tracking removed
   
   public async getUserNotifications(): Promise<any[]> {
     try {
@@ -743,20 +735,8 @@ class P2PService {
         return dateB.getTime() - dateA.getTime();
       });
       
-      // Play a sound if there are unread notifications, but with cooldown
+      // Check for unread notifications
       const hasUnread = notifications.some(notification => !notification.read);
-      const now = Date.now();
-      if (hasUnread && (now - this.lastNotificationSoundTime > this.NOTIFICATION_SOUND_COOLDOWN)) {
-        try {
-          // Update the last sound time
-          this.lastNotificationSoundTime = now;
-          
-          // Use NotificationService for consistent volume control
-          NotificationService.playSound('alert', 0.1); // Reduced volume to 0.1
-        } catch (soundError) {
-          console.error("Error playing notification sound:", soundError);
-        }
-      }
       
       return notifications;
     } catch (error) {

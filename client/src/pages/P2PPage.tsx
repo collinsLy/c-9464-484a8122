@@ -443,8 +443,6 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
         
         if (newOrders.length > currentOrderCount) {
           setUserOrders(newOrders);
-          // Play notification sound for new orders but with reduced volume
-          NotificationService.playSound('alert', 0.2);
 
           toast.success("New order received", {
             description: "You have a new P2P trading order"
@@ -900,8 +898,7 @@ const PaymentTimer = ({ deadline, onExpire }: { deadline: Date, onExpire: () => 
             responseTime
           );
           
-          // Play received message sound
-          NotificationService.playSound('alert', 0.3);
+          // Sound notification removed
           
           // Update local state with the response
           setChatMessages(prevMessages => ({
