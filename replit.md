@@ -4,6 +4,7 @@
 A comprehensive cryptocurrency trading platform migrated from Lovable to Replit environment. The platform includes trading features for spot, futures, P2P, automated trading bots, market analysis, and user management.
 
 ## Recent Changes
+- **2025-01-04**: Updated withdrawal processing time from "1-3 business days" to "5-10 Minutes" in both email templates and client interface
 - **2025-01-04**: Added Apple Pay notification sound specifically for financial transactions
 - **2025-01-04**: Implemented Web Audio API to generate crisp Apple Pay-style "ding" sound for withdrawals, deposits, transfers, and P2P payments
 - **2025-01-04**: Kept other notifications silent while enabling transaction-specific audio feedback

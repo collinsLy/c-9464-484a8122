@@ -198,7 +198,7 @@ export class EmailService {
     const templates = {
       withdrawal: {
         subject: `${this.brandName} Withdrawal Confirmation`,
-        message: `Your withdrawal of ${amount.toLocaleString()} ${currency} has been successfully processed and is now being transferred to your designated account. The funds should arrive within 1-3 business days.`,
+        message: `Your withdrawal of ${amount.toLocaleString()} ${currency} has been successfully processed and is now being transferred to your designated account. The funds should arrive within 5-10 Minutes.`,
         buttonText: 'View Transaction History',
         transactionType: 'withdrawal' as const,
       },
