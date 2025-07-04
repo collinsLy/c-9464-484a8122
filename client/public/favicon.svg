@@ -1,5 +1,7 @@
 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="32" height="32" rx="8" fill="#0f1115"/>
-  <path d="M8 24L16 8L24 24H20L16 16L12 24H8Z" fill="#ff7a00"/>
-  <circle cx="16" cy="12" r="2" fill="#ff7a00"/>
+  <rect width="32" height="32" fill="transparent"/>
+  <!-- Left chevron part of V -->
+  <path d="M2 3 L13 29 L16 29 L6 3 Z" fill="#FF7A00"/>
+  <!-- Right chevron part of V -->
+  <path d="M19 3 L30 3 L25 16 L16 29 L13 29 Z" fill="#FF7A00"/>
 </svg>

@@ -254,7 +254,7 @@ const DashboardSidebar = ({ navItems = defaultNavCategories }: SidebarProps) => 
           collapsed ? "justify-between" : "justify-between"
         )}>
           <div className={cn("flex items-center", collapsed ? "justify-center" : "")}>
-            <img src="/favicon.svg" alt="Vertex Trading" className="h-8 w-auto" /> {/* Favicon as logo */}
+            <img src="/vertex-logo.png" alt="Vertex Trading" className="h-8 w-auto" />
             <div className={cn("font-bold text-white ml-2", collapsed ? "text-sm" : "text-lg")}>
               {collapsed ? "Vertex" : "Vertex Trading"}
             </div>
