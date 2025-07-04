@@ -1,0 +1,88 @@
+Pre-calculate and display accurate balances instantly after login with no loading delay.
+
+🧠 Brainstorm / Optimization Plan:
+🔁 1. Cache Prices at Login
+Fetch all prices immediately after login, not when navigating to the dashboard.
+
+Store them in a global state (e.g., Redux, Zustand, or React context) so the dashboard instantly has access.
+
+Optionally use localStorage or IndexedDB to persist prices between sessions and reduce fetches.
+
+✅ Implementation idea:
+ts
+Copy
+Edit
+// On login success
+useEffect(() => {
+  fetchAllPrices().then(setPriceStore);
+}, [user?.uid]);
+⚡ 2. Precompute Portfolio Value After Login
+Once the prices and user balances are fetched:
+
+Calculate portfolio totals right away in memory.
+
+Store them in state and display them directly on the dashboard.
+
+✅ Example:
+ts
+Copy
+Edit
+useEffect(() => {
+  if (prices && userAssets) {
+    const totalValue = computePortfolioValue(userAssets, prices);
+    setPortfolioTotal(totalValue);
+  }
+}, [prices, userAssets]);
+⏱️ 3. Use Parallel Fetching
+Don’t fetch prices or balances sequentially.
+
+Use Promise.all() to get all price data and asset balances in parallel.
+
+ts
+Copy
+Edit
+const fetchInitialData = async () => {
+  const [assets, prices] = await Promise.all([
+    fetchUserAssets(uid),
+    fetchTokenPrices(),
+  ]);
+  setAssets(assets);
+  setPrices(prices);
+};
+🚀 4. Loading UX: Optimistic UI or Placeholder Skeleton
+Even if there's a <1s delay, you can show:
+
+“Last Known Value”
+
+Skeleton loader with shimmer
+
+“Updating in real time...” with spinner
+
+So it doesn't feel stuck or broken.
+
+📦 5. Use a Lightweight Pricing API or Cache It on Server
+If you're using a slow pricing API (like CoinGecko free tier), consider:
+
+Switching to a faster provider (e.g., CoinCap, CoinMarketCap Pro)
+
+Hosting your own mini Firebase function to cache prices every 60s and serve instantly to the frontend
+
+🛑 6. Prevent Re-fetching Prices Repeatedly
+Your logs show prices being fetched more than once — this could be because each component (e.g., per asset row) fetches price again.
+
+Make sure:
+
+Prices are fetched once
+
+Then shared across components via context or global state.
+
+✅ Summary Plan (High Level):
+🔐 On login: fetch balances + prices → compute total → cache in global state
+
+📊 Dashboard: read precomputed data from state → instantly render
+
+⚡ Ensure all price fetches are done in parallel, and once only
+
+🔄 Optionally cache prices using localStorage or a serverless function to reduce load
+
+🖼️ Improve perceived performance using a loading skeleton or last known values
