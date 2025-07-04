@@ -119,13 +119,23 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
 
   // Calculate total portfolio value with current prices (similar to AssetsPage)
   const calculatePortfolioValue = (assets: Record<string, any>, prices: Record<string, number>, usdtBalance: number) => {
-    // Always include USDT balance in the total
-    let total = usdtBalance;
+    let total = 0;
+    
+    // Get total USDT amount from both sources
+    let totalUsdtAmount = usdtBalance; // Main balance field
+    
+    // Add USDT from assets if it exists (this is the new location)
+    if (assets && assets.USDT && assets.USDT.amount !== undefined) {
+      totalUsdtAmount += Number(assets.USDT.amount);
+    }
+    
+    // Add USDT value to total
+    total += totalUsdtAmount;
     
     // Add value of all other assets
     if (assets) {
       Object.entries(assets).forEach(([symbol, data]) => {
-        if (symbol === 'USDT') return; // Skip USDT as it's already included in balance
+        if (symbol === 'USDT') return; // Skip USDT as it's already included above
         const amount = data.amount || 0;
         const price = prices[symbol] || 0;
         const valueInUsdt = amount * price;
@@ -270,7 +280,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
               {!dataReady ? (
                 <span className="text-white/60">Loading...</span>
               ) : (
-                `$${balance.toFixed(2)}`
+                `$${(balance + (userAssets.USDT?.amount || 0)).toFixed(2)}`
               )}
             </div>
             <div className="flex mt-1 space-x-1">
@@ -297,26 +307,26 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         <Card className="col-span-2 md:col-span-1 bg-background/40 backdrop-blur-lg border-white/10 text-white rounded-2xl shadow-lg">
           <CardContent className="p-4">
             <div className="text-sm md:text-lg text-[#7a7a7a]">Profit / Loss</div>
-            <div className={`text-xl md:text-2xl font-bold flex items-center ${(totalPortfolioValue - balance) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+            <div className={`text-xl md:text-2xl font-bold flex items-center ${(totalPortfolioValue - balance - (userAssets.USDT?.amount || 0)) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
               {!dataReady ? (
                 <span className="text-white/60">Loading...</span>
               ) : (
-                `${(totalPortfolioValue - balance) >= 0 ? '+' : ''}$${(totalPortfolioValue - balance).toFixed(2)}`
+                `${(totalPortfolioValue - balance - (userAssets.USDT?.amount || 0)) >= 0 ? '+' : ''}$${(totalPortfolioValue - balance - (userAssets.USDT?.amount || 0)).toFixed(2)}`
               )}
             </div>
             <div className="flex items-center text-xs md:text-sm">
-              {(totalPortfolioValue - balance) >= 0 ? (
+              {(totalPortfolioValue - balance - (userAssets.USDT?.amount || 0)) >= 0 ? (
                 <>
                   <ArrowUp className="w-3 h-3 md:w-4 md:h-4 mr-1 text-green-500" />
                   <span className="text-green-500">
-                    +{balance > 0 ? (((totalPortfolioValue - balance) / balance) * 100).toFixed(2) : '0.00'}%
+                    +{(balance + (userAssets.USDT?.amount || 0)) > 0 ? (((totalPortfolioValue - balance - (userAssets.USDT?.amount || 0)) / (balance + (userAssets.USDT?.amount || 0))) * 100).toFixed(2) : '0.00'}%
                   </span>
                 </>
               ) : (
                 <>
                   <ArrowDown className="w-3 h-3 md:w-4 md:h-4 mr-1 text-red-500" />
                   <span className="text-red-500">
-                    {balance > 0 ? (((totalPortfolioValue - balance) / balance) * 100).toFixed(2) : '0.00'}%
+                    {(balance + (userAssets.USDT?.amount || 0)) > 0 ? (((totalPortfolioValue - balance - (userAssets.USDT?.amount || 0)) / (balance + (userAssets.USDT?.amount || 0))) * 100).toFixed(2) : '0.00'}%
                   </span>
                 </>
               )}
