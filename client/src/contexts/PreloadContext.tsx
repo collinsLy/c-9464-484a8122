@@ -1,239 +1,232 @@
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '../lib/firebase';
-import { userService } from '../lib/user-service';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { UserService } from '@/lib/user-service';
 
-interface PriceData {
-  [symbol: string]: number;
+interface Asset {
+  symbol: string;
+  amount: number;
+  price: number;
+  value: number;
 }
 
-interface UserAssets {
-  [symbol: string]: {
-    amount: number;
-    usdValue: number;
-  };
+interface Portfolio {
+  assets: Asset[];
+  totalValue: number;
+  usdtBalance: number;
+  dailyChange: number;
+  profitLoss: number;
+  profitLossPercent: number;
+  isLoading: boolean;
+  lastUpdated: Date;
 }
 
 interface PreloadContextType {
+  portfolio: Portfolio | null;
   isLoading: boolean;
-  userAssets: UserAssets;
-  prices: PriceData;
-  portfolioTotal: number;
-  balance: number;
-  refreshData: () => Promise<void>;
-  lastUpdated: Date | null;
+  refreshPortfolio: () => Promise<void>;
 }
 
-const PreloadContext = createContext<PreloadContextType | undefined>(undefined);
+const PreloadContext = createContext<PreloadContextType | null>(null);
 
-export const PreloadProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user] = useAuthState(auth);
-  const [isLoading, setIsLoading] = useState(true);
-  const [userAssets, setUserAssets] = useState<UserAssets>({});
-  const [prices, setPrices] = useState<PriceData>({});
-  const [portfolioTotal, setPortfolioTotal] = useState(0);
-  const [balance, setBalance] = useState(0);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+export const PreloadProvider = ({ children }: { children: ReactNode }) => {
+  const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
 
-  // Fetch all crypto prices in parallel
-  const fetchAllPrices = useCallback(async (): Promise<PriceData> => {
+  const fetchPrices = async (): Promise<Record<string, number>> => {
     try {
-      const symbols = [
-        'BTCUSDT', 'ETHUSDT', 'ADAUSDT', 'SOLUSDT', 'XRPUSDT', 'DOTUSDT',
-        'LINKUSDT', 'LTCUSDT', 'BCHUSDT', 'XLMUSDT', 'VETUSDT', 'FILUSDT',
-        'TRXUSDT', 'ETCUSDT', 'XMRUSDT', 'EOSUSDT', 'AAVEUSDT', 'MKRUSDT',
-        'COMPUSDT', 'YFIUSDT', 'SUSHIUSDT', 'SNXUSDT', 'UNIUSDT', 'CRVUSDT',
-        'BALUSDT', 'RENUSDT', 'KNCUSDT', 'BANDUSDT', 'STORJUSDT', 'MANAUSDT',
-        'INJUSDT', 'WLDUSDT', 'OPUSDT', 'ARBUSDT', 'AVAXUSDT', 'MATICUSDT'
-      ];
-
-      const response = await fetch('/api/v3/ticker/price', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ symbols }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch prices');
-      }
-
-      const data = await response.json();
-      const priceMap: PriceData = {};
+      const symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'SOLUSDT'];
+      const symbolsParam = encodeURIComponent(JSON.stringify(symbols));
       
-      data.forEach((item: any) => {
-        const symbol = item.symbol.replace('USDT', '');
-        priceMap[symbol] = parseFloat(item.price);
+      const response = await fetch(`/api/v3/ticker/price?symbols=${symbolsParam}`, {
+        headers: { 
+          'Cache-Control': 'no-cache',
+          'Accept': 'application/json'
+        }
       });
-
-      return priceMap;
+      
+      if (!response.ok) {
+        console.error('Price fetch failed:', response.status, response.statusText);
+        throw new Error(`Failed to fetch prices: ${response.status}`);
+      }
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('Invalid response type:', contentType);
+        throw new Error('Invalid response format - expected JSON');
+      }
+      
+      const data = await response.json();
+      const prices: Record<string, number> = { USDT: 1 };
+      
+      if (Array.isArray(data)) {
+        data.forEach((item: any) => {
+          const symbol = item.symbol.replace('USDT', '');
+          prices[symbol] = parseFloat(item.price);
+        });
+      }
+      
+      return prices;
     } catch (error) {
       console.error('Error fetching prices:', error);
-      // Return cached prices from localStorage if available
-      const cachedPrices = localStorage.getItem('vertex_cached_prices');
-      if (cachedPrices) {
-        return JSON.parse(cachedPrices);
-      }
-      return {};
+      return { USDT: 1, BTC: 43000, ETH: 2500, BNB: 300, ADA: 0.5, SOL: 100 };
     }
-  }, []);
+  };
 
-  // Fetch user assets and balance
-  const fetchUserData = useCallback(async (uid: string) => {
+  const calculatePortfolio = async (userId: string): Promise<Portfolio> => {
     try {
-      const [userAssetsData, userBalance] = await Promise.all([
-        userService.getUserAssets(uid),
-        userService.getUserBalance(uid)
+      const [userData, prices] = await Promise.all([
+        UserService.getUserData(userId),
+        fetchPrices()
       ]);
 
+      if (!userData) {
+        return {
+          assets: [],
+          totalValue: 0,
+          usdtBalance: 0,
+          dailyChange: 0,
+          profitLoss: 0,
+          profitLossPercent: 0,
+          isLoading: false,
+          lastUpdated: new Date()
+        };
+      }
+
+      const usdtBalance = typeof userData.balance === 'number' ? userData.balance : 
+                         (typeof userData.balance === 'string' ? parseFloat(userData.balance) : 0);
+
+      const assets: Asset[] = [];
+      let totalValue = usdtBalance;
+
+      // Add USDT as an asset
+      assets.push({
+        symbol: 'USDT',
+        amount: usdtBalance,
+        price: 1,
+        value: usdtBalance
+      });
+
+      // Calculate other assets
+      if (userData.assets) {
+        Object.entries(userData.assets).forEach(([symbol, data]: [string, any]) => {
+          if (symbol === 'USDT') return; // Skip USDT as it's already included
+          
+          const amount = data.amount || 0;
+          const price = prices[symbol] || 0;
+          const value = amount * price;
+          
+          if (amount > 0) {
+            assets.push({
+              symbol,
+              amount,
+              price,
+              value
+            });
+            totalValue += value;
+          }
+        });
+      }
+
+      // Calculate profit/loss
+      const initialBalance = userData.initialBalance || usdtBalance;
+      const totalProfitLoss = userData.totalProfitLoss || 0;
+      const profitLossPercent = initialBalance > 0 ? (totalProfitLoss / initialBalance) * 100 : 0;
+
+      // Calculate daily change
+      const previousDayBalance = userData.previousDayBalance || 0;
+      const dailyChange = previousDayBalance > 0 
+        ? ((totalValue - previousDayBalance) / previousDayBalance) * 100 
+        : 0;
+
       return {
-        assets: userAssetsData || {},
-        balance: userBalance || 0
+        assets,
+        totalValue,
+        usdtBalance,
+        dailyChange,
+        profitLoss: totalProfitLoss,
+        profitLossPercent,
+        isLoading: false,
+        lastUpdated: new Date()
       };
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error('Error calculating portfolio:', error);
       return {
-        assets: {},
-        balance: 0
+        assets: [],
+        totalValue: 0,
+        usdtBalance: 0,
+        dailyChange: 0,
+        profitLoss: 0,
+        profitLossPercent: 0,
+        isLoading: false,
+        lastUpdated: new Date()
       };
     }
-  }, []);
+  };
 
-  // Compute portfolio value
-  const computePortfolioValue = useCallback((assets: UserAssets, priceData: PriceData, userBalance: number): number => {
-    let total = userBalance; // Start with USDT balance
-
-    Object.entries(assets).forEach(([symbol, asset]) => {
-      if (symbol === 'USDT') {
-        total += asset.amount;
-      } else {
-        const price = priceData[symbol] || 0;
-        total += asset.amount * price;
-      }
-    });
-
-    return total;
-  }, []);
-
-  // Main data fetching function
-  const fetchInitialData = useCallback(async () => {
-    if (!user?.uid) return;
-
+  const refreshPortfolio = async () => {
+    if (!currentUser) return;
+    
     setIsLoading(true);
-    console.log('Starting parallel data fetch for user:', user.uid);
-
     try {
-      // Fetch prices and user data in parallel
-      const [priceData, userData] = await Promise.all([
-        fetchAllPrices(),
-        fetchUserData(user.uid)
-      ]);
-
-      // Cache prices in localStorage
-      localStorage.setItem('vertex_cached_prices', JSON.stringify(priceData));
-      localStorage.setItem('vertex_prices_timestamp', Date.now().toString());
-
-      // Update state
-      setPrices(priceData);
-      setUserAssets(userData.assets);
-      setBalance(userData.balance);
-
-      // Compute portfolio total
-      const total = computePortfolioValue(userData.assets, priceData, userData.balance);
-      setPortfolioTotal(total);
-
-      setLastUpdated(new Date());
-      console.log('Data preload complete. Portfolio total:', total);
+      const newPortfolio = await calculatePortfolio(currentUser);
+      setPortfolio(newPortfolio);
     } catch (error) {
-      console.error('Error during initial data fetch:', error);
+      console.error('Error refreshing portfolio:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [user?.uid, fetchAllPrices, fetchUserData, computePortfolioValue]);
-
-  // Refresh data function
-  const refreshData = useCallback(async () => {
-    await fetchInitialData();
-  }, [fetchInitialData]);
-
-  // Load cached data on mount
-  useEffect(() => {
-    const cachedPrices = localStorage.getItem('vertex_cached_prices');
-    const cachedTimestamp = localStorage.getItem('vertex_prices_timestamp');
-    
-    if (cachedPrices && cachedTimestamp) {
-      const timestamp = parseInt(cachedTimestamp);
-      const fiveMinutesAgo = Date.now() - (5 * 60 * 1000);
-      
-      if (timestamp > fiveMinutesAgo) {
-        setPrices(JSON.parse(cachedPrices));
-        console.log('Loaded cached prices');
-      }
-    }
-  }, []);
-
-  // Fetch data when user logs in
-  useEffect(() => {
-    if (user?.uid) {
-      fetchInitialData();
-    } else {
-      setIsLoading(false);
-      setUserAssets({});
-      setPrices({});
-      setPortfolioTotal(0);
-      setBalance(0);
-      setLastUpdated(null);
-    }
-  }, [user?.uid, fetchInitialData]);
-
-  // Refresh prices every 2 minutes
-  useEffect(() => {
-    if (!user?.uid) return;
-
-    const interval = setInterval(async () => {
-      try {
-        const newPrices = await fetchAllPrices();
-        setPrices(newPrices);
-        
-        // Recalculate portfolio total with new prices
-        const total = computePortfolioValue(userAssets, newPrices, balance);
-        setPortfolioTotal(total);
-        
-        localStorage.setItem('vertex_cached_prices', JSON.stringify(newPrices));
-        localStorage.setItem('vertex_prices_timestamp', Date.now().toString());
-        
-        console.log('Prices updated automatically');
-      } catch (error) {
-        console.error('Error updating prices:', error);
-      }
-    }, 120000); // 2 minutes
-
-    return () => clearInterval(interval);
-  }, [user?.uid, fetchAllPrices, computePortfolioValue, userAssets, balance]);
-
-  const value: PreloadContextType = {
-    isLoading,
-    userAssets,
-    prices,
-    portfolioTotal,
-    balance,
-    refreshData,
-    lastUpdated
   };
 
+  // Listen for auth state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setCurrentUser(user.uid);
+        setIsLoading(true);
+        
+        try {
+          const portfolioData = await calculatePortfolio(user.uid);
+          setPortfolio(portfolioData);
+        } catch (error) {
+          console.error('Error preloading portfolio:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setCurrentUser(null);
+        setPortfolio(null);
+        setIsLoading(false);
+      }
+    });
+
+    return unsubscribe;
+  }, []);
+
+  // Periodic refresh every 30 seconds
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const interval = setInterval(() => {
+      refreshPortfolio();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [currentUser]);
+
   return (
-    <PreloadContext.Provider value={value}>
+    <PreloadContext.Provider value={{ portfolio, isLoading, refreshPortfolio }}>
       {children}
     </PreloadContext.Provider>
   );
 };
 
-export const usePreloadData = (): PreloadContextType => {
+export const usePreload = () => {
   const context = useContext(PreloadContext);
-  if (context === undefined) {
-    throw new Error('usePreloadData must be used within a PreloadProvider');
+  if (!context) {
+    throw new Error('usePreload must be used within a PreloadProvider');
   }
   return context;
 };

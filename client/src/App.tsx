@@ -73,11 +73,12 @@ const queryClient = new QueryClient({
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        
-        <BrowserRouter>
-          <DashboardProvider>
-            <PreloadProvider>
+      <PreloadProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <DashboardProvider>
               <Suspense fallback={<LoadingComponent />}>
                 <Routes>
                 <Route path="/" element={<ErrorBoundary><Index /></ErrorBoundary>} />
@@ -118,12 +119,10 @@ const App = () => (
                 <Route path="/crypto-converter" element={<ErrorBoundary><CryptoConverterPage /></ErrorBoundary>} />
                 </Routes>
               </Suspense>
-            </PreloadProvider>
-          </DashboardProvider>
-        </BrowserRouter>
-         <Toaster />
-          <Sonner />
-      </TooltipProvider>
+            </DashboardProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </PreloadProvider>
     </QueryClientProvider>
   </ErrorBoundary>
 );

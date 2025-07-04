@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { UserService } from "@/lib/firebase-service";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
@@ -11,13 +12,13 @@ const fetchPricesFromProxy = async (symbols: string[]) => {
   const symbolsQuery = symbols.map(s => `${s}USDT`);
   const response = await fetch(`/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
   const data = await response.json();
-
+  
   const prices: Record<string, number> = { USDT: 1 };
   data.forEach((item: { symbol: string; price: string }) => {
     const symbol = item.symbol.replace('USDT', '');
     prices[symbol] = parseFloat(item.price);
   });
-
+  
   return prices;
 };
 
@@ -36,27 +37,27 @@ const AssetsPage = () => {
   // Fetch initial prices when component mounts
   useEffect(() => {
     let isMounted = true;
-
+    
     const fetchInitialPrices = async () => {
       try {
         const symbols = baseAssets
           .map(asset => asset.symbol)
           .filter(symbol => symbol !== 'USDT');
-
+        
         const symbolsQuery = symbols.map(s => `${s}USDT`);
         const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
         const data = await response.json();
-
+        
         const prices: Record<string, number> = { USDT: 1 };
         data.forEach((item: any) => {
           const symbol = item.symbol.replace('USDT', '');
           prices[symbol] = parseFloat(item.price);
         });
-
+        
         if (isMounted) {
           setAssetPrices(prices);
           setPricesLoaded(true);
-
+          
           // Calculate portfolio value if we have user assets
           if (Object.keys(userAssets).length > 0) {
             calculatePortfolioValue(userAssets, prices, balance);
@@ -88,17 +89,17 @@ const AssetsPage = () => {
         const symbols = baseAssets
           .map(asset => asset.symbol)
           .filter(symbol => symbol !== 'USDT');
-
+        
         const symbolsQuery = symbols.map(s => `${s}USDT`);
         const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbols=${JSON.stringify(symbolsQuery)}`);
         const data = await response.json();
-
+        
         const prices: Record<string, number> = { USDT: 1 };
         data.forEach((item: any) => {
           const symbol = item.symbol.replace('USDT', '');
           prices[symbol] = parseFloat(item.price);
         });
-
+        
         setAssetPrices(prices);
         calculatePortfolioValue(userAssets, prices, balance);
       } catch (error) {
@@ -112,18 +113,18 @@ const AssetsPage = () => {
   // Calculate total portfolio value with current prices
   const calculatePortfolioValue = (assets: Record<string, any>, prices: Record<string, number>, usdtBalance: number) => {
     let total = 0;
-
+    
     // Get total USDT amount from both sources
     let totalUsdtAmount = usdtBalance; // Main balance field
-
+    
     // Add USDT from assets if it exists (this is the new location)
     if (assets && assets.USDT && assets.USDT.amount !== undefined) {
       totalUsdtAmount += Number(assets.USDT.amount);
     }
-
+    
     // Add USDT value to total
     total += totalUsdtAmount;
-
+    
     // Add value of all other assets
     if (assets) {
       Object.entries(assets).forEach(([symbol, data]) => {
@@ -134,7 +135,7 @@ const AssetsPage = () => {
         total += valueInUsdt;
       });
     }
-
+    
     setTotalPortfolioValue(total);
   };
 
@@ -159,7 +160,7 @@ const AssetsPage = () => {
         const parsedBalance = typeof userData.balance === 'string' ? parseFloat(userData.balance) : userData.balance;
         setBalance(parsedBalance || 0);
         setUserAssets(userData.assets || {});
-
+        
         // Calculate portfolio value only if prices are loaded
         if (pricesLoaded && Object.keys(assetPrices).length > 0) {
           calculatePortfolioValue(userData.assets || {}, assetPrices, parsedBalance || 0);
@@ -173,7 +174,7 @@ const AssetsPage = () => {
   }, [assetPrices]);
 
   const [prices, setPrices] = useState<Record<string, number>>({});
-
+  
   // Base assets list that will be shown to all users
   const baseAssets = [
     {
@@ -280,20 +281,20 @@ const AssetsPage = () => {
             'Cache-Control': 'no-cache'
           }
         });
-
+        
         if (!response.ok) {
           console.error('Price fetch failed:', response.status, response.statusText);
           return;
         }
-
+        
         const contentType = response.headers.get('content-type');
         if (!contentType || !contentType.includes('application/json')) {
           console.error('Invalid response type:', contentType);
           return;
         }
-
+        
         const data = await response.json();
-
+        
         if (Array.isArray(data)) {
           const newPrices: Record<string, number> = {};
           data.forEach((item: { symbol: string; price: string }) => {
@@ -317,7 +318,7 @@ const AssetsPage = () => {
   const assets = baseAssets.map(asset => {
     // Check if user has this asset
     const userAsset = userAssets[asset.symbol];
-
+    
     // Special handling for USDT - combine both balance sources
     if (asset.symbol === 'USDT') {
       const totalUsdtAmount = balance + (userAsset?.amount || 0);
@@ -328,7 +329,7 @@ const AssetsPage = () => {
         price: 1
       };
     }
-
+    
     return {
       ...asset,
       // Override amount and balance if user has this asset
@@ -337,16 +338,16 @@ const AssetsPage = () => {
       price: assetPrices[asset.symbol] || prices[asset.symbol] || 0
     };
   });
-
+  
   // Sort assets: first show assets with balances, then the rest
   const sortedAssets = [...assets].sort((a, b) => {
     // First compare if either asset has a balance
     const aHasBalance = parseFloat(a.amount) > 0;
     const bHasBalance = parseFloat(b.amount) > 0;
-
+    
     if (aHasBalance && !bHasBalance) return -1;
     if (!aHasBalance && bHasBalance) return 1;
-
+    
     // If both have or don't have balances, sort by value
     return b.balance - a.balance;
   });
@@ -355,7 +356,7 @@ const AssetsPage = () => {
     <DashboardLayout>
       <div className="space-y-4 px-2 sm:px-4 pb-20">
         <PortfolioAnalytics />
-
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
             <CardHeader className="p-4 sm:p-6">
@@ -382,7 +383,7 @@ const AssetsPage = () => {
                     <div className="text-sm text-white/60">24h Change</div>
                   </div>
                 </div>
-
+                
                 <div className="grid grid-cols-2 gap-4 pt-2">
                   <div className="bg-white/5 rounded-lg p-3">
                     <div className="text-lg font-semibold">{(balance + (userAssets.USDT?.amount || 0)).toFixed(2)} USDT</div>
@@ -407,7 +408,7 @@ const AssetsPage = () => {
                       Previous Day Balance: ${previousDayBalance.toFixed(2)}
                     </div>
                   </div>
-
+                  
                   <div className="bg-white/5 rounded-lg p-3">
                     <div className="flex justify-between items-center">
                       <div className="text-sm text-white/60">ROI</div>
@@ -457,7 +458,7 @@ const AssetsPage = () => {
               </div>
             </CardContent>
           </Card>
-
+          
         <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
           <CardHeader className="p-4 sm:p-6">
             <CardTitle className="text-xl sm:text-2xl">Asset Distribution</CardTitle>
@@ -522,7 +523,7 @@ const AssetsPage = () => {
                       const userAssetAmount = userAssets[asset.symbol]?.amount || 0;
                       // Use the actual amount from userAssets if available
                       const displayAmount = userAssetAmount > 0 ? userAssetAmount.toFixed(8) : asset.amount;
-
+                      
                       return (
                         <div key={index} className="grid grid-cols-3 p-3">
                           <div className="flex items-center gap-1 sm:gap-2">
