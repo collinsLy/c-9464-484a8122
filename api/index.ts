@@ -1,23 +1,52 @@
+
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import express from 'express';
+import cors from 'cors';
+import { emailService } from '../server/email-service';
 
-// Simple API handler for Vercel
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+const app = express();
 
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Email endpoint
+app.post('/api/send-transaction-email', async (req, res) => {
+  try {
+    const { to, type, isReceiver, username, receiver, amount, crypto } = req.body;
+    
+    const result = await emailService.sendTransactionEmail({
+      to,
+      type,
+      isReceiver,
+      username,
+      receiver,
+      amount,
+      crypto
+    });
+    
+    res.json({ success: true, messageId: result.messageId });
+  } catch (error) {
+    console.error('Email sending error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
+});
 
-  // Basic health check endpoint
-  if (req.url === '/api/health') {
-    res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
-    return;
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Price proxy endpoint
+app.get('/api/v3/ticker/price', async (req, res) => {
+  try {
+    const response = await fetch('https://api.binance.com/api/v3/ticker/price');
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch price data' });
   }
+});
 
-  // Placeholder for your API routes
-  res.status(404).json({ message: 'API endpoint not found' });
-}
+// Export for Vercel
+export default app;
