@@ -4,6 +4,10 @@
 A comprehensive cryptocurrency trading platform migrated from Lovable to Replit environment. The platform includes trading features for spot, futures, P2P, automated trading bots, market analysis, and user management.
 
 ## Recent Changes
+- **2025-01-04**: Fixed Vercel deployment issues - service worker errors and missing assets
+- **2025-01-04**: Updated service worker to skip caching external URLs (Supabase, Firebase)
+- **2025-01-04**: Enhanced vercel.json with proper asset routing and caching headers
+- **2025-01-04**: Added favicon.svg and improved index.html with proper meta tags
 - **2025-01-04**: Prepared project for Vercel deployment with CLI method
 - **2025-01-04**: Created vercel.json configuration for serverless deployment
 - **2025-01-04**: Added comprehensive VERCEL_DEPLOYMENT.md guide with step-by-step instructions

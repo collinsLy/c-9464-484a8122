@@ -96,18 +96,34 @@ vercel --prod
 ## Troubleshooting
 
 ### Build Fails
-- Check Node.js version compatibility
+- Check Node.js version compatibility (requires Node 18+)
 - Verify all dependencies are installed
 - Check build logs: `vercel logs`
+
+### Missing Assets (404 errors for CSS/JS files)
+This is a common issue with single-page applications. Fixed with:
+- Updated `vercel.json` with proper routing configuration
+- Added asset caching headers
+- Improved service worker to skip problematic external URLs
 
 ### API Not Working
 - Ensure environment variables are set in Vercel dashboard
 - Check function logs: `vercel logs --source=lambda`
 
+### Service Worker Errors
+- Updated service worker to skip caching external URLs (Supabase, Firebase)
+- Fixed fetch event handling to prevent network errors
+- Service worker now properly handles asset loading
+
 ### Email Service Issues
 - Verify email credentials are correct
 - Use app-specific passwords for Gmail
 - Check Vercel function logs for errors
+
+### Node.js Version Warnings
+- Project uses React Router 7.x which requires Node 20+
+- Vercel uses Node 18 by default (still compatible)
+- Warnings are non-critical and don't affect functionality
 
 ## Support
 

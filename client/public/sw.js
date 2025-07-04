@@ -1,28 +1,40 @@
 
-const CACHE_NAME = 'vertex-trading-v1';
-const urlsToCache = [
-  '/',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
-  '/manifest.json',
-  '/favicon.svg'
-];
+const CACHE_NAME = 'vertex-trading-v2';
+
+// Skip URLs that are known to cause issues
+const shouldSkipCache = (url) => {
+  return url.includes('supabase.co') || 
+         url.includes('firebase') ||
+         url.includes('googleapis.com') ||
+         url.includes('api.') ||
+         url.startsWith('chrome-extension://');
+};
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(urlsToCache))
-  );
+  // Skip pre-caching to avoid 404 errors
+  self.skipWaiting();
 });
 
 self.addEventListener('fetch', (event) => {
+  // Skip caching for external URLs and APIs
+  if (shouldSkipCache(event.request.url)) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Return cached version or fetch from network
-        return response || fetch(event.request);
-      }
-    )
+        if (response) {
+          return response;
+        }
+        
+        return fetch(event.request).catch(() => {
+          // Return a basic fallback for failed requests
+          if (event.request.destination === 'document') {
+            return caches.match('/');
+          }
+        });
+      })
   );
 });
 
