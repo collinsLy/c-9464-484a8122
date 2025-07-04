@@ -51,8 +51,8 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
     'MATIC': 'matic-network',
     'DOT': 'polkadot',
     'LINK': 'chainlink',
-    'WLD': 'worldcoin',
-    'USDC': 'usd-coin' // Added USDC mapping
+    'WLD': 'worldcoin-wld',
+    'USDC': 'usd-coin'
   };
 
   // Fetch user balances
@@ -182,24 +182,30 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
 
           setRates(initialRates);
         } else {
-          // Fallback to default rates if API fails
-          const fallbackRates = {
-            BTC: { USDT: 65000, ETH: 20, SOL: 650, DOGE: 325000, USDC: 65000 }, //Added USDC
-            ETH: { USDT: 3200, BTC: 0.05, SOL: 32, DOGE: 16000, USDC: 3200 }, //Added USDC
-            USDT: { BTC: 0.000015, ETH: 0.0003, SOL: 0.01, DOGE: 5, USDC: 1 }, //Added USDC
-            SOL: { USDT: 100, BTC: 0.0015, ETH: 0.03, DOGE: 500, USDC: 100 }, //Added USDC
-            DOGE: { USDT: 0.2, BTC: 0.000003, ETH: 0.00006, SOL: 0.002, USDC: 0.2 }, //Added USDC
-            USDC: { BTC: 0.000015, ETH: 0.0003, SOL: 0.01, DOGE: 5, USDT: 1 } //Added USDC
+          // Fallback to more accurate default rates if API fails
+          const fallbackUsdRates = {
+            BTC: 43250,
+            ETH: 3200,
+            USDT: 1,
+            SOL: 100,
+            DOGE: 0.08,
+            XRP: 0.65,
+            ADA: 0.45,
+            BNB: 320,
+            MATIC: 0.85,
+            DOT: 7.5,
+            LINK: 15,
+            WLD: 2.8,
+            USDC: 1
           };
 
-          // Initialize with fallback rates
+          // Calculate cross rates from USD fallback rates
           supportedCryptos.forEach(from => {
+            if (!initialRates[from]) initialRates[from] = {};
             supportedCryptos.forEach(to => {
               if (from !== to) {
-                if (fallbackRates[from]?.[to]) {
-                  initialRates[from][to] = fallbackRates[from][to];
-                } else if (fallbackRates[to]?.[from]) {
-                  initialRates[from][to] = 1 / fallbackRates[to][from];
+                if (fallbackUsdRates[from] && fallbackUsdRates[to]) {
+                  initialRates[from][to] = fallbackUsdRates[from] / fallbackUsdRates[to];
                 }
               }
             });
@@ -287,20 +293,21 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
     if (fromCurrency === toCurrency) {
       result = numAmount;
     } else {
-      // Check if the rate exists before using it
-      if (!rates[fromCurrency] || !rates[fromCurrency][toCurrency]) {
-        console.error(`Missing conversion rate from ${fromCurrency} to ${toCurrency}`);
-        // Default to a 1:1 conversion if rate is missing
-        result = numAmount;
+      // Check if the rate exists and is valid
+      const conversionRate = rates[fromCurrency]?.[toCurrency];
+      if (!conversionRate || conversionRate <= 0) {
+        console.error(`Invalid conversion rate from ${fromCurrency} to ${toCurrency}: ${conversionRate}`);
+        setConvertedAmount(null);
+        return;
       } else {
         // Apply the conversion rate
-        result = numAmount * rates[fromCurrency][toCurrency];
+        result = numAmount * conversionRate;
       }
     }
 
-    // Apply a mock fee (0.1%)
+    // Apply a 0.1% fee
     const fee = result * 0.001;
-    result = result - fee;
+    result = Math.max(0, result - fee);
 
     setConvertedAmount(result);
     if (onAmountChange) {
@@ -361,37 +368,44 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
 
       // If direct pair failed, try via USD
       if (!pairUpdated && fromCurrency !== toCurrency) {
-        // Fetch individual USD prices
-        const fromPriceData = await getCoinPrice(fromId, 'usd');
-        const toPriceData = await getCoinPrice(toId, 'usd');
+        try {
+          // Fetch individual USD prices
+          const fromPriceData = await getCoinPrice(fromId, 'usd');
+          const toPriceData = await getCoinPrice(toId, 'usd');
 
-        if (fromPriceData && fromPriceData[fromId] && fromPriceData[fromId].usd &&
-            toPriceData && toPriceData[toId] && toPriceData[toId].usd) {
+          if (fromPriceData && fromPriceData[fromId] && fromPriceData[fromId].usd &&
+              toPriceData && toPriceData[toId] && toPriceData[toId].usd) {
 
-          const fromUsdPrice = fromPriceData[fromId].usd;
-          const toUsdPrice = toPriceData[toId].usd;
+            const fromUsdPrice = fromPriceData[fromId].usd;
+            const toUsdPrice = toPriceData[toId].usd;
 
-          // Calculate cross rate
-          const crossRate = fromUsdPrice / toUsdPrice;
+            // Validate prices are positive numbers
+            if (fromUsdPrice > 0 && toUsdPrice > 0) {
+              // Calculate cross rate
+              const crossRate = fromUsdPrice / toUsdPrice;
 
-          const updatedRates = { ...rates };
+              const updatedRates = { ...rates };
 
-          // Ensure objects exist
-          if (!updatedRates[fromCurrency]) {
-            updatedRates[fromCurrency] = {};
+              // Ensure objects exist
+              if (!updatedRates[fromCurrency]) {
+                updatedRates[fromCurrency] = {};
+              }
+
+              updatedRates[fromCurrency][toCurrency] = crossRate;
+
+              // Also update inverse rate
+              if (!updatedRates[toCurrency]) {
+                updatedRates[toCurrency] = {};
+              }
+
+              updatedRates[toCurrency][fromCurrency] = 1 / crossRate;
+
+              setRates(updatedRates);
+              pairUpdated = true;
+            }
           }
-
-          updatedRates[fromCurrency][toCurrency] = crossRate;
-
-          // Also update inverse rate
-          if (!updatedRates[toCurrency]) {
-            updatedRates[toCurrency] = {};
-          }
-
-          updatedRates[toCurrency][fromCurrency] = 1 / crossRate;
-
-          setRates(updatedRates);
-          pairUpdated = true;
+        } catch (error) {
+          console.log("Error fetching USD prices:", error);
         }
       }
 
@@ -820,7 +834,7 @@ export const CryptoConverter: React.FC<CryptoConverterProps> = ({ onAmountChange
               </div>
               <div className="flex justify-between text-white font-medium">
                 <span>You'll receive:</span>
-                <span>{(convertedAmount - estimatedNetworkFee).toFixed(4)} {toCurrency}</span>
+                <span>{Math.max(0, convertedAmount - estimatedNetworkFee).toFixed(6)} {toCurrency}</span>
               </div>
             </div>
           )}
