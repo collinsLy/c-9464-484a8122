@@ -26,7 +26,7 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
 
     setIsLoading(true);
 
-    const unsubscribe = UserBalanceService.subscribeToBalance(uid, (newBalance) => {
+    const unsubscribe = UserBalanceService.subscribeToUSDTBalance(uid, (newBalance) => {
       const parsedBalance = typeof newBalance === 'string' ? parseFloat(newBalance) : newBalance;
       setUserBalance(isNaN(parsedBalance) ? 0 : parsedBalance);
       setIsLoading(false);

@@ -96,17 +96,17 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
       }
 
       try {
-        const currentBalance = await UserBalanceService.getUserBalance(uid);
+        const currentBalance = await UserBalanceService.getUSDTBalance(uid);
         if (currentBalance < tradeAmount) {
-          toast.error("Insufficient Balance", {
-            description: `You need a minimum balance of $${tradeAmount} to use the ${bot.type} bot.`,
+          toast.error("Insufficient USDT Balance", {
+            description: `You need a minimum USDT balance of $${tradeAmount} to use the ${bot.type} bot.`,
           });
           return;
         }
 
-        // Deduct initial trade amount
+        // Deduct initial trade amount from USDT
         const newBalance = currentBalance - tradeAmount;
-        await UserBalanceService.updateUserBalance(uid, newBalance);
+        await UserBalanceService.updateUSDTBalance(uid, newBalance);
 
         toast.success(`${bot.type} Bot Activated`, {
           description: `Your ${bot.type} bot is now trading ${bot.pair} with real funds.`,
@@ -123,15 +123,15 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
         if (isWin) {
           const profit = tradeAmount * 0.8;
           const finalBalance = newBalance + (tradeAmount * 1.8);
-          await UserBalanceService.updateUserBalance(uid, finalBalance);
+          await UserBalanceService.updateUSDTBalance(uid, finalBalance);
           await UserBalanceService.updateTradeStats(uid, true, tradeAmount, profit);
           toast.success(`Trade Won!`, {
-            description: `Profit: $${profit.toFixed(2)}. New Balance: $${finalBalance.toFixed(2)}`,
+            description: `Profit: ${profit.toFixed(2)} USDT. New Balance: ${finalBalance.toFixed(2)} USDT`,
           });
         } else {
           await UserBalanceService.updateTradeStats(uid, false, tradeAmount, 0);
           toast.error(`Trade Lost`, {
-            description: `Loss: $${tradeAmount.toFixed(2)}. New Balance: $${newBalance.toFixed(2)}`,
+            description: `Loss: ${tradeAmount.toFixed(2)} USDT. New Balance: ${newBalance.toFixed(2)} USDT`,
           });
         }
 

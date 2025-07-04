@@ -214,4 +214,58 @@ export class UserBalanceService {
       throw error;
     }
   }
+
+  // USDT-specific balance methods for trading bots
+  static async getUSDTBalance(userId: string): Promise<number> {
+    try {
+      const userData = await UserService.getUserData(userId);
+      const usdtAsset = userData?.assets?.USDT;
+      return usdtAsset?.amount ?? 0;
+    } catch (error) {
+      console.error('Error getting USDT balance:', error);
+      return 0;
+    }
+  }
+
+  static subscribeToUSDTBalance(userId: string, callback: (balance: number) => void) {
+    if (!userId) {
+      console.error('No userId provided for USDT balance subscription');
+      return () => {};
+    }
+
+    const userRef = doc(db, 'users', userId);
+    return onSnapshot(userRef, async (snapshot) => {
+      if (!snapshot.exists()) {
+        console.log('No user document found');
+        callback(0);
+        return;
+      }
+      const userData = snapshot.data();
+      const usdtBalance = userData?.assets?.USDT?.amount ?? 0;
+      console.log('Firebase USDT balance update:', usdtBalance);
+      callback(typeof usdtBalance === 'number' ? usdtBalance : parseFloat(String(usdtBalance)) || 0);
+    }, (error) => {
+      console.error('USDT balance subscription error:', error);
+      callback(0);
+    });
+  }
+
+  static async updateUSDTBalance(userId: string, newAmount: number) {
+    try {
+      const userData = await UserService.getUserData(userId);
+      const assets = userData?.assets || {};
+      
+      // Update USDT amount in assets
+      assets.USDT = {
+        ...assets.USDT,
+        amount: newAmount,
+        name: "USDT"
+      };
+
+      await UserService.updateUserData(userId, { assets });
+    } catch (error) {
+      console.error('Error updating USDT balance:', error);
+      throw error;
+    }
+  }
 }

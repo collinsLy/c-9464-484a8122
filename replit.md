@@ -4,6 +4,10 @@
 A comprehensive cryptocurrency trading platform migrated from Lovable to Replit environment. The platform includes trading features for spot, futures, P2P, automated trading bots, market analysis, and user management.
 
 ## Recent Changes
+- **2025-01-04**: Added custom trading amount input feature to bot cards with minimum balance validation
+- **2025-01-04**: Fixed trading bots to use USDT balance from assets instead of general balance field
+- **2025-01-04**: Created USDT-specific balance methods (getUSDTBalance, subscribeToUSDTBalance, updateUSDTBalance)
+- **2025-01-04**: Updated bot trading logic to properly deduct and credit USDT amounts
 - **2025-01-04**: Fixed transfer success modal to properly display transfer amount and cryptocurrency
 - **2025-01-04**: Added successTransferAmount and successTransferCrypto state variables to store transfer details
 - **2025-01-04**: Updated all email service domains from vertex-trading.replit.app to vertextradingscom.vercel.app
