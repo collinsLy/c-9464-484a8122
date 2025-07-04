@@ -792,14 +792,19 @@ const WithdrawPage = () => {
       // For fiat withdrawals, only use USDT balance
       let currentUsdtBalance = 0;
       
-      // Check USDT balance from assets first (new location)
-      if (userData.assets?.USDT && userData.assets.USDT.amount !== undefined) {
-        currentUsdtBalance = Number(userData.assets.USDT.amount);
-      } else if (typeof userData.balance === 'number') {
-        // Fallback to main balance field (legacy location)
+      // Check main balance field first (legacy location where USDT is primarily stored)
+      if (typeof userData.balance === 'number') {
         currentUsdtBalance = userData.balance;
+        console.log(`USDT from main balance field (number): ${currentUsdtBalance}`);
       } else if (typeof userData.balance === 'string') {
         currentUsdtBalance = parseFloat(userData.balance) || 0;
+        console.log(`USDT from main balance field (string): ${currentUsdtBalance}`);
+      }
+      
+      // Only use assets.USDT if main balance is 0 (fallback to new location)
+      if (currentUsdtBalance === 0 && userData.assets?.USDT && userData.assets.USDT.amount !== undefined) {
+        currentUsdtBalance = Number(userData.assets.USDT.amount);
+        console.log(`USDT from assets (fallback): ${currentUsdtBalance}`);
       }
 
       console.log('Current USDT balance:', currentUsdtBalance);
@@ -813,27 +818,30 @@ const WithdrawPage = () => {
         return;
       }
 
-      // For fiat withdrawals, only deduct from USDT
-      const updatedAssets = { ...userData.assets };
+      // For fiat withdrawals, deduct from the correct USDT location
       const newUsdtBalance = currentUsdtBalance - amountValue;
-
-      // Update USDT in assets
-      if (!updatedAssets.USDT) {
-        updatedAssets.USDT = { 
-          amount: Math.max(0, newUsdtBalance),
-          name: 'USDT'
-        };
-      } else {
-        updatedAssets.USDT = {
-          ...updatedAssets.USDT,
-          amount: Math.max(0, newUsdtBalance)
-        };
-      }
-
-      // Clear main balance if it was being used for USDT
       let balanceUpdate = {};
+      let assetsUpdate = { ...userData.assets };
+
+      // If USDT was in main balance field, update main balance
       if (typeof userData.balance === 'number' && userData.balance > 0) {
-        balanceUpdate = { balance: 0 }; // Clear legacy balance field
+        balanceUpdate = { balance: Math.max(0, newUsdtBalance) };
+        console.log(`Updating main balance: ${userData.balance} -> ${Math.max(0, newUsdtBalance)}`);
+      }
+      // If USDT was in assets, update assets
+      else if (userData.assets?.USDT && userData.assets.USDT.amount !== undefined) {
+        if (!assetsUpdate.USDT) {
+          assetsUpdate.USDT = { 
+            amount: Math.max(0, newUsdtBalance),
+            name: 'USDT'
+          };
+        } else {
+          assetsUpdate.USDT = {
+            ...assetsUpdate.USDT,
+            amount: Math.max(0, newUsdtBalance)
+          };
+        }
+        console.log(`Updating assets.USDT: ${userData.assets.USDT.amount} -> ${Math.max(0, newUsdtBalance)}`);
       }
 
       const transaction = {
@@ -852,12 +860,22 @@ const WithdrawPage = () => {
         }
       };
 
-      // Update user data with proportionally reduced assets and transaction
-      await UserService.updateUserData(uid, {
-        assets: updatedAssets,
-        ...balanceUpdate,
+      // Update user data with transaction and correct USDT deduction
+      const updateData: any = {
         transactions: arrayUnion(transaction)
-      });
+      };
+
+      // Add balance update if main balance was used
+      if (Object.keys(balanceUpdate).length > 0) {
+        Object.assign(updateData, balanceUpdate);
+      }
+
+      // Add assets update if assets were modified
+      if (userData.assets?.USDT && userData.assets.USDT.amount !== undefined) {
+        updateData.assets = assetsUpdate;
+      }
+
+      await UserService.updateUserData(uid, updateData);
 
       console.log('User data updated successfully');
 
