@@ -271,6 +271,7 @@ export class EmailService {
 
       const mailOptions = {
         from: `"${this.brandName}" <${this.fromEmail}>`,
+        replyTo: `"${this.brandName} Support" <support@vertextrading.com>`,
         to,
         subject: template.subject,
         html: template.htmlContent,
@@ -278,6 +279,7 @@ export class EmailService {
           'X-Priority': '1',
           'X-MSMail-Priority': 'High',
           'Importance': 'high',
+          'Return-Path': this.fromEmail,
         },
       };
 
@@ -313,6 +315,7 @@ export class EmailService {
 
       const mailOptions = {
         from: `"${this.brandName}" <${this.fromEmail}>`,
+        replyTo: `"${this.brandName} Support" <support@vertextrading.com>`,
         to,
         subject: `Welcome to ${this.brandName}`,
         html: htmlContent,
