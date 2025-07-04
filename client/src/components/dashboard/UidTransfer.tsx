@@ -612,7 +612,8 @@ const UidTransfer = ({ currentBalance, onTransferComplete }: UidTransferProps) =
               type: 'transfer',
               amount: transferAmount,
               currency: selectedCrypto,
-              receiver: currentUser?.displayName || currentUser?.email || 'User'
+              receiver: currentUser?.displayName || currentUser?.email || 'User',
+              isReceiver: true
             }),
           });
 
