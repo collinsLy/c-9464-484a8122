@@ -4,7 +4,7 @@ import { toast } from "@/components/ui/use-toast";
 export interface NotificationOptions {
   showToast?: boolean;
   playSound?: boolean;
-  soundType?: 'transfer' | 'deposit' | 'success' | 'warning' | 'error' | 'payment_success' | 'alert' | 'notification' | 'withdraw' | 'order_filled' | 'price_alert' | 'login' | 'system';
+  soundType?: keyof typeof SOUND_PATHS | string;
   body?: string;
   icon?: string;
   priority?: 'low' | 'normal' | 'high';
@@ -26,24 +26,21 @@ export type NotificationType =
   | 'DEPOSIT_CONFIRMED'
   | 'SYSTEM_ALERT';
 
-// Sound effects
-const SOUND_EFFECTS = {
-  transfer: new Audio('/sounds/transfer.mp3'),
-  deposit: new Audio('/sounds/deposit.mp3'),
-  success: new Audio('/sounds/success.mp3'),
-  warning: new Audio('/sounds/warning.mp3'),
-  error: new Audio('/sounds/error.mp3'),
-  payment_success: new Audio('/sounds/payment_success.mp3'),
-  alert: new Audio('/sounds/alert.mp3'),
-  notification: new Audio('/sounds/alert.mp3'),
-  withdraw: new Audio('/sounds/warning.mp3'),
+// Sound effect paths
+const SOUND_PATHS = {
+  transfer: '/sounds/transfer.mp3',
+  deposit: '/sounds/deposit.mp3',
+  success: '/sounds/success.mp3',
+  warning: '/sounds/warning.mp3',
+  error: '/sounds/error.mp3',
+  payment_success: '/sounds/payment_success.mp3',
+  alert: '/sounds/alert.mp3',
+  notification: '/sounds/alert.mp3',
+  withdraw: '/sounds/warning.mp3',
 };
 
-// Preload sounds
-Object.values(SOUND_EFFECTS).forEach(audio => {
-  audio.load();
-  audio.volume = 0.5; // Set default volume
-});
+// Lazy-loaded sound effects cache
+const SOUND_EFFECTS: Record<string, HTMLAudioElement> = {};
 
 export class NotificationService {
   // Check if browser supports notifications
@@ -112,7 +109,7 @@ export class NotificationService {
       toast({
         title: "Withdrawal Processing",
         description: notificationMessage,
-        variant: "success",
+        variant: "default",
         className: "notification-toast",
       });
 
@@ -159,17 +156,19 @@ export class NotificationService {
     }
   }
 
-  // Play a sound effect with optional volume control
-  static playSound(type: keyof typeof SOUND_EFFECTS, volume?: number): void {
+  // Play a sound effect with optional volume control (lazy loading)
+  static playSound(type: keyof typeof SOUND_PATHS, volume?: number): void {
     try {
-      // Stop and reset any currently playing sounds
-      Object.values(SOUND_EFFECTS).forEach(audio => {
-        audio.pause();
-        audio.currentTime = 0;
-      });
+      // Get or create the audio object
+      if (!SOUND_EFFECTS[type]) {
+        SOUND_EFFECTS[type] = new Audio(SOUND_PATHS[type]);
+        SOUND_EFFECTS[type].volume = 0.5; // Default volume
+      }
 
       const sound = SOUND_EFFECTS[type];
       if (sound) {
+        // Stop any currently playing instance
+        sound.pause();
         sound.currentTime = 0;
 
         // Set custom volume if provided

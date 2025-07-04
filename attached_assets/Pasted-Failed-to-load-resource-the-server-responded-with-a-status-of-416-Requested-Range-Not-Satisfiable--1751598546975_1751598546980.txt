@@ -1,0 +1,39 @@
+Failed to load resource: the server responded with a status of 416 (Requested Range Not Satisfiable)Understand this error
+sounds/success.mp3:1 
+            
+            
+           Failed to load resource: the server responded with a status of 416 (Requested Range Not Satisfiable)Understand this error
+sounds/deposit.mp3:1 
+            
+            
+           Failed to load resource: the server responded with a status of 416 (Requested Range Not Satisfiable)Understand this error
+sounds/error.mp3:1 
+            
+            
+           Failed to load resource: the server responded with a status of 416 (Requested Range Not Satisfiable)Understand this error
+sounds/warning.mp3:1 
+            
+            
+           Failed to load resource: the server responded with a status of 416 (Requested Range Not Satisfiable)Understand this error
+sounds/warning.mp3:1 
+            
+            
+           Failed to load resource: the server responded with a status of 416 (Requested Range Not Satisfiable)Understand this error
+PreloadContext.tsx:59 Error fetching prices: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+fetchPrices @ PreloadContext.tsx:59Understand this error
+Dashboard.tsx:135 Current active tab: dashboard
+PreloadContext.tsx:59 Error fetching prices: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+fetchPrices @ PreloadContext.tsx:59Understand this error
+PortfolioAnalytics.tsx:281 User assets: Object
+PortfolioAnalytics.tsx:171 Asset SOL: Amount 24 × Price 0 = 0 USDT
+PortfolioAnalytics.tsx:171 Asset USDC: Amount 132.60000000000002 × Price 0 = 0 USDT
+PortfolioAnalytics.tsx:171 Asset BNB: Amount 16 × Price 0 = 0 USDT
+PortfolioAnalytics.tsx:196 Total portfolio value: 6144 USDT
+AssetsPage.tsx:277 Error fetching prices: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON
+fetchPrices @ AssetsPage.tsx:277Understand this error
+PortfolioAnalytics.tsx:281 User assets: Object
+PortfolioAnalytics.tsx:171 Asset SOL: Amount 24 × Price 151.42 = 3634.08 USDT
+PortfolioAnalytics.tsx:171 Asset USDC: Amount 132.60000000000002 × Price 0.9997 = 132.56022000000002 USDT
+PortfolioAnalytics.tsx:171 Asset BNB: Amount 16 × Price 661.27 = 10580.32 USDT
+PortfolioAnalytics.tsx:196 Total portfolio value: 20490.96022 USDT
+PreloadContext.tsx:59 Error fetching prices: SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON

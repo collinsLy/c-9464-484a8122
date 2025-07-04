@@ -264,15 +264,35 @@ const AssetsPage = () => {
     const fetchPrices = async () => {
       try {
         const symbols = baseAssets.map(asset => `${asset.symbol}USDT`);
-        const response = await fetch('/api/v3/ticker/price?symbols=' + JSON.stringify(symbols));
+        const symbolsParam = encodeURIComponent(JSON.stringify(symbols));
+        const response = await fetch(`/api/v3/ticker/price?symbols=${symbolsParam}`, {
+          headers: { 
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache'
+          }
+        });
+        
+        if (!response.ok) {
+          console.error('Price fetch failed:', response.status, response.statusText);
+          return;
+        }
+        
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          console.error('Invalid response type:', contentType);
+          return;
+        }
+        
         const data = await response.json();
         
-        const newPrices: Record<string, number> = {};
-        data.forEach((item: { symbol: string; price: string }) => {
-          const symbol = item.symbol.replace('USDT', '');
-          newPrices[symbol] = parseFloat(item.price);
-        });
-        setPrices(newPrices);
+        if (Array.isArray(data)) {
+          const newPrices: Record<string, number> = {};
+          data.forEach((item: { symbol: string; price: string }) => {
+            const symbol = item.symbol.replace('USDT', '');
+            newPrices[symbol] = parseFloat(item.price);
+          });
+          setPrices(newPrices);
+        }
       } catch (error) {
         console.error('Error fetching prices:', error);
       }

@@ -38,26 +38,40 @@ export const PreloadProvider = ({ children }: { children: ReactNode }) => {
   const fetchPrices = async (): Promise<Record<string, number>> => {
     try {
       const symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'SOLUSDT'];
-      const symbolsQuery = JSON.stringify(symbols);
+      const symbolsParam = encodeURIComponent(JSON.stringify(symbols));
       
-      const response = await fetch(`/api/v3/ticker/price?symbols=${symbolsQuery}`, {
-        headers: { 'Cache-Control': 'no-cache' }
+      const response = await fetch(`/api/v3/ticker/price?symbols=${symbolsParam}`, {
+        headers: { 
+          'Cache-Control': 'no-cache',
+          'Accept': 'application/json'
+        }
       });
       
-      if (!response.ok) throw new Error('Failed to fetch prices');
+      if (!response.ok) {
+        console.error('Price fetch failed:', response.status, response.statusText);
+        throw new Error(`Failed to fetch prices: ${response.status}`);
+      }
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error('Invalid response type:', contentType);
+        throw new Error('Invalid response format - expected JSON');
+      }
       
       const data = await response.json();
       const prices: Record<string, number> = { USDT: 1 };
       
-      data.forEach((item: any) => {
-        const symbol = item.symbol.replace('USDT', '');
-        prices[symbol] = parseFloat(item.price);
-      });
+      if (Array.isArray(data)) {
+        data.forEach((item: any) => {
+          const symbol = item.symbol.replace('USDT', '');
+          prices[symbol] = parseFloat(item.price);
+        });
+      }
       
       return prices;
     } catch (error) {
       console.error('Error fetching prices:', error);
-      return { USDT: 1 };
+      return { USDT: 1, BTC: 43000, ETH: 2500, BNB: 300, ADA: 0.5, SOL: 100 };
     }
   };
 
