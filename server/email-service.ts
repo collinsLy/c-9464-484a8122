@@ -193,6 +193,7 @@ export class EmailService {
     conversionRate?: number,
     isReceiver?: boolean
   ): EmailTemplate {
+    console.log(`📧 Creating email template - Type: ${type}, isReceiver: ${isReceiver}, Username: ${username}, Receiver: ${receiver}`);
     const timestamp = new Date().toLocaleString();
     const templates = {
       withdrawal: {
@@ -226,6 +227,8 @@ export class EmailService {
     };
 
     const template = templates[type];
+    console.log(`📧 Template selected - Subject: ${template.subject}, Message: ${template.message}, isReceiver: ${isReceiver}`);
+    
     const htmlContent = this.createModernTemplate(
       template.subject,
       username,
@@ -247,7 +250,12 @@ export class EmailService {
   async sendTransactionEmail(data: z.infer<typeof TransactionEmailSchema>): Promise<{ success: boolean; messageId?: string; error?: string }> {
     try {
       const validatedData = TransactionEmailSchema.parse(data);
-      const { to, username, type, amount, currency, receiver, fromCurrency, toCurrency, conversionRate, isReceiver } = validatedData;
+      let { to, username, type, amount, currency, receiver, fromCurrency, toCurrency, conversionRate, isReceiver } = validatedData;
+      
+      // Ensure isReceiver is a boolean
+      isReceiver = Boolean(isReceiver);
+      
+      console.log(`📨 sendTransactionEmail called - To: ${to}, Type: ${type}, isReceiver: ${isReceiver} (type: ${typeof isReceiver})`);
 
       const template = this.createEmailTemplate(
         username,
