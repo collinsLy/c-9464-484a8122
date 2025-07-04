@@ -15,7 +15,10 @@ app.post('/api/send-transaction-email', async (req, res) => {
   try {
     console.log('📧 Email endpoint called with:', req.body);
     
-    const { to, type, isReceiver, username, receiver, amount, currency } = req.body;
+    const { to, email, type, isReceiver, username, receiver, amount, currency } = req.body;
+    
+    // Support both 'to' and 'email' parameters
+    const recipientEmail = to || email;
     
     // Check environment variables
     const emailUser = process.env.EMAIL_USER || 'kelvinkelly3189@gmail.com';
@@ -35,6 +38,14 @@ app.post('/api/send-transaction-email', async (req, res) => {
         pass: emailPass
       }
     });
+    
+    // Validate required fields
+    if (!recipientEmail || !username || !type || !amount || !currency) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Missing required fields: email, username, type, amount, currency" 
+      });
+    }
     
     // Verify connection
     await transporter.verify();
@@ -62,7 +73,7 @@ app.post('/api/send-transaction-email', async (req, res) => {
     
     const mailOptions = {
       from: `"Vertex Trading" <${emailUser}>`,
-      to,
+      to: recipientEmail,
       subject,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -82,7 +93,7 @@ app.post('/api/send-transaction-email', async (req, res) => {
     };
     
     const result = await transporter.sendMail(mailOptions);
-    console.log('✅ Email sent successfully:', result.messageId);
+    console.log(`✅ Email sent successfully to ${recipientEmail}:`, result.messageId);
     
     res.json({ success: true, messageId: result.messageId });
   } catch (error) {
