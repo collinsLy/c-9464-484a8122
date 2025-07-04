@@ -1,0 +1,86 @@
+Confirm Transfer button clicked
+WithdrawPage-9utNrwXG.js:2 confirmVertexTransfer called
+WithdrawPage-9utNrwXG.js:2 Transfer details: {cryptoAmountValue: 45, uid: 'gZr9JNYbwgUggAR9MB9bVIH9EFe2', recipientUid: '651968725', selectedCrypto: 'USDT'}
+index-CfhgcKZJ.js:218 Current active tab: /withdraw
+index-CfhgcKZJ.js:34 Error: <path> attribute d: Expected number, "…0 5.373 0 12h4zmzm2 5.291A7.962 …".
+Fy @ index-CfhgcKZJ.js:34
+jO @ index-CfhgcKZJ.js:41
+E1 @ index-CfhgcKZJ.js:41
+_1 @ index-CfhgcKZJ.js:41
+qO @ index-CfhgcKZJ.js:41
+Rh @ index-CfhgcKZJ.js:41
+cE @ index-CfhgcKZJ.js:41
+bs @ index-CfhgcKZJ.js:39
+(anonymous) @ index-CfhgcKZJ.js:41Understand this error
+WithdrawPage-9utNrwXG.js:2 Sender USDT from main balance: 484
+2index-CfhgcKZJ.js:218 Current active tab: /withdraw
+WithdrawPage-9utNrwXG.js:2 Sending transfer email to sender: kelvinndungu3189@gmail.com
+index-CfhgcKZJ.js:218 Current active tab: /withdraw
+WithdrawPage-9utNrwXG.js:2 
+            
+            
+           POST https://vertextradingscom.vercel.app/api/send-transaction-email 500 (Internal Server Error)
+Ge @ WithdrawPage-9utNrwXG.js:2
+await in Ge
+onClick @ WithdrawPage-9utNrwXG.js:2
+f2 @ index-CfhgcKZJ.js:38
+m2 @ index-CfhgcKZJ.js:38
+g2 @ index-CfhgcKZJ.js:38
+O0 @ index-CfhgcKZJ.js:38
+bI @ index-CfhgcKZJ.js:38
+(anonymous) @ index-CfhgcKZJ.js:38
+vv @ index-CfhgcKZJ.js:41
+KS @ index-CfhgcKZJ.js:38
+Xp @ index-CfhgcKZJ.js:38
+qy @ index-CfhgcKZJ.js:38
+N2 @ index-CfhgcKZJ.js:38Understand this error
+WithdrawPage-9utNrwXG.js:2 Failed to send transfer email to sender
+Ge @ WithdrawPage-9utNrwXG.js:2
+await in Ge
+onClick @ WithdrawPage-9utNrwXG.js:2
+f2 @ index-CfhgcKZJ.js:38
+m2 @ index-CfhgcKZJ.js:38
+g2 @ index-CfhgcKZJ.js:38
+O0 @ index-CfhgcKZJ.js:38
+bI @ index-CfhgcKZJ.js:38
+(anonymous) @ index-CfhgcKZJ.js:38
+vv @ index-CfhgcKZJ.js:41
+KS @ index-CfhgcKZJ.js:38
+Xp @ index-CfhgcKZJ.js:38
+qy @ index-CfhgcKZJ.js:38
+N2 @ index-CfhgcKZJ.js:38Understand this error
+WithdrawPage-9utNrwXG.js:2 Sending transfer email to recipient: kelvinkelly3189@gmail.com
+WithdrawPage-9utNrwXG.js:2 
+            
+            
+           POST https://vertextradingscom.vercel.app/api/send-transaction-email 500 (Internal Server Error)
+Ge @ WithdrawPage-9utNrwXG.js:2
+await in Ge
+onClick @ WithdrawPage-9utNrwXG.js:2
+f2 @ index-CfhgcKZJ.js:38
+m2 @ index-CfhgcKZJ.js:38
+g2 @ index-CfhgcKZJ.js:38
+O0 @ index-CfhgcKZJ.js:38
+bI @ index-CfhgcKZJ.js:38
+(anonymous) @ index-CfhgcKZJ.js:38
+vv @ index-CfhgcKZJ.js:41
+KS @ index-CfhgcKZJ.js:38
+Xp @ index-CfhgcKZJ.js:38
+qy @ index-CfhgcKZJ.js:38
+N2 @ index-CfhgcKZJ.js:38Understand this error
+WithdrawPage-9utNrwXG.js:2 Failed to send transfer email to receiver
+Ge @ WithdrawPage-9utNrwXG.js:2
+await in Ge
+onClick @ WithdrawPage-9utNrwXG.js:2
+f2 @ index-CfhgcKZJ.js:38
+m2 @ index-CfhgcKZJ.js:38
+g2 @ index-CfhgcKZJ.js:38
+O0 @ index-CfhgcKZJ.js:38
+bI @ index-CfhgcKZJ.js:38
+(anonymous) @ index-CfhgcKZJ.js:38
+vv @ index-CfhgcKZJ.js:41
+KS @ index-CfhgcKZJ.js:38
+Xp @ index-CfhgcKZJ.js:38
+qy @ index-CfhgcKZJ.js:38
+N2 @ index-CfhgcKZJ.js:38Understand this error
+index-CfhgcKZJ.js:218 Current active tab: /withdraw
