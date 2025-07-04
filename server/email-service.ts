@@ -58,6 +58,10 @@ export class EmailService {
       },
       secure: true,
       port: 465,
+      pool: true,
+      maxConnections: 1,
+      rateDelta: 1000,
+      rateLimit: 1,
       ...config,
     };
 
@@ -162,19 +166,23 @@ export class EmailService {
               Thank you for choosing ${this.brandName}. Your transaction has been processed successfully.
             </p>
             
-            <!-- CTA Button -->
+            <!-- Simple Link -->
             <div style="text-align: center; margin-top: 30px;">
-              <a href="https://vertextradingscom.vercel.app/" style="display: inline-block; padding: 15px 30px; background: linear-gradient(135deg, #ff7a00 0%, #ff9a40 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 12px rgba(255, 122, 0, 0.3);">${buttonText}</a>
+              <p style="margin: 0; font-size: 14px; color: #555555;">
+                <a href="https://vertextradingscom.vercel.app/" style="color: #ff7a00; text-decoration: none;">Visit your dashboard</a>
+              </p>
             </div>
           </div>
           
           <!-- Footer -->
           <div style="padding: 30px; border-top: 1px solid #e0e0e0; background-color: #f9f9f9; text-align: center;">
             <p style="margin: 0 0 15px 0; font-size: 14px; color: #666666; line-height: 1.5;">
-              This email was sent by ${this.brandName}. For support, please contact us at 
-              <a href="mailto:support@vertextrading.com" style="color: #ff7a00; text-decoration: none;">support@vertextrading.com</a>
+              This email was sent to ${username} at ${title.toLowerCase().includes('welcome') ? 'the email address associated with your account' : 'your registered email'}. 
+              For support, contact <a href="mailto:${this.fromEmail}" style="color: #ff7a00; text-decoration: none;">${this.fromEmail}</a>
             </p>
-            <p style="margin: 0; font-size: 12px; color: #999999;">© ${currentYear} ${this.brandName}. All rights reserved.</p>
+            <p style="margin: 0; font-size: 12px; color: #999999;">
+              If you did not request this email, please ignore it. © ${currentYear} ${this.brandName}.
+            </p>
           </div>
         </div>
       </body>
@@ -314,30 +322,29 @@ export class EmailService {
       const htmlContent = this.createModernTemplate(
         'Welcome to Vertex Trading',
         username,
-        `Welcome to ${this.brandName}! We're excited to have you join our community of traders. Your account has been successfully created and is ready to use. To get started, please verify your email address using the verification link sent by Firebase Authentication, then return to your dashboard to begin trading.`,
+        `Thank you for creating your ${this.brandName} account. Your account has been successfully created and is ready to use. To complete the setup process, please verify your email address using the verification link from Firebase Authentication, then you can access your dashboard.`,
         'Access Your Dashboard',
         'deposit'
       );
 
       const mailOptions = {
         from: `"${this.brandName}" <${this.fromEmail}>`,
-        replyTo: `"${this.brandName} Support" <support@vertextrading.com>`,
+        replyTo: `"${this.brandName} Support" <${this.fromEmail}>`,
         to,
-        subject: `Welcome to ${this.brandName} - Verify Your Account`,
+        subject: `Welcome to ${this.brandName}`,
         html: htmlContent,
-        text: `Welcome to ${this.brandName}!\n\nWelcome ${username}! We're excited to have you join our community of traders. Your account has been successfully created and is ready to use.\n\nTo get started, please verify your email address using the verification link sent by Firebase Authentication, then return to your dashboard to begin trading.\n\nThank you for choosing ${this.brandName}.\n\nBest regards,\nThe ${this.brandName} Team`,
+        text: `Welcome to ${this.brandName}!\n\nHello ${username},\n\nWelcome to Vertex Trading! We're excited to have you join our community. Your account has been successfully created and is ready to use.\n\nTo get started, please verify your email address using the verification link from Firebase Authentication, then return to your dashboard.\n\nThank you for choosing ${this.brandName}.\n\nBest regards,\nThe ${this.brandName} Team\n\nThis email was sent to ${to}. If you did not create an account, please ignore this email.`,
         headers: {
-          'X-Priority': '1',
-          'X-MSMail-Priority': 'High',
-          'Importance': 'high',
+          'X-Priority': '3',
+          'X-MSMail-Priority': 'Normal',
+          'Importance': 'normal',
           'Return-Path': this.fromEmail,
-          'Message-ID': `<${Date.now()}-${Math.random().toString(36).substr(2, 9)}@${this.fromEmail.split('@')[1]}>`,
-        },
-        dsn: {
-          id: `vtx-${Date.now()}`,
-          return: 'headers',
-          notify: ['failure', 'delay', 'success'],
-          recipient: this.fromEmail
+          'Message-ID': `<${Date.now()}-${Math.random().toString(36).substr(2, 9)}@gmail.com>`,
+          'List-Unsubscribe': `<mailto:${this.fromEmail}?subject=Unsubscribe>`,
+          'X-Entity-Ref-ID': `vtx-${Date.now()}`,
+          'MIME-Version': '1.0',
+          'Content-Type': 'text/html; charset=UTF-8',
+          'X-Mailer': 'Vertex Trading Platform'
         }
       };
 
@@ -347,6 +354,9 @@ export class EmailService {
         from: mailOptions.from,
         messageId: mailOptions.headers['Message-ID']
       });
+      
+      // Add small delay to avoid rate limiting
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       const result = await this.transporter.sendMail(mailOptions);
       

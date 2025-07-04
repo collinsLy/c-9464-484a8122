@@ -174,6 +174,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Email reputation check endpoint
+  app.post("/api/check-email-reputation", async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).json({ error: "Email address required" });
+      }
+
+      console.log('🔍 Checking email reputation for:', email);
+
+      // Send a simple, non-promotional test email
+      const simpleTestResult = await emailService.sendWelcomeEmail({
+        to: email,
+        username: "User"
+      });
+
+      res.json({
+        reputation: {
+          deliverySuccess: simpleTestResult.success,
+          messageId: simpleTestResult.messageId,
+          timestamp: new Date().toISOString()
+        },
+        recommendations: [
+          "Check spam/junk folder",
+          "Add sender to contacts",
+          "Mark as 'Not Spam' if found in spam",
+          "Gmail may flag new senders initially"
+        ],
+        message: "Email reputation check completed"
+      });
+    } catch (error) {
+      console.error("Email reputation check error:", error);
+      res.status(500).json({ success: false, error: "Internal server error" });
+    }
+  });
+
   // Test email endpoint
   app.post("/api/test-email", async (req, res) => {
     try {
