@@ -789,79 +789,51 @@ const WithdrawPage = () => {
         throw new Error('User data not found');
       }
 
-      // Calculate total portfolio value for fiat withdrawals
-      let totalPortfolioValue = 0;
+      // For fiat withdrawals, only use USDT balance
+      let currentUsdtBalance = 0;
       
-      // Add USDT balance first
+      // Check USDT balance from assets first (new location)
       if (userData.assets?.USDT && userData.assets.USDT.amount !== undefined) {
-        totalPortfolioValue += Number(userData.assets.USDT.amount);
+        currentUsdtBalance = Number(userData.assets.USDT.amount);
       } else if (typeof userData.balance === 'number') {
-        totalPortfolioValue += userData.balance;
+        // Fallback to main balance field (legacy location)
+        currentUsdtBalance = userData.balance;
       } else if (typeof userData.balance === 'string') {
-        totalPortfolioValue += parseFloat(userData.balance) || 0;
+        currentUsdtBalance = parseFloat(userData.balance) || 0;
       }
 
-      // Add value of other assets (convert to USDT equivalent)
-      if (userData.assets) {
-        const assetPrices = {
-          'BTC': 66000, 'ETH': 3500, 'BNB': 657, 'SOL': 150, 'USDC': 1,
-          'DOGE': 0.15, 'XRP': 0.58, 'ADA': 0.45, 'DOT': 7.5, 'LINK': 18,
-          'MATIC': 0.65, 'WLD': 3.5
-        };
+      console.log('Current USDT balance:', currentUsdtBalance);
 
-        Object.entries(userData.assets).forEach(([symbol, data]: [string, any]) => {
-          if (symbol !== 'USDT' && data.amount && data.amount > 0) {
-            const price = assetPrices[symbol as keyof typeof assetPrices] || 0;
-            const valueInUsdt = data.amount * price;
-            totalPortfolioValue += valueInUsdt;
-            console.log(`Asset ${symbol}: ${data.amount} × ${price} = ${valueInUsdt} USDT`);
-          }
-        });
-      }
-
-      console.log('Total portfolio value for fiat withdrawal:', totalPortfolioValue);
-
-      if (totalPortfolioValue < amountValue) {
+      if (currentUsdtBalance < amountValue) {
         toast({
-          title: "Insufficient Balance",
-          description: `Your total portfolio value ($${totalPortfolioValue.toFixed(2)}) is insufficient for this withdrawal`,
+          title: "Insufficient USDT Balance",
+          description: `You need ${amountValue.toFixed(2)} USDT for this withdrawal. You only have ${currentUsdtBalance.toFixed(2)} USDT available.`,
           variant: "destructive",
         });
         return;
       }
 
-      // For fiat withdrawals, we'll deduct proportionally from all assets
+      // For fiat withdrawals, only deduct from USDT
       const updatedAssets = { ...userData.assets };
-      const deductionRatio = amountValue / totalPortfolioValue;
+      const newUsdtBalance = currentUsdtBalance - amountValue;
 
-      // Deduct from each asset proportionally
-      Object.entries(updatedAssets).forEach(([symbol, data]: [string, any]) => {
-        if (data.amount && data.amount > 0) {
-          const assetPrices = {
-            'BTC': 66000, 'ETH': 3500, 'BNB': 657, 'SOL': 150, 'USDC': 1, 'USDT': 1,
-            'DOGE': 0.15, 'XRP': 0.58, 'ADA': 0.45, 'DOT': 7.5, 'LINK': 18,
-            'MATIC': 0.65, 'WLD': 3.5
-          };
-          
-          const price = assetPrices[symbol as keyof typeof assetPrices] || 1;
-          const assetValueInUsdt = data.amount * price;
-          const deductionAmount = assetValueInUsdt * deductionRatio;
-          const newAmount = Math.max(0, data.amount - (deductionAmount / price));
-          
-          updatedAssets[symbol] = {
-            ...data,
-            amount: newAmount
-          };
-          
-          console.log(`Deducted from ${symbol}: ${data.amount} → ${newAmount}`);
-        }
-      });
+      // Update USDT in assets
+      if (!updatedAssets.USDT) {
+        updatedAssets.USDT = { 
+          amount: Math.max(0, newUsdtBalance),
+          name: 'USDT'
+        };
+      } else {
+        updatedAssets.USDT = {
+          ...updatedAssets.USDT,
+          amount: Math.max(0, newUsdtBalance)
+        };
+      }
 
-      // Also update main balance if it exists
+      // Clear main balance if it was being used for USDT
       let balanceUpdate = {};
       if (typeof userData.balance === 'number' && userData.balance > 0) {
-        const mainBalanceDeduction = userData.balance * deductionRatio;
-        balanceUpdate = { balance: Math.max(0, userData.balance - mainBalanceDeduction) };
+        balanceUpdate = { balance: 0 }; // Clear legacy balance field
       }
 
       const transaction = {
