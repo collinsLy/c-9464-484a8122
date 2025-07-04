@@ -63,25 +63,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/send-welcome-email", async (req, res) => {
     try {
+      console.log('📧 Welcome email endpoint called with body:', req.body);
       const { to, email, username } = req.body;
 
       // Support both 'to' and 'email' for the recipient field
       const recipientEmail = to || email;
 
       if (!recipientEmail || !username) {
+        console.error('❌ Missing required fields for welcome email:', { recipientEmail, username });
         return res.status(400).json({ 
           success: false, 
           error: "Missing required fields: email, username" 
         });
       }
 
+      console.log('📧 Calling emailService.sendWelcomeEmail with:', { to: recipientEmail, username });
       const result = await emailService.sendWelcomeEmail({
         to: recipientEmail,
         username
       });
+      
+      console.log('📧 Welcome email service result:', result);
       res.json(result);
     } catch (error) {
       console.error("Welcome email error:", error);
+      res.status(500).json({ success: false, error: "Internal server error" });
+    }
+  });
+
+  // Test welcome email endpoint
+  app.post("/api/test-welcome-email", async (req, res) => {
+    try {
+      const { email, username } = req.body;
+      const testEmail = email || "test@example.com";
+      const testUsername = username || "Test User";
+
+      console.log('🧪 Testing welcome email with:', { email: testEmail, username: testUsername });
+      
+      const welcomeResult = await emailService.sendWelcomeEmail({
+        to: testEmail,
+        username: testUsername
+      });
+
+      res.json({ 
+        welcomeEmail: welcomeResult,
+        message: "Welcome email test completed",
+        testData: { email: testEmail, username: testUsername }
+      });
+    } catch (error) {
+      console.error("Test welcome email error:", error);
       res.status(500).json({ success: false, error: "Internal server error" });
     }
   });

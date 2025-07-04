@@ -70,10 +70,34 @@ const OpenAccountForm = ({ onSuccess }: OpenAccountFormProps) => {
       localStorage.setItem('showWelcome', 'true');
 
       await sendEmailVerification(userCredential.user);
+
+      // Send welcome email for regular email registration
+      try {
+        const response = await fetch(`${window.location.origin}/api/send-welcome-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: values.email,
+            username: values.fullName,
+          }),
+        });
+
+        const emailResult = await response.json();
+        if (emailResult.success) {
+          console.log('Welcome email sent successfully:', emailResult.messageId);
+        } else {
+          console.error('Failed to send welcome email:', emailResult.error);
+        }
+      } catch (error) {
+        console.error('Error sending welcome email:', error);
+      }
+
       onSuccess();
       toast({
         title: "Account created",
-        description: "Please check your email to verify your account.",
+        description: "Please check your email to verify your account and for a welcome message.",
       });
       window.location.href = "/dashboard";
     } catch (error: any) {

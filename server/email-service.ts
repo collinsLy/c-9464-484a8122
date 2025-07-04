@@ -303,6 +303,7 @@ export class EmailService {
 
   async sendWelcomeEmail(data: z.infer<typeof WelcomeEmailSchema>): Promise<{ success: boolean; messageId?: string; error?: string }> {
     try {
+      console.log('📧 Attempting to send welcome email to:', data.to || data.email);
       const { to, username } = WelcomeEmailSchema.parse(data);
 
       const htmlContent = this.createModernTemplate(
@@ -327,6 +328,7 @@ export class EmailService {
         },
       };
 
+      console.log('📧 Sending welcome email with options:', { to, subject: mailOptions.subject, from: mailOptions.from });
       const result = await this.transporter.sendMail(mailOptions);
       console.log(`✅ Welcome email sent successfully to ${to}: ${result.messageId}`);
       
@@ -337,6 +339,7 @@ export class EmailService {
 
     } catch (error) {
       console.error('❌ Failed to send welcome email:', error);
+      console.error('❌ Error details:', error instanceof Error ? error.stack : error);
       
       return {
         success: false,
