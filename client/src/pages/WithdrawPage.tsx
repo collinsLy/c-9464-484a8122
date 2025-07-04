@@ -32,6 +32,7 @@ const WithdrawPage = () => {
   const [walletAddress, setWalletAddress] = useState("");
   const [network, setNetwork] = useState("NATIVE");
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
+  const [successWithdrawalAmount, setSuccessWithdrawalAmount] = useState("");
   const [userCryptoBalances, setUserCryptoBalances] = useState<Record<string, number>>({
     USDT: 0,
     BTC: 0,
@@ -918,6 +919,8 @@ const WithdrawPage = () => {
         console.error('Error sending withdrawal email:', error);
       }
 
+      // Store the amount for the success dialog before clearing
+      setSuccessWithdrawalAmount(amountValue.toFixed(2));
       setIsSuccessDialogOpen(true);
 
       // Clear form after showing success dialog
@@ -2619,7 +2622,7 @@ const WithdrawPage = () => {
             {activeTab === 'crypto' ? (
               <p className="text-3xl font-bold">{cryptoAmount} {selectedCrypto}</p>
             ) : (
-              <p className="text-3xl font-bold">${amount || '0.00'} USD</p>
+              <p className="text-3xl font-bold">${successWithdrawalAmount || '0.00'} USD</p>
             )}
             <div className="w-full bg-white/10 rounded-lg p-4 mt-4">
               {activeTab === 'crypto' ? (
