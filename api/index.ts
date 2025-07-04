@@ -13,7 +13,7 @@ app.use(express.json());
 // Email endpoint
 app.post('/api/send-transaction-email', async (req, res) => {
   try {
-    const { to, type, isReceiver, username, receiver, amount, crypto } = req.body;
+    const { to, type, isReceiver, username, receiver, amount, currency } = req.body;
     
     const result = await emailService.sendTransactionEmail({
       to,
@@ -22,13 +22,14 @@ app.post('/api/send-transaction-email', async (req, res) => {
       username,
       receiver,
       amount,
-      crypto
+      currency
     });
     
     res.json({ success: true, messageId: result.messageId });
   } catch (error) {
     console.error('Email sending error:', error);
-    res.status(500).json({ success: false, error: error.message });
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    res.status(500).json({ success: false, error: errorMessage });
   }
 });
 
