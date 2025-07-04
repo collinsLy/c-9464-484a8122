@@ -1,5 +1,12 @@
 import { useCountdown } from '../hooks/useCountdown';
 import { FlipClock } from './FlipClock';
+import { Button } from "@/components/ui/button";
+import { TrendingUp } from "lucide-react";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
+import OpenAccountForm from "./OpenAccountForm";
+import { CryptoTicker } from './CryptoTicker';
+import TradingViewChart from './TradingViewChart';
 
 const CountdownDisplay = () => {
   const timeLeft = useCountdown(30);
@@ -13,14 +20,6 @@ const CountdownDisplay = () => {
     />
   );
 };
-
-import { Button } from "@/components/ui/button";
-import { TrendingUp } from "lucide-react";
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
-import OpenAccountForm from "./OpenAccountForm";
-
-import { CryptoTicker } from './CryptoTicker';
 
 
 const Hero = () => {
@@ -87,8 +86,12 @@ const Hero = () => {
         </div>
         <div className="relative">
           <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl">
-            <div className="tradingview-widget-container h-[400px]" id="tradingview-widget">
-              {/* TradingView widget will be initialized here */}
+            <div className="h-[400px] w-full">
+              <TradingViewChart 
+                symbol="BTCUSD" 
+                exchange="BINANCE" 
+                containerId="hero-tradingview-chart"
+              />
             </div>
           </div>
           <div className="absolute -bottom-4 -right-4 w-72 h-72 bg-accent/20 rounded-full blur-3xl"></div>
