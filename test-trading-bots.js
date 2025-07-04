@@ -1,6 +1,7 @@
 
-const { initializeApp } = require('firebase/app');
-const { getFirestore, doc, getDoc, updateDoc } = require('firebase/firestore');
+import { initializeApp } from 'firebase/app';
+import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { execSync } from 'child_process';
 
 // Firebase config
 const firebaseConfig = {
@@ -124,14 +125,13 @@ async function testTradingBotBalance() {
 
 // Install required packages first
 console.log('Installing required Firebase packages...');
-const { execSync } = require('child_process');
 
 try {
   execSync('npm install firebase', { stdio: 'inherit' });
   console.log('✅ Firebase packages installed\n');
   
   // Run the test
-  testTradingBotBalance();
+  await testTradingBotBalance();
 } catch (error) {
   console.error('❌ Failed to install packages:', error.message);
 }
