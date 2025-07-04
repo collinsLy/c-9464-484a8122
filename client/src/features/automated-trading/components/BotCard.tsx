@@ -38,8 +38,6 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
 
   const handleClick = async () => {
     try {
-      const uid = localStorage.getItem('userId');
-
       // Validate custom amount if being used
       if (isUsingCustomAmount) {
         if (!customAmount || isNaN(tradeAmount) || tradeAmount < minBalance) {
@@ -51,6 +49,7 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
       }
 
       if (isDemoMode) {
+        // Demo trading logic
         if (userBalance < tradeAmount) {
           toast.error("Insufficient Demo Balance", {
             description: `You need a minimum balance of $${tradeAmount} to use demo trading.`,
@@ -58,29 +57,40 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
           return;
         }
 
+        // Deduct trade amount immediately
+        const currentDemoBalance = parseFloat(localStorage.getItem('demoBalance') || '10000');
+        if (currentDemoBalance < tradeAmount) {
+          toast.error("Insufficient Demo Balance", {
+            description: `Current demo balance: $${currentDemoBalance.toFixed(2)}. Required: $${tradeAmount}`,
+          });
+          return;
+        }
+
+        const newDemoBalance = currentDemoBalance - tradeAmount;
+        localStorage.setItem('demoBalance', newDemoBalance.toString());
+
         toast.success(`${bot.type} Bot Activated`, {
           description: `Your ${bot.type} bot is now trading ${bot.pair} with demo funds.`,
         });
 
+        // Simulate trade execution
         await new Promise(resolve => setTimeout(resolve, 2000));
 
-        const tradeCount = parseInt(localStorage.getItem('tradeCount') || '0');
+        const tradeCount = parseInt(localStorage.getItem('demoTradeCount') || '0');
         const isWin = tradeCount < 7 ? true : Math.random() < 0.7;
-        const profitMultiplier = isWin ? 1.8 : -1.0;
-        const profitLoss = tradeAmount * profitMultiplier;
-
-        localStorage.setItem('tradeCount', (tradeCount + 1).toString());
-        const currentBalance = parseFloat(localStorage.getItem('demoBalance') || '10000');
-        const newBalance = currentBalance + profitLoss;
-        localStorage.setItem('demoBalance', newBalance.toString());
+        localStorage.setItem('demoTradeCount', (tradeCount + 1).toString());
 
         if (isWin) {
+          const profit = tradeAmount * 0.8;
+          const finalBalance = newDemoBalance + tradeAmount + profit;
+          localStorage.setItem('demoBalance', finalBalance.toString());
+          
           toast.success(`Trade Won!`, {
-            description: `Profit: $${(tradeAmount * 0.8).toFixed(2)}. New Balance: $${newBalance.toFixed(2)}`,
+            description: `Profit: $${profit.toFixed(2)}. New Balance: $${finalBalance.toFixed(2)}`,
           });
         } else {
           toast.error(`Trade Lost`, {
-            description: `Loss: $${tradeAmount.toFixed(2)}. New Balance: $${newBalance.toFixed(2)}`,
+            description: `Loss: $${tradeAmount.toFixed(2)}. New Balance: $${newDemoBalance.toFixed(2)}`,
           });
         }
 
@@ -88,6 +98,8 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
         return;
       }
 
+      // Live trading logic
+      const uid = localStorage.getItem('userId');
       if (!uid) {
         toast.error("Authentication Required", {
           description: "Please log in to trade with bots.",
@@ -96,55 +108,69 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
       }
 
       try {
+        // Get current USDT balance
         const currentBalance = await UserBalanceService.getUSDTBalance(uid);
+        console.log('Current USDT balance:', currentBalance, 'Required:', tradeAmount);
+
         if (currentBalance < tradeAmount) {
           toast.error("Insufficient USDT Balance", {
-            description: `You need a minimum USDT balance of $${tradeAmount} to use the ${bot.type} bot.`,
+            description: `You need ${tradeAmount} USDT to use the ${bot.type} bot. Current balance: ${currentBalance.toFixed(2)} USDT`,
           });
           return;
         }
 
-        // Deduct initial trade amount from USDT
-        const newBalance = currentBalance - tradeAmount;
-        await UserBalanceService.updateUSDTBalance(uid, newBalance);
+        // Deduct trade amount immediately
+        const balanceAfterTrade = currentBalance - tradeAmount;
+        await UserBalanceService.updateUSDTBalance(uid, balanceAfterTrade);
 
         toast.success(`${bot.type} Bot Activated`, {
-          description: `Your ${bot.type} bot is now trading ${bot.pair} with real funds.`,
+          description: `Trading ${tradeAmount} USDT on ${bot.pair} pair.`,
         });
 
+        // Simulate trade execution
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         const tradeCount = parseInt(localStorage.getItem(`liveTradeCount_${uid}`) || '0');
         const isWin = tradeCount < 7 ? true : Math.random() < 0.7;
-        const profitMultiplier = isWin ? 1.8 : -1.0;
-        const profitLoss = tradeAmount * profitMultiplier;
-
         localStorage.setItem(`liveTradeCount_${uid}`, (tradeCount + 1).toString());
+
         if (isWin) {
           const profit = tradeAmount * 0.8;
-          const finalBalance = newBalance + (tradeAmount * 1.8);
+          const finalBalance = balanceAfterTrade + tradeAmount + profit;
+          
           await UserBalanceService.updateUSDTBalance(uid, finalBalance);
           await UserBalanceService.updateTradeStats(uid, true, tradeAmount, profit);
+          
           toast.success(`Trade Won!`, {
             description: `Profit: ${profit.toFixed(2)} USDT. New Balance: ${finalBalance.toFixed(2)} USDT`,
           });
         } else {
           await UserBalanceService.updateTradeStats(uid, false, tradeAmount, 0);
+          
           toast.error(`Trade Lost`, {
-            description: `Loss: ${tradeAmount.toFixed(2)} USDT. New Balance: ${newBalance.toFixed(2)} USDT`,
+            description: `Loss: ${tradeAmount.toFixed(2)} USDT. Balance: ${balanceAfterTrade.toFixed(2)} USDT`,
           });
         }
 
       } catch (error) {
-        console.error('Error during trade:', error);
+        console.error('Error during live trade:', error);
+        
+        // Try to refund the trade amount if there was an error
+        try {
+          const currentBalance = await UserBalanceService.getUSDTBalance(uid);
+          await UserBalanceService.updateUSDTBalance(uid, currentBalance + tradeAmount);
+        } catch (refundError) {
+          console.error('Error refunding trade amount:', refundError);
+        }
+
         toast.error("Trading Error", {
-          description: "An error occurred during trading. Please try again.",
+          description: "Trade failed. Amount has been refunded to your account.",
         });
       }
     } catch (error) {
-      console.error('Error during trade:', error);
-      toast.error("Trading Error", {
-        description: "An error occurred during trading. Please try again.",
+      console.error('Error in handleClick:', error);
+      toast.error("System Error", {
+        description: "An unexpected error occurred. Please try again.",
       });
     }
   };

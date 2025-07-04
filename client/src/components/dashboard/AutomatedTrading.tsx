@@ -19,7 +19,24 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
   useEffect(() => {
     const uid = localStorage.getItem('userId');
 
-    if (!uid || isDemoMode) {
+    if (isDemoMode) {
+      // For demo mode, get balance from localStorage
+      const demoBalance = parseFloat(localStorage.getItem('demoBalance') || '10000');
+      setUserBalance(demoBalance);
+      setIsLoading(false);
+
+      // Listen for demo balance changes
+      const handleStorageChange = () => {
+        const newDemoBalance = parseFloat(localStorage.getItem('demoBalance') || '10000');
+        setUserBalance(newDemoBalance);
+      };
+
+      window.addEventListener('storage', handleStorageChange);
+      return () => window.removeEventListener('storage', handleStorageChange);
+    }
+
+    if (!uid) {
+      setUserBalance(0);
       setIsLoading(false);
       return;
     }

@@ -13,10 +13,10 @@ export class UserService {
     try {
       // Import numerical UID service
       const { numericalUidService } = await import('./numerical-uid-service');
-      
+
       // Generate numerical UID for the user
       const numericalUid = await numericalUidService.createNumericalUidMapping(userId);
-      
+
       await setDoc(doc(db, 'users', userId), {
         ...userData,
         numericalUid,
@@ -53,7 +53,7 @@ export class UserService {
       if (data.profilePhoto) {
         const userData = await this.getUserData(userId);
         const oldProfilePhoto = userData?.profilePhoto;
-        
+
         // If there's an existing profile photo and it's stored in Supabase
         if (oldProfilePhoto && oldProfilePhoto.includes('supabase')) {
           try {
@@ -64,20 +64,20 @@ export class UserService {
             // Continue with update even if delete fails
           }
         }
-        
+
         console.log('Updating profile photo to:', data.profilePhoto);
       }
-      
+
       const docRef = doc(db, 'users', userId);
-      
+
       // Add logging to debug the update
       console.log('Updating user document:', userId, 'with data:', data);
-      
+
       await updateDoc(docRef, {
         ...data,
         updatedAt: new Date().toISOString()
       });
-      
+
       console.log('User data updated successfully');
     } catch (error) {
       console.error('Error updating user data:', error);
@@ -218,6 +218,7 @@ export class UserBalanceService {
   // USDT-specific balance methods for trading bots
   static async getUSDTBalance(userId: string): Promise<number> {
     try {
+      console.log('Getting USDT balance for user:', userId);
       const userData = await UserService.getUserData(userId);
       const usdtAsset = userData?.assets?.USDT;
       return usdtAsset?.amount ?? 0;
@@ -254,7 +255,7 @@ export class UserBalanceService {
     try {
       const userData = await UserService.getUserData(userId);
       const assets = userData?.assets || {};
-      
+
       // Update USDT amount in assets
       assets.USDT = {
         ...assets.USDT,
