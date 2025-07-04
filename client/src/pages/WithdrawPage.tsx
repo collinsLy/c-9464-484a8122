@@ -2624,7 +2624,7 @@ const WithdrawPage = () => {
             <div className="w-full bg-white/10 rounded-lg p-4 mt-4">
               {activeTab === 'crypto' ? (
                 <p className="text-center text-sm text-white/70">
-                  Your withdrawal request has been submitted. Crypto withdrawals typically take 10-30 minutes to process after blockchain confirmations.
+                  Your withdrawal request has been submitted. Crypto withdrawals typically take 5-10 minutes to process after blockchain confirmations.
                 </p>
               ) : (
                 <p className="text-center text-sm text-white/70">
