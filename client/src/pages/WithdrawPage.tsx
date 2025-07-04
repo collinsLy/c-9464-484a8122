@@ -485,7 +485,8 @@ const WithdrawPage = () => {
         console.error('Error sending transfer emails:', error);
       }
 
-      // Show success message and close confirmation dialog
+      // Store the amount for the success dialog and show success message
+      setSuccessWithdrawalAmount(cryptoAmountValue.toString());
       setIsConfirmDialogOpen(false);
       setIsTransferSuccessDialogOpen(true);
 
@@ -2538,7 +2539,7 @@ const WithdrawPage = () => {
                         <Check className="w-8 h-8 text-black" />
                       </div>
                       <h2 className="text-2xl font-bold">Transfer Successful</h2>
-                      <p className="text-3xl font-bold">{cryptoAmount} {selectedCrypto}</p>
+                      <p className="text-3xl font-bold">{successWithdrawalAmount || cryptoAmount} {selectedCrypto}</p>
 
                       <div className="w-full bg-white/10 rounded-lg p-4 space-y-2">
                         <div className="flex justify-between">
@@ -2570,7 +2571,7 @@ const WithdrawPage = () => {
                       </div>
                     </div>
                   </DialogContent>
-                </Dialog>
+                </Dialog></old_str>
               </TabsContent>
             </Tabs>
           </CardContent>
