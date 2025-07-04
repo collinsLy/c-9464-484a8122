@@ -918,18 +918,20 @@ const WithdrawPage = () => {
         console.error('Error sending withdrawal email:', error);
       }
 
-      // Clear form
-      setAmount("");
-      setAccountDetails({
-        bankName: "",
-        accountNumber: "",
-        accountName: "",
-        swiftCode: "",
-        paypalEmail: "",
-        mobileNumber: "",
-      });
-
       setIsSuccessDialogOpen(true);
+
+      // Clear form after showing success dialog
+      setTimeout(() => {
+        setAmount("");
+        setAccountDetails({
+          bankName: "",
+          accountNumber: "",
+          accountName: "",
+          swiftCode: "",
+          paypalEmail: "",
+          mobileNumber: "",
+        });
+      }, 100);
 
       toast({
         title: "Withdrawal Successful",
@@ -2617,7 +2619,7 @@ const WithdrawPage = () => {
             {activeTab === 'crypto' ? (
               <p className="text-3xl font-bold">{cryptoAmount} {selectedCrypto}</p>
             ) : (
-              <p className="text-3xl font-bold">${amount} USD</p>
+              <p className="text-3xl font-bold">${amount || '0.00'} USD</p>
             )}
             <div className="w-full bg-white/10 rounded-lg p-4 mt-4">
               {activeTab === 'crypto' ? (
