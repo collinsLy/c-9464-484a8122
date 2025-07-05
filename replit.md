@@ -4,6 +4,9 @@
 A comprehensive cryptocurrency trading platform migrated from Lovable to Replit environment. The platform includes trading features for spot, futures, P2P, automated trading bots, market analysis, and user management.
 
 ## Recent Changes
+- **2025-01-05**: Successfully completed migration from Replit Agent to Replit environment
+- **2025-01-05**: Fixed mobile bottom navigation bar by removing extra Settings icon
+- **2025-01-05**: Optimized bottom navigation to 4 items (Home, Bots, Assets, Convert) for proper 4-column grid layout
 - **2025-01-04**: Added custom trading amount input feature to bot cards with minimum balance validation
 - **2025-01-04**: Fixed trading bots to use USDT balance from assets instead of general balance field
 - **2025-01-04**: Created USDT-specific balance methods (getUSDTBalance, subscribeToUSDTBalance, updateUSDTBalance)
