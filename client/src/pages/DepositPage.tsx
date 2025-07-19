@@ -282,6 +282,12 @@ const DepositPage = () => {
                             >
                               Binance Smart Chain (BEP20)
                             </Button>
+                            <Button 
+                              variant={network === 'CELO' ? 'secondary' : 'outline'}
+                              onClick={() => setNetwork('CELO')}
+                            >
+                              CELO Network
+                            </Button>
                           </>
                         )}
                         {selectedCrypto === 'BNB' && (

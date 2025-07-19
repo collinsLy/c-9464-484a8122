@@ -4,6 +4,7 @@
 A comprehensive cryptocurrency trading platform migrated from Lovable to Replit environment. The platform includes trading features for spot, futures, P2P, automated trading bots, market analysis, and user management.
 
 ## Recent Changes
+- **2025-01-05**: Added CELO network option for USDT deposits with address 0xe5819dbd958be2e2113415abda3ebadf9855ee4c
 - **2025-01-05**: Removed dashboard-wide system notice, keeping only targeted fiat deposit notice on deposit page
 - **2025-01-05**: Added fiat deposit unavailability notice on the deposit page fiat tab
 - **2025-01-05**: Created SystemNotice component for dashboard-wide notifications with dismiss functionality

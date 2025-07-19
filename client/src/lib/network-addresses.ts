@@ -17,7 +17,8 @@ export const networkAddresses: CoinNetworks = {
   USDT: [
     { network: "ERC20", address: "1FqZ9cjGeb86WKgMeBeRHmN4LvYfF24cg7" },
     { network: "TRC20", address: "TZAxJfSr7EcQHfQ76MdMZcLLPMH2YjFq2Y" },
-    { network: "BSC", address: "0xe5819dbd958be2e2113415abda3ebadf9855ee4c" }
+    { network: "BSC", address: "0xe5819dbd958be2e2113415abda3ebadf9855ee4c" },
+    { network: "CELO", address: "0xe5819dbd958be2e2113415abda3ebadf9855ee4c" }
   ],
   BNB: [
     { network: "BSC", address: "0xe5819dbd958be2e2113415abda3ebadf9855ee4c" },
