@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState } from "react";
 import { DashboardSidebar } from "./DashboardSidebar";
 import DashboardHeader from "./DashboardHeader";
 import MobileBottomNav from "./MobileBottomNav";
-import SystemNotice from "@/components/SystemNotice";
 import {
   Home, LineChart, BarChart3, Wallet, CreditCard,
   TrendingUp, History, Settings, PlayCircle, HelpCircle, ArrowDownCircle, ArrowUpCircle,
@@ -43,8 +42,6 @@ interface DashboardLayoutProps {
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const [showSystemNotice, setShowSystemNotice] = useState(true);
-
   // State for demo mode (This is redundant now, as it's managed by the provider)
   //const [isDemoMode, setIsDemoMode] = useState(false);
 
@@ -85,9 +82,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           {/* Dashboard Content */}
           <main className="flex-1 overflow-auto p-3 sm:p-4 md:p-6 relative w-full">
             <div className="w-full max-w-7xl mx-auto space-y-4 sm:space-y-6 relative">
-              {showSystemNotice && (
-                <SystemNotice onDismiss={() => setShowSystemNotice(false)} />
-              )}
               {children}
             </div>
             {/* Add bottom padding on mobile to account for bottom nav */}
