@@ -21,7 +21,7 @@ import { UserService } from '@/lib/user-service';
 const DepositPage = () => {
   const { isDemoMode } = useDashboardContext();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("fiat");
+  const [activeTab, setActiveTab] = useState("crypto");
   const [selectedCrypto, setSelectedCrypto] = useState("BTC");
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("card");
   const [amount, setAmount] = useState("");
