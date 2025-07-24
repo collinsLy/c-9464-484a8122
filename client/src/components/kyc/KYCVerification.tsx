@@ -12,6 +12,7 @@ import { Upload, CheckCircle, Clock, XCircle, FileText, Camera, CreditCard, Home
 import { kycService, KYCSubmission } from "@/lib/kyc-service";
 import { toast } from "@/components/ui/use-toast";
 import { BucketSetupInstructions } from "./BucketSetupInstructions";
+import { SQLInstructions } from "./SQLInstructions";
 
 interface DocumentUpload {
   type: 'id_front' | 'id_back' | 'selfie' | 'proof_of_address';
@@ -253,7 +254,7 @@ const KYCVerification = () => {
             </div>
             
             {connectionTest.includes('Please create') && (
-              <BucketSetupInstructions projectUrl="https://supabase.com/dashboard/project/znibojwzbfqdzxovlxdv" />
+              <SQLInstructions />
             )}
           </div>
         )}

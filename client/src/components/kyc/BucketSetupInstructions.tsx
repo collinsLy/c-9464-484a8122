@@ -8,7 +8,7 @@ interface BucketSetupInstructionsProps {
 
 export const BucketSetupInstructions = ({ projectUrl }: BucketSetupInstructionsProps) => {
   const handleOpenSupabase = () => {
-    window.open(`${projectUrl}/storage/buckets`, '_blank');
+    window.open(`${projectUrl}/sql/new`, '_blank');
   };
 
   return (
@@ -25,43 +25,48 @@ export const BucketSetupInstructions = ({ projectUrl }: BucketSetupInstructionsP
         <div className="space-y-2 text-sm">
           <div className="flex items-start gap-2">
             <span className="text-amber-400 font-medium">1.</span>
-            <span>Go to Storage → Buckets in your Supabase dashboard</span>
+            <span>✅ Bucket created! Now set up permissions:</span>
           </div>
           <div className="flex items-start gap-2">
             <span className="text-amber-400 font-medium">2.</span>
-            <span>Create a new bucket named <code className="bg-black/30 px-1 rounded">kyc-documents</code></span>
+            <span>Go to SQL Editor in your Supabase dashboard</span>
           </div>
           <div className="flex items-start gap-2">
             <span className="text-amber-400 font-medium">3.</span>
             <div className="space-y-1">
-              <span>Configure the bucket with these settings:</span>
-              <div className="ml-4 space-y-1 text-xs">
-                <div className="flex items-center gap-2">
-                  <Shield className="h-3 w-3" />
-                  <span>Private bucket (not public)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <FileText className="h-3 w-3" />
-                  <span>10MB file size limit</span>
-                </div>
+              <span>Run this SQL command to enable uploads:</span>
+              <div className="ml-4 bg-black/40 p-2 rounded text-xs font-mono">
+                <code>{`CREATE POLICY "KYC documents full access" ON storage.objects
+  FOR ALL USING (bucket_id = 'kyc-documents')
+  WITH CHECK (bucket_id = 'kyc-documents');`}</code>
               </div>
             </div>
           </div>
           <div className="flex items-start gap-2">
             <span className="text-amber-400 font-medium">4.</span>
-            <span>Refresh this page to continue with KYC verification</span>
+            <span>Refresh this page to test KYC document uploads</span>
           </div>
         </div>
 
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={handleOpenSupabase}
-          className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
-        >
-          <ExternalLink className="h-3 w-3 mr-2" />
-          Open Supabase Dashboard
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleOpenSupabase}
+            className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
+          >
+            <ExternalLink className="h-3 w-3 mr-2" />
+            Open SQL Editor
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => window.location.reload()}
+            className="border-green-500/30 text-green-400 hover:bg-green-500/10"
+          >
+            Refresh Page
+          </Button>
+        </div>
       </AlertDescription>
     </Alert>
   );
