@@ -247,17 +247,7 @@ const KYCVerification = () => {
         </div>
       </CardHeader>
       <CardContent className="text-white">
-        {connectionTest && (
-          <div className="mb-4 space-y-3">
-            <div className="p-3 text-sm bg-white/5 rounded border border-white/10">
-              <strong>Supabase Status:</strong> {connectionTest}
-            </div>
-            
-            {connectionTest.includes('Please create') && (
-              <SQLInstructions />
-            )}
-          </div>
-        )}
+        
         <Progress value={(step / 3) * 100} className="mb-6" />
         
         {step === 1 && (
