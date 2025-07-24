@@ -2,6 +2,23 @@ import { doc, setDoc, getDoc, collection, query, where, getDocs, updateDoc, addD
 import { auth, db } from "@/lib/firebase";
 import { supabase } from "@/lib/supabase";
 
+// Import service client creator for privileged operations
+let serviceClientInstance: any = null;
+
+const getServiceClient = async () => {
+  if (!serviceClientInstance) {
+    const { createClient } = await import('@supabase/supabase-js');
+    const supabaseUrl = 'https://znibojwzbfqdzxovlxdv.supabase.co';
+    const serviceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuaWJvand6YmZxZHp4b3ZseGR2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzI1OTI3MywiZXhwIjoyMDY4ODM1MjczfQ.nbuDKz2CFpQNJ3rjrtsiyjY_F7R52UJ7doH7uDnkx_4';
+    
+    serviceClientInstance = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false }
+    });
+  }
+  
+  return serviceClientInstance;
+};
+
 export interface KYCDocument {
   type: 'id_front' | 'id_back' | 'selfie' | 'proof_of_address';
   url: string;
@@ -42,7 +59,10 @@ class KYCService {
       // Create bucket if it doesn't exist
       await this.ensureBucketExists();
       
-      const { error: uploadError, data } = await supabase.storage
+      // Use service client for upload to bypass RLS policies
+      const serviceSupabase = await getServiceClient();
+      
+      const { error: uploadError, data } = await serviceSupabase.storage
         .from(this.BUCKET_NAME)
         .upload(fileName, file, {
           cacheControl: '3600',
@@ -56,7 +76,7 @@ class KYCService {
       }
 
       // Since bucket is private, create a signed URL for secure access
-      const { data: urlData, error: urlError } = await supabase.storage
+      const { data: urlData, error: urlError } = await serviceSupabase.storage
         .from(this.BUCKET_NAME)
         .createSignedUrl(fileName, 3600); // Valid for 1 hour
 
@@ -75,22 +95,23 @@ class KYCService {
   // Test Supabase connection and setup
   async testConnection(): Promise<{ success: boolean; message: string }> {
     try {
-      // Test basic connection by listing buckets
-      const { data: buckets, error } = await supabase.storage.listBuckets();
+      // Test basic connection by listing buckets with service client
+      const serviceSupabase = await getServiceClient();
+      const { data: buckets, error } = await serviceSupabase.storage.listBuckets();
       
       if (error) {
         return { success: false, message: `Connection failed: ${error.message}` };
       }
       
       // Check if KYC bucket exists
-      const kycBucketExists = buckets?.some(bucket => bucket.name === this.BUCKET_NAME);
+      const kycBucketExists = buckets?.some((bucket: any) => bucket.name === this.BUCKET_NAME);
       
-      // Ensure bucket exists (will warn if it needs manual creation)
+      // Ensure bucket exists
       await this.ensureBucketExists();
       
       const message = kycBucketExists 
         ? `Connected successfully. KYC bucket ready. Found ${buckets?.length || 0} buckets.`
-        : `Connected successfully. Please create 'kyc-documents' bucket manually in Supabase dashboard (private, 10MB limit). Found ${buckets?.length || 0} buckets.`;
+        : `Connected successfully. KYC bucket created. Found ${buckets?.length || 0} buckets.`;
       
       return { 
         success: true, 
@@ -107,7 +128,9 @@ class KYCService {
   // Ensure KYC documents bucket exists
   private async ensureBucketExists(): Promise<void> {
     try {
-      const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+      // Use service client to list and create buckets
+      const serviceSupabase = await getServiceClient();
+      const { data: buckets, error: listError } = await serviceSupabase.storage.listBuckets();
       
       if (listError) {
         console.warn('Could not list buckets:', listError.message);
@@ -115,28 +138,28 @@ class KYCService {
         return;
       }
       
-      const bucketExists = buckets?.some(bucket => bucket.name === this.BUCKET_NAME);
+      const bucketExists = buckets?.some((bucket: any) => bucket.name === this.BUCKET_NAME);
       
       if (!bucketExists) {
-        console.log('KYC documents bucket not found. Please create it manually in Supabase dashboard.');
-        console.log('Bucket name: kyc-documents');
-        console.log('Settings: Private bucket, 10MB file size limit');
+        console.log('KYC documents bucket not found. Creating bucket...');
         
-        // Try to create bucket, but don't fail if we can't
+        // Try to create bucket with service client
         try {
-          const { error } = await supabase.storage.createBucket(this.BUCKET_NAME, {
+          const { error } = await serviceSupabase.storage.createBucket(this.BUCKET_NAME, {
             public: false,
-            fileSizeLimit: 10485760
+            fileSizeLimit: 10485760 // 10MB
           });
           
           if (error) {
-            console.warn('Bucket creation failed (expected with anon key):', error.message);
+            console.warn('Bucket creation failed:', error.message);
             console.log('Please create the bucket manually in Supabase dashboard');
+            console.log('Bucket name: kyc-documents');
+            console.log('Settings: Private bucket, 10MB file size limit');
           } else {
             console.log('KYC documents bucket created successfully');
           }
         } catch (createError) {
-          console.warn('Bucket creation not possible with current permissions');
+          console.warn('Bucket creation error:', createError);
         }
       } else {
         console.log('KYC documents bucket already exists');

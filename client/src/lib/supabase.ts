@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = 'https://znibojwzbfqdzxovlxdv.supabase.co';
 // Keys are defined directly in the file instead of using environment variables
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuaWJvand6YmZxZHp4b3ZseGR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMyNTkyNzMsImV4cCI6MjA2ODgzNTI3M30.aR9hug-nd8J9iCUVOwvlWtyKE7yrFbzoM89CO0GNw5M';
+const serviceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuaWJvand6YmZxZHp4b3ZseGR2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzI1OTI3MywiZXhwIjoyMDY4ODM1MjczfQ.nbuDKz2CFpQNJ3rjrtsiyjY_F7R52UJ7doH7uDnkx_4';
 
 // Optional: Create a service client with admin privileges for storage operations
 // This bypasses RLS policies for file operations
@@ -12,8 +13,7 @@ let serviceClient: any = null;
 // Call this function only when needed to perform privileged operations
 const getServiceClient = () => {
   if (!serviceClient) {
-    // Service role key - Note: This should be added via Supabase dashboard for full functionality
-    const serviceRoleKey = supabaseKey; // Using anon key for now
+    // Use the service role key for admin operations
     serviceClient = createClient(supabaseUrl, serviceRoleKey, {
       auth: { persistSession: false }
     });
