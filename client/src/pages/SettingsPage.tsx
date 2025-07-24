@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { 
   User, Lock, Bell, Moon, Sun, CreditCard, Globe, Shield, LogOut, 
-  Upload, Database, Smartphone, PictureInPicture
+  Upload, Database, Smartphone, PictureInPicture, FileCheck
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
@@ -25,6 +25,7 @@ import AvatarCollection, { avatarOptions } from "@/components/AvatarCollection";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { EmailNotificationDemo } from "@/components/EmailNotificationDemo";
 import NumericalUidDisplay from '@/components/NumericalUidDisplay';
+import KYCVerification from '@/components/kyc/KYCVerification';
 
 
 const SettingsPage = () => {
@@ -210,6 +211,7 @@ const SettingsPage = () => {
         name: data.name,
         email: data.email,
         phone: data.phone,
+        profilePhoto: data.profilePhoto || "",
         avatarId: selectedAvatarId // Update avatarId
       });
 
@@ -217,6 +219,7 @@ const SettingsPage = () => {
         name: data.name,
         email: data.email,
         phone: data.phone,
+        profilePhoto: data.profilePhoto || "",
         avatarId: selectedAvatarId // Update avatarId
       });
 
@@ -243,7 +246,7 @@ const SettingsPage = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white mb-6 grid grid-cols-2 md:grid-cols-5 w-full">
+          <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white mb-6 grid grid-cols-2 md:grid-cols-6 w-full">
             <TabsTrigger value="profile" className="text-white data-[state=active]:bg-accent">
               <User className="h-4 w-4 mr-2" />
               Profile
@@ -259,6 +262,10 @@ const SettingsPage = () => {
             <TabsTrigger value="appearance" className="text-white data-[state=active]:bg-accent">
               <Moon className="h-4 w-4 mr-2" />
               Appearance
+            </TabsTrigger>
+            <TabsTrigger value="kyc" className="text-white data-[state=active]:bg-accent">
+              <FileCheck className="h-4 w-4 mr-2" />
+              KYC
             </TabsTrigger>
           </TabsList>
 
@@ -843,6 +850,17 @@ const SettingsPage = () => {
                 <Button className="bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34]">
                   Save Preferences
                 </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="kyc" className="mt-0 space-y-6">
+            <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
+              <CardHeader>
+                <CardTitle>KYC Verification</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <KYCVerification />
               </CardContent>
             </Card>
           </TabsContent>
