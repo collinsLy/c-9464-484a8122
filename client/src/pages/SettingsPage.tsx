@@ -246,26 +246,31 @@ const SettingsPage = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white mb-6 grid grid-cols-2 md:grid-cols-6 w-full">
-            <TabsTrigger value="profile" className="text-white data-[state=active]:bg-accent">
-              <User className="h-4 w-4 mr-2" />
-              Profile
+          <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white mb-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 w-full h-auto p-1">
+            <TabsTrigger value="profile" className="text-white data-[state=active]:bg-accent text-xs sm:text-sm flex-col sm:flex-row py-2 px-1 sm:px-3">
+              <User className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2 mb-1 sm:mb-0" />
+              <span className="hidden sm:inline">Profile</span>
+              <span className="sm:hidden">Profile</span>
             </TabsTrigger>
-            <TabsTrigger value="security" className="text-white data-[state=active]:bg-accent">
-              <Lock className="h-4 w-4 mr-2" />
-              Security
+            <TabsTrigger value="security" className="text-white data-[state=active]:bg-accent text-xs sm:text-sm flex-col sm:flex-row py-2 px-1 sm:px-3">
+              <Lock className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2 mb-1 sm:mb-0" />
+              <span className="hidden sm:inline">Security</span>
+              <span className="sm:hidden">Security</span>
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="text-white data-[state=active]:bg-accent">
-              <Bell className="h-4 w-4 mr-2" />
-              Notifications
+            <TabsTrigger value="notifications" className="text-white data-[state=active]:bg-accent text-xs sm:text-sm flex-col sm:flex-row py-2 px-1 sm:px-3">
+              <Bell className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2 mb-1 sm:mb-0" />
+              <span className="hidden sm:inline">Notifications</span>
+              <span className="sm:hidden">Notify</span>
             </TabsTrigger>
-            <TabsTrigger value="appearance" className="text-white data-[state=active]:bg-accent">
-              <Moon className="h-4 w-4 mr-2" />
-              Appearance
+            <TabsTrigger value="appearance" className="text-white data-[state=active]:bg-accent text-xs sm:text-sm flex-col sm:flex-row py-2 px-1 sm:px-3">
+              <Moon className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2 mb-1 sm:mb-0" />
+              <span className="hidden sm:inline">Appearance</span>
+              <span className="sm:hidden">Theme</span>
             </TabsTrigger>
-            <TabsTrigger value="kyc" className="text-white data-[state=active]:bg-accent">
-              <FileCheck className="h-4 w-4 mr-2" />
-              KYC
+            <TabsTrigger value="kyc" className="text-white data-[state=active]:bg-accent text-xs sm:text-sm flex-col sm:flex-row py-2 px-1 sm:px-3">
+              <FileCheck className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2 mb-1 sm:mb-0" />
+              <span className="hidden sm:inline">KYC</span>
+              <span className="sm:hidden">KYC</span>
             </TabsTrigger>
           </TabsList>
 
@@ -274,10 +279,10 @@ const SettingsPage = () => {
               <CardHeader>
                 <CardTitle>Profile Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4 pb-20 mb-16"> {/* Added padding and margin at bottom */}
-                <div className="flex flex-col md:flex-row md:items-start gap-4"> {/* Reduced gap */}
-                  <div className="flex flex-col items-center gap-2">
-                    <Avatar className="h-20 w-20"> {/* Reduced avatar size */}
+              <CardContent className="space-y-4 pb-6 mb-4"> 
+                <div className="flex flex-col lg:flex-row lg:items-start gap-4 sm:gap-6">
+                  <div className="flex flex-col items-center gap-2 w-full lg:w-auto">
+                    <Avatar className="h-16 w-16 sm:h-20 sm:w-20">
                       {selectedAvatarId !== "default" && selectedAvatarId ? (
                         // If avatar is selected, show the avatar from avatarOptions
                         <AvatarImage 
@@ -538,10 +543,10 @@ const SettingsPage = () => {
                     <p className="text-xs text-white/60 text-center mt-1">Max size: 5MB</p>
                   </div>
 
-                  <div className="flex-1 space-y-4">
+                  <div className="flex-1 space-y-4 w-full">
                     <Form {...profileForm}>
-                      <form onSubmit={profileForm.handleSubmit(onSubmit)} className="space-y-4"> {/* Reduced spacing */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3"> {/* Reduced gap */}
+                      <form onSubmit={profileForm.handleSubmit(onSubmit)} className="space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div className="space-y-2">
                             <Label htmlFor="name">Full Name</Label>
                           <Input 
@@ -659,64 +664,64 @@ const SettingsPage = () => {
               <CardHeader>
                 <CardTitle>Notification Preferences</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Email Notifications</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="email-price-alerts">Price Alerts</Label>
+              <CardContent className="space-y-4 sm:space-y-6">
+                <div className="space-y-3 sm:space-y-4">
+                  <h3 className="text-base sm:text-lg font-medium">Email Notifications</h3>
+                  <div className="space-y-2 sm:space-y-3">
+                    <div className="flex items-center justify-between py-1">
+                      <Label htmlFor="email-price-alerts" className="text-sm sm:text-base">Price Alerts</Label>
                       <Switch id="email-price-alerts" checked={true} />
                     </div>
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="email-trade-confirmations">Trade Confirmations</Label>
+                    <div className="flex items-center justify-between py-1">
+                      <Label htmlFor="email-trade-confirmations" className="text-sm sm:text-base">Trade Confirmations</Label>
                       <Switch id="email-trade-confirmations" checked={true} />
                     </div>
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="email-deposit-withdrawals">Deposit/Withdrawal Updates</Label>
+                    <div className="flex items-center justify-between py-1">
+                      <Label htmlFor="email-deposit-withdrawals" className="text-sm sm:text-base">Deposit/Withdrawal Updates</Label>
                       <Switch id="email-deposit-withdrawals" checked={true} />
                     </div>
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="email-newsletters">Newsletters & Updates</Label>
+                    <div className="flex items-center justify-between py-1">
+                      <Label htmlFor="email-newsletters" className="text-sm sm:text-base">Newsletters & Updates</Label>
                       <Switch id="email-newsletters" />
                     </div>
                   </div>
 
                   <Separator className="bg-white/10 my-4" />
 
-                  <h3 className="text-lg font-medium">Push Notifications</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="push-price-alerts">Price Alerts</Label>
+                  <h3 className="text-base sm:text-lg font-medium">Push Notifications</h3>
+                  <div className="space-y-2 sm:space-y-3">
+                    <div className="flex items-center justify-between py-1">
+                      <Label htmlFor="push-price-alerts" className="text-sm sm:text-base">Price Alerts</Label>
                       <Switch id="push-price-alerts" checked={true} />
                     </div>
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="push-trade-confirmations">Trade Confirmations</Label>
+                    <div className="flex items-center justify-between py-1">
+                      <Label htmlFor="push-trade-confirmations" className="text-sm sm:text-base">Trade Confirmations</Label>
                       <Switch id="push-trade-confirmations" checked={true} />
                     </div>
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="push-deposit-withdrawals">Deposit/Withdrawal Updates</Label>
+                    <div className="flex items-center justify-between py-1">
+                      <Label htmlFor="push-deposit-withdrawals" className="text-sm sm:text-base">Deposit/Withdrawal Updates</Label>
                       <Switch id="push-deposit-withdrawals" checked={true} />
                     </div>
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="push-market-updates">Market Updates</Label>
+                    <div className="flex items-center justify-between py-1">
+                      <Label htmlFor="push-market-updates" className="text-sm sm:text-base">Market Updates</Label>
                       <Switch id="push-market-updates" />
                     </div>
                   </div>
 
-                  <Separator className="bg-white/10 my-4" />
+                  <Separator className="bg-white/10 my-3 sm:my-4" />
 
-                  <h3 className="text-lg font-medium">SMS Notifications</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="sms-security">Security Alerts</Label>
+                  <h3 className="text-base sm:text-lg font-medium">SMS Notifications</h3>
+                  <div className="space-y-2 sm:space-y-3">
+                    <div className="flex items-center justify-between py-1">
+                      <Label htmlFor="sms-security" className="text-sm sm:text-base">Security Alerts</Label>
                       <Switch id="sms-security" checked={true} />
                     </div>
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="sms-login">Login Attempts</Label>
+                    <div className="flex items-center justify-between py-1">
+                      <Label htmlFor="sms-login" className="text-sm sm:text-base">Login Attempts</Label>
                       <Switch id="sms-login" checked={true} />
                     </div>
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="sms-transactions">Large Transactions</Label>
+                    <div className="flex items-center justify-between py-1">
+                      <Label htmlFor="sms-transactions" className="text-sm sm:text-base">Large Transactions</Label>
                       <Switch id="sms-transactions" checked={true} />
                     </div>
                   </div>
@@ -733,10 +738,10 @@ const SettingsPage = () => {
                   <EmailNotificationDemo />
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <Button 
                     variant="outline"
-                    className="w-full bg-white/5 border-white/10 text-white hover:bg-white/10 hover:text-white"
+                    className="w-full bg-white/5 border-white/10 text-white hover:bg-white/10 hover:text-white text-sm sm:text-base py-2 sm:py-3"
                     onClick={() => {
                       toast({
                         title: "Success",
@@ -748,7 +753,7 @@ const SettingsPage = () => {
                   </Button>
                   <Button 
                     variant="default"
-                    className="w-full"
+                    className="w-full text-sm sm:text-base py-2 sm:py-3"
                     onClick={() => {
                       // Reset all switches to default state
                       const switches = document.querySelectorAll('button[role="switch"]');
@@ -772,29 +777,29 @@ const SettingsPage = () => {
                 <CardTitle>Appearance Settings</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
-                      <h3 className="text-lg font-medium">Theme</h3>
-                      <p className="text-sm text-white/60">Select your preferred theme</p>
+                      <h3 className="text-base sm:text-lg font-medium">Theme</h3>
+                      <p className="text-xs sm:text-sm text-white/60">Select your preferred theme</p>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Button 
                         variant={darkMode ? "ghost" : "default"} 
                         size="sm" 
                         onClick={() => setDarkMode(false)}
-                        className={darkMode ? "bg-white/10" : "bg-[#F2FF44] text-black"}
+                        className={`${darkMode ? "bg-white/10" : "bg-[#F2FF44] text-black"} text-xs sm:text-sm px-2 sm:px-3`}
                       >
-                        <Sun className="h-4 w-4 mr-2" />
+                        <Sun className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                         Light
                       </Button>
                       <Button 
                         variant={darkMode ? "default" : "ghost"} 
                         size="sm" 
                         onClick={() => setDarkMode(true)}
-                        className={darkMode ? "bg-[#F2FF44] text-black" : "bg-white/10"}
+                        className={`${darkMode ? "bg-[#F2FF44] text-black" : "bg-white/10"} text-xs sm:text-sm px-2 sm:px-3`}
                       >
-                        <Moon className="h-4 w-4 mr-2" />
+                        <Moon className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                         Dark
                       </Button>
                     </div>
