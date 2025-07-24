@@ -23,6 +23,7 @@ const KYCVerification = () => {
   const [kycStatus, setKycStatus] = useState<{ status: string; submissionId?: string; submittedAt?: Date } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [submission, setSubmission] = useState<KYCSubmission | null>(null);
+  const [connectionTest, setConnectionTest] = useState<string>('');
 
   // Form data
   const [personalInfo, setPersonalInfo] = useState({
@@ -43,7 +44,17 @@ const KYCVerification = () => {
 
   useEffect(() => {
     checkKYCStatus();
+    testSupabaseConnection();
   }, []);
+
+  const testSupabaseConnection = async () => {
+    try {
+      const result = await kycService.testConnection();
+      setConnectionTest(result.success ? `✅ ${result.message}` : `❌ ${result.message}`);
+    } catch (error: any) {
+      setConnectionTest(`❌ Connection test failed: ${error.message}`);
+    }
+  };
 
   const checkKYCStatus = async () => {
     try {
@@ -233,6 +244,13 @@ const KYCVerification = () => {
         </div>
       </CardHeader>
       <CardContent className="text-white">
+        {connectionTest && (
+          <div className="mb-4 p-3 text-sm bg-white/5 rounded border border-white/10">
+            <strong>Supabase Status:</strong> {connectionTest}
+          </div>
+        )}
+        <Progress value={(step / 3) * 100} className="mb-6" />
+        
         {step === 1 && (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Personal Information</h3>

@@ -55,14 +55,45 @@ class KYCService {
         throw new Error(`Failed to upload document: ${uploadError.message}`);
       }
 
-      const { data: urlData } = supabase.storage
+      // Since bucket is private, create a signed URL for secure access
+      const { data: urlData, error: urlError } = await supabase.storage
         .from(this.BUCKET_NAME)
-        .getPublicUrl(fileName);
+        .createSignedUrl(fileName, 3600); // Valid for 1 hour
 
-      return urlData.publicUrl;
+      if (urlError) {
+        console.error('Error creating signed URL:', urlError);
+        throw new Error(`Failed to create secure URL: ${urlError.message}`);
+      }
+
+      return urlData.signedUrl;
     } catch (error) {
       console.error('Error uploading KYC document:', error);
       throw error;
+    }
+  }
+
+  // Test Supabase connection and setup
+  async testConnection(): Promise<{ success: boolean; message: string }> {
+    try {
+      // Test basic connection by listing buckets
+      const { data: buckets, error } = await supabase.storage.listBuckets();
+      
+      if (error) {
+        return { success: false, message: `Connection failed: ${error.message}` };
+      }
+      
+      // Ensure bucket exists
+      await this.ensureBucketExists();
+      
+      return { 
+        success: true, 
+        message: `Connected successfully. Found ${buckets?.length || 0} buckets.` 
+      };
+    } catch (error: any) {
+      return { 
+        success: false, 
+        message: `Connection test failed: ${error.message}` 
+      };
     }
   }
 
@@ -73,17 +104,24 @@ class KYCService {
       const bucketExists = buckets?.some(bucket => bucket.name === this.BUCKET_NAME);
       
       if (!bucketExists) {
+        console.log('Creating KYC documents bucket...');
         const { error } = await supabase.storage.createBucket(this.BUCKET_NAME, {
-          public: true,
+          public: false, // KYC documents should be private
           fileSizeLimit: 10485760 // 10MB
         });
         
         if (error && !error.message.includes('already exists')) {
+          console.error('Bucket creation error:', error);
           throw error;
+        } else {
+          console.log('KYC documents bucket created successfully');
         }
+      } else {
+        console.log('KYC documents bucket already exists');
       }
     } catch (error) {
       console.error('Error ensuring bucket exists:', error);
+      throw error;
     }
   }
 
