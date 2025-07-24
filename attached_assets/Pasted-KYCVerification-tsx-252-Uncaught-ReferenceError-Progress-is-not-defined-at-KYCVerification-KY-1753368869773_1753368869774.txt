@@ -1,0 +1,48 @@
+KYCVerification.tsx:252 Uncaught ReferenceError: Progress is not defined
+    at KYCVerification (KYCVerification.tsx:252:10)
+
+KYCVerification.tsx:252 Uncaught ReferenceError: Progress is not defined
+    at KYCVerification (KYCVerification.tsx:252:10)
+chunk-276SZO74.js?v=600b0736:14032 The above error occurred in the <KYCVerification> component:
+
+    at KYCVerification (https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.dev:5000/src/components/kyc/KYCVerification.tsx:32:27)
+    at div
+    at _c9 (https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.dev:5000/src/components/ui/card.tsx:114:12)
+    at div
+    at _c (https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.dev:5000/src/components/ui/card.tsx:20:11)
+    at div
+    at https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.d…orkspace/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=600b0736:235:13
+    at Presence (https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.d…orkspace/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=600b0736:539:11)
+    at https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.d…orkspace/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=600b0736:790:13
+    at _c5 (https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.dev:5000/src/components/ui/tabs.tsx:72:12)
+    at div
+    at https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.d…orkspace/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=600b0736:235:13
+    at Provider (https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.d…unner/workspace/node_modules/.vite/deps/chunk-3RXG37ZK.js?v=600b0736:38:15)
+    at https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.d…workspace/node_modules/.vite/deps/@radix-ui_react-tabs.js?v=600b0736:667:7
+    at div
+    at div
+    at main
+    at div
+    at div
+    at DashboardProvider (https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.dev:5000/src/components/dashboard/DashboardLayout.tsx:38:37)
+    at DashboardLayout (https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.dev:5000/src/components/dashboard/DashboardLayout.tsx:61:43)
+    at SettingsPage (https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.dev:5000/src/pages/SettingsPage.tsx:53:26)
+    at ErrorBoundary (https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.dev:5000/src/components/ErrorBoundary.tsx:6:5)
+    at RenderedRoute (https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.d…r/workspace/node_modules/.vite/deps/react-router-dom.js?v=600b0736:5455:26)
+    at Routes (https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.d…er/workspace/node_modules/.vite/deps/react-router-dom.js?v=600b0736:6188:3)
+    at Suspense
+    at DashboardProvider (https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.dev:5000/src/components/dashboard/DashboardLayout.tsx:38:37)
+    at Router (https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.d…r/workspace/node_modules/.vite/deps/react-router-dom.js?v=600b0736:6131:13)
+    at BrowserRouter (https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.d…er/workspace/node_modules/.vite/deps/react-router-dom.js?v=600b0736:9149:3)
+    at Provider (https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.d…unner/workspace/node_modules/.vite/deps/chunk-3RXG37ZK.js?v=600b0736:38:15)
+    at TooltipProvider (https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.d…kspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=600b0736:951:5)
+    at PreloadProvider (https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.dev:5000/src/contexts/PreloadContext.tsx:23:35)
+    at QueryClientProvider (https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.d…rkspace/node_modules/.vite/deps/@tanstack_react-query.js?v=600b0736:2933:3)
+    at ErrorBoundary (https://c0f27c0a-18ec-4184-8a63-b969d7a47be2-00-jghu5upnm3lr.riker.replit.dev:5000/src/components/ErrorBoundary.tsx:6:5)
+    at App
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundary.
+ErrorBoundary.tsx:25 Error caught by ErrorBoundary: ReferenceError: Progress is not defined
+    at KYCVerification (KYCVerification.tsx:252:10)
+ 
+{componentStack: '\n    at KYCVerification (https://c0f27c0a-18ec-418…/src/components/ErrorBoundary.tsx:6:5)\n    at App'}
