@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { Upload, CheckCircle, Clock, XCircle, FileText, Camera, CreditCard, Home } from "lucide-react";
 import { kycService, KYCSubmission } from "@/lib/kyc-service";
 import { toast } from "@/components/ui/use-toast";
+import { BucketSetupInstructions } from "./BucketSetupInstructions";
 
 interface DocumentUpload {
   type: 'id_front' | 'id_back' | 'selfie' | 'proof_of_address';
@@ -246,8 +247,14 @@ const KYCVerification = () => {
       </CardHeader>
       <CardContent className="text-white">
         {connectionTest && (
-          <div className="mb-4 p-3 text-sm bg-white/5 rounded border border-white/10">
-            <strong>Supabase Status:</strong> {connectionTest}
+          <div className="mb-4 space-y-3">
+            <div className="p-3 text-sm bg-white/5 rounded border border-white/10">
+              <strong>Supabase Status:</strong> {connectionTest}
+            </div>
+            
+            {connectionTest.includes('Please create') && (
+              <BucketSetupInstructions projectUrl="https://supabase.com/dashboard/project/znibojwzbfqdzxovlxdv" />
+            )}
           </div>
         )}
         <Progress value={(step / 3) * 100} className="mb-6" />

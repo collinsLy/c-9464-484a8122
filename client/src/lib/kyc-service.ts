@@ -82,12 +82,19 @@ class KYCService {
         return { success: false, message: `Connection failed: ${error.message}` };
       }
       
-      // Ensure bucket exists
+      // Check if KYC bucket exists
+      const kycBucketExists = buckets?.some(bucket => bucket.name === this.BUCKET_NAME);
+      
+      // Ensure bucket exists (will warn if it needs manual creation)
       await this.ensureBucketExists();
+      
+      const message = kycBucketExists 
+        ? `Connected successfully. KYC bucket ready. Found ${buckets?.length || 0} buckets.`
+        : `Connected successfully. Please create 'kyc-documents' bucket manually in Supabase dashboard (private, 10MB limit). Found ${buckets?.length || 0} buckets.`;
       
       return { 
         success: true, 
-        message: `Connected successfully. Found ${buckets?.length || 0} buckets.` 
+        message 
       };
     } catch (error: any) {
       return { 
@@ -100,28 +107,43 @@ class KYCService {
   // Ensure KYC documents bucket exists
   private async ensureBucketExists(): Promise<void> {
     try {
-      const { data: buckets } = await supabase.storage.listBuckets();
+      const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+      
+      if (listError) {
+        console.warn('Could not list buckets:', listError.message);
+        // Continue anyway, bucket might exist
+        return;
+      }
+      
       const bucketExists = buckets?.some(bucket => bucket.name === this.BUCKET_NAME);
       
       if (!bucketExists) {
-        console.log('Creating KYC documents bucket...');
-        const { error } = await supabase.storage.createBucket(this.BUCKET_NAME, {
-          public: false, // KYC documents should be private
-          fileSizeLimit: 10485760 // 10MB
-        });
+        console.log('KYC documents bucket not found. Please create it manually in Supabase dashboard.');
+        console.log('Bucket name: kyc-documents');
+        console.log('Settings: Private bucket, 10MB file size limit');
         
-        if (error && !error.message.includes('already exists')) {
-          console.error('Bucket creation error:', error);
-          throw error;
-        } else {
-          console.log('KYC documents bucket created successfully');
+        // Try to create bucket, but don't fail if we can't
+        try {
+          const { error } = await supabase.storage.createBucket(this.BUCKET_NAME, {
+            public: false,
+            fileSizeLimit: 10485760
+          });
+          
+          if (error) {
+            console.warn('Bucket creation failed (expected with anon key):', error.message);
+            console.log('Please create the bucket manually in Supabase dashboard');
+          } else {
+            console.log('KYC documents bucket created successfully');
+          }
+        } catch (createError) {
+          console.warn('Bucket creation not possible with current permissions');
         }
       } else {
         console.log('KYC documents bucket already exists');
       }
     } catch (error) {
-      console.error('Error ensuring bucket exists:', error);
-      throw error;
+      console.warn('Error checking bucket existence:', error);
+      // Don't throw - continue with upload attempt
     }
   }
 
