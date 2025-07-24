@@ -39,7 +39,7 @@ export const SQLInstructions = () => {
         <p className="text-gray-300 text-sm">
           Run this SQL command in your Supabase dashboard to allow KYC document uploads:
         </p>
-        
+
         <div className="bg-black/40 p-3 rounded font-mono text-xs text-gray-100 relative">
           <pre>{sqlCommand}</pre>
           <Button

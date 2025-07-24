@@ -37,13 +37,13 @@ export const getProfileImageUrl = (profilePhotoPath: string): string => {
   try {
     // If it's already a full URL with query params, extract just the base URL
     const baseUrl = profilePhotoPath.split('?')[0];
-    
+
     // Get the path part from the URL if it contains profile-images
     let pathOnly = baseUrl;
     if (baseUrl.includes('profile-images/')) {
       pathOnly = baseUrl.split('profile-images/')[1];
     }
-    
+
     // Use service client to get a fresh URL with transformations
     const serviceSupabase = getServiceClient();
     const { data } = serviceSupabase.storage
@@ -56,7 +56,7 @@ export const getProfileImageUrl = (profilePhotoPath: string): string => {
           quality: 80
         }
       });
-    
+
     // Add timestamp to prevent caching issues
     return `${data.publicUrl}?t=${Date.now()}`;
   } catch (error) {
@@ -88,12 +88,12 @@ export const uploadProfileImage = async (userId: string, file: File): Promise<st
     if (uploadError) {
       console.error('Error uploading image to Supabase:', uploadError);
 
-      // If bucket doesn't exist error, try to create the bucket
+      // If storage system needs setup
       if (uploadError.message.includes('The resource was not found') || 
           uploadError.message.includes('bucket') || 
           uploadError.statusCode === '404') {
 
-        console.log('Bucket not found, attempting to create bucket...');
+        console.log('Storage system needs configuration, attempting setup...');
         try {
           // Create the bucket if it doesn't exist
           const { error: createError } = await serviceSupabase

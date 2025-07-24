@@ -72,7 +72,7 @@ class KYCService {
 
       if (uploadError) {
         console.error('Upload error:', uploadError);
-        throw new Error(`Failed to upload document: ${uploadError.message}`);
+        throw new Error('Failed to upload document. Please try again or contact support.');
       }
 
       // Since bucket is private, create a signed URL for secure access
@@ -82,7 +82,7 @@ class KYCService {
 
       if (urlError) {
         console.error('Error creating signed URL:', urlError);
-        throw new Error(`Failed to create secure URL: ${urlError.message}`);
+        throw new Error('Failed to process document. Please try again or contact support.');
       }
 
       return urlData.signedUrl;
@@ -110,8 +110,8 @@ class KYCService {
       await this.ensureBucketExists();
       
       const message = kycBucketExists 
-        ? `Connected successfully. KYC bucket ready. Found ${buckets?.length || 0} buckets.`
-        : `Connected successfully. KYC bucket created. Found ${buckets?.length || 0} buckets.`;
+        ? `Document storage system is ready and operational.`
+        : `Document storage system has been configured successfully.`;
       
       return { 
         success: true, 
@@ -120,7 +120,7 @@ class KYCService {
     } catch (error: any) {
       return { 
         success: false, 
-        message: `Connection test failed: ${error.message}` 
+        message: `Document storage system is currently unavailable. Please try again later.` 
       };
     }
   }
@@ -152,9 +152,7 @@ class KYCService {
           
           if (error) {
             console.warn('Bucket creation failed:', error.message);
-            console.log('Please create the bucket manually in Supabase dashboard');
-            console.log('Bucket name: kyc-documents');
-            console.log('Settings: Private bucket, 10MB file size limit');
+            console.log('Document storage system requires configuration. Please contact support.');
           } else {
             console.log('KYC documents bucket created successfully');
           }
