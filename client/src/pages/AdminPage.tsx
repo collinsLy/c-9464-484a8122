@@ -100,7 +100,6 @@ const AdminPage = () => {
             <Card className="bg-slate-900/50 border-slate-700">
               <CardHeader>
                 <CardTitle className="text-white">Advanced Admin Tools</CardTitle>
-                <p className="text-white/60">Access comprehensive admin functionality in the dedicated admin panel</p>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
