@@ -3,7 +3,6 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { emailService } from "./email-service";
 import { messagingService } from "./messaging-service";
-import { auth } from "firebase-admin";
 import { getAuth } from "firebase-admin/auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -497,6 +496,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         error: "Failed to fetch from Binance API",
         details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Admin endpoints for user management
+  app.get("/api/admin/auth-users", async (req, res) => {
+    try {
+      console.log('🔍 Fetching Firebase Authentication users...');
+      
+      // Check if Firebase Admin is initialized
+      try {
+        getAuth();
+      } catch (error) {
+        console.log('⚠️ Firebase Admin not available');
+        return res.json({ users: [] });
+      }
+
+      const listUsers = await getAuth().listUsers(1000); // Get up to 1000 users
+      const users = listUsers.users.map(userRecord => ({
+        id: userRecord.uid,
+        email: userRecord.email || '',
+        fullName: userRecord.displayName || '',
+        balance: 0, // Default balance
+        assets: {},
+        kycStatus: 'pending',
+        createdAt: new Date(userRecord.metadata.creationTime),
+        lastLogin: userRecord.metadata.lastSignInTime ? new Date(userRecord.metadata.lastSignInTime) : null,
+        isBlocked: userRecord.disabled || false,
+        isFlagged: false,
+        emailVerified: userRecord.emailVerified
+      }));
+
+      console.log(`✅ Found ${users.length} Firebase Auth users`);
+      res.json({ users, total: users.length });
+    } catch (error) {
+      console.error('❌ Error fetching Firebase Auth users:', error);
+      // Return empty array instead of error to allow fallback
+      res.json({ users: [], error: error.message });
+    }
+  });
+
+  app.post("/api/admin/update-user-status", async (req, res) => {
+    try {
+      const { userId, action } = req.body;
+      
+      if (!userId || !action) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "Missing userId or action" 
+        });
+      }
+
+      console.log(`🔧 Admin action: ${action} for user ${userId}`);
+
+      // Handle different user actions
+      switch (action) {
+        case 'block':
+          await getAuth().updateUser(userId, { disabled: true });
+          break;
+        case 'unblock':
+          await getAuth().updateUser(userId, { disabled: false });
+          break;
+        case 'flag':
+          // For flagging, we'll store this in Firestore custom claims or metadata
+          await getAuth().setCustomUserClaims(userId, { flagged: true });
+          break;
+        case 'unflag':
+          await getAuth().setCustomUserClaims(userId, { flagged: false });
+          break;
+        default:
+          return res.status(400).json({ 
+            success: false, 
+            error: "Invalid action" 
+          });
+      }
+
+      res.json({ 
+        success: true, 
+        message: `User ${action} action completed` 
+      });
+    } catch (error) {
+      console.error(`❌ Error performing user action:`, error);
+      res.status(500).json({ 
+        success: false, 
+        error: error.message 
       });
     }
   });

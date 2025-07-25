@@ -191,6 +191,19 @@ export class AdminService {
     }
   ): Promise<{ users: AdminUser[]; hasMore: boolean }> {
     try {
+      // First try to get users from Firebase Auth via server endpoint
+      let authUsers: AdminUser[] = [];
+      try {
+        const authResponse = await fetch('/api/admin/auth-users');
+        if (authResponse.ok) {
+          const authData = await authResponse.json();
+          authUsers = authData.users || [];
+        }
+      } catch (authError) {
+        console.log('Could not fetch Firebase Auth users, falling back to Firestore');
+      }
+
+      // Then get users from Firestore
       let q = query(collection(db, 'users'), orderBy('createdAt', 'desc'));
 
       if (filters?.kycStatus) {
@@ -214,17 +227,17 @@ export class AdminService {
       }
 
       const snapshot = await getDocs(q);
-      const users: AdminUser[] = [];
+      const firestoreUsers: AdminUser[] = [];
 
       snapshot.forEach(doc => {
         const data = doc.data();
-        users.push({
+        firestoreUsers.push({
           id: doc.id,
           email: data.email || '',
           fullName: data.fullName,
           balance: data.balance || 0,
           assets: data.assets || {},
-          kycStatus: data.kycStatus,
+          kycStatus: data.kycStatus || 'pending',
           kycSubmissionId: data.kycSubmissionId,
           kycSubmittedAt: data.kycSubmittedAt?.toDate(),
           country: data.country,
@@ -238,8 +251,29 @@ export class AdminService {
         });
       });
 
+      // Merge Firebase Auth users with Firestore users, prioritizing Firestore data
+      const userMap = new Map<string, AdminUser>();
+      
+      // Add auth users first
+      authUsers.forEach(user => {
+        userMap.set(user.id, user);
+      });
+      
+      // Override with Firestore data where available
+      firestoreUsers.forEach(user => {
+        const existingUser = userMap.get(user.id);
+        if (existingUser) {
+          // Merge auth data with firestore data, prioritizing firestore
+          userMap.set(user.id, { ...existingUser, ...user });
+        } else {
+          userMap.set(user.id, user);
+        }
+      });
+
+      const allUsers = Array.from(userMap.values());
+
       return {
-        users,
+        users: allUsers,
         hasMore: snapshot.docs.length === (pagination?.limit || 50)
       };
     } catch (error) {
@@ -313,20 +347,38 @@ export class AdminService {
 
   static async updateUserStatus(userId: string, action: 'block' | 'unblock' | 'flag' | 'unflag'): Promise<void> {
     try {
-      const adminId = 'admin-system'; // Replace with actual admin ID
-      switch (action) {
-        case 'block':
-          await this.blockUser(userId, true, adminId);
-          break;
-        case 'unblock':
-          await this.blockUser(userId, false, adminId);
-          break;
-        case 'flag':
-          await this.flagUser(userId, true, adminId);
-          break;
-        case 'unflag':
-          await this.flagUser(userId, false, adminId);
-          break;
+      // Update via server endpoint that handles Firebase Auth
+      const response = await fetch('/api/admin/update-user-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, action }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Also update Firestore if needed
+      try {
+        const adminId = 'admin-system'; // Replace with actual admin ID
+        switch (action) {
+          case 'block':
+            await this.blockUser(userId, true, adminId);
+            break;
+          case 'unblock':
+            await this.blockUser(userId, false, adminId);
+            break;
+          case 'flag':
+            await this.flagUser(userId, true, adminId);
+            break;
+          case 'unflag':
+            await this.flagUser(userId, false, adminId);
+            break;
+        }
+      } catch (firestoreError) {
+        console.log('Could not update Firestore, Firebase Auth updated successfully');
       }
     } catch (error) {
       console.error('Error updating user status:', error);

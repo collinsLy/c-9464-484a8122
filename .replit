@@ -48,3 +48,6 @@ args = "lsof -ti:5000 | xargs kill -9 2>/dev/null || true"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev"
+
+[agent]
+integrations = ["firebase_barebones_javascript==1.0.0"]

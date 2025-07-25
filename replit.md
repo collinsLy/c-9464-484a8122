@@ -4,6 +4,11 @@
 A comprehensive cryptocurrency trading platform migrated from Lovable to Replit environment. The platform includes trading features for spot, futures, P2P, automated trading bots, market analysis, and user management.
 
 ## Recent Changes
+- **2025-07-25**: Successfully integrated Firebase Authentication user fetching into admin panel user management
+- **2025-07-25**: Created server endpoints to fetch real Firebase Auth users and manage user status (block/unblock/flag)
+- **2025-07-25**: Updated AdminService to fetch both Firebase Auth and Firestore users, merging data intelligently
+- **2025-07-25**: Fixed Firebase Admin SDK import errors and implemented proper fallback handling
+- **2025-07-25**: Admin panel now displays real registered users from Firebase Authentication with proper status management
 - **2025-07-25**: Removed /admin page entirely - all admin functionality now exclusively at /admin-kyc route
 - **2025-07-25**: Created comprehensive 6-tab admin interface at /admin-kyc: Overview, Users, Messaging, KYC Review, Security, Legacy Tools
 - **2025-07-25**: Fixed Firebase permission-denied errors by properly structuring admin authentication
