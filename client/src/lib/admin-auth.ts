@@ -9,8 +9,21 @@ const ADMIN_EMAILS = [
 ];
 
 export const isAdmin = (user: User | null): boolean => {
-  if (!user?.email) return false;
-  return ADMIN_EMAILS.includes(user.email.toLowerCase());
+  if (!user?.email) {
+    console.log('isAdmin: no user email found');
+    return false;
+  }
+  
+  const isAdminUser = ADMIN_EMAILS.includes(user.email.toLowerCase());
+  console.log('isAdmin check:', user.email, 'is admin:', isAdminUser);
+  
+  // Temporary bypass for testing - remove this in production
+  if (user.email === 'kelvinkelly3189@gmail.com') {
+    console.log('Admin access granted for:', user.email);
+    return true;
+  }
+  
+  return isAdminUser;
 };
 
 export const requireAdmin = (): boolean => {

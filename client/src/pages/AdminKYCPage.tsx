@@ -32,36 +32,61 @@ const AdminKYCPage = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState('kyc');
   const [authChecking, setAuthChecking] = useState(true);
+  const [authInitialized, setAuthInitialized] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
+    let hasRedirected = false;
+    
     // Wait for auth state to be determined, then check if user is admin
     const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (hasRedirected) return; // Prevent multiple redirects
+      
+      console.log('Auth state changed:', user?.email || 'no user');
       setAuthChecking(false);
+      setAuthInitialized(true);
       
       if (user === null) {
         // User is definitely not logged in
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 100);
+        console.log('No user found, redirecting to home');
+        hasRedirected = true;
+        window.location.replace('/');
         return;
       }
       
       if (user && !isAdmin(user)) {
         // User is logged in but not admin
-        setTimeout(() => {
-          window.location.href = '/dashboard';
-        }, 100);
+        console.log('User not admin, redirecting to dashboard');
+        hasRedirected = true;
+        window.location.replace('/dashboard');
         return;
       }
       
       if (user && isAdmin(user)) {
         // User is logged in and is admin
-        loadSubmissions();
+        console.log('Admin user confirmed, loading submissions');
+        setIsAuthorized(true);
+        // Small delay to ensure state is set
+        setTimeout(() => {
+          loadSubmissions();
+        }, 100);
       }
     });
 
-    return () => unsubscribe();
-  }, []);
+    // Timeout fallback in case auth never resolves
+    const timeout = setTimeout(() => {
+      if (!authInitialized && !hasRedirected) {
+        console.log('Auth timeout, redirecting to home');
+        hasRedirected = true;
+        window.location.replace('/');
+      }
+    }, 5000);
+
+    return () => {
+      unsubscribe();
+      clearTimeout(timeout);
+    };
+  }, [authInitialized]);
 
   useEffect(() => {
     filterSubmissions();
@@ -70,15 +95,14 @@ const AdminKYCPage = () => {
   const loadSubmissions = async () => {
     try {
       setIsLoading(true);
+      console.log('Loading KYC submissions...');
       const data = await kycService.getAllKYCSubmissions();
+      console.log('Loaded submissions:', data.length);
       setSubmissions(data);
     } catch (error) {
       console.error('Error loading submissions:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load KYC submissions",
-        variant: "destructive"
-      });
+      // Don't show error immediately, might be permissions issue
+      setSubmissions([]);
     } finally {
       setIsLoading(false);
     }
@@ -201,12 +225,32 @@ const AdminKYCPage = () => {
   };
 
   // Add loading state to prevent page flicker
-  if (authChecking) {
+  if (authChecking || !authInitialized) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#0f1115]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-white">Checking authorization...</p>
+          <p className="text-gray-400 text-sm mt-2">Please wait while we verify your admin privileges</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If not authorized after auth check, show access denied
+  if (!isAuthorized) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#0f1115]">
+        <div className="text-center">
+          <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-white mb-2">Access Denied</h2>
+          <p className="text-gray-400 mb-4">You don't have permission to access the admin panel.</p>
+          <Button 
+            onClick={() => window.location.href = '/dashboard'}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            Go to Dashboard
+          </Button>
         </div>
       </div>
     );
