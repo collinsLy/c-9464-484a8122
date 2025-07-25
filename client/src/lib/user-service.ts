@@ -68,8 +68,8 @@ export class UserService {
       
       // If recipientId is a number, it's a numerical UID - convert to Firebase UID
       if (typeof recipientId === 'number') {
-        const { numericalUidService } = await import('./numerical-uid-service');
-        const firebaseUid = await numericalUidService.getFirebaseUidFromNumerical(recipientId);
+        const { NumericalUidService } = await import('./numerical-uid-service');
+        const firebaseUid = await NumericalUidService.getFirebaseUidFromNumerical(recipientId);
         if (!firebaseUid) {
           throw new Error('Recipient not found with the provided numerical UID');
         }
