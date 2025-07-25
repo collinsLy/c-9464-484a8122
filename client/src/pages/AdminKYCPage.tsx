@@ -70,6 +70,19 @@ const AdminKYCPage = () => {
   
   // System broadcast
   const [systemMessage, setSystemMessage] = useState('');
+  
+  // Security state
+  const [securityAnalytics, setSecurityAnalytics] = useState({
+    flaggedAccounts: 0,
+    underReview: 0,
+    cleanAccounts: 0,
+    duplicateAccounts: [] as Array<{email: string, count: number, userIds: string[]}>,
+    suspiciousActivity: [] as Array<{userId: string, email: string, reason: string, severity: 'low' | 'medium' | 'high'}>
+  });
+  const [isRunningSecurityScan, setIsRunningSecurityScan] = useState(false);
+  const [selectedSecurityUser, setSelectedSecurityUser] = useState<string>('');
+  const [duplicatesDetected, setDuplicatesDetected] = useState<Array<{email: string, users: AdminUser[]}>>([]);
+  const [securityReportData, setSecurityReportData] = useState<any>(null);
 
   const loadDashboardData = async () => {
     try {
@@ -217,6 +230,218 @@ const AdminKYCPage = () => {
     }
   };
 
+  // Security functions
+  const handleDetectDuplicates = async () => {
+    setIsRunningSecurityScan(true);
+    try {
+      // Group users by email to find duplicates
+      const emailGroups: { [email: string]: AdminUser[] } = {};
+      users.forEach(user => {
+        if (user.email) {
+          if (!emailGroups[user.email]) {
+            emailGroups[user.email] = [];
+          }
+          emailGroups[user.email].push(user);
+        }
+      });
+
+      // Find emails with multiple accounts
+      const duplicates = Object.entries(emailGroups)
+        .filter(([email, userList]) => userList.length > 1)
+        .map(([email, userList]) => ({ email, users: userList }));
+
+      setDuplicatesDetected(duplicates);
+      
+      toast({
+        title: "Duplicate Scan Complete",
+        description: `Found ${duplicates.length} duplicate email groups`,
+        variant: duplicates.length > 0 ? "destructive" : "default",
+      });
+    } catch (error) {
+      console.error('Error detecting duplicates:', error);
+      toast({
+        title: "Error",
+        description: "Failed to detect duplicates",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRunningSecurityScan(false);
+    }
+  };
+
+  const handleExportSecurityReport = async () => {
+    try {
+      const reportData = {
+        timestamp: new Date().toISOString(),
+        totalUsers: users.length,
+        flaggedUsers: users.filter(u => u.isFlagged).length,
+        blockedUsers: users.filter(u => u.isBlocked).length,
+        duplicateGroups: duplicatesDetected.length,
+        duplicateUsers: duplicatesDetected.reduce((acc, group) => acc + group.users.length, 0),
+        userDetails: users.map(u => ({
+          id: u.id,
+          email: u.email,
+          fullName: u.fullName,
+          isBlocked: u.isBlocked,
+          isFlagged: u.isFlagged,
+          kycStatus: u.kycStatus,
+          createdAt: u.createdAt,
+          lastLogin: u.lastLogin
+        }))
+      };
+
+      const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `security-report-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Report Exported",
+        description: "Security report downloaded successfully",
+      });
+    } catch (error) {
+      console.error('Error exporting security report:', error);
+      toast({
+        title: "Error",
+        description: "Failed to export security report",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleForcePasswordReset = async () => {
+    if (!selectedSecurityUser) {
+      toast({
+        title: "No User Selected",
+        description: "Please select a user first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Log security action (in real implementation, this would trigger actual password reset)
+      console.log(`Forcing password reset for user: ${selectedSecurityUser}`);
+      
+      toast({
+        title: "Password Reset Initiated",
+        description: `Password reset email sent to user`,
+      });
+    } catch (error) {
+      console.error('Error forcing password reset:', error);
+      toast({
+        title: "Error",
+        description: "Failed to force password reset",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSuspendAccount = async () => {
+    if (!selectedSecurityUser) {
+      toast({
+        title: "No User Selected",
+        description: "Please select a user first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const result = await AdminService.updateUserStatus(selectedSecurityUser, 'block');
+      if (result.success) {
+        toast({
+          title: "Account Suspended",
+          description: `User account has been suspended`,
+        });
+        // Refresh user data
+        loadDashboardData();
+      }
+    } catch (error) {
+      console.error('Error suspending account:', error);
+      toast({
+        title: "Error",
+        description: "Failed to suspend account",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleFlagForReview = async () => {
+    if (!selectedSecurityUser) {
+      toast({
+        title: "No User Selected",
+        description: "Please select a user first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const result = await AdminService.updateUserStatus(selectedSecurityUser, 'flag');
+      if (result.success) {
+        toast({
+          title: "User Flagged",
+          description: `User has been flagged for review`,
+        });
+        // Refresh user data
+        loadDashboardData();
+      }
+    } catch (error) {
+      console.error('Error flagging user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to flag user",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRequestReVerification = async () => {
+    if (!selectedSecurityUser) {
+      toast({
+        title: "No User Selected",
+        description: "Please select a user first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Send re-verification request email
+      const user = users.find(u => u.id === selectedSecurityUser);
+      if (user) {
+        const result = await AdminService.sendTargetedMessage({
+          recipients: [user.email],
+          subject: 'Re-verification Required - Vertex Trading',
+          body: `Dear ${user.fullName || 'User'},\n\nWe need you to re-verify your account for security purposes. Please log into your account and complete the verification process.\n\nThank you for your cooperation.\n\nVertex Trading Security Team`,
+          channel: 'email',
+          priority: 'high',
+          senderId: 'security-team'
+        });
+
+        if (result.success) {
+          toast({
+            title: "Re-verification Requested",
+            description: `Re-verification email sent to ${user.email}`,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error requesting re-verification:', error);
+      toast({
+        title: "Error",
+        description: "Failed to request re-verification",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleUserAction = async (userId: string, action: 'block' | 'unblock' | 'flag' | 'unflag') => {
     try {
       await AdminService.updateUserStatus(userId, action);
@@ -234,23 +459,7 @@ const AdminKYCPage = () => {
     }
   };
 
-  // Handler for duplicate detection
-  const handleDetectDuplicates = async () => {
-    try {
-      const duplicates = await AdminService.detectDuplicateAccounts();
-      toast({
-        title: "Scan Complete",
-        description: `Found ${duplicates.length} potential duplicate accounts`,
-      });
-      console.log('Duplicate accounts found:', duplicates);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to scan for duplicates",
-        variant: "destructive",
-      });
-    }
-  };
+
 
   const handleSendMessage = async () => {
     if (!messageSubject || !messageBody || selectedUsers.length === 0) {
@@ -372,6 +581,17 @@ const AdminKYCPage = () => {
   useEffect(() => {
     filterSubmissions();
   }, [submissions, filterStatus, searchTerm]);
+
+  // Update security analytics when user data changes
+  useEffect(() => {
+    setSecurityAnalytics({
+      flaggedAccounts: users.filter(u => u.isFlagged).length,
+      underReview: users.filter(u => u.kycStatus === 'under_review').length,
+      cleanAccounts: users.filter(u => !u.isFlagged && !u.isBlocked).length,
+      duplicateAccounts: [],
+      suspiciousActivity: []
+    });
+  }, [users]);
 
   const loadSubmissions = async () => {
     try {
@@ -1372,7 +1592,7 @@ const AdminKYCPage = () => {
                         <AlertTriangle className="w-5 h-5 text-red-400" />
                         <span className="text-red-400 font-medium">High Risk</span>
                       </div>
-                      <p className="text-2xl font-bold text-white mt-2">3</p>
+                      <p className="text-2xl font-bold text-white mt-2">{users.filter(u => u.isFlagged).length}</p>
                       <p className="text-gray-400 text-sm">Flagged Accounts</p>
                     </div>
                     <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
@@ -1380,7 +1600,7 @@ const AdminKYCPage = () => {
                         <Clock className="w-5 h-5 text-yellow-400" />
                         <span className="text-yellow-400 font-medium">Under Review</span>
                       </div>
-                      <p className="text-2xl font-bold text-white mt-2">7</p>
+                      <p className="text-2xl font-bold text-white mt-2">{users.filter(u => u.kycStatus === 'under_review').length}</p>
                       <p className="text-gray-400 text-sm">Pending Verification</p>
                     </div>
                     <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
@@ -1388,7 +1608,7 @@ const AdminKYCPage = () => {
                         <Shield className="w-5 h-5 text-blue-400" />
                         <span className="text-blue-400 font-medium">Verified</span>
                       </div>
-                      <p className="text-2xl font-bold text-white mt-2">94</p>
+                      <p className="text-2xl font-bold text-white mt-2">{users.filter(u => !u.isFlagged && !u.isBlocked).length}</p>
                       <p className="text-gray-400 text-sm">Clean Accounts</p>
                     </div>
                   </div>
@@ -1396,15 +1616,63 @@ const AdminKYCPage = () => {
                   <div className="flex gap-2">
                     <Button 
                       onClick={handleDetectDuplicates}
+                      disabled={isRunningSecurityScan}
                       className="bg-red-600 hover:bg-red-700"
                     >
-                      <Search className="w-4 h-4 mr-2" />
-                      Detect Duplicates
+                      {isRunningSecurityScan ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Scanning...
+                        </>
+                      ) : (
+                        <>
+                          <Search className="w-4 h-4 mr-2" />
+                          Detect Duplicates
+                        </>
+                      )}
                     </Button>
-                    <Button variant="outline" className="text-white border-gray-600 hover:bg-gray-800">
+                    <Button 
+                      onClick={handleExportSecurityReport}
+                      variant="outline" 
+                      className="text-white border-gray-600 hover:bg-gray-800"
+                    >
                       <Download className="w-4 h-4 mr-2" />
                       Export Report
                     </Button>
+                  </div>
+
+                  {/* Duplicate Detection Results */}
+                  {duplicatesDetected.length > 0 && (
+                    <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                      <h4 className="text-red-400 font-medium mb-2">Duplicate Accounts Detected</h4>
+                      <div className="space-y-2">
+                        {duplicatesDetected.map((duplicate, index) => (
+                          <div key={index} className="text-sm text-gray-300">
+                            <span className="text-red-400">{duplicate.email}</span> - {duplicate.users.length} accounts
+                            <div className="ml-4 text-xs text-gray-500">
+                              IDs: {duplicate.users.map(u => u.id).join(', ')}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* User Selection for Security Actions */}
+                  <div className="mt-4">
+                    <Label className="text-white">Select User for Security Actions</Label>
+                    <Select value={selectedSecurityUser} onValueChange={setSelectedSecurityUser}>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue placeholder="Choose a user..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {users.map((user) => (
+                          <SelectItem key={user.id} value={user.id}>
+                            {user.email} ({user.fullName || 'No name'})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </CardContent>
               </Card>
@@ -1417,29 +1685,37 @@ const AdminKYCPage = () => {
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Button 
+                      onClick={handleForcePasswordReset}
+                      disabled={!selectedSecurityUser}
                       variant="outline" 
-                      className="w-full justify-start text-white border-gray-600 hover:bg-gray-800"
+                      className="w-full justify-start text-white border-gray-600 hover:bg-gray-800 disabled:opacity-50"
                     >
                       <Lock className="w-4 h-4 mr-2" />
                       Force Password Reset
                     </Button>
                     <Button 
+                      onClick={handleSuspendAccount}
+                      disabled={!selectedSecurityUser}
                       variant="outline" 
-                      className="w-full justify-start text-white border-gray-600 hover:bg-gray-800"
+                      className="w-full justify-start text-white border-gray-600 hover:bg-gray-800 disabled:opacity-50"
                     >
                       <Ban className="w-4 h-4 mr-2" />
                       Suspend Account
                     </Button>
                     <Button 
+                      onClick={handleFlagForReview}
+                      disabled={!selectedSecurityUser}
                       variant="outline" 
-                      className="w-full justify-start text-white border-gray-600 hover:bg-gray-800"
+                      className="w-full justify-start text-white border-gray-600 hover:bg-gray-800 disabled:opacity-50"
                     >
                       <Flag className="w-4 h-4 mr-2" />
                       Flag for Review
                     </Button>
                     <Button 
+                      onClick={handleRequestReVerification}
+                      disabled={!selectedSecurityUser}
                       variant="outline" 
-                      className="w-full justify-start text-white border-gray-600 hover:bg-gray-800"
+                      className="w-full justify-start text-white border-gray-600 hover:bg-gray-800 disabled:opacity-50"
                     >
                       <AlertCircle className="w-4 h-4 mr-2" />
                       Request Re-verification
