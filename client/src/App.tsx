@@ -49,7 +49,6 @@ const RiskAnalysisPage = lazy(() => import("./pages/RiskAnalysisPage"));
 const AITradingAssistantPage = lazy(() => import("./pages/AITradingAssistantPage"));
 const CryptoConverterPage = lazy(() => import("./pages/CryptoConverterPage"));
 const AdminKYCPage = lazy(() => import("./pages/AdminKYCPage"));
-const AdminPage = lazy(() => import("./pages/AdminPage"));
 
 // Loading component for lazy routes
 const LoadingComponent = () => (
@@ -119,7 +118,6 @@ const App = () => (
                 <Route path="/risk-analysis" element={<ErrorBoundary><RiskAnalysisPage /></ErrorBoundary>} />
                 <Route path="/ai-assistant" element={<ErrorBoundary><AITradingAssistantPage /></ErrorBoundary>} />
                 <Route path="/crypto-converter" element={<ErrorBoundary><CryptoConverterPage /></ErrorBoundary>} />
-                <Route path="/admin" element={<ErrorBoundary><AdminPage /></ErrorBoundary>} />
                 <Route path="/admin-kyc" element={<ErrorBoundary><AdminKYCPage /></ErrorBoundary>} />
                 </Routes>
               </Suspense>
