@@ -862,7 +862,14 @@ const SettingsPage = () => {
           <TabsContent value="kyc" className="mt-0 space-y-6">
             <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white">
               <CardHeader>
-                <CardTitle>KYC Verification</CardTitle>
+                <div className="flex items-center gap-3">
+                  <img 
+                    src="https://bin.bnbstatic.com/static/images/mainuc/dashboard/start-kyc-no-success.svg" 
+                    alt="KYC Verification" 
+                    className="w-8 h-8"
+                  />
+                  <CardTitle>KYC Verification</CardTitle>
+                </div>
               </CardHeader>
               <CardContent>
                 <KYCVerification />
