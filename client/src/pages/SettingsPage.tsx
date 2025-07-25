@@ -867,6 +867,16 @@ const SettingsPage = () => {
                     src="https://bin.bnbstatic.com/static/images/mainuc/dashboard/start-kyc-no-success.svg" 
                     alt="KYC Verification" 
                     className="w-8 h-8"
+                    onError={(e) => {
+                      // If the image fails to load, replace it with a FileCheck icon
+                      const iconElement = document.createElement('div');
+                      iconElement.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-blue-400"><path d="M9 12l2 2 4-4"/><path d="M21 12c.552 0 1-.448 1-1V5a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v6c0 .552.448 1 1 1"/><path d="M3 13v6a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6"/></svg>';
+                      const svgElement = iconElement.firstChild;
+                      e.currentTarget.parentNode.replaceChild(svgElement, e.currentTarget);
+                    }}
+                    onLoad={() => {
+                      console.log('KYC image loaded successfully');
+                    }}
                   />
                   <CardTitle>KYC Verification</CardTitle>
                 </div>
