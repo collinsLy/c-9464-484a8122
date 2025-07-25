@@ -19,7 +19,7 @@ const BotWinTracker = ({ botId, userId }: BotWinTrackerProps) => {
   const [isActive, setIsActive] = useState(false);
 
   const MAX_WINS = 7;
-  const TIME_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+  const TIME_WINDOW_MS = 24 * 60 * 60 * 1000; // 24 hours (1 day)
 
   useEffect(() => {
     // Simulate fetching current session data from backend
@@ -131,11 +131,11 @@ const BotWinTracker = ({ botId, userId }: BotWinTrackerProps) => {
           
           <div className="text-xs text-white/70">
             {winCount >= MAX_WINS ? (
-              <p className="text-amber-400">Maximum win limit reached. Limit resets in {formatTimeRemaining()}.</p>
+              <p className="text-amber-400">Daily win limit reached. Limit resets in {formatTimeRemaining()}.</p>
             ) : isActive ? (
-              <p>Each bot can register up to 7 wins within a 10-minute window.</p>
+              <p>Each bot can register up to 7 wins within a 24-hour window.</p>
             ) : (
-              <p>Start trading to activate your win session.</p>
+              <p>Start trading to activate your daily win session.</p>
             )}
           </div>
           

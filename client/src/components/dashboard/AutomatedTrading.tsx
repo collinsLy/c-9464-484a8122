@@ -69,9 +69,11 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
 
       // Simulate trade execution and outcome for demo mode
       await new Promise(resolve => setTimeout(resolve, 2000));
-      const tradeCount = parseInt(localStorage.getItem('autoTradeCount') || '0');
+      const today = new Date().toDateString();
+      const dailyTradeKey = `autoTradeCount_${today}`;
+      const tradeCount = parseInt(localStorage.getItem(dailyTradeKey) || '0');
       const isWin = tradeCount < 7 ? true : Math.random() < 0.7;
-      localStorage.setItem('autoTradeCount', (tradeCount + 1).toString());
+      localStorage.setItem(dailyTradeKey, (tradeCount + 1).toString());
       const tradeAmount = 20; // Fixed demo trade amount
       const profitMultiplier = isWin ? 1.8 : -1.0;
       const profitLoss = tradeAmount * profitMultiplier;
@@ -127,9 +129,11 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
 
       // Simulate trade execution and outcome
       await new Promise(resolve => setTimeout(resolve, 2000));
-      const tradeCount = parseInt(localStorage.getItem('autoTradeCount') || '0');
+      const today = new Date().toDateString();
+      const dailyTradeKey = `liveTradeCount_${uid}_${today}`;
+      const tradeCount = parseInt(localStorage.getItem(dailyTradeKey) || '0');
       const isWin = tradeCount < 7 ? true : Math.random() < 0.7;
-      localStorage.setItem('autoTradeCount', (tradeCount + 1).toString());
+      localStorage.setItem(dailyTradeKey, (tradeCount + 1).toString());
       const profitMultiplier = isWin ? 1.8 : -1.0;
       const profitLoss = tradeAmount * profitMultiplier;
 

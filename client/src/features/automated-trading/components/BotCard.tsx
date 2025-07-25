@@ -76,9 +76,11 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
         // Simulate trade execution
         await new Promise(resolve => setTimeout(resolve, 2000));
 
-        const tradeCount = parseInt(localStorage.getItem('demoTradeCount') || '0');
+        const today = new Date().toDateString();
+        const dailyTradeKey = `demoTradeCount_${today}`;
+        const tradeCount = parseInt(localStorage.getItem(dailyTradeKey) || '0');
         const isWin = tradeCount < 7 ? true : Math.random() < 0.7;
-        localStorage.setItem('demoTradeCount', (tradeCount + 1).toString());
+        localStorage.setItem(dailyTradeKey, (tradeCount + 1).toString());
 
         if (isWin) {
           const profit = tradeAmount * 0.8;
@@ -130,9 +132,11 @@ export function BotCard({ bot, onTradeClick, isDemoMode, userBalance }: BotCardP
         // Simulate trade execution
         await new Promise(resolve => setTimeout(resolve, 2000));
 
-        const tradeCount = parseInt(localStorage.getItem(`liveTradeCount_${uid}`) || '0');
+        const today = new Date().toDateString();
+        const dailyTradeKey = `liveTradeCount_${uid}_${today}`;
+        const tradeCount = parseInt(localStorage.getItem(dailyTradeKey) || '0');
         const isWin = tradeCount < 7 ? true : Math.random() < 0.7;
-        localStorage.setItem(`liveTradeCount_${uid}`, (tradeCount + 1).toString());
+        localStorage.setItem(dailyTradeKey, (tradeCount + 1).toString());
 
         if (isWin) {
           const profit = tradeAmount * 0.8;
