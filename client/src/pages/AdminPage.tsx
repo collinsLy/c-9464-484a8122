@@ -87,78 +87,13 @@ const AdminPage = () => {
           <p className="text-white/60">Basic admin tools and access to advanced features</p>
         </div>
 
-        <Tabs defaultValue="legacy" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-slate-800/50 border-slate-700">
-            <TabsTrigger value="legacy" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Balance Management
-            </TabsTrigger>
+        <Tabs defaultValue="redirect" className="w-full">
+          <TabsList className="grid w-full grid-cols-1 bg-slate-800/50 border-slate-700">
             <TabsTrigger value="redirect" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               Advanced Admin Tools  
             </TabsTrigger>
           </TabsList>
-
-          {/* Legacy Tools Tab */}
-          <TabsContent value="legacy" className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2">
-              <Card className="bg-slate-900/50 border-slate-700">
-                <CardHeader>
-                  <CardTitle className="text-white">Set User Balance</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="email" className="text-white">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="bg-slate-800 border-slate-600 text-white"
-                      placeholder="user@example.com"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="balance" className="text-white">Balance ($)</Label>
-                    <Input
-                      id="balance"
-                      type="number"
-                      step="0.01"
-                      value={balance}
-                      onChange={(e) => setBalance(e.target.value)}
-                      className="bg-slate-800 border-slate-600 text-white"
-                      placeholder="0.00"
-                    />
-                  </div>
-                  <Button 
-                    onClick={handleSetBalance}
-                    disabled={loading}
-                    className="w-full bg-blue-600 hover:bg-blue-700"
-                  >
-                    {loading ? 'Updating...' : 'Set Balance'}
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-slate-900/50 border-slate-700">
-                <CardHeader>
-                  <CardTitle className="text-white">Quick Actions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Button 
-                    onClick={handleSetKelvinBalance}
-                    disabled={loading}
-                    className="w-full bg-green-600 hover:bg-green-700"
-                  >
-                    {loading ? 'Updating...' : 'Set Kelvin Balance to $72'}
-                  </Button>
-                  <p className="text-sm text-white/60 mt-2">
-                    Sets kelvinkelly3189@gmail.com balance to $72
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
 
           {/* Redirect Tab */}
           <TabsContent value="redirect" className="space-y-6">
