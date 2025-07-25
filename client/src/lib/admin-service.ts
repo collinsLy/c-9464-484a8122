@@ -241,7 +241,7 @@ export class AdminService {
           kycSubmissionId: data.kycSubmissionId,
           kycSubmittedAt: data.kycSubmittedAt?.toDate(),
           country: data.country,
-          createdAt: data.createdAt?.toDate(),
+          createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : (data.createdAt ? new Date(data.createdAt) : new Date()),
           lastLogin: data.lastLogin?.toDate(),
           ipAddress: data.ipAddress,
           deviceInfo: data.deviceInfo,
@@ -253,12 +253,12 @@ export class AdminService {
 
       // Merge Firebase Auth users with Firestore users, prioritizing Firestore data
       const userMap = new Map<string, AdminUser>();
-      
+
       // Add auth users first
       authUsers.forEach(user => {
         userMap.set(user.id, user);
       });
-      
+
       // Override with Firestore data where available
       firestoreUsers.forEach(user => {
         const existingUser = userMap.get(user.id);
@@ -298,7 +298,7 @@ export class AdminService {
         kycSubmissionId: data.kycSubmissionId,
         kycSubmittedAt: data.kycSubmittedAt?.toDate(),
         country: data.country,
-        createdAt: data.createdAt?.toDate(),
+        createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : (data.createdAt ? new Date(data.createdAt) : new Date()),
         lastLogin: data.lastLogin?.toDate(),
         ipAddress: data.ipAddress,
         deviceInfo: data.deviceInfo,
@@ -420,7 +420,7 @@ export class AdminService {
   static async getMessages(adminId?: string): Promise<AdminMessage[]> {
     try {
       let q = query(collection(db, 'admin_messages'), orderBy('sentAt', 'desc'));
-      
+
       if (adminId) {
         q = query(q, where('sentBy', '==', adminId));
       }
@@ -467,7 +467,7 @@ export class AdminService {
 
       usersSnapshot.forEach(doc => {
         const data = doc.data();
-        const createdAt = data.createdAt?.toDate();
+        const createdAt = data.createdAt?.toDate ? data.createdAt.toDate() : (data.createdAt ? new Date(data.createdAt) : new Date());
         if (createdAt) {
           if (createdAt >= today) {
             newUsersToday++;
@@ -494,7 +494,7 @@ export class AdminService {
       kycSnapshot.forEach(doc => {
         const data = doc.data();
         const status = data.status;
-        
+
         if (status in kycSubmissions) {
           kycSubmissions[status as keyof typeof kycSubmissions]++;
         }
@@ -660,7 +660,7 @@ export class AdminService {
           kycSubmissionId: data.kycSubmissionId,
           kycSubmittedAt: data.kycSubmittedAt?.toDate(),
           country: data.country,
-          createdAt: data.createdAt?.toDate(),
+          createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : (data.createdAt ? new Date(data.createdAt) : new Date()),
           lastLogin: data.lastLogin?.toDate(),
           ipAddress: data.ipAddress,
           deviceInfo: data.deviceInfo,
