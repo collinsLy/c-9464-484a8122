@@ -59,18 +59,11 @@ export class MessagingService {
     this.transporter = nodemailer.createTransport(emailConfig);
   }
 
-  // Generate professional HTML template for admin messages (enhanced version)
+  // Generate HTML email template matching transaction email design exactly
   private generateMessageHTML(subject: string, body: string, priority: string = 'normal', templateType: string = 'general'): string {
-    const priorityColors = {
-      low: '#22c55e',
-      normal: '#3b82f6', 
-      high: '#ef4444'
-    };
-
-    const priorityColor = priorityColors[priority as keyof typeof priorityColors] || '#3b82f6';
     const currentYear = new Date().getFullYear();
     
-    // Enhanced template with better styling similar to transaction emails
+    // Use exact same template structure as transaction emails
     return `
       <!DOCTYPE html>
       <html lang="en">
@@ -79,64 +72,48 @@ export class MessagingService {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>${subject}</title>
       </head>
-      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background-color: #f5f5f5; color: #333333;">
+      <body style="background-color: #f5f5f5; color: #333333; font-family: Arial, sans-serif; margin: 0; padding: 40px 20px; min-height: 100vh;">
         <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
           
           <!-- Header -->
-          <div style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); padding: 32px 24px; text-align: center;">
-            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
-              <img src="https://cryptologos.cc/logos/v-systems-vsys-logo.png?v=040" alt="V-Systems Logo" style="height: 50px; width: auto; margin-right: 12px;" />
-              <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700;">${this.brandName}</h1>
-            </div>
-            <div style="background-color: ${priorityColor}; color: white; padding: 8px 16px; border-radius: 20px; display: inline-block; font-size: 14px; font-weight: 600; text-transform: uppercase;">
-              ${priority} Priority
-            </div>
+          <div style="padding: 30px; border-bottom: 1px solid #e0e0e0; text-align: center;">
+            <img src="https://cryptologos.cc/logos/v-systems-vsys-logo.png?v=040" alt="V-Systems Logo" style="height: 50px; width: auto; margin-bottom: 15px;" />
+            <h1 style="margin: 0; font-size: 24px; font-weight: bold; color: #1a1a1a;">${this.brandName}</h1>
           </div>
-
+          
           <!-- Content -->
-          <div style="padding: 32px 24px;">
-            <h2 style="margin: 0 0 20px 0; font-size: 28px; font-weight: bold; color: #1a1a1a;">
-              ${subject}
-            </h2>
+          <div style="padding: 30px;">
+            <h2 style="margin: 0 0 20px 0; font-size: 28px; font-weight: bold; color: #1a1a1a;">${subject}</h2>
             
-            ${this.generateTemplateContent(body, templateType, priorityColor)}
-
-            <!-- Action Button -->
-            <div style="text-align: center; margin: 32px 0;">
-              <a href="${process.env.DOMAIN || 'https://vertextradingscom.vercel.app'}/dashboard" 
-                 style="background: linear-gradient(135deg, ${priorityColor} 0%, ${priorityColor}dd 100%); 
-                        color: #ffffff; 
-                        text-decoration: none; 
-                        padding: 14px 28px; 
-                        border-radius: 8px; 
-                        font-weight: 600; 
-                        display: inline-block; 
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                        transition: all 0.3s ease;">
-                Open Dashboard
-              </a>
+            <p style="margin: 0 0 30px 0; font-size: 16px; color: #555555; line-height: 1.6;">Dear User,</p>
+            
+            <!-- Priority Badge -->
+            <div style="display: inline-block; padding: 8px 16px; background-color: #4caf50; color: #ffffff; border-radius: 20px; font-size: 14px; font-weight: bold; margin-bottom: 30px;">
+              ${priority.toUpperCase()} PRIORITY
             </div>
-          </div>
-
-          <!-- Footer -->
-          <div style="background-color: #f1f5f9; padding: 24px; text-align: center; border-top: 1px solid #e2e8f0;">
-            <p style="color: #64748b; font-size: 14px; margin: 0 0 8px 0;">
-              This message was sent by the ${this.brandName} Administration Team
-            </p>
-            <p style="color: #94a3b8; font-size: 12px; margin: 0;">
-              If you have questions, please contact support through your dashboard.
+            
+            ${this.generateTemplateContent(body, templateType)}
+            
+            <p style="margin: 30px 0 0 0; font-size: 16px; color: #555555; line-height: 1.6;">
+              Thank you for choosing ${this.brandName}. This message has been sent by the administration team.
             </p>
             
-            <!-- Enhanced Security Notice -->
-            <div style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px; padding: 12px; margin-top: 16px;">
-              <p style="color: #92400e; font-size: 12px; margin: 0; font-weight: 500;">
-                🔒 Security Notice: This email contains important account information. 
-                Never share your login credentials with anyone.
+            <!-- Simple Link -->
+            <div style="text-align: center; margin-top: 30px;">
+              <p style="margin: 0; font-size: 14px; color: #555555;">
+                <a href="https://vertextradingscom.vercel.app/" style="color: #ff7a00; text-decoration: none;">Visit your dashboard</a>
               </p>
             </div>
-            
-            <p style="margin: 15px 0 0 0; font-size: 12px; color: #999999;">
-              © ${currentYear} ${this.brandName}. All rights reserved.
+          </div>
+          
+          <!-- Footer -->
+          <div style="padding: 30px; border-top: 1px solid #e0e0e0; background-color: #f9f9f9; text-align: center;">
+            <p style="margin: 0 0 15px 0; font-size: 14px; color: #666666; line-height: 1.5;">
+              This email was sent by the ${this.brandName} Administration Team. 
+              For support, contact <a href="mailto:support@vertextrading.com" style="color: #ff7a00; text-decoration: none;">support@vertextrading.com</a>
+            </p>
+            <p style="margin: 0; font-size: 12px; color: #999999;">
+              If you did not expect this email, please contact our support team. © ${currentYear} ${this.brandName}.
             </p>
           </div>
         </div>
@@ -145,70 +122,16 @@ export class MessagingService {
     `;
   }
 
-  // Generate content based on template type
-  private generateTemplateContent(body: string, templateType: string, priorityColor: string): string {
+  // Generate content based on template type with simple design matching transaction emails
+  private generateTemplateContent(body: string, templateType: string): string {
     const processedBody = body.replace(/\n/g, '<br>').replace(/{{username}}/g, '[Username]');
     
-    switch (templateType) {
-      case 'security':
-        return `
-          <div style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-              <span style="color: #dc2626; font-size: 20px; margin-right: 8px;">⚠️</span>
-              <span style="color: #dc2626; font-weight: bold;">Security Alert</span>
-            </div>
-          </div>
-          <div style="color: #555555; font-size: 16px; line-height: 1.6; margin-bottom: 32px;">
-            ${processedBody}
-          </div>
-        `;
-      
-      case 'welcome':
-        return `
-          <div style="background-color: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-              <span style="color: #0284c7; font-size: 20px; margin-right: 8px;">🎉</span>
-              <span style="color: #0284c7; font-weight: bold;">Welcome to the Community!</span>
-            </div>
-          </div>
-          <div style="color: #555555; font-size: 16px; line-height: 1.6; margin-bottom: 32px;">
-            ${processedBody}
-          </div>
-        `;
-      
-      case 'maintenance':
-        return `
-          <div style="background-color: #fefbf2; border: 1px solid #fed7aa; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-              <span style="color: #ea580c; font-size: 20px; margin-right: 8px;">🔧</span>
-              <span style="color: #ea580c; font-weight: bold;">System Maintenance Notice</span>
-            </div>
-          </div>
-          <div style="color: #555555; font-size: 16px; line-height: 1.6; margin-bottom: 32px;">
-            ${processedBody}
-          </div>
-        `;
-      
-      case 'promotion':
-        return `
-          <div style="background-color: #f7fee7; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-            <div style="display: flex; align-items: center; margin-bottom: 10px;">
-              <span style="color: #16a34a; font-size: 20px; margin-right: 8px;">🎁</span>
-              <span style="color: #16a34a; font-weight: bold;">Special Offer</span>
-            </div>
-          </div>
-          <div style="color: #555555; font-size: 16px; line-height: 1.6; margin-bottom: 32px;">
-            ${processedBody}
-          </div>
-        `;
-      
-      default:
-        return `
-          <div style="color: #555555; font-size: 16px; line-height: 1.6; margin-bottom: 32px;">
-            ${processedBody}
-          </div>
-        `;
-    }
+    // Simple content structure matching transaction emails
+    return `
+      <div style="color: #555555; font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+        ${processedBody}
+      </div>
+    `;
   }
 
   // Send targeted message to specific users
