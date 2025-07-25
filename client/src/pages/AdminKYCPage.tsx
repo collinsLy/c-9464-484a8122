@@ -1059,6 +1059,115 @@ const AdminKYCPage = () => {
                 </CardContent>
               </Card>
 
+              {/* Email Templates Library */}
+              <Card className="bg-gray-900 border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-white">Email Templates Library</CardTitle>
+                  <p className="text-gray-400">Quick access to pre-designed email templates</p>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="bg-gray-800 p-4 rounded-lg border border-gray-600">
+                      <h4 className="text-white font-medium mb-2">Welcome Message</h4>
+                      <p className="text-gray-400 text-sm mb-3">Welcome new users to the platform</p>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setMessageSubject('Welcome to Vertex Trading Platform');
+                          setMessageBody('Dear {{username}},\n\nWelcome to Vertex Trading! We\'re excited to have you join our community of traders.\n\nYour account has been successfully created and you can now:\n• Trade cryptocurrencies with competitive fees\n• Access advanced trading tools\n• Participate in our rewards program\n\nIf you have any questions, our support team is here to help.\n\nBest regards,\nThe Vertex Trading Team');
+                        }}
+                        className="text-white border-gray-600 hover:bg-gray-700"
+                      >
+                        Use Template
+                      </Button>
+                    </div>
+
+                    <div className="bg-gray-800 p-4 rounded-lg border border-gray-600">
+                      <h4 className="text-white font-medium mb-2">Security Alert</h4>
+                      <p className="text-gray-400 text-sm mb-3">Important security notifications</p>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setMessageSubject('Important Security Notice');
+                          setMessageBody('Dear {{username}},\n\nWe detected some important activity on your account that requires your attention.\n\nFor your security, please:\n• Review your recent login activity\n• Enable two-factor authentication if not already active\n• Ensure your email and phone number are up to date\n\nIf you have any concerns, please contact our security team immediately.\n\nBest regards,\nVertex Trading Security Team');
+                          setMessagePriority('high');
+                        }}
+                        className="text-white border-gray-600 hover:bg-gray-700"
+                      >
+                        Use Template
+                      </Button>
+                    </div>
+
+                    <div className="bg-gray-800 p-4 rounded-lg border border-gray-600">
+                      <h4 className="text-white font-medium mb-2">Maintenance Notice</h4>
+                      <p className="text-gray-400 text-sm mb-3">System maintenance announcements</p>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setMessageSubject('Scheduled System Maintenance');
+                          setMessageBody('Dear {{username}},\n\nWe will be performing scheduled maintenance on our platform to improve your trading experience.\n\nMaintenance Details:\n• Date: [DATE]\n• Duration: [TIME RANGE]\n• Services Affected: [SERVICES]\n\nDuring this time, you may experience:\n• Temporary inability to place new orders\n• Brief login interruptions\n• Delayed notifications\n\nWe apologize for any inconvenience and appreciate your patience.\n\nBest regards,\nVertex Trading Operations Team');
+                        }}
+                        className="text-white border-gray-600 hover:bg-gray-700"
+                      >
+                        Use Template
+                      </Button>
+                    </div>
+
+                    <div className="bg-gray-800 p-4 rounded-lg border border-gray-600">
+                      <h4 className="text-white font-medium mb-2">KYC Reminder</h4>
+                      <p className="text-gray-400 text-sm mb-3">KYC verification reminders</p>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setMessageSubject('Complete Your KYC Verification');
+                          setMessageBody('Dear {{username}},\n\nTo unlock full access to your Vertex Trading account, please complete your KYC verification.\n\nBenefits of completing KYC:\n• Higher withdrawal limits\n• Access to premium features\n• Enhanced account security\n• Priority customer support\n\nThe verification process takes only a few minutes:\n1. Upload a government-issued ID\n2. Take a selfie for identity verification\n3. Provide proof of address\n\nStart your verification now through your dashboard.\n\nBest regards,\nVertex Trading Compliance Team');
+                        }}
+                        className="text-white border-gray-600 hover:bg-gray-700"
+                      >
+                        Use Template
+                      </Button>
+                    </div>
+
+                    <div className="bg-gray-800 p-4 rounded-lg border border-gray-600">
+                      <h4 className="text-white font-medium mb-2">Promotional Offer</h4>
+                      <p className="text-gray-400 text-sm mb-3">Special offers and promotions</p>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setMessageSubject('Exclusive Trading Offer - Limited Time');
+                          setMessageBody('Dear {{username}},\n\nWe have an exclusive offer just for you!\n\n🎉 Special Promotion Details:\n• Reduced trading fees for 30 days\n• Bonus rewards on deposits\n• Free access to premium analytics\n\nThis offer is valid until [DATE] and available to verified users only.\n\nTo activate this offer:\n1. Log into your account\n2. Make a qualifying deposit\n3. Start trading with reduced fees\n\nDon\'t miss out on this limited-time opportunity!\n\nBest regards,\nVertex Trading Marketing Team');
+                          setMessagePriority('normal');
+                        }}
+                        className="text-white border-gray-600 hover:bg-gray-700"
+                      >
+                        Use Template
+                      </Button>
+                    </div>
+
+                    <div className="bg-gray-800 p-4 rounded-lg border border-gray-600">
+                      <h4 className="text-white font-medium mb-2">Account Update</h4>
+                      <p className="text-gray-400 text-sm mb-3">Account status updates</p>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => {
+                          setMessageSubject('Your Account Has Been Updated');
+                          setMessageBody('Dear {{username}},\n\nYour Vertex Trading account has been successfully updated.\n\nChanges Made:\n• [LIST OF CHANGES]\n\nWhat This Means:\n• [EXPLANATION OF IMPACT]\n• [NEXT STEPS IF ANY]\n\nIf you have questions about these changes or need assistance, please contact our support team.\n\nYour account security and trading experience remain our top priorities.\n\nBest regards,\nVertex Trading Support Team');
+                        }}
+                        className="text-white border-gray-600 hover:bg-gray-700"
+                      >
+                        Use Template
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Targeted Messaging */}
               <Card className="bg-gray-900 border-gray-700">
                 <CardHeader>

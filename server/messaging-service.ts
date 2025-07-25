@@ -59,8 +59,8 @@ export class MessagingService {
     this.transporter = nodemailer.createTransport(emailConfig);
   }
 
-  // Generate professional HTML template for admin messages
-  private generateMessageHTML(subject: string, body: string, priority: string = 'normal'): string {
+  // Generate professional HTML template for admin messages (enhanced version)
+  private generateMessageHTML(subject: string, body: string, priority: string = 'normal', templateType: string = 'general'): string {
     const priorityColors = {
       low: '#22c55e',
       normal: '#3b82f6', 
@@ -68,7 +68,9 @@ export class MessagingService {
     };
 
     const priorityColor = priorityColors[priority as keyof typeof priorityColors] || '#3b82f6';
-
+    const currentYear = new Date().getFullYear();
+    
+    // Enhanced template with better styling similar to transaction emails
     return `
       <!DOCTYPE html>
       <html lang="en">
@@ -77,29 +79,27 @@ export class MessagingService {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>${subject}</title>
       </head>
-      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background-color: #f8fafc;">
-        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+      <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background-color: #f5f5f5; color: #333333;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
           
           <!-- Header -->
           <div style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); padding: 32px 24px; text-align: center;">
             <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
-              <img src="https://cryptologos.cc/logos/v-systems-vsys-logo.svg?v=040" alt="V-Systems" style="width: 40px; height: 40px; margin-right: 12px;">
+              <img src="https://cryptologos.cc/logos/v-systems-vsys-logo.png?v=040" alt="V-Systems Logo" style="height: 50px; width: auto; margin-right: 12px;" />
               <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700;">${this.brandName}</h1>
             </div>
-            <div style="background-color: ${priorityColor}; color: white; padding: 6px 12px; border-radius: 20px; display: inline-block; font-size: 12px; font-weight: 600; text-transform: uppercase;">
+            <div style="background-color: ${priorityColor}; color: white; padding: 8px 16px; border-radius: 20px; display: inline-block; font-size: 14px; font-weight: 600; text-transform: uppercase;">
               ${priority} Priority
             </div>
           </div>
 
           <!-- Content -->
           <div style="padding: 32px 24px;">
-            <h2 style="color: #1e293b; margin: 0 0 24px 0; font-size: 20px; font-weight: 600; line-height: 1.3;">
+            <h2 style="margin: 0 0 20px 0; font-size: 28px; font-weight: bold; color: #1a1a1a;">
               ${subject}
             </h2>
             
-            <div style="color: #475569; font-size: 16px; line-height: 1.6; margin-bottom: 32px;">
-              ${body.replace(/\n/g, '<br>')}
-            </div>
+            ${this.generateTemplateContent(body, templateType, priorityColor)}
 
             <!-- Action Button -->
             <div style="text-align: center; margin: 32px 0;">
@@ -127,18 +127,88 @@ export class MessagingService {
               If you have questions, please contact support through your dashboard.
             </p>
             
-            <!-- Security Notice -->
+            <!-- Enhanced Security Notice -->
             <div style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px; padding: 12px; margin-top: 16px;">
               <p style="color: #92400e; font-size: 12px; margin: 0; font-weight: 500;">
                 🔒 Security Notice: This email contains important account information. 
                 Never share your login credentials with anyone.
               </p>
             </div>
+            
+            <p style="margin: 15px 0 0 0; font-size: 12px; color: #999999;">
+              © ${currentYear} ${this.brandName}. All rights reserved.
+            </p>
           </div>
         </div>
       </body>
       </html>
     `;
+  }
+
+  // Generate content based on template type
+  private generateTemplateContent(body: string, templateType: string, priorityColor: string): string {
+    const processedBody = body.replace(/\n/g, '<br>').replace(/{{username}}/g, '[Username]');
+    
+    switch (templateType) {
+      case 'security':
+        return `
+          <div style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+              <span style="color: #dc2626; font-size: 20px; margin-right: 8px;">⚠️</span>
+              <span style="color: #dc2626; font-weight: bold;">Security Alert</span>
+            </div>
+          </div>
+          <div style="color: #555555; font-size: 16px; line-height: 1.6; margin-bottom: 32px;">
+            ${processedBody}
+          </div>
+        `;
+      
+      case 'welcome':
+        return `
+          <div style="background-color: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+              <span style="color: #0284c7; font-size: 20px; margin-right: 8px;">🎉</span>
+              <span style="color: #0284c7; font-weight: bold;">Welcome to the Community!</span>
+            </div>
+          </div>
+          <div style="color: #555555; font-size: 16px; line-height: 1.6; margin-bottom: 32px;">
+            ${processedBody}
+          </div>
+        `;
+      
+      case 'maintenance':
+        return `
+          <div style="background-color: #fefbf2; border: 1px solid #fed7aa; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+              <span style="color: #ea580c; font-size: 20px; margin-right: 8px;">🔧</span>
+              <span style="color: #ea580c; font-weight: bold;">System Maintenance Notice</span>
+            </div>
+          </div>
+          <div style="color: #555555; font-size: 16px; line-height: 1.6; margin-bottom: 32px;">
+            ${processedBody}
+          </div>
+        `;
+      
+      case 'promotion':
+        return `
+          <div style="background-color: #f7fee7; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+              <span style="color: #16a34a; font-size: 20px; margin-right: 8px;">🎁</span>
+              <span style="color: #16a34a; font-weight: bold;">Special Offer</span>
+            </div>
+          </div>
+          <div style="color: #555555; font-size: 16px; line-height: 1.6; margin-bottom: 32px;">
+            ${processedBody}
+          </div>
+        `;
+      
+      default:
+        return `
+          <div style="color: #555555; font-size: 16px; line-height: 1.6; margin-bottom: 32px;">
+            ${processedBody}
+          </div>
+        `;
+    }
   }
 
   // Send targeted message to specific users
@@ -163,10 +233,26 @@ export class MessagingService {
 
       // For email channel, send emails
       if (validated.channel === 'email') {
+        // Detect template type based on subject/content
+        let templateType = 'general';
+        const subjectLower = validated.subject.toLowerCase();
+        const bodyLower = validated.body.toLowerCase();
+        
+        if (subjectLower.includes('security') || subjectLower.includes('alert') || bodyLower.includes('security')) {
+          templateType = 'security';
+        } else if (subjectLower.includes('welcome') || bodyLower.includes('welcome')) {
+          templateType = 'welcome';
+        } else if (subjectLower.includes('maintenance') || bodyLower.includes('maintenance')) {
+          templateType = 'maintenance';
+        } else if (subjectLower.includes('offer') || subjectLower.includes('promotion') || bodyLower.includes('promotion')) {
+          templateType = 'promotion';
+        }
+
         const htmlContent = this.generateMessageHTML(
           validated.subject, 
           validated.body, 
-          validated.priority
+          validated.priority,
+          templateType
         );
 
         // Send emails in batches to avoid rate limits
@@ -255,7 +341,7 @@ export class MessagingService {
     }
   }
 
-  // Send KYC status update notification
+  // Send KYC status update notification with enhanced templates
   async sendKYCStatusNotification(data: {
     userEmail: string;
     userName: string;
@@ -266,16 +352,19 @@ export class MessagingService {
     try {
       const statusMessages = {
         approved: {
-          subject: 'KYC Verification Approved - Access Granted',
-          body: `Congratulations ${data.userName}!\n\nYour KYC verification has been successfully approved. You now have full access to all platform features.\n\n${data.comments ? `Admin Notes: ${data.comments}` : ''}`
+          subject: '✅ KYC Verification Approved - Full Access Granted',
+          body: `Congratulations ${data.userName}!\n\nGreat news! Your KYC verification has been successfully approved. You now have full access to all Vertex Trading platform features.\n\n🎉 What's now available to you:\n• Unlimited withdrawals\n• Access to premium trading features\n• Priority customer support\n• Enhanced security features\n• Participation in exclusive offers\n\n${data.comments ? `📝 Admin Notes: ${data.comments}\n\n` : ''}Thank you for completing your verification. Welcome to the full Vertex Trading experience!\n\nStart trading with confidence now.`,
+          templateType: 'welcome'
         },
         rejected: {
-          subject: 'KYC Verification - Additional Information Required',
-          body: `Hello ${data.userName},\n\nWe need additional information to complete your KYC verification. Please review the feedback and resubmit your documents.\n\n${data.comments ? `Feedback: ${data.comments}` : 'Please ensure all documents are clear and valid.'}`
+          subject: '📋 KYC Verification - Additional Documentation Required',
+          body: `Hello ${data.userName},\n\nThank you for submitting your KYC documents. Unfortunately, we need additional information to complete your verification.\n\n📌 Next Steps:\n• Review the feedback below\n• Prepare the requested documents\n• Resubmit through your dashboard\n• Our team will review within 24-48 hours\n\n${data.comments ? `💬 Specific Feedback: ${data.comments}\n\n` : ''}📋 General Requirements:\n• Documents must be clear and legible\n• Information must match your account details\n• Files should be in JPG, PNG, or PDF format\n\nNeed help? Our support team is ready to assist you through the verification process.`,
+          templateType: 'security'
         },
         under_review: {
-          subject: 'KYC Verification Under Review',
-          body: `Hello ${data.userName},\n\nThank you for submitting your KYC documents. Your verification is currently under review and will be processed within 24-48 hours.\n\n${data.comments ? `Additional Notes: ${data.comments}` : ''}`
+          subject: '⏳ KYC Verification Under Review',
+          body: `Hello ${data.userName},\n\nThank you for submitting your KYC documents. Your verification is currently under review by our security team.\n\n⏱️ Review Process:\n• Current Status: Under Review\n• Expected Timeline: 24-48 hours\n• You'll be notified via email once complete\n• No action required from you at this time\n\n${data.comments ? `📝 Additional Notes: ${data.comments}\n\n` : ''}🔍 What we're reviewing:\n• Identity document verification\n• Address confirmation\n• Account information matching\n\nWe appreciate your patience as we ensure the security of all accounts on our platform.`,
+          templateType: 'maintenance'
         }
       };
 
