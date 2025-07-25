@@ -30,7 +30,7 @@ import KYCVerification from '@/components/kyc/KYCVerification';
 
 const SettingsPage = () => {
   const { isDemoMode } = useDashboardContext();
-  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTab, setActiveTab] = useState("kyc");
   const [darkMode, setDarkMode] = useState(true);
 
   const [initialValues, setInitialValues] = useState({
@@ -247,6 +247,11 @@ const SettingsPage = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="bg-background/40 backdrop-blur-lg border-white/10 text-white mb-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 w-full h-auto p-1">
+            <TabsTrigger value="kyc" className="text-white data-[state=active]:bg-accent text-xs sm:text-sm flex-col sm:flex-row py-2 px-1 sm:px-3">
+              <FileCheck className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2 mb-1 sm:mb-0" />
+              <span className="hidden sm:inline">KYC</span>
+              <span className="sm:hidden">KYC</span>
+            </TabsTrigger>
             <TabsTrigger value="profile" className="text-white data-[state=active]:bg-accent text-xs sm:text-sm flex-col sm:flex-row py-2 px-1 sm:px-3">
               <User className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2 mb-1 sm:mb-0" />
               <span className="hidden sm:inline">Profile</span>
@@ -266,11 +271,6 @@ const SettingsPage = () => {
               <Moon className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2 mb-1 sm:mb-0" />
               <span className="hidden sm:inline">Appearance</span>
               <span className="sm:hidden">Theme</span>
-            </TabsTrigger>
-            <TabsTrigger value="kyc" className="text-white data-[state=active]:bg-accent text-xs sm:text-sm flex-col sm:flex-row py-2 px-1 sm:px-3">
-              <FileCheck className="h-3 w-3 sm:h-4 sm:w-4 sm:mr-2 mb-1 sm:mb-0" />
-              <span className="hidden sm:inline">KYC</span>
-              <span className="sm:hidden">KYC</span>
             </TabsTrigger>
           </TabsList>
 
