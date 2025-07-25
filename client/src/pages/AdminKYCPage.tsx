@@ -9,12 +9,21 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Progress } from "@/components/ui/progress";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
 import { 
   CheckCircle, XCircle, Clock, Eye, MessageSquare, Users, 
   Settings, LogOut, Search, Filter, Download, Calendar,
   FileText, Camera, CreditCard, Home, Mail, Bell, BarChart3,
   Shield, Activity, TrendingUp, Flag, Ban, Edit, Trash2,
-  TestTube, Send, Loader2, AlertTriangle, Megaphone
+  TestTube, Send, Loader2, AlertTriangle, Megaphone, Plus,
+  ArrowUpDown, RefreshCw, DollarSign, UserCheck, UserX,
+  Zap, Globe, Database, Lock, Unlock, AlertCircle, Star,
+  PhoneCall, MapPin, ExternalLink, Copy, Archive, History,
+  PieChart, LineChart, TrendingDown, Users2, Target,
+  ShieldCheck, ShieldAlert, BookOpen, HelpCircle, Info,
+  Wrench, ServerCrash, Bug, Terminal
 } from "lucide-react";
 import { kycService, KYCSubmission } from "@/lib/kyc-service";
 import { toast } from "@/components/ui/use-toast";
@@ -225,6 +234,24 @@ const AdminKYCPage = () => {
     }
   };
 
+  // Handler for duplicate detection
+  const handleDetectDuplicates = async () => {
+    try {
+      const duplicates = await AdminService.detectDuplicateAccounts();
+      toast({
+        title: "Scan Complete",
+        description: `Found ${duplicates.length} potential duplicate accounts`,
+      });
+      console.log('Duplicate accounts found:', duplicates);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to scan for duplicates",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleSendMessage = async () => {
     if (!messageSubject || !messageBody || selectedUsers.length === 0) {
       toast({
@@ -241,7 +268,7 @@ const AdminKYCPage = () => {
         body: messageBody,
         recipients: selectedUsers,
         channel: messageChannel
-      });
+      }, 'admin-system');
       
       toast({
         title: "Message Sent",
@@ -272,7 +299,7 @@ const AdminKYCPage = () => {
     }
 
     try {
-      await AdminService.sendSystemBroadcast(systemMessage);
+      await AdminService.broadcastSystemUpdate(systemMessage, 'admin-system');
       toast({
         title: "Broadcast Sent",
         description: "System message sent to all users",
@@ -760,17 +787,258 @@ const AdminKYCPage = () => {
             </div>
           )}
 
+
+
+          {/* Overview Tab - Dashboard Analytics */}
+          {activeTab === 'overview' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card className="bg-gray-900 border-gray-700">
+                  <CardContent className="p-6">
+                    <div className="flex items-center">
+                      <Users className="h-8 w-8 text-blue-400"/>
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-gray-400">Total Users</p>
+                        <p className="text-2xl font-bold text-white">{analytics?.totalUsers || 0}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-gray-900 border-gray-700">
+                  <CardContent className="p-6">
+                    <div className="flex items-center">
+                      <UserCheck className="h-8 w-8 text-green-400"/>
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-gray-400">New Today</p>
+                        <p className="text-2xl font-bold text-white">{analytics?.newUsersToday || 0}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-gray-900 border-gray-700">
+                  <CardContent className="p-6">
+                    <div className="flex items-center">
+                      <Shield className="h-8 w-8 text-purple-400"/>
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-gray-400">KYC Pending</p>
+                        <p className="text-2xl font-bold text-white">{analytics?.kycSubmissions.pending || 0}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                <Card className="bg-gray-900 border-gray-700">
+                  <CardContent className="p-6">
+                    <div className="flex items-center">
+                      <Clock className="h-8 w-8 text-yellow-400"/>
+                      <div className="ml-4">
+                        <p className="text-sm font-medium text-gray-400">Avg. Processing</p>
+                        <p className="text-2xl font-bold text-white">{analytics?.averageKycProcessingTime.toFixed(1) || '0'}h</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* KYC Status Overview */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="bg-gray-900 border-gray-700">
+                  <CardHeader>
+                    <CardTitle className="text-white">KYC Status Distribution</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-300">Pending</span>
+                        <Badge className="bg-yellow-100 text-yellow-800">{analytics?.kycSubmissions.pending || 0}</Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-300">Under Review</span>
+                        <Badge className="bg-blue-100 text-blue-800">{analytics?.kycSubmissions.under_review || 0}</Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-300">Approved</span>
+                        <Badge className="bg-green-100 text-green-800">{analytics?.kycSubmissions.approved || 0}</Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-300">Rejected</span>
+                        <Badge className="bg-red-100 text-red-800">{analytics?.kycSubmissions.rejected || 0}</Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gray-900 border-gray-700">
+                  <CardHeader>
+                    <CardTitle className="text-white">System Activity</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-300">Platform Status</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                          <span className="text-green-400">Operational</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-300">Email Service</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                          <span className="text-green-400">Connected</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-300">Database</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                          <span className="text-green-400">Online</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+
+          {/* User Management Tab */}
           {activeTab === 'users' && (
-            <Card className="bg-gray-900 border-gray-700">
-              <CardHeader>
-                <CardTitle className="text-white">User Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8 text-gray-400">
-                  User management features coming soon...
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-white">User Management</h2>
+                <div className="flex gap-2">
+                  <Button variant="outline" className="text-white border-gray-600 hover:bg-gray-800">
+                    <Download className="w-4 h-4 mr-2" />
+                    Export Users
+                  </Button>
+                  <Button className="bg-blue-600 hover:bg-blue-700">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add User
+                  </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+
+              {/* User Filters */}
+              <Card className="bg-gray-900 border-gray-700">
+                <CardContent className="p-4">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <Input
+                        placeholder="Search users..."
+                        value={userSearchTerm}
+                        onChange={(e) => setUserSearchTerm(e.target.value)}
+                        className="pl-10 bg-gray-800 border-gray-600 text-white"
+                      />
+                    </div>
+                    <Select value={userFilterStatus} onValueChange={setUserFilterStatus}>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue placeholder="KYC Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="approved">Approved</SelectItem>
+                        <SelectItem value="rejected">Rejected</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button variant="outline" className="text-white border-gray-600 hover:bg-gray-800">
+                      <Filter className="w-4 h-4 mr-2" />
+                      More Filters
+                    </Button>
+                    <Button variant="outline" className="text-white border-gray-600 hover:bg-gray-800">
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Refresh
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Users Table */}
+              <Card className="bg-gray-900 border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-white">All Users ({users.length})</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-gray-700">
+                        <TableHead className="text-gray-300">User</TableHead>
+                        <TableHead className="text-gray-300">Balance</TableHead>
+                        <TableHead className="text-gray-300">KYC Status</TableHead>
+                        <TableHead className="text-gray-300">Joined</TableHead>
+                        <TableHead className="text-gray-300">Country</TableHead>
+                        <TableHead className="text-gray-300">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {users.slice(0, 10).map((user) => (
+                        <TableRow key={user.id} className="border-gray-700">
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                <span className="text-white font-medium">
+                                  {user.fullName?.charAt(0) || user.email.charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                              <div>
+                                <div className="font-medium text-white">{user.fullName || 'No name'}</div>
+                                <div className="text-sm text-gray-400">{user.email}</div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-gray-300">
+                            <div className="flex items-center gap-1">
+                              <DollarSign className="w-4 h-4" />
+                              {user.balance.toFixed(2)}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={getStatusColor(user.kycStatus || 'pending')}>
+                              {user.kycStatus || 'pending'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-gray-300">
+                            {user.createdAt?.toLocaleDateString() || 'Unknown'}
+                          </TableCell>
+                          <TableCell className="text-gray-300">{user.country || 'Unknown'}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-white border-gray-600 hover:bg-gray-800"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleUserAction(user.id, user.isBlocked ? 'unblock' : 'block')}
+                                className="text-white border-gray-600 hover:bg-gray-800"
+                              >
+                                {user.isBlocked ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleUserAction(user.id, user.isFlagged ? 'unflag' : 'flag')}
+                                className="text-white border-gray-600 hover:bg-gray-800"
+                              >
+                                <Flag className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
           )}
 
           {activeTab === 'messaging' && (
@@ -988,17 +1256,355 @@ const AdminKYCPage = () => {
             </div>
           )}
 
+          {/* Security Tab */}
+          {activeTab === 'security' && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-white">Security & Fraud Management</h2>
+              
+              {/* Fraud Detection */}
+              <Card className="bg-gray-900 border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-white">Fraud Detection</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="w-5 h-5 text-red-400" />
+                        <span className="text-red-400 font-medium">High Risk</span>
+                      </div>
+                      <p className="text-2xl font-bold text-white mt-2">3</p>
+                      <p className="text-gray-400 text-sm">Flagged Accounts</p>
+                    </div>
+                    <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-5 h-5 text-yellow-400" />
+                        <span className="text-yellow-400 font-medium">Under Review</span>
+                      </div>
+                      <p className="text-2xl font-bold text-white mt-2">7</p>
+                      <p className="text-gray-400 text-sm">Pending Verification</p>
+                    </div>
+                    <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+                      <div className="flex items-center gap-2">
+                        <Shield className="w-5 h-5 text-blue-400" />
+                        <span className="text-blue-400 font-medium">Verified</span>
+                      </div>
+                      <p className="text-2xl font-bold text-white mt-2">94</p>
+                      <p className="text-gray-400 text-sm">Clean Accounts</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={handleDetectDuplicates}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      <Search className="w-4 h-4 mr-2" />
+                      Detect Duplicates
+                    </Button>
+                    <Button variant="outline" className="text-white border-gray-600 hover:bg-gray-800">
+                      <Download className="w-4 h-4 mr-2" />
+                      Export Report
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Security Actions */}
+              <Card className="bg-gray-900 border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-white">Security Actions</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start text-white border-gray-600 hover:bg-gray-800"
+                    >
+                      <Lock className="w-4 h-4 mr-2" />
+                      Force Password Reset
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start text-white border-gray-600 hover:bg-gray-800"
+                    >
+                      <Ban className="w-4 h-4 mr-2" />
+                      Suspend Account
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start text-white border-gray-600 hover:bg-gray-800"
+                    >
+                      <Flag className="w-4 h-4 mr-2" />
+                      Flag for Review
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start text-white border-gray-600 hover:bg-gray-800"
+                    >
+                      <AlertCircle className="w-4 h-4 mr-2" />
+                      Request Re-verification
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Notifications Tab */}
+          {activeTab === 'notifications' && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-white">Notification Management</h2>
+              
+              <Card className="bg-gray-900 border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-white">Push Notifications</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-white">Notification Title</Label>
+                      <Input 
+                        placeholder="Enter notification title"
+                        className="bg-gray-800 border-gray-600 text-white"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-white">Target Audience</Label>
+                      <Select>
+                        <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                          <SelectValue placeholder="Select audience" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Users</SelectItem>
+                          <SelectItem value="verified">Verified Users</SelectItem>
+                          <SelectItem value="pending">Pending KYC</SelectItem>
+                          <SelectItem value="high_value">High Value Users</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-white">Message Content</Label>
+                    <Textarea 
+                      placeholder="Enter notification message"
+                      className="bg-gray-800 border-gray-600 text-white min-h-[100px]"
+                    />
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Switch />
+                    <Label className="text-white">Send immediately</Label>
+                  </div>
+                  
+                  <Button className="bg-blue-600 hover:bg-blue-700">
+                    <Send className="w-4 h-4 mr-2" />
+                    Send Notification
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Audit Logs Tab */}
+          {activeTab === 'audit' && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-white">Audit Logs</h2>
+              
+              <Card className="bg-gray-900 border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-white">System Activity</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-gray-700">
+                        <TableHead className="text-gray-300">Timestamp</TableHead>
+                        <TableHead className="text-gray-300">Admin</TableHead>
+                        <TableHead className="text-gray-300">Action</TableHead>
+                        <TableHead className="text-gray-300">Target</TableHead>
+                        <TableHead className="text-gray-300">Details</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow className="border-gray-700">
+                        <TableCell className="text-gray-300">2025-07-25 08:15:30</TableCell>
+                        <TableCell className="text-gray-300">admin@vertex.com</TableCell>
+                        <TableCell className="text-gray-300">KYC_APPROVED</TableCell>
+                        <TableCell className="text-gray-300">user123@email.com</TableCell>
+                        <TableCell className="text-gray-300">Document verification completed</TableCell>
+                      </TableRow>
+                      <TableRow className="border-gray-700">
+                        <TableCell className="text-gray-300">2025-07-25 08:10:15</TableCell>
+                        <TableCell className="text-gray-300">admin@vertex.com</TableCell>
+                        <TableCell className="text-gray-300">USER_BLOCKED</TableCell>
+                        <TableCell className="text-gray-300">suspicious@email.com</TableCell>
+                        <TableCell className="text-gray-300">Fraud detection triggered</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* System Configuration Tab */}
           {activeTab === 'system' && (
-            <Card className="bg-gray-900 border-gray-700">
-              <CardHeader>
-                <CardTitle className="text-white">System Updates</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8 text-gray-400">
-                  System update features coming soon...
-                </div>
-              </CardContent>
-            </Card>
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-white">System Configuration</h2>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="bg-gray-900 border-gray-700">
+                  <CardHeader>
+                    <CardTitle className="text-white">Platform Settings</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300">Maintenance Mode</span>
+                      <Switch />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300">New User Registration</span>
+                      <Switch defaultChecked />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300">KYC Required for Trading</span>
+                      <Switch defaultChecked />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300">Email Notifications</span>
+                      <Switch defaultChecked />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gray-900 border-gray-700">
+                  <CardHeader>
+                    <CardTitle className="text-white">API Configuration</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label className="text-white">Rate Limit (requests/minute)</Label>
+                      <Input 
+                        defaultValue="100"
+                        className="bg-gray-800 border-gray-600 text-white"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-white">Max File Size (MB)</Label>
+                      <Input 
+                        defaultValue="10"
+                        className="bg-gray-800 border-gray-600 text-white"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-white">Session Timeout (minutes)</Label>
+                      <Input 
+                        defaultValue="30"
+                        className="bg-gray-800 border-gray-600 text-white"
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+
+          {/* Admin Tools Tab */}
+          {activeTab === 'tools' && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-white">Advanced Admin Tools</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="bg-gray-900 border-gray-700">
+                  <CardHeader>
+                    <CardTitle className="text-white">Database Tools</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start text-white border-gray-600 hover:bg-gray-800"
+                    >
+                      <Database className="w-4 h-4 mr-2" />
+                      Database Backup
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start text-white border-gray-600 hover:bg-gray-800"
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Clear Cache
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start text-white border-gray-600 hover:bg-gray-800"
+                    >
+                      <BarChart3 className="w-4 h-4 mr-2" />
+                      Generate Reports
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gray-900 border-gray-700">
+                  <CardHeader>
+                    <CardTitle className="text-white">Communication</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <Button 
+                      onClick={handleTestMessaging}
+                      className="w-full justify-start bg-blue-600 hover:bg-blue-700"
+                    >
+                      <TestTube className="w-4 h-4 mr-2" />
+                      Test Messaging
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start text-white border-gray-600 hover:bg-gray-800"
+                    >
+                      <Mail className="w-4 h-4 mr-2" />
+                      Email Templates
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start text-white border-gray-600 hover:bg-gray-800"
+                    >
+                      <Megaphone className="w-4 h-4 mr-2" />
+                      System Announcements
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gray-900 border-gray-700">
+                  <CardHeader>
+                    <CardTitle className="text-white">Debug & Monitoring</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start text-white border-gray-600 hover:bg-gray-800"
+                    >
+                      <Terminal className="w-4 h-4 mr-2" />
+                      System Logs
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start text-white border-gray-600 hover:bg-gray-800"
+                    >
+                      <Activity className="w-4 h-4 mr-2" />
+                      Performance Monitor
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start text-white border-gray-600 hover:bg-gray-800"
+                    >
+                      <Bug className="w-4 h-4 mr-2" />
+                      Error Tracking
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           )}
         </main>
       </div>

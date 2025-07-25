@@ -311,26 +311,51 @@ export class AdminService {
     }
   }
 
+  static async updateUserStatus(userId: string, action: 'block' | 'unblock' | 'flag' | 'unflag'): Promise<void> {
+    try {
+      const adminId = 'admin-system'; // Replace with actual admin ID
+      switch (action) {
+        case 'block':
+          await this.blockUser(userId, true, adminId);
+          break;
+        case 'unblock':
+          await this.blockUser(userId, false, adminId);
+          break;
+        case 'flag':
+          await this.flagUser(userId, true, adminId);
+          break;
+        case 'unflag':
+          await this.flagUser(userId, false, adminId);
+          break;
+      }
+    } catch (error) {
+      console.error('Error updating user status:', error);
+      throw error;
+    }
+  }
+
   // Messaging System
-  static async sendMessage(
-    message: Omit<AdminMessage, 'id' | 'sentAt' | 'status'>,
-    adminId: string
-  ): Promise<string> {
+  static async sendMessage(data: {
+    subject: string;
+    body: string;
+    recipients: string[];
+    channel: 'email' | 'in-app' | 'push';
+  }, adminId?: string): Promise<string> {
     try {
       const messageData = {
-        ...message,
+        ...data,
         sentAt: serverTimestamp(),
         status: 'sent',
-        sentBy: adminId
+        sentBy: adminId || 'admin-system'
       };
 
       const docRef = await addDoc(collection(db, 'admin_messages'), messageData);
 
       // Log the action
-      await this.logAdminAction(adminId, 'send_message', undefined, {
+      await this.logAdminAction(adminId || 'admin-system', 'send_message', undefined, {
         messageId: docRef.id,
-        recipientCount: message.recipients.length,
-        channel: message.channel
+        recipientCount: data.recipients.length,
+        channel: data.channel
       });
 
       return docRef.id;
@@ -550,6 +575,8 @@ export class AdminService {
       throw error;
     }
   }
+
+
 
   // Risk and Fraud Detection
   static async detectDuplicateAccounts(): Promise<Array<{
