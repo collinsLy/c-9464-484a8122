@@ -1093,7 +1093,7 @@ const AdminKYCPage = () => {
                           onClick={() => {
                             setMessageSubject('Important Security Notice');
                             setMessageBody('Dear {{username}},\n\nWe detected some important activity on your account that requires your attention.\n\nFor your security, please:\n• Review your recent login activity\n• Enable two-factor authentication if not already active\n• Ensure your email and phone number are up to date\n\nIf you have any concerns, please contact our security team immediately.\n\nBest regards,\nVertex Trading Security Team');
-                            setMessagePriority('high');
+
                           }}
                           className="w-full text-white border-gray-600 hover:bg-gray-700"
                         >
@@ -1142,7 +1142,7 @@ const AdminKYCPage = () => {
                           onClick={() => {
                             setMessageSubject('Exclusive Trading Offer - Limited Time');
                             setMessageBody('Dear {{username}},\n\nWe have an exclusive offer just for you!\n\n🎉 Special Promotion Details:\n• Reduced trading fees for 30 days\n• Bonus rewards on deposits\n• Free access to premium analytics\n\nThis offer is valid until [DATE] and available to verified users only.\n\nTo activate this offer:\n1. Log into your account\n2. Make a qualifying deposit\n3. Start trading with reduced fees\n\nDon\'t miss out on this limited-time opportunity!\n\nBest regards,\nVertex Trading Marketing Team');
-                            setMessagePriority('normal');
+
                           }}
                           className="w-full text-white border-gray-600 hover:bg-gray-700"
                         >
@@ -1217,20 +1217,6 @@ const AdminKYCPage = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="messagePriority" className="text-white">Priority</Label>
-                    <Select value={messagePriority} onValueChange={(value: 'low' | 'normal' | 'high') => setMessagePriority(value)}>
-                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="low">Low</SelectItem>
-                        <SelectItem value="normal">Normal</SelectItem>
-                        <SelectItem value="high">High</SelectItem>
-                      </SelectContent>
-                    </Select>
                   </div>
 
                   <div>
@@ -1324,20 +1310,6 @@ const AdminKYCPage = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="systemBroadcastPriority" className="text-white">Priority</Label>
-                    <Select value={systemBroadcastPriority} onValueChange={(value: 'low' | 'normal' | 'high') => setSystemBroadcastPriority(value)}>
-                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="low">Low</SelectItem>
-                        <SelectItem value="normal">Normal</SelectItem>
-                        <SelectItem value="high">High</SelectItem>
-                      </SelectContent>
-                    </Select>
                   </div>
 
                   <div>
