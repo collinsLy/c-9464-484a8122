@@ -31,15 +31,36 @@ const AdminKYCPage = () => {
   const [reviewComment, setReviewComment] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState('kyc');
+  const [authChecking, setAuthChecking] = useState(true);
 
   useEffect(() => {
-    // Check if user is admin
-    const user = auth.currentUser;
-    if (!user || !isAdmin(user)) {
-      window.location.href = '/';
-      return;
-    }
-    loadSubmissions();
+    // Wait for auth state to be determined, then check if user is admin
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setAuthChecking(false);
+      
+      if (user === null) {
+        // User is definitely not logged in
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 100);
+        return;
+      }
+      
+      if (user && !isAdmin(user)) {
+        // User is logged in but not admin
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 100);
+        return;
+      }
+      
+      if (user && isAdmin(user)) {
+        // User is logged in and is admin
+        loadSubmissions();
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -161,205 +182,221 @@ const AdminKYCPage = () => {
       'Email': sub.userEmail,
       'Status': sub.status,
       'Submitted': sub.submittedAt.toLocaleDateString(),
-      'Reviewed': sub.reviewedAt?.toLocaleDateString() || 'N/A',
       'Country': sub.personalInfo.country,
       'Document Type': sub.personalInfo.documentType
     }));
 
-    const csv = [
+    const csvString = [
       Object.keys(csvData[0]).join(','),
       ...csvData.map(row => Object.values(row).join(','))
     ].join('\n');
 
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const blob = new Blob([csvString], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `kyc-submissions-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
+    window.URL.revokeObjectURL(url);
   };
 
+  // Add loading state to prevent page flicker
+  if (authChecking) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#0f1115]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-white">Checking authorization...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#0f1115]">
       {/* Header */}
-      <header className="border-b bg-card">
-        <div className="flex h-16 items-center justify-between px-6">
-          <div className="flex items-center gap-4">
-            <div className="text-xl font-bold text-primary">Vertex Admin</div>
-            <Badge variant="secondary">KYC Management</Badge>
+      <header className="bg-gray-900 border-b border-gray-800 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <h1 className="text-2xl font-bold text-white">Vertex Admin Panel</h1>
+            <Badge className="bg-blue-600 text-white">
+              KYC Management System
+            </Badge>
           </div>
-          <Button variant="outline" size="sm" onClick={handleLogout}>
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
+          
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.location.href = '/dashboard'}
+              className="text-white border-gray-600 hover:bg-gray-800"
+            >
+              <Home className="w-4 h-4 mr-2" />
+              Dashboard
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLogout}
+              className="text-white border-gray-600 hover:bg-gray-800"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          </div>
         </div>
       </header>
 
+      {/* Main Content */}
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-64 bg-card border-r min-h-[calc(100vh-4rem)]">
-          <nav className="p-4 space-y-2">
-            <Button 
-              variant={activeTab === 'kyc' ? 'default' : 'ghost'} 
-              className="w-full justify-start"
+        <aside className="w-64 bg-gray-900 min-h-screen p-6">
+          <nav className="space-y-2">
+            <Button
+              variant={activeTab === 'kyc' ? 'default' : 'ghost'}
+              className="w-full justify-start text-white"
               onClick={() => setActiveTab('kyc')}
             >
               <FileText className="w-4 h-4 mr-2" />
-              KYC Verifications
+              KYC Review
             </Button>
-            <Button 
-              variant={activeTab === 'users' ? 'default' : 'ghost'} 
-              className="w-full justify-start"
+            <Button
+              variant={activeTab === 'users' ? 'default' : 'ghost'}
+              className="w-full justify-start text-white"
               onClick={() => setActiveTab('users')}
             >
               <Users className="w-4 h-4 mr-2" />
               User Management
             </Button>
-            <Button 
-              variant={activeTab === 'messaging' ? 'default' : 'ghost'} 
-              className="w-full justify-start"
+            <Button
+              variant={activeTab === 'messaging' ? 'default' : 'ghost'}
+              className="w-full justify-start text-white"
               onClick={() => setActiveTab('messaging')}
             >
-              <Mail className="w-4 h-4 mr-2" />
+              <MessageSquare className="w-4 h-4 mr-2" />
               Messaging
             </Button>
-            <Button 
-              variant={activeTab === 'system' ? 'default' : 'ghost'} 
-              className="w-full justify-start"
+            <Button
+              variant={activeTab === 'system' ? 'default' : 'ghost'}
+              className="w-full justify-start text-white"
               onClick={() => setActiveTab('system')}
             >
-              <Bell className="w-4 h-4 mr-2" />
-              System Updates
+              <Settings className="w-4 h-4 mr-2" />
+              System
             </Button>
           </nav>
+
+          <div className="mt-8 p-4 bg-gray-800 rounded-lg">
+            <h3 className="text-sm font-semibold text-white mb-2">Quick Stats</h3>
+            <div className="space-y-2 text-sm text-gray-300">
+              <div className="flex justify-between">
+                <span>Pending:</span>
+                <span>{submissions.filter(s => s.status === 'pending').length}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Under Review:</span>
+                <span>{submissions.filter(s => s.status === 'under_review').length}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Approved:</span>
+                <span>{submissions.filter(s => s.status === 'approved').length}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Rejected:</span>
+                <span>{submissions.filter(s => s.status === 'rejected').length}</span>
+              </div>
+            </div>
+          </div>
         </aside>
 
-        {/* Main Content */}
+        {/* Main Content Area */}
         <main className="flex-1 p-6">
           {activeTab === 'kyc' && (
             <div className="space-y-6">
-              {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Total</p>
-                        <p className="text-2xl font-bold">{submissions.length}</p>
-                      </div>
-                      <FileText className="w-8 h-8 text-muted-foreground" />
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Pending</p>
-                        <p className="text-2xl font-bold text-blue-600">
-                          {submissions.filter(s => s.status === 'pending').length}
-                        </p>
-                      </div>
-                      <Clock className="w-8 h-8 text-blue-500" />
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Approved</p>
-                        <p className="text-2xl font-bold text-green-600">
-                          {submissions.filter(s => s.status === 'approved').length}
-                        </p>
-                      </div>
-                      <CheckCircle className="w-8 h-8 text-green-500" />
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Rejected</p>
-                        <p className="text-2xl font-bold text-red-600">
-                          {submissions.filter(s => s.status === 'rejected').length}
-                        </p>
-                      </div>
-                      <XCircle className="w-8 h-8 text-red-500" />
-                    </div>
-                  </CardContent>
-                </Card>
+              {/* Controls */}
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Input
+                      placeholder="Search by name or email..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 bg-gray-800 border-gray-600 text-white w-64"
+                    />
+                  </div>
+                  
+                  <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <SelectTrigger className="w-48 bg-gray-800 border-gray-600 text-white">
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-800 border-gray-600">
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="under_review">Under Review</SelectItem>
+                      <SelectItem value="approved">Approved</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={exportToCSV}
+                    disabled={filteredSubmissions.length === 0}
+                    className="text-white border-gray-600 hover:bg-gray-800"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Export CSV
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={loadSubmissions}
+                    disabled={isLoading}
+                    className="text-white border-gray-600 hover:bg-gray-800"
+                  >
+                    {isLoading ? 'Loading...' : 'Refresh'}
+                  </Button>
+                </div>
               </div>
 
-              {/* Filters and Search */}
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="flex-1">
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input
-                          placeholder="Search by name or email..."
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          className="pl-10"
-                        />
-                      </div>
-                    </div>
-                    
-                    <Select value={filterStatus} onValueChange={setFilterStatus}>
-                      <SelectTrigger className="w-[180px]">
-                        <Filter className="w-4 h-4 mr-2" />
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Status</SelectItem>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="under_review">Under Review</SelectItem>
-                        <SelectItem value="approved">Approved</SelectItem>
-                        <SelectItem value="rejected">Rejected</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    
-                    <Button variant="outline" onClick={exportToCSV}>
-                      <Download className="w-4 h-4 mr-2" />
-                      Export CSV
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* KYC Submissions Table */}
-              <Card>
+              {/* KYC Table */}
+              <Card className="bg-gray-900 border-gray-700">
                 <CardHeader>
-                  <CardTitle>KYC Submissions ({filteredSubmissions.length})</CardTitle>
+                  <CardTitle className="text-white">KYC Submissions ({filteredSubmissions.length})</CardTitle>
                 </CardHeader>
                 <CardContent>
                   {isLoading ? (
-                    <div className="text-center py-8">Loading submissions...</div>
+                    <div className="flex items-center justify-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                      <span className="ml-2 text-white">Loading submissions...</span>
+                    </div>
+                  ) : filteredSubmissions.length === 0 ? (
+                    <div className="text-center py-8 text-gray-400">
+                      No KYC submissions found matching your criteria.
+                    </div>
                   ) : (
                     <Table>
                       <TableHeader>
-                        <TableRow>
-                          <TableHead>User</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Submitted</TableHead>
-                          <TableHead>Country</TableHead>
-                          <TableHead>Document Type</TableHead>
-                          <TableHead>Actions</TableHead>
+                        <TableRow className="border-gray-700">
+                          <TableHead className="text-gray-300">User</TableHead>
+                          <TableHead className="text-gray-300">Status</TableHead>
+                          <TableHead className="text-gray-300">Submitted</TableHead>
+                          <TableHead className="text-gray-300">Country</TableHead>
+                          <TableHead className="text-gray-300">Document</TableHead>
+                          <TableHead className="text-gray-300">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {filteredSubmissions.map((submission) => (
-                          <TableRow key={submission.id}>
+                          <TableRow key={submission.id} className="border-gray-700">
                             <TableCell>
                               <div>
-                                <div className="font-medium">{submission.userName}</div>
-                                <div className="text-sm text-muted-foreground">{submission.userEmail}</div>
+                                <div className="font-medium text-white">{submission.userName}</div>
+                                <div className="text-sm text-gray-400">{submission.userEmail}</div>
                               </div>
                             </TableCell>
                             <TableCell>
@@ -370,9 +407,9 @@ const AdminKYCPage = () => {
                                 </span>
                               </Badge>
                             </TableCell>
-                            <TableCell>{submission.submittedAt.toLocaleDateString()}</TableCell>
-                            <TableCell>{submission.personalInfo.country}</TableCell>
-                            <TableCell>{submission.personalInfo.documentType.replace('_', ' ')}</TableCell>
+                            <TableCell className="text-gray-300">{submission.submittedAt.toLocaleDateString()}</TableCell>
+                            <TableCell className="text-gray-300">{submission.personalInfo.country}</TableCell>
+                            <TableCell className="text-gray-300">{submission.personalInfo.documentType.replace('_', ' ')}</TableCell>
                             <TableCell>
                               <Button
                                 size="sm"
@@ -381,6 +418,7 @@ const AdminKYCPage = () => {
                                   setSelectedSubmission(submission);
                                   setIsDetailDialogOpen(true);
                                 }}
+                                className="text-white border-gray-600 hover:bg-gray-800"
                               >
                                 <Eye className="w-4 h-4 mr-1" />
                                 Review
@@ -397,12 +435,12 @@ const AdminKYCPage = () => {
           )}
 
           {activeTab === 'users' && (
-            <Card>
+            <Card className="bg-gray-900 border-gray-700">
               <CardHeader>
-                <CardTitle>User Management</CardTitle>
+                <CardTitle className="text-white">User Management</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="text-center py-8 text-gray-400">
                   User management features coming soon...
                 </div>
               </CardContent>
@@ -410,12 +448,12 @@ const AdminKYCPage = () => {
           )}
 
           {activeTab === 'messaging' && (
-            <Card>
+            <Card className="bg-gray-900 border-gray-700">
               <CardHeader>
-                <CardTitle>Messaging System</CardTitle>
+                <CardTitle className="text-white">Messaging System</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="text-center py-8 text-gray-400">
                   Messaging features coming soon...
                 </div>
               </CardContent>
@@ -423,12 +461,12 @@ const AdminKYCPage = () => {
           )}
 
           {activeTab === 'system' && (
-            <Card>
+            <Card className="bg-gray-900 border-gray-700">
               <CardHeader>
-                <CardTitle>System Updates</CardTitle>
+                <CardTitle className="text-white">System Updates</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="text-center py-8 text-gray-400">
                   System update features coming soon...
                 </div>
               </CardContent>
@@ -439,9 +477,9 @@ const AdminKYCPage = () => {
 
       {/* KYC Detail Dialog */}
       <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-700 text-white">
           <DialogHeader>
-            <DialogTitle>KYC Application Review</DialogTitle>
+            <DialogTitle className="text-white">KYC Application Review</DialogTitle>
           </DialogHeader>
           
           {selectedSubmission && (
@@ -449,8 +487,8 @@ const AdminKYCPage = () => {
               {/* User Info */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-semibold mb-2">User Information</h4>
-                  <div className="space-y-1 text-sm">
+                  <h4 className="font-semibold mb-2 text-white">User Information</h4>
+                  <div className="space-y-1 text-sm text-gray-300">
                     <p><strong>Name:</strong> {selectedSubmission.userName}</p>
                     <p><strong>Email:</strong> {selectedSubmission.userEmail}</p>
                     <p><strong>Submitted:</strong> {selectedSubmission.submittedAt.toLocaleString()}</p>
@@ -461,8 +499,8 @@ const AdminKYCPage = () => {
                 </div>
                 
                 <div>
-                  <h4 className="font-semibold mb-2">Personal Details</h4>
-                  <div className="space-y-1 text-sm">
+                  <h4 className="font-semibold mb-2 text-white">Personal Details</h4>
+                  <div className="space-y-1 text-sm text-gray-300">
                     <p><strong>Full Name:</strong> {selectedSubmission.personalInfo.fullName}</p>
                     <p><strong>DOB:</strong> {selectedSubmission.personalInfo.dateOfBirth}</p>
                     <p><strong>Country:</strong> {selectedSubmission.personalInfo.country}</p>
@@ -473,19 +511,19 @@ const AdminKYCPage = () => {
 
               {/* Address */}
               <div>
-                <h4 className="font-semibold mb-2">Address</h4>
-                <p className="text-sm">{selectedSubmission.personalInfo.address}</p>
+                <h4 className="font-semibold mb-2 text-white">Address</h4>
+                <p className="text-sm text-gray-300">{selectedSubmission.personalInfo.address}</p>
               </div>
 
               {/* Documents */}
               <div>
-                <h4 className="font-semibold mb-2">Uploaded Documents</h4>
+                <h4 className="font-semibold mb-2 text-white">Uploaded Documents</h4>
                 <div className="grid grid-cols-2 gap-4">
                   {selectedSubmission.documents.map((doc, index) => (
-                    <div key={index} className="border rounded-lg p-4">
+                    <div key={index} className="border border-gray-700 rounded-lg p-4 bg-gray-800">
                       <div className="flex items-center gap-2 mb-2">
                         {getDocumentIcon(doc.type)}
-                        <span className="text-sm font-medium">
+                        <span className="text-sm font-medium text-white">
                           {doc.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                         </span>
                       </div>
@@ -494,7 +532,7 @@ const AdminKYCPage = () => {
                         alt={doc.type}
                         className="w-full h-32 object-cover rounded mb-2"
                       />
-                      <p className="text-xs text-muted-foreground">{doc.fileName}</p>
+                      <p className="text-xs text-gray-400">{doc.fileName}</p>
                     </div>
                   ))}
                 </div>
@@ -503,51 +541,57 @@ const AdminKYCPage = () => {
               {/* Previous Comments */}
               {selectedSubmission.adminComments && (
                 <div>
-                  <h4 className="font-semibold mb-2">Previous Admin Comments</h4>
-                  <div className="bg-muted p-3 rounded text-sm">
-                    {selectedSubmission.adminComments}
+                  <h4 className="font-semibold mb-2 text-white">Previous Review Comments</h4>
+                  <div className="bg-gray-800 p-3 rounded border border-gray-700">
+                    <p className="text-sm text-gray-300">{selectedSubmission.adminComments}</p>
                   </div>
                 </div>
               )}
 
-              {/* Review Actions */}
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="comment">Admin Comment</Label>
-                  <Textarea
-                    id="comment"
-                    value={reviewComment}
-                    onChange={(e) => setReviewComment(e.target.value)}
-                    placeholder="Add your review comments..."
-                    rows={3}
-                  />
-                </div>
+              {/* Review Section */}
+              <div className="border-t border-gray-700 pt-4">
+                <h4 className="font-semibold mb-4 text-white">Review Actions</h4>
+                
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="reviewComment" className="text-white">Review Comment</Label>
+                    <Textarea
+                      id="reviewComment"
+                      placeholder="Add your review comments..."
+                      value={reviewComment}
+                      onChange={(e) => setReviewComment(e.target.value)}
+                      className="bg-gray-800 border-gray-600 text-white"
+                      rows={3}
+                    />
+                  </div>
 
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => handleStatusUpdate(selectedSubmission.id!, 'under_review')}
-                    disabled={isProcessing}
-                  >
-                    <Clock className="w-4 h-4 mr-1" />
-                    Under Review
-                  </Button>
-                  <Button
-                    onClick={() => handleStatusUpdate(selectedSubmission.id!, 'approved')}
-                    disabled={isProcessing}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    <CheckCircle className="w-4 h-4 mr-1" />
-                    Approve
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() => handleStatusUpdate(selectedSubmission.id!, 'rejected')}
-                    disabled={isProcessing}
-                  >
-                    <XCircle className="w-4 h-4 mr-1" />
-                    Reject
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => handleStatusUpdate(selectedSubmission.id!, 'under_review')}
+                      disabled={isProcessing}
+                      className="text-white border-gray-600 hover:bg-gray-800"
+                    >
+                      <Clock className="w-4 h-4 mr-1" />
+                      Under Review
+                    </Button>
+                    <Button
+                      onClick={() => handleStatusUpdate(selectedSubmission.id!, 'approved')}
+                      disabled={isProcessing}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      <CheckCircle className="w-4 h-4 mr-1" />
+                      Approve
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={() => handleStatusUpdate(selectedSubmission.id!, 'rejected')}
+                      disabled={isProcessing}
+                    >
+                      <XCircle className="w-4 h-4 mr-1" />
+                      Reject
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
