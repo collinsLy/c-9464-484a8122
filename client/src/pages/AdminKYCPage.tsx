@@ -1233,16 +1233,7 @@ const AdminKYCPage = () => {
                     </Select>
                   </div>
 
-                  <div>
-                    <Label htmlFor="messageBody" className="text-white">Message Body</Label>
-                    <Textarea
-                      id="messageBody"
-                      value={messageBody}
-                      onChange={(e) => setMessageBody(e.target.value)}
-                      className="bg-gray-800 border-gray-600 text-white min-h-[100px]"
-                      placeholder="Enter your message content..."
-                    />
-                  </div>
+                  
 
                   <div>
                     <Label className="text-white">Select Recipients</Label>
