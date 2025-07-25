@@ -1,4 +1,3 @@
-
 import { doc, onSnapshot, updateDoc, getDoc, increment } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { db, auth } from './firebase';
@@ -61,11 +60,11 @@ export class UserService {
       throw error;
     }
   }
-  
+
   static async transferFunds(senderId: string, recipientId: string | number, amount: number): Promise<void> {
     try {
       let recipientFirebaseUid: string;
-      
+
       // If recipientId is a number, it's a numerical UID - convert to Firebase UID
       if (typeof recipientId === 'number') {
         const { NumericalUidService } = await import('./numerical-uid-service');
@@ -77,16 +76,16 @@ export class UserService {
       } else {
         recipientFirebaseUid = recipientId;
       }
-      
+
       // Get references to both user documents
       const senderRef = doc(db, 'users', senderId);
       const recipientRef = doc(db, 'users', recipientFirebaseUid);
-      
+
       // Use a transaction to ensure atomic updates
       await updateDoc(senderRef, {
         balance: increment(-amount)
       });
-      
+
       await updateDoc(recipientRef, {
         balance: increment(amount)
       });
@@ -98,6 +97,29 @@ export class UserService {
 
   static getCurrentUserId(): string | null {
     return auth.currentUser?.uid || null;
+  }
+
+  // Subscribe to user data changes
+  static subscribeToUserData(userId: string, callback: (userData: any) => void): () => void {
+    const userDoc = doc(db, 'users', userId);
+    return onSnapshot(userDoc, (snapshot) => {
+      if (snapshot.exists()) {
+        callback(snapshot.data());
+      } else {
+        callback(null);
+      }
+    });
+  }
+
+  // Check KYC status for withdrawal validation
+  static async checkKycStatus(userId: string): Promise<string> {
+    try {
+      const userData = await this.getUserData(userId);
+      return userData?.kycStatus || 'NOT_SUBMITTED';
+    } catch (error) {
+      console.error('Error checking KYC status:', error);
+      return 'NOT_SUBMITTED';
+    }
   }
 }
 

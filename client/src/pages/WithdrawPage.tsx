@@ -74,10 +74,39 @@ const WithdrawPage = () => {
 
   // Add numerical UID state
   const [currentUserNumericalUid, setCurrentUserNumericalUid] = useState<number | null>(null);
+  const [kycStatus, setKycStatus] = useState<string | null>(null);
+  const [isCheckingKyc, setIsCheckingKyc] = useState(true);
 
   // Get current user UID when component loads
   useEffect(() => {
     setUserUid(auth.currentUser?.uid || "");
+  }, []);
+
+  // Check KYC status when component loads
+  useEffect(() => {
+    const checkKycStatus = async () => {
+      const uid = auth.currentUser?.uid || localStorage.getItem('userId');
+      if (!uid) {
+        setIsCheckingKyc(false);
+        return;
+      }
+
+      try {
+        const userData = await UserService.getUserData(uid);
+        if (userData) {
+          setKycStatus(userData.kycStatus || 'NOT_SUBMITTED');
+        } else {
+          setKycStatus('NOT_SUBMITTED');
+        }
+      } catch (error) {
+        console.error('Error checking KYC status:', error);
+        setKycStatus('NOT_SUBMITTED');
+      } finally {
+        setIsCheckingKyc(false);
+      }
+    };
+
+    checkKycStatus();
   }, []);
 
   // Fetch and create numerical UID for current user
@@ -185,6 +214,38 @@ const WithdrawPage = () => {
     }
   };
 
+  // Check KYC status before any withdrawal
+  const checkKycBeforeWithdrawal = () => {
+    if (isDemoMode) return true;
+
+    if (kycStatus === 'approved') {
+      return true;
+    } else if (kycStatus === 'pending' || kycStatus === 'under_review') {
+      toast({
+        title: "KYC Verification Pending",
+        description: "Your KYC verification is still under review. You'll be able to withdraw once it's approved.",
+        variant: "destructive",
+      });
+      return false;
+    } else {
+      toast({
+        title: "KYC Verification Required",
+        description: "You need to complete your KYC verification to withdraw funds.",
+        variant: "destructive",
+        action: (
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => window.location.href = '/settings?tab=kyc'}
+          >
+            Submit KYC
+          </Button>
+        ),
+      });
+      return false;
+    }
+  };
+
   // Handler for vertex transfer
   const handleVertexTransfer = () => {
     if (isDemoMode) {
@@ -193,6 +254,11 @@ const WithdrawPage = () => {
         description: "Vertex transfers are not available in demo mode",
         variant: "destructive",
       });
+      return;
+    }
+
+    // Check KYC status first
+    if (!checkKycBeforeWithdrawal()) {
       return;
     }
 
@@ -695,6 +761,11 @@ const WithdrawPage = () => {
       return;
     }
 
+    // Check KYC status first
+    if (!checkKycBeforeWithdrawal()) {
+      return;
+    }
+
     // Handle crypto or fiat withdrawal based on active tab
     if (activeTab === 'crypto') {
       return handleCryptoWithdraw();
@@ -1064,6 +1135,12 @@ const WithdrawPage = () => {
   // Handle crypto withdrawal
   const handleCryptoWithdraw = async () => {
     console.log(`Starting withdrawal process for ${selectedCrypto}`);
+    
+    // Check KYC status first
+    if (!checkKycBeforeWithdrawal()) {
+      return;
+    }
+
     const cryptoAmountValue = parseFloat(cryptoAmount);
 
     if (!cryptoAmountValue || cryptoAmountValue <= 0) {
@@ -1666,11 +1743,50 @@ const WithdrawPage = () => {
           {isDemoMode && <div className="text-sm text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-md whitespace-nowrap">Demo Mode</div>}
         </div>
 
+        {/* KYC Warning Banner */}
+        {!isCheckingKyc && kycStatus !== 'approved' && !isDemoMode && (
+          <Card className="w-full bg-yellow-500/10 border-yellow-500/20 text-yellow-300">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">
+                    {kycStatus === 'pending' || kycStatus === 'under_review' 
+                      ? "Withdrawals are locked - KYC verification pending"
+                      : "Withdrawals are locked until your KYC is approved"}
+                  </p>
+                  <p className="text-xs text-yellow-300/80 mt-1">
+                    {kycStatus === 'pending' || kycStatus === 'under_review'
+                      ? "Your verification is being reviewed. You'll be notified once approved."
+                      : "Complete your identity verification to unlock full withdrawal access."}
+                  </p>
+                </div>
+                {(kycStatus === 'NOT_SUBMITTED' || !kycStatus) && (
+                  <Button 
+                    size="sm" 
+                    className="bg-yellow-500 text-black hover:bg-yellow-400"
+                    onClick={() => window.location.href = '/settings?tab=kyc'}
+                  >
+                    Verify Now
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Card className="w-full bg-background/40 backdrop-blur-lg border-white/10 text-white">
           <CardHeader className="pb-3 px-4 sm:px-6">
             <CardTitle className="text-lg sm:text-xl break-words">Select Withdrawal Method</CardTitle>
             <CardDescription className="text-white/70 break-words">
               Choose your preferred withdrawal method
+              {!isDemoMode && kycStatus !== 'approved' && (
+                <span className="block text-yellow-300 text-sm mt-1">
+                  ⚠️ KYC verification required for withdrawals
+                </span>
+              )}
             </CardDescription>
           </CardHeader>
           <CardContent className="px-3 sm:px-6">
