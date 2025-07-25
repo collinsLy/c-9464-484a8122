@@ -1,0 +1,91 @@
+chunk-276SZO74.js?v=600b0736:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+AdminKYCPage.tsx:325 Auth state changed: kelvinkelly8189@gmail.com
+admin-auth.ts:18 isAdmin check: kelvinkelly8189@gmail.com is admin: false
+admin-auth.ts:22 Admin access granted for testing: kelvinkelly8189@gmail.com
+admin-auth.ts:18 isAdmin check: kelvinkelly8189@gmail.com is admin: false
+admin-auth.ts:22 Admin access granted for testing: kelvinkelly8189@gmail.com
+AdminKYCPage.tsx:347 Admin user confirmed, loading submissions
+AdminKYCPage.tsx:325 Auth state changed: kelvinkelly8189@gmail.com
+admin-auth.ts:18 isAdmin check: kelvinkelly8189@gmail.com is admin: false
+admin-auth.ts:22 Admin access granted for testing: kelvinkelly8189@gmail.com
+admin-auth.ts:18 isAdmin check: kelvinkelly8189@gmail.com is admin: false
+admin-auth.ts:22 Admin access granted for testing: kelvinkelly8189@gmail.com
+AdminKYCPage.tsx:347 Admin user confirmed, loading submissions
+AdminKYCPage.tsx:379 Loading KYC submissions...
+AdminKYCPage.tsx:76 Loading dashboard data...
+AdminKYCPage.tsx:379 Loading KYC submissions...
+AdminKYCPage.tsx:76 Loading dashboard data...
+AdminKYCPage.tsx:381 Loaded submissions: 1
+AdminKYCPage.tsx:381 Loaded submissions: 1
+admin-service.ts:536 Error getting analytics: TypeError: data.createdAt?.toDate is not a function
+    at admin-service.ts:470:43
+    at firebase_firestore.js?v=600b0736:17760:9
+    at firebase_firestore.js?v=600b0736:13635:48
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:45)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _SortedMap.inorderTraversal (firebase_firestore.js?v=600b0736:4387:22)
+getAnalytics @ admin-service.ts:536
+AdminKYCPage.tsx:91 Error loading dashboard data: TypeError: data.createdAt?.toDate is not a function
+    at admin-service.ts:470:43
+    at firebase_firestore.js?v=600b0736:17760:9
+    at firebase_firestore.js?v=600b0736:13635:48
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:45)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _SortedMap.inorderTraversal (firebase_firestore.js?v=600b0736:4387:22)
+loadDashboardData @ AdminKYCPage.tsx:91
+admin-service.ts:536 Error getting analytics: TypeError: data.createdAt?.toDate is not a function
+    at admin-service.ts:470:43
+    at firebase_firestore.js?v=600b0736:17760:9
+    at firebase_firestore.js?v=600b0736:13635:48
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:45)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _SortedMap.inorderTraversal (firebase_firestore.js?v=600b0736:4387:22)
+getAnalytics @ admin-service.ts:536
+AdminKYCPage.tsx:91 Error loading dashboard data: TypeError: data.createdAt?.toDate is not a function
+    at admin-service.ts:470:43
+    at firebase_firestore.js?v=600b0736:17760:9
+    at firebase_firestore.js?v=600b0736:13635:48
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:45)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _SortedMap.inorderTraversal (firebase_firestore.js?v=600b0736:4387:22)
+loadDashboardData @ AdminKYCPage.tsx:91
+admin-service.ts:280 Error getting users: TypeError: data.createdAt?.toDate is not a function
+    at admin-service.ts:244:38
+    at firebase_firestore.js?v=600b0736:17760:9
+    at firebase_firestore.js?v=600b0736:13635:48
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:45)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _SortedMap.inorderTraversal (firebase_firestore.js?v=600b0736:4387:22)
+    at _DocumentSet.forEach (firebase_firestore.js?v=600b0736:13635:20)
+getAllUsers @ admin-service.ts:280
+admin-service.ts:280 Error getting users: TypeError: data.createdAt?.toDate is not a function
+    at admin-service.ts:244:38
+    at firebase_firestore.js?v=600b0736:17760:9
+    at firebase_firestore.js?v=600b0736:13635:48
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:45)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _LLRBNode.inorderTraversal (firebase_firestore.js?v=600b0736:4471:22)
+    at _SortedMap.inorderTraversal (firebase_firestore.js?v=600b0736:4387:22)
+    at _DocumentSet.forEach (firebase_firestore.js?v=600b0736:13635:20)
+getAllUsers @ admin-service.ts:280
