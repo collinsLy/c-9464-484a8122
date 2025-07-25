@@ -187,7 +187,8 @@ export default function AdminPage() {
         subject: messageSubject,
         body: messageBody,
         recipients: selectedUsers,
-        channel: messageChannel
+        channel: messageChannel,
+        sentBy: adminId
       }, adminId);
 
       toast({
