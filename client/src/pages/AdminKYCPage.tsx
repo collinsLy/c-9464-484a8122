@@ -12,13 +12,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { 
   CheckCircle, XCircle, Clock, Eye, MessageSquare, Users, 
   Settings, LogOut, Search, Filter, Download, Calendar,
-  FileText, Camera, CreditCard, Home, Mail, Bell
+  FileText, Camera, CreditCard, Home, Mail, Bell, BarChart3,
+  Shield, Activity, TrendingUp, Flag, Ban, Edit, Trash2
 } from "lucide-react";
 import { kycService, KYCSubmission } from "@/lib/kyc-service";
 import { toast } from "@/components/ui/use-toast";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { isAdmin } from "@/lib/admin-auth";
+import { AdminService, AdminUser, AdminMessage, AdminAnalytics } from '@/lib/admin-service';
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const AdminKYCPage = () => {
   const [submissions, setSubmissions] = useState<KYCSubmission[]>([]);
@@ -30,10 +33,132 @@ const AdminKYCPage = () => {
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [reviewComment, setReviewComment] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [activeTab, setActiveTab] = useState('kyc');
+  const [activeTab, setActiveTab] = useState('overview');
   const [authChecking, setAuthChecking] = useState(true);
   const [authInitialized, setAuthInitialized] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
+
+  // Comprehensive admin states
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [analytics, setAnalytics] = useState<AdminAnalytics | null>(null);
+  const [messages, setMessages] = useState<AdminMessage[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [userSearchTerm, setUserSearchTerm] = useState('');
+  const [userFilterStatus, setUserFilterStatus] = useState('all');
+  
+  // Message composition
+  const [messageSubject, setMessageSubject] = useState('');
+  const [messageBody, setMessageBody] = useState('');
+  const [messageChannel, setMessageChannel] = useState<'email' | 'in-app' | 'push'>('email');
+  
+  // System broadcast
+  const [systemMessage, setSystemMessage] = useState('');
+
+  const loadDashboardData = async () => {
+    try {
+      console.log('Loading dashboard data...');
+      const [analyticsData, usersData, messagesData] = await Promise.all([
+        AdminService.getAnalytics(),
+        AdminService.getAllUsers(),
+        AdminService.getMessages()
+      ]);
+      
+      console.log('Analytics:', analyticsData);
+      console.log('Users:', usersData);
+      console.log('Messages:', messagesData);
+      
+      setAnalytics(analyticsData);
+      setUsers(usersData.users);
+      setMessages(messagesData);
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load dashboard data",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUserAction = async (userId: string, action: 'block' | 'unblock' | 'flag' | 'unflag') => {
+    try {
+      await AdminService.updateUserStatus(userId, action);
+      toast({
+        title: "Success",
+        description: `User ${action}ed successfully`,
+      });
+      loadDashboardData(); // Refresh data
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: `Failed to ${action} user`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!messageSubject || !messageBody || selectedUsers.length === 0) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all fields and select recipients",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await AdminService.sendMessage({
+        subject: messageSubject,
+        body: messageBody,
+        recipients: selectedUsers,
+        channel: messageChannel
+      });
+      
+      toast({
+        title: "Message Sent",
+        description: `Message sent to ${selectedUsers.length} users`,
+      });
+      
+      setMessageSubject('');
+      setMessageBody('');
+      setSelectedUsers([]);
+      loadDashboardData(); // Refresh data
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send message",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSystemBroadcast = async () => {
+    if (!systemMessage) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter a system message",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await AdminService.sendSystemBroadcast(systemMessage);
+      toast({
+        title: "Broadcast Sent",
+        description: "System message sent to all users",
+      });
+      setSystemMessage('');
+      loadDashboardData(); // Refresh data
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send broadcast",
+        variant: "destructive",
+      });
+    }
+  };
 
   useEffect(() => {
     let hasRedirected = false;
@@ -69,6 +194,7 @@ const AdminKYCPage = () => {
         // Small delay to ensure state is set
         setTimeout(() => {
           loadSubmissions();
+          loadDashboardData();
         }, 100);
       }
     });
@@ -309,12 +435,12 @@ const AdminKYCPage = () => {
         <aside className="w-64 bg-gray-900 min-h-screen p-6">
           <nav className="space-y-2">
             <Button
-              variant={activeTab === 'kyc' ? 'default' : 'ghost'}
+              variant={activeTab === 'overview' ? 'default' : 'ghost'}
               className="w-full justify-start text-white"
-              onClick={() => setActiveTab('kyc')}
+              onClick={() => setActiveTab('overview')}
             >
-              <FileText className="w-4 h-4 mr-2" />
-              KYC Review
+              <BarChart3 className="w-4 h-4 mr-2" />
+              Overview
             </Button>
             <Button
               variant={activeTab === 'users' ? 'default' : 'ghost'}
@@ -333,12 +459,28 @@ const AdminKYCPage = () => {
               Messaging
             </Button>
             <Button
+              variant={activeTab === 'kyc' ? 'default' : 'ghost'}
+              className="w-full justify-start text-white"
+              onClick={() => setActiveTab('kyc')}
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              KYC Review
+            </Button>
+            <Button
+              variant={activeTab === 'security' ? 'default' : 'ghost'}
+              className="w-full justify-start text-white"
+              onClick={() => setActiveTab('security')}
+            >
+              <Shield className="w-4 h-4 mr-2" />
+              Security
+            </Button>
+            <Button
               variant={activeTab === 'system' ? 'default' : 'ghost'}
               className="w-full justify-start text-white"
               onClick={() => setActiveTab('system')}
             >
               <Settings className="w-4 h-4 mr-2" />
-              System
+              Legacy Tools
             </Button>
           </nav>
 
