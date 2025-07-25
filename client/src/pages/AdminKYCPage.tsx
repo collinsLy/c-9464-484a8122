@@ -47,10 +47,10 @@ const AdminKYCPage = () => {
       setAuthInitialized(true);
       
       if (user === null) {
-        // User is definitely not logged in
-        console.log('No user found, redirecting to home');
+        // User is definitely not logged in - redirect to login instead of home
+        console.log('No user found, redirecting to login');
         hasRedirected = true;
-        window.location.replace('/');
+        window.location.replace('/dashboard'); // Users need to login first
         return;
       }
       
@@ -241,16 +241,28 @@ const AdminKYCPage = () => {
   if (!isAuthorized) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#0f1115]">
-        <div className="text-center">
+        <div className="text-center max-w-md mx-auto p-6">
           <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-white mb-2">Access Denied</h2>
-          <p className="text-gray-400 mb-4">You don't have permission to access the admin panel.</p>
-          <Button 
-            onClick={() => window.location.href = '/dashboard'}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            Go to Dashboard
-          </Button>
+          <h2 className="text-xl font-bold text-white mb-2">Admin Access Required</h2>
+          <p className="text-gray-400 mb-6">Please log in to access the admin panel. If you're already logged in, you may need admin privileges.</p>
+          <div className="space-y-3">
+            <Button 
+              onClick={() => window.location.href = '/dashboard'}
+              className="w-full bg-blue-600 hover:bg-blue-700"
+            >
+              Go to Dashboard & Login
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => window.location.reload()}
+              className="w-full border-gray-600 text-white hover:bg-gray-800"
+            >
+              Refresh Page
+            </Button>
+          </div>
+          <p className="text-xs text-gray-500 mt-4">
+            Debug: Auth State - {authInitialized ? 'Initialized' : 'Not Initialized'}
+          </p>
         </div>
       </div>
     );

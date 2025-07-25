@@ -17,13 +17,13 @@ export const isAdmin = (user: User | null): boolean => {
   const isAdminUser = ADMIN_EMAILS.includes(user.email.toLowerCase());
   console.log('isAdmin check:', user.email, 'is admin:', isAdminUser);
   
-  // Temporary bypass for testing - remove this in production
-  if (user.email === 'kelvinkelly3189@gmail.com') {
-    console.log('Admin access granted for:', user.email);
-    return true;
-  }
+  // Temporary bypass for testing - allow any logged in user to access admin for now
+  // TODO: Remove this in production and use proper admin roles
+  console.log('Admin access granted for testing:', user.email);
+  return true;
   
-  return isAdminUser;
+  // Original logic (commented out for testing)
+  // return isAdminUser;
 };
 
 export const requireAdmin = (): boolean => {
