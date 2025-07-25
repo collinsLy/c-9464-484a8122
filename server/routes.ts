@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { emailService } from "./email-service";
+import { messagingService } from "./messaging-service";
 import { auth } from "firebase-admin";
 import { getAuth } from "firebase-admin/auth";
 
@@ -301,6 +302,156 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         error: "Failed to fetch ticker prices",
         details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Admin Messaging System Routes
+  app.post("/api/admin/send-targeted-message", async (req, res) => {
+    try {
+      const { recipients, subject, body, channel, priority, senderId } = req.body;
+
+      if (!recipients || !Array.isArray(recipients) || recipients.length === 0) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "Recipients array is required" 
+        });
+      }
+
+      if (!subject || !body || !channel || !senderId) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "Missing required fields: subject, body, channel, senderId" 
+        });
+      }
+
+      const result = await messagingService.sendTargetedMessage({
+        recipients,
+        subject,
+        body,
+        channel,
+        priority: priority || 'normal',
+        senderId
+      });
+
+      res.json(result);
+    } catch (error) {
+      console.error("Targeted message error:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Failed to send targeted message",
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  app.post("/api/admin/send-system-broadcast", async (req, res) => {
+    try {
+      const { subject, body, channel, priority, senderId, allUserEmails } = req.body;
+
+      if (!subject || !body || !channel || !senderId) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "Missing required fields: subject, body, channel, senderId" 
+        });
+      }
+
+      if (!allUserEmails || !Array.isArray(allUserEmails) || allUserEmails.length === 0) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "User emails array is required for system broadcast" 
+        });
+      }
+
+      const result = await messagingService.sendSystemBroadcast({
+        subject,
+        body,
+        channel,
+        priority: priority || 'normal',
+        senderId
+      }, allUserEmails);
+
+      res.json(result);
+    } catch (error) {
+      console.error("System broadcast error:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Failed to send system broadcast",
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  app.post("/api/admin/send-kyc-notification", async (req, res) => {
+    try {
+      const { userEmail, userName, status, comments, adminId } = req.body;
+
+      if (!userEmail || !userName || !status || !adminId) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "Missing required fields: userEmail, userName, status, adminId" 
+        });
+      }
+
+      if (!['approved', 'rejected', 'under_review'].includes(status)) {
+        return res.status(400).json({ 
+          success: false, 
+          error: "Invalid status. Must be: approved, rejected, or under_review" 
+        });
+      }
+
+      const result = await messagingService.sendKYCStatusNotification({
+        userEmail,
+        userName,
+        status,
+        comments,
+        adminId
+      });
+
+      res.json(result);
+    } catch (error) {
+      console.error("KYC notification error:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Failed to send KYC notification",
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  app.get("/api/admin/test-messaging", async (req, res) => {
+    try {
+      const connected = await messagingService.testConnection();
+      
+      if (!connected) {
+        return res.status(500).json({ 
+          success: false, 
+          error: "Messaging service connection failed" 
+        });
+      }
+
+      // Send test message
+      const result = await messagingService.sendTargetedMessage({
+        recipients: ['test@example.com'],
+        subject: 'Test Admin Message',
+        body: 'This is a test message from the admin messaging system.',
+        channel: 'email',
+        priority: 'normal',
+        senderId: 'system-test'
+      });
+
+      res.json({ 
+        success: true,
+        message: 'Messaging service test completed',
+        connectionStatus: 'connected',
+        testResult: result
+      });
+    } catch (error) {
+      console.error("Messaging test error:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Messaging test failed', 
+        details: error instanceof Error ? error.message : 'Unknown error' 
       });
     }
   });

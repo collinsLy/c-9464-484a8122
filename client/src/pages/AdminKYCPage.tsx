@@ -13,7 +13,8 @@ import {
   CheckCircle, XCircle, Clock, Eye, MessageSquare, Users, 
   Settings, LogOut, Search, Filter, Download, Calendar,
   FileText, Camera, CreditCard, Home, Mail, Bell, BarChart3,
-  Shield, Activity, TrendingUp, Flag, Ban, Edit, Trash2
+  Shield, Activity, TrendingUp, Flag, Ban, Edit, Trash2,
+  TestTube, Send, Loader2, AlertTriangle, Megaphone
 } from "lucide-react";
 import { kycService, KYCSubmission } from "@/lib/kyc-service";
 import { toast } from "@/components/ui/use-toast";
@@ -38,6 +39,18 @@ const AdminKYCPage = () => {
   const [authInitialized, setAuthInitialized] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
 
+  // Messaging system state
+  const [messageSubject, setMessageSubject] = useState('');
+  const [messageBody, setMessageBody] = useState('');
+  const [messageChannel, setMessageChannel] = useState<'email' | 'in-app' | 'push'>('email');
+  const [messagePriority, setMessagePriority] = useState<'low' | 'normal' | 'high'>('normal');
+  const [selectedMessageUsers, setSelectedMessageUsers] = useState<string[]>([]);
+  const [systemBroadcastSubject, setSystemBroadcastSubject] = useState('');
+  const [systemBroadcastBody, setSystemBroadcastBody] = useState('');
+  const [systemBroadcastChannel, setSystemBroadcastChannel] = useState<'email' | 'in-app' | 'push'>('email');
+  const [systemBroadcastPriority, setSystemBroadcastPriority] = useState<'low' | 'normal' | 'high'>('normal');
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
+
   // Comprehensive admin states
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [analytics, setAnalytics] = useState<AdminAnalytics | null>(null);
@@ -45,11 +58,6 @@ const AdminKYCPage = () => {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [userFilterStatus, setUserFilterStatus] = useState('all');
-  
-  // Message composition
-  const [messageSubject, setMessageSubject] = useState('');
-  const [messageBody, setMessageBody] = useState('');
-  const [messageChannel, setMessageChannel] = useState<'email' | 'in-app' | 'push'>('email');
   
   // System broadcast
   const [systemMessage, setSystemMessage] = useState('');
@@ -75,6 +83,126 @@ const AdminKYCPage = () => {
       toast({
         title: "Error",
         description: "Failed to load dashboard data",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Messaging system handlers
+  const handleSendTargetedMessage = async () => {
+    if (!messageSubject || !messageBody || selectedMessageUsers.length === 0) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all fields and select at least one recipient",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSendingMessage(true);
+    try {
+      const result = await AdminService.sendTargetedMessage({
+        recipients: selectedMessageUsers,
+        subject: messageSubject,
+        body: messageBody,
+        channel: messageChannel,
+        priority: messagePriority,
+        senderId: 'admin-system' // Replace with actual admin user ID
+      });
+
+      if (result.success) {
+        toast({
+          title: "Message Sent",
+          description: `Successfully delivered to ${result.deliveredTo.length} users`,
+        });
+        
+        // Reset form
+        setMessageSubject('');
+        setMessageBody('');
+        setSelectedMessageUsers([]);
+      } else {
+        toast({
+          title: "Partial Failure",
+          description: `Delivered to ${result.deliveredTo.length}, failed: ${result.failedTo.length}`,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error sending targeted message:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send message",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingMessage(false);
+    }
+  };
+
+  const handleSendSystemBroadcast = async () => {
+    if (!systemBroadcastSubject || !systemBroadcastBody) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in subject and message body",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSendingMessage(true);
+    try {
+      // Get all user emails
+      const allUserEmails = users.map(user => user.email);
+      
+      const result = await AdminService.sendSystemBroadcast({
+        subject: systemBroadcastSubject,
+        body: systemBroadcastBody,
+        channel: systemBroadcastChannel,
+        priority: systemBroadcastPriority,
+        senderId: 'admin-system' // Replace with actual admin user ID
+      }, allUserEmails);
+
+      if (result.success) {
+        toast({
+          title: "Broadcast Sent",
+          description: `System message delivered to ${result.deliveredTo.length} users`,
+        });
+        
+        // Reset form
+        setSystemBroadcastSubject('');
+        setSystemBroadcastBody('');
+      } else {
+        toast({
+          title: "Partial Failure",
+          description: `Delivered to ${result.deliveredTo.length}, failed: ${result.failedTo.length}`,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error sending system broadcast:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send broadcast",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingMessage(false);
+    }
+  };
+
+  const handleTestMessaging = async () => {
+    try {
+      const result = await AdminService.testMessagingService();
+      toast({
+        title: "Test Result",
+        description: result.success ? "Messaging service is working correctly" : "Messaging service test failed",
+        variant: result.success ? "default" : "destructive",
+      });
+    } catch (error) {
+      console.error('Error testing messaging:', error);
+      toast({
+        title: "Test Failed",
+        description: "Unable to test messaging service",
         variant: "destructive",
       });
     }
@@ -646,16 +774,218 @@ const AdminKYCPage = () => {
           )}
 
           {activeTab === 'messaging' && (
-            <Card className="bg-gray-900 border-gray-700">
-              <CardHeader>
-                <CardTitle className="text-white">Messaging System</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8 text-gray-400">
-                  Messaging features coming soon...
-                </div>
-              </CardContent>
-            </Card>
+            <div className="space-y-6">
+              {/* Test Messaging Service */}
+              <Card className="bg-gray-900 border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-white">Messaging Service Status</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Button
+                    onClick={handleTestMessaging}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <TestTube className="w-4 h-4 mr-2" />
+                    Test Messaging Service
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Targeted Messaging */}
+              <Card className="bg-gray-900 border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-white">Send Targeted Message</CardTitle>
+                  <p className="text-gray-400">Send messages to specific users</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="messageSubject" className="text-white">Subject</Label>
+                      <Input
+                        id="messageSubject"
+                        value={messageSubject}
+                        onChange={(e) => setMessageSubject(e.target.value)}
+                        className="bg-gray-800 border-gray-600 text-white"
+                        placeholder="Message subject..."
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="messageChannel" className="text-white">Channel</Label>
+                      <Select value={messageChannel} onValueChange={(value: 'email' | 'in-app' | 'push') => setMessageChannel(value)}>
+                        <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="email">Email</SelectItem>
+                          <SelectItem value="in-app">In-App</SelectItem>
+                          <SelectItem value="push">Push Notification</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="messagePriority" className="text-white">Priority</Label>
+                    <Select value={messagePriority} onValueChange={(value: 'low' | 'normal' | 'high') => setMessagePriority(value)}>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">Low</SelectItem>
+                        <SelectItem value="normal">Normal</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="messageBody" className="text-white">Message Body</Label>
+                    <Textarea
+                      id="messageBody"
+                      value={messageBody}
+                      onChange={(e) => setMessageBody(e.target.value)}
+                      className="bg-gray-800 border-gray-600 text-white min-h-[100px]"
+                      placeholder="Enter your message content..."
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-white">Select Recipients</Label>
+                    <div className="mt-2 max-h-48 overflow-y-auto border border-gray-600 rounded p-2 bg-gray-800">
+                      {users.map((user) => (
+                        <div key={user.id} className="flex items-center space-x-2 py-1">
+                          <input
+                            type="checkbox"
+                            id={`user-${user.id}`}
+                            checked={selectedMessageUsers.includes(user.email)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedMessageUsers([...selectedMessageUsers, user.email]);
+                              } else {
+                                setSelectedMessageUsers(selectedMessageUsers.filter(email => email !== user.email));
+                              }
+                            }}
+                            className="rounded"
+                          />
+                          <label htmlFor={`user-${user.id}`} className="text-white text-sm">
+                            {user.email} {user.fullName ? `(${user.fullName})` : ''}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-sm text-gray-400 mt-2">
+                      {selectedMessageUsers.length} recipient(s) selected
+                    </p>
+                  </div>
+
+                  <Button
+                    onClick={handleSendTargetedMessage}
+                    disabled={isSendingMessage || !messageSubject || !messageBody || selectedMessageUsers.length === 0}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    {isSendingMessage ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 mr-2" />
+                        Send Targeted Message
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* System Broadcast */}
+              <Card className="bg-gray-900 border-gray-700">
+                <CardHeader>
+                  <CardTitle className="text-white">System Broadcast</CardTitle>
+                  <p className="text-gray-400">Send messages to all users</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="systemBroadcastSubject" className="text-white">Subject</Label>
+                      <Input
+                        id="systemBroadcastSubject"
+                        value={systemBroadcastSubject}
+                        onChange={(e) => setSystemBroadcastSubject(e.target.value)}
+                        className="bg-gray-800 border-gray-600 text-white"
+                        placeholder="System broadcast subject..."
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="systemBroadcastChannel" className="text-white">Channel</Label>
+                      <Select value={systemBroadcastChannel} onValueChange={(value: 'email' | 'in-app' | 'push') => setSystemBroadcastChannel(value)}>
+                        <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="email">Email</SelectItem>
+                          <SelectItem value="in-app">In-App</SelectItem>
+                          <SelectItem value="push">Push Notification</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="systemBroadcastPriority" className="text-white">Priority</Label>
+                    <Select value={systemBroadcastPriority} onValueChange={(value: 'low' | 'normal' | 'high') => setSystemBroadcastPriority(value)}>
+                      <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">Low</SelectItem>
+                        <SelectItem value="normal">Normal</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="systemBroadcastBody" className="text-white">Message Body</Label>
+                    <Textarea
+                      id="systemBroadcastBody"
+                      value={systemBroadcastBody}
+                      onChange={(e) => setSystemBroadcastBody(e.target.value)}
+                      className="bg-gray-800 border-gray-600 text-white min-h-[100px]"
+                      placeholder="Enter system broadcast message..."
+                    />
+                  </div>
+
+                  <div className="bg-yellow-900/20 border border-yellow-700 rounded p-3">
+                    <div className="flex items-center gap-2 text-yellow-300">
+                      <AlertTriangle className="w-4 h-4" />
+                      <span className="font-medium">Warning</span>
+                    </div>
+                    <p className="text-sm text-yellow-200 mt-1">
+                      This will send a message to all {users.length} registered users. Use with caution.
+                    </p>
+                  </div>
+
+                  <Button
+                    onClick={handleSendSystemBroadcast}
+                    disabled={isSendingMessage || !systemBroadcastSubject || !systemBroadcastBody}
+                    className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                  >
+                    {isSendingMessage ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Broadcasting...
+                      </>
+                    ) : (
+                      <>
+                        <Megaphone className="w-4 h-4 mr-2" />
+                        Send System Broadcast
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           )}
 
           {activeTab === 'system' && (

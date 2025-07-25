@@ -76,6 +76,107 @@ export interface AdminAuditLog {
 }
 
 export class AdminService {
+  // Messaging System
+  static async sendTargetedMessage(data: {
+    recipients: string[];
+    subject: string;
+    body: string;
+    channel: 'email' | 'in-app' | 'push';
+    priority?: 'low' | 'normal' | 'high';
+    senderId: string;
+  }): Promise<any> {
+    try {
+      const response = await fetch('/api/admin/send-targeted-message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error sending targeted message:', error);
+      throw error;
+    }
+  }
+
+  static async sendSystemBroadcast(data: {
+    subject: string;
+    body: string;
+    channel: 'email' | 'in-app' | 'push';
+    priority?: 'low' | 'normal' | 'high';
+    senderId: string;
+  }, allUserEmails: string[]): Promise<any> {
+    try {
+      const response = await fetch('/api/admin/send-system-broadcast', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...data,
+          allUserEmails
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error sending system broadcast:', error);
+      throw error;
+    }
+  }
+
+  static async sendKYCNotification(data: {
+    userEmail: string;
+    userName: string;
+    status: 'approved' | 'rejected' | 'under_review';
+    comments?: string;
+    adminId: string;
+  }): Promise<any> {
+    try {
+      const response = await fetch('/api/admin/send-kyc-notification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error sending KYC notification:', error);
+      throw error;
+    }
+  }
+
+  static async testMessagingService(): Promise<any> {
+    try {
+      const response = await fetch('/api/admin/test-messaging');
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error testing messaging service:', error);
+      throw error;
+    }
+  }
+
   // User Management
   static async getAllUsers(
     filters?: {
