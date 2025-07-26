@@ -305,6 +305,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Debug middleware to log all requests
+  app.use('/api/admin', (req, res, next) => {
+    console.log(`📡 Admin API Request: ${req.method} ${req.originalUrl}`);
+    console.log(`📡 Request Body:`, req.body);
+    next();
+  });
+
+  // Admin test endpoint
+  app.get("/api/admin/test", (req, res) => {
+    res.json({ 
+      success: true, 
+      message: "Admin API is working",
+      timestamp: new Date().toISOString()
+    });
+  });
+
   // Admin Messaging System Routes
   app.post("/api/admin/send-targeted-message", async (req, res) => {
     try {
