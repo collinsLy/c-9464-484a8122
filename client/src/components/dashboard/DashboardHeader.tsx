@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { doc, onSnapshot, collection, query, where, orderBy, getDocs, updateDoc } from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase';
 import { NotificationService } from '@/lib/notification-service';
+import { NumericalUidService } from '@/lib/numerical-uid-service';
 import SearchBar from '@/components/search/SearchBar';
 
 export interface DashboardHeaderProps {}
@@ -18,6 +19,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
   const [userAvatar, setUserAvatar] = useState<string>('');
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [currentUserNumericalUid, setCurrentUserNumericalUid] = useState<number | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,6 +43,26 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
             setUserAvatar(userData.profilePhoto || userData.photoURL || '');
           }
         });
+
+        // Fetch current user's numerical UID
+        const fetchCurrentUserNumericalUid = async () => {
+          try {
+            let numericalUid = await NumericalUidService.getNumericalUid(uid);
+
+            // If no UID exists, create one
+            if (!numericalUid) {
+              console.log('No numerical UID found for current user, creating one...');
+              numericalUid = await NumericalUidService.createNumericalUidMapping(uid);
+              console.log('Created numerical UID:', numericalUid);
+            }
+
+            setCurrentUserNumericalUid(numericalUid);
+          } catch (error) {
+            console.error('Error fetching numerical UID:', error);
+          }
+        };
+
+        fetchCurrentUserNumericalUid();
         
         // Subscribe to notifications collection with error handling
         const notificationsQuery = query(
@@ -333,9 +355,30 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
               <ChevronDown className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-56 p-0 bg-[#0F1115]/90 backdrop-blur-lg border-white/10 text-white" align="end">
-            <div className="p-2 border-b border-gray-800">
+          <PopoverContent className="w-64 p-0 bg-[#0F1115]/90 backdrop-blur-lg border-white/10 text-white" align="end">
+            <div className="p-3 border-b border-gray-800">
               <p className="text-sm font-medium">{userName || 'User'}</p>
+              {currentUserNumericalUid && (
+                <div className="mt-2">
+                  <p className="text-xs text-gray-400">Your UID:</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <code className="text-xs font-mono bg-white/10 px-2 py-1 rounded text-blue-400">
+                      {currentUserNumericalUid}
+                    </code>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2 text-xs"
+                      onClick={() => {
+                        navigator.clipboard.writeText(currentUserNumericalUid.toString());
+                        // Optional: Add toast notification here if needed
+                      }}
+                    >
+                      Copy
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="p-1">
               <Button 
