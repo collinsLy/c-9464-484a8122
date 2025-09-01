@@ -304,6 +304,21 @@ class KYCService {
           kycStatus: status,
           kycReviewedAt: new Date()
         });
+
+        // Send KYC status notification
+        try {
+          const { AdminService } = await import('@/lib/admin-service');
+          await AdminService.sendKYCNotification({
+            userEmail: submission.userEmail,
+            userName: submission.userName,
+            status,
+            comments: adminComments,
+            adminId: user.email || 'admin'
+          });
+        } catch (notificationError) {
+          console.error('Error sending KYC notification:', notificationError);
+          // Don't throw - KYC status update should succeed even if notification fails
+        }
       }
     } catch (error) {
       console.error('Error updating KYC status:', error);

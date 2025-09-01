@@ -551,10 +551,10 @@ const AdminKYCPage = () => {
       setAuthInitialized(true);
       
       if (user === null) {
-        // User is definitely not logged in - redirect to login instead of home
-        console.log('No user found, redirecting to login');
+        // User is definitely not logged in - redirect to home for login
+        console.log('No user found, redirecting to home');
         hasRedirected = true;
-        window.location.replace('/dashboard'); // Users need to login first
+        window.location.replace('/'); // Users need to login first
         return;
       }
       
@@ -562,7 +562,7 @@ const AdminKYCPage = () => {
         // User is logged in but not admin
         console.log('User not admin, redirecting to dashboard');
         hasRedirected = true;
-        window.location.replace('/dashboard');
+        window.location.href = '/dashboard';
         return;
       }
       
@@ -783,10 +783,10 @@ const AdminKYCPage = () => {
           <p className="text-gray-400 mb-6">Please log in to access the admin panel. If you're already logged in, you may need admin privileges.</p>
           <div className="space-y-3">
             <Button 
-              onClick={() => window.location.href = '/dashboard'}
+              onClick={() => window.location.href = '/'}
               className="w-full bg-blue-600 hover:bg-blue-700"
             >
-              Go to Dashboard & Login
+              Go to Home & Login
             </Button>
             <Button 
               variant="outline"
