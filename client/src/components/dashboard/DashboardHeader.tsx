@@ -341,9 +341,18 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
 
         {/* UID Display */}
         {currentUserNumericalUid && (
-          <div className="hidden md:flex items-center px-2 py-1 bg-gray-800/50 rounded border border-gray-700">
-            <span className="text-xs text-gray-400 font-mono">UID: {currentUserNumericalUid}</span>
-          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="hidden md:flex items-center px-2 py-1 bg-gray-800/50 rounded border border-gray-700 text-xs text-gray-400 font-mono hover:bg-gray-700/50 hover:text-gray-300 cursor-pointer"
+            onClick={() => {
+              navigator.clipboard.writeText(currentUserNumericalUid.toString());
+              // Optional: Add toast notification here if needed
+            }}
+            title="Click to copy UID"
+          >
+            UID: {currentUserNumericalUid}
+          </Button>
         )}
 
         {/* User */}
