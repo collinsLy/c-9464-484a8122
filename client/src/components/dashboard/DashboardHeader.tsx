@@ -351,7 +351,12 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
                   {getInitials()}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-sm hidden md:inline-block">{userName || 'User'}</span>
+              <div className="hidden md:flex flex-col items-end">
+                <span className="text-sm">{userName || 'User'}</span>
+                {currentUserNumericalUid && (
+                  <span className="text-xs text-gray-400 font-mono">UID: {currentUserNumericalUid}</span>
+                )}
+              </div>
               <ChevronDown className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
