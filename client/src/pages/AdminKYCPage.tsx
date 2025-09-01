@@ -232,21 +232,18 @@ const AdminKYCPage = () => {
 
   const handleCreateTestKYC = async () => {
     try {
-      console.log('Admin: Creating test KYC data...');
       await createTestKYCSubmission();
-      console.log('Admin: Test KYC data created successfully');
       toast({
         title: "Test Data Created",
-        description: "Sample KYC submission with documents added successfully",
+        description: "Sample KYC submission added successfully",
       });
       // Refresh the submissions list
-      console.log('Admin: Refreshing submissions list...');
       await loadSubmissions();
     } catch (error) {
-      console.error('Admin: Error creating test KYC:', error);
+      console.error('Error creating test KYC:', error);
       toast({
         title: "Error",
-        description: `Failed to create test data: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        description: "Failed to create test data",
         variant: "destructive",
       });
     }
