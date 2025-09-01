@@ -339,6 +339,13 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
           <Settings className="h-5 w-5" />
         </Button>
 
+        {/* UID Display */}
+        {currentUserNumericalUid && (
+          <div className="hidden md:flex items-center px-2 py-1 bg-gray-800/50 rounded border border-gray-700">
+            <span className="text-xs text-gray-400 font-mono">UID: {currentUserNumericalUid}</span>
+          </div>
+        )}
+
         {/* User */}
         <Popover>
           <PopoverTrigger asChild>
@@ -351,12 +358,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = () => {
                   {getInitials()}
                 </AvatarFallback>
               </Avatar>
-              <div className="hidden md:flex flex-col items-end">
-                <span className="text-sm">{userName || 'User'}</span>
-                {currentUserNumericalUid && (
-                  <span className="text-xs text-gray-400 font-mono">UID: {currentUserNumericalUid}</span>
-                )}
-              </div>
+              <span className="text-sm hidden md:inline-block">{userName || 'User'}</span>
               <ChevronDown className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
