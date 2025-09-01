@@ -396,3 +396,59 @@ class KYCService {
 }
 
 export const kycService = new KYCService();
+
+// Test data utility for development/demo purposes
+export const createTestKYCSubmission = async (): Promise<void> => {
+  try {
+    const testSubmission = {
+      documents: [
+        {
+          type: 'id_front' as const,
+          url: 'test-user-123/id_front-1703635200000.jpg',
+          fileName: 'id_front-1703635200000.jpg',
+          uploadedAt: new Date()
+        },
+        {
+          type: 'id_back' as const,
+          url: 'test-user-123/id_back-1703635200000.jpg',
+          fileName: 'id_back-1703635200000.jpg',
+          uploadedAt: new Date()
+        },
+        {
+          type: 'selfie' as const,
+          url: 'test-user-123/selfie-1703635200000.jpg',
+          fileName: 'selfie-1703635200000.jpg',
+          uploadedAt: new Date()
+        },
+        {
+          type: 'proof_of_address' as const,
+          url: 'test-user-123/proof_of_address-1703635200000.pdf',
+          fileName: 'proof_of_address-1703635200000.pdf',
+          uploadedAt: new Date()
+        }
+      ],
+      personalInfo: {
+        fullName: 'Tahu Tempe',
+        dateOfBirth: '1993-05-09',
+        address: 'Jl kebon pedes',
+        country: 'Indonesia',
+        documentType: 'drivers_license' as const,
+        documentNumber: '134930501186'
+      }
+    };
+
+    // Save to Firestore with test user data
+    const docRef = await addDoc(collection(db, 'kyc_submissions'), {
+      userId: 'test-user-123',
+      userEmail: 'tahu2099@gmail.com',
+      userName: 'Tahu Tempe',
+      status: 'pending',
+      submittedAt: new Date(),
+      ...testSubmission
+    });
+
+    console.log('Test KYC submission created:', docRef.id);
+  } catch (error) {
+    console.error('Error creating test KYC submission:', error);
+  }
+};

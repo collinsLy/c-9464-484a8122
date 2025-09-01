@@ -25,7 +25,7 @@ import {
   ShieldCheck, ShieldAlert, BookOpen, HelpCircle, Info,
   Wrench, ServerCrash, Bug, Terminal
 } from "lucide-react";
-import { kycService, KYCSubmission } from "@/lib/kyc-service";
+import { kycService, KYCSubmission, createTestKYCSubmission } from "@/lib/kyc-service";
 import { toast } from "@/components/ui/use-toast";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
@@ -225,6 +225,25 @@ const AdminKYCPage = () => {
       toast({
         title: "Test Failed",
         description: "Unable to test messaging service",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCreateTestKYC = async () => {
+    try {
+      await createTestKYCSubmission();
+      toast({
+        title: "Test Data Created",
+        description: "Sample KYC submission added successfully",
+      });
+      // Refresh the submissions list
+      await loadSubmissions();
+    } catch (error) {
+      console.error('Error creating test KYC:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create test data",
         variant: "destructive",
       });
     }
@@ -930,6 +949,15 @@ const AdminKYCPage = () => {
                 </div>
 
                 <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCreateTestKYC}
+                    className="text-white border-gray-600 hover:bg-gray-800"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Test Data
+                  </Button>
                   <Button
                     variant="outline"
                     size="sm"
@@ -2063,10 +2091,11 @@ const AdminKYCPage = () => {
                               fallback.className = 'fallback-icon absolute inset-0 flex items-center justify-center bg-gray-700';
                               fallback.innerHTML = `
                                 <div class="text-center text-gray-400">
-                                  <svg class="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+                                  <svg class="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
                                   </svg>
-                                  <p class="text-xs">Image unavailable</p>
+                                  <p class="text-xs font-medium">Document Preview</p>
+                                  <p class="text-xs opacity-75">Image temporarily unavailable</p>
                                 </div>
                               `;
                               parent.appendChild(fallback);
