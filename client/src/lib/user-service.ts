@@ -99,17 +99,6 @@ export class UserService {
     return auth.currentUser?.uid || null;
   }
 
-  // Subscribe to user data changes
-  static subscribeToUserData(userId: string, callback: (userData: any) => void): () => void {
-    const userDoc = doc(db, 'users', userId);
-    return onSnapshot(userDoc, (snapshot) => {
-      if (snapshot.exists()) {
-        callback(snapshot.data());
-      } else {
-        callback(null);
-      }
-    });
-  }
 
   // Check KYC status for withdrawal validation
   static async checkKycStatus(userId: string): Promise<string> {

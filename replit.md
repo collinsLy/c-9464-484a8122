@@ -1,185 +1,40 @@
 # Vertex Trading Platform
 
-## Project Overview
-A comprehensive cryptocurrency trading platform migrated from Lovable to Replit environment. The platform includes trading features for spot, futures, P2P, automated trading bots, market analysis, and user management.
-
-## Recent Changes
-- **2025-07-25**: Removed priority sections from admin messaging forms for simplified interface
-- **2025-07-25**: Fixed Firebase Admin SDK initialization errors with robust fallback handling
-- **2025-07-25**: Made all admin messaging functionality fully operational with error handling
-- **2025-07-25**: Updated admin messaging system email templates to match transaction email design exactly
-- **2025-07-25**: Applied consistent white background with orange accents across all admin emails  
-- **2025-07-25**: Replaced dark gradient headers with clean V-Systems logo and simple typography
-- **2025-07-25**: Successfully completed migration from Replit Agent to Replit environment with all issues resolved
-- **2025-07-25**: Successfully integrated Firebase Authentication user fetching into admin panel user management
-- **2025-07-25**: Created server endpoints to fetch real Firebase Auth users and manage user status (block/unblock/flag)
-- **2025-07-25**: Updated AdminService to fetch both Firebase Auth and Firestore users, merging data intelligently
-- **2025-07-25**: Fixed Firebase Admin SDK import errors and implemented proper fallback handling
-- **2025-07-25**: Admin panel now displays real registered users from Firebase Authentication with proper status management
-- **2025-07-25**: Removed /admin page entirely - all admin functionality now exclusively at /admin-kyc route
-- **2025-07-25**: Created comprehensive 6-tab admin interface at /admin-kyc: Overview, Users, Messaging, KYC Review, Security, Legacy Tools
-- **2025-07-25**: Fixed Firebase permission-denied errors by properly structuring admin authentication
-- **2025-07-25**: Consolidated all admin tools into single dedicated /admin-kyc page for streamlined access
-- **2025-07-25**: Built comprehensive user management with search, filtering, bulk actions, and account controls
-- **2025-07-25**: Integrated messaging system for targeted user communication and system-wide broadcasts
-- **2025-07-25**: Added analytics dashboard with real-time KYC stats, user growth metrics, and processing times
-- **2025-07-25**: Implemented security features including duplicate account detection and fraud prevention
-- **2025-07-25**: Created seamless admin workflow: KYC submission from Settings → review at /admin-kyc
-- **2025-07-25**: Enhanced admin authentication with proper loading states and access control
-- **2025-07-25**: Updated admin messaging system email templates to match transaction email design exactly
-- **2025-07-25**: Applied consistent white background with orange accents across all admin emails
-- **2025-07-25**: Replaced dark gradient headers with clean V-Systems logo and simple typography
-- **2025-07-25**: Successfully completed migration from Replit Agent to Replit environment with all issues resolved
-- **2025-07-24**: Successfully integrated comprehensive KYC verification system with Supabase document storage
-- **2025-07-24**: Added KYC verification tab to Settings page with 3-step process (personal info, documents, review)
-- **2025-07-24**: Created external admin panel at /admin for KYC document review and user management
-- **2025-07-24**: Configured Supabase with secure private bucket for KYC documents using signed URLs
-- **2025-07-24**: Applied consistent dark theme styling throughout KYC components
-- **2025-07-24**: Added Supabase connection testing with automatic bucket creation
-- **2025-07-24**: Successfully completed migration from Replit Agent to Replit environment
-- **2025-07-24**: Verified all required packages installed and working correctly
-- **2025-07-24**: Express server running properly on port 5000 with email service connected
-- **2025-07-24**: Application loading cleanly with Vite development server
-- **2025-01-05**: Changed deposit page default tab to crypto instead of fiat for better user experience
-- **2025-01-05**: Added CELO network option for USDT deposits with address 0xe5819dbd958be2e2113415abda3ebadf9855ee4c
-- **2025-01-05**: Removed dashboard-wide system notice, keeping only targeted fiat deposit notice on deposit page
-- **2025-01-05**: Added fiat deposit unavailability notice on the deposit page fiat tab
-- **2025-01-05**: Created SystemNotice component for dashboard-wide notifications with dismiss functionality
-- **2025-01-05**: Successfully completed migration from Replit Agent to Replit environment
-- **2025-01-05**: Fixed mobile bottom navigation bar by removing extra Settings icon
-- **2025-01-05**: Optimized bottom navigation to 4 items (Home, Bots, Assets, Convert) for proper 4-column grid layout
-- **2025-01-04**: Added custom trading amount input feature to bot cards with minimum balance validation
-- **2025-01-04**: Fixed trading bots to use USDT balance from assets instead of general balance field
-- **2025-01-04**: Created USDT-specific balance methods (getUSDTBalance, subscribeToUSDTBalance, updateUSDTBalance)
-- **2025-01-04**: Updated bot trading logic to properly deduct and credit USDT amounts
-- **2025-01-04**: Fixed transfer success modal to properly display transfer amount and cryptocurrency
-- **2025-01-04**: Added successTransferAmount and successTransferCrypto state variables to store transfer details
-- **2025-01-04**: Updated all email service domains from vertex-trading.replit.app to vertextradingscom.vercel.app
-- **2025-01-04**: Completed migration from Replit Agent to Replit environment with all issues resolved
-- **2025-01-04**: Updated withdrawal processing time from "1-3 business days" to "5-10 Minutes" in both email templates and client interface
-- **2025-01-04**: Added Apple Pay notification sound specifically for financial transactions
-- **2025-01-04**: Implemented Web Audio API to generate crisp Apple Pay-style "ding" sound for withdrawals, deposits, transfers, and P2P payments
-- **2025-01-04**: Kept other notifications silent while enabling transaction-specific audio feedback
-- **2025-01-04**: Removed all non-transaction sound notifications from the application as requested by user
-- **2025-01-04**: Disabled audio alerts in notification service, alert service, P2P components, and dashboard header
-- **2025-01-04**: Successfully completed migration from Replit Agent to Replit environment 
-- **2025-01-04**: Added TradingView chart component to Hero section with real-time BTCUSD chart from Binance
-- **2025-01-04**: Verified application runs cleanly with proper client/server separation and security
-- **2025-01-04**: Fixed Vercel deployment email template issue - removed simple template and updated api/index.ts to use modern email design
-- **2025-01-04**: Deleted unnecessary server/email-service-standalone.ts file that was causing template confusion
-- **2025-01-04**: Ensured all transaction emails in Vercel deployment now use the sophisticated template with V-Systems logo
-- **2025-01-04**: Successfully completed migration from Replit Agent to Replit environment
-- **2025-01-04**: Updated branding logo to user's custom V logo throughout the platform (navbar, sidebar, favicon)
-- **2025-01-04**: Fixed PreloadContext loading issues that were causing infinite loading states
-- **2025-01-04**: Verified application runs cleanly with proper client/server separation and security
-- **2025-01-04**: Fixed Vercel deployment issues - service worker errors and missing assets
-- **2025-01-04**: Updated service worker to skip caching external URLs (Supabase, Firebase)
-- **2025-01-04**: Enhanced vercel.json with proper asset routing and caching headers
-- **2025-01-04**: Added favicon.svg and improved index.html with proper meta tags
-- **2025-01-04**: Prepared project for Vercel deployment with CLI method
-- **2025-01-04**: Created vercel.json configuration for serverless deployment
-- **2025-01-04**: Added comprehensive VERCEL_DEPLOYMENT.md guide with step-by-step instructions
-- **2025-01-04**: Set up .env.example and .vercelignore files for proper deployment configuration
-- **2025-01-04**: Fixed transfer email issue where both sender and receiver were getting identical "Transfer Sent" emails
-- **2025-01-04**: Updated server route to properly pass isReceiver parameter to email service
-- **2025-01-04**: Now sender receives "Transfer Sent Successfully" and receiver gets "Funds Received" emails correctly
-- **2025-01-03**: Fixed transaction email currency display to show actual cryptocurrency instead of hardcoded USD
-- **2025-01-03**: Updated email service schema to require currency parameter for all transaction emails
-- **2025-01-03**: Modified all email calls throughout the application to include proper cryptocurrency symbol (USDT, BTC, etc.)
-- **2025-01-03**: Updated transaction email templates to display "Amount: 10 USDT" instead of "Amount: $10"
-- **2025-01-03**: Successfully completed migration from Replit Agent to Replit environment
-- **2025-01-03**: Fixed UID transfer logic for receiving funds - converted numerical UID to Firebase UID properly
-- **2025-01-03**: Added automatic numerical UID creation for users when not present
-- **2025-01-03**: Enhanced debugging for UID validation with proper error handling
-- **2025-01-03**: Updated NumericalUidService imports to use static methods correctly
-- **2025-01-03**: Verified Express server and Vite client running properly with API endpoint connectivity
-- **2025-01-03**: Implemented comprehensive preload data system for performance optimization
-- **2025-01-03**: Added PreloadProvider context for global state management of user data and prices
-- **2025-01-03**: Created preload service with 30-second price caching and automatic refresh
-- **2025-01-03**: Added custom hooks (usePreloadData, usePreloadedBalance, usePreloadedPrices) for easy data access
-- **2025-01-03**: Built PreloadDemo component showing real-time balance, profile, and cached prices
-- **2025-01-03**: Integrated preload system into main App component for automatic login triggers
-- **2025-01-03**: Successfully migrated project from Replit Agent to Replit environment with enhanced performance
-- **2025-01-03**: Changed email template background from dark theme to white background for better readability
-- **2025-01-03**: Updated logo to use user's custom V-Systems logo (orange V design) instead of default logo
-- **2025-01-03**: Applied new white theme color scheme (#ffffff background, #ff7a00 orange accents)
-- **2025-01-03**: Fixed transfer email notifications to send to both sender and receiver
-- **2025-01-03**: Updated both UidTransfer component and WithdrawPage to send emails to both parties in transfers
-- **2025-01-03**: Successfully implemented modern email template design based on vertex-email-glow reference repository
-- **2025-01-03**: Updated email templates with clean card-based layout using HSL color scheme (dark theme)
-- **2025-01-03**: Implemented professional header with V-Systems logo and brand name
-- **2025-01-03**: Added structured transaction details table with proper typography and spacing
-- **2025-01-03**: Created bright yellow CTA buttons and clean footer design matching reference design
-- **2025-01-03**: Completely rewrote email service with modern TypeScript API using Zod validation
-- **2025-01-03**: Updated server routes to support new email service API structure
-- **2025-01-03**: Verified all email types working correctly (deposit, withdrawal, transfer, conversion, welcome)
-- **2025-01-03**: Successfully redesigned all email templates to match Gmail template design
-- **2025-01-03**: Implemented V-Systems logo (https://cryptologos.cc/logos/v-systems-vsys-logo.svg?v=040) in all email headers
-- **2025-01-03**: Applied exact color scheme from provided Gmail template (#1a1a1a, #2a2a2a, #f2ff44, #c8e854)
-- **2025-01-03**: Created unified Gmail template method for all transaction types (deposit, withdrawal, transfer, conversion, welcome)
-- **2025-01-03**: Added professional gradient buttons and security notice sections matching original design
-- **2025-01-03**: Verified all updated email templates with successful test deliveries
-- **2025-01-03**: Successfully completed migration from Replit Agent to Replit environment
-- **2025-01-03**: Implemented comprehensive email notification system for all transaction types
-- **2025-01-03**: Added support for withdrawal, deposit, transfer, and currency conversion emails
-- **2025-01-03**: Created beautiful HTML email templates with transaction-specific designs
-- **2025-01-03**: Added email testing interface in Settings → Notifications tab
-- **2025-01-03**: Configured Gmail SMTP with proper credentials (kelvinkelly3189@gmail.com)
-- **2025-01-03**: Fixed email notification system with proper environment variable configuration
-- **2025-01-03**: Verified email service working correctly with successful test email delivery
-- **2025-01-03**: Fixed preview refresh loops by disabling WebSocket connections and TradingView scripts
-- **2025-01-03**: Optimized application loading performance with lazy loading for all routes
-- **2025-01-03**: Fixed React Query configuration TypeScript errors for better error handling
-- **2025-01-03**: Implemented Suspense wrapper for improved loading states
-- **2025-01-03**: Fixed Firebase Admin SDK security issue with conditional initialization
-- **2025-01-03**: Installed missing cross-env dependency for proper environment variable handling
-- **2025-01-03**: Verified application runs cleanly with proper client/server separation
-- **2025-01-03**: Successfully migrated from Replit Agent to Replit environment
-- **2025-01-03**: Fixed nodemailer API usage in email service (createTransport vs createTransporter)
-- **2025-01-03**: Resolved TypeScript error handling for email service exceptions
-- **2025-01-03**: Fixed Firebase index error by removing composite orderBy query
-- **2025-01-03**: Enhanced email debugging with detailed logging and user feedback
-- **2025-01-03**: Implemented Firebase Auth email for transactions (withdrawal & transfer confirmations)
-- **2025-01-03**: Fixed syntax error in WithdrawPage.tsx (corrupted code block)
-- **2025-01-03**: Verified application runs cleanly with proper client/server separation
-- **2024-12-25**: Successfully migrated from Lovable to Replit
-- **2024-12-25**: Updated background color to #0f1115 across entire application
-- **2024-12-25**: Installed all required dependencies (React Router, Firebase, Supabase, Radix UI, etc.)
-- **2024-12-25**: Fixed CSS variables and theme system for dark mode consistency
-- **2024-12-25**: Enhanced payment gateway iframe with modern design
-- **2024-12-25**: Renamed to "Vertex Deposit Checkpoint" with advanced loading animation
-- **2024-12-25**: Added Vertex logo to header with gradient effects and SSL security indicator
-- **2024-12-25**: Updated payment gateway iframe to "Vertex Deposit Checkpoint" with Vertex logo loading animation
-- **2024-12-25**: Configured Vercel deployment with serverless functions and static build setup
-- **2024-12-25**: Fixed Vercel function runtime version specification error
-- **2024-12-25**: Updated payment gateway iframe to "Vertex Deposit Checkpoint" with Vertex logo loading animation
-
-## Project Architecture
-- **Frontend**: React 18 with TypeScript, Vite build system
-- **UI Framework**: shadcn/ui with Radix UI components
-- **Styling**: Tailwind CSS with custom CSS variables for theming
-- **State Management**: React Query for server state
-- **Routing**: React Router DOM
-- **Authentication**: Firebase Auth
-- **Database**: Supabase integration
-- **Backend**: Express.js server with TypeScript
+## Overview
+The Vertex Trading Platform is a comprehensive cryptocurrency trading platform offering spot, futures, P2P, automated trading bots, market analysis, and user management functionalities. Its primary purpose is to provide a robust and feature-rich environment for cryptocurrency trading, migrated and optimized for the Replit environment. The platform aims to capture market share by offering advanced trading features, a secure KYC verification system, and an intuitive user experience.
 
 ## User Preferences
 - Background color preference: #0f1115 (dark theme)
 - Design system: shadcn/ui components preferred
 - Responsive design focus for mobile and desktop
 
-## Key Features
-- Spot and futures trading
-- P2P marketplace
-- Automated trading bots
-- Market analysis and charts
-- User account management
-- Real-time notifications
-- Mobile-responsive design
-- **KYC Verification System**: Comprehensive 3-step identity verification with Supabase document storage
-- **Admin Panel**: External admin interface for KYC review and user management at /admin route
-- **Document Security**: Private Supabase bucket with signed URLs for secure KYC document access
-- **Performance Optimization**: Preload data system with automatic login triggers
-- **Caching System**: 30-second price caching with intelligent refresh
-- **Context Management**: Global state management for user data and market prices
+## System Architecture
+The platform is built with a modern web stack, ensuring high performance, scalability, and maintainability.
+
+**Frontend:**
+- **Framework:** React 18 with TypeScript
+- **Build System:** Vite
+- **UI/UX:** Utilizes `shadcn/ui` components based on Radix UI for a consistent and modern design. Styling is managed with Tailwind CSS, complemented by custom CSS variables for flexible theming, specifically a dark theme (`#0f1115` background) with orange accents for branding.
+- **State Management:** React Query is employed for efficient server state management.
+- **Routing:** React Router DOM handles client-side navigation.
+- **Performance:** Features a comprehensive preload data system with a 30-second price caching mechanism and automatic refresh to optimize loading times. Lazy loading is implemented for all routes to enhance initial load performance.
+- **Notifications:** Integrated Web Audio API for specific transaction sounds (e.g., Apple Pay-style "ding" for financial transactions) while keeping other notifications silent.
+- **Branding:** Consistent application of a custom "V" logo (orange V design) across the platform, including navbar, sidebar, and favicon.
+
+**Backend:**
+- **Server:** Express.js developed in TypeScript.
+- **Email Service:** A robust email notification system is implemented using Nodemailer, featuring modern, redesigned HTML templates (initially dark theme, later updated to white background with orange accents) for all transaction types (deposit, withdrawal, transfer, conversion, welcome). It includes Zod validation for API structures and sends distinct emails to sender/receiver for transfers.
+
+**Core Features & Design Patterns:**
+- **Trading Capabilities:** Supports spot and futures trading, P2P transactions, and automated trading bots with custom trading amount inputs and balance validation.
+- **User & Admin Management:** Includes comprehensive user account management, an external admin panel (`/admin-kyc`) with a 6-tab interface (Overview, Users, Messaging, KYC Review, Security, Legacy Tools) for streamlined operations. The admin panel features user search, filtering, bulk actions, and account controls (block/unblock/flag).
+- **KYC Verification:** A 3-step KYC verification system integrated into the user settings, involving personal info, document submission, and review.
+- **Security:** Enhanced admin authentication with access control, duplicate account detection, and fraud prevention. KYC documents are stored in a secure, private Supabase bucket with access controlled via signed URLs.
+- **System Notices:** Implementation of a `SystemNotice` component for dashboard-wide notifications with dismiss functionality.
+
+## External Dependencies
+- **Authentication:** Firebase Authentication for user authentication.
+- **Database:** Supabase for database operations, including secure storage of KYC documents.
+- **Email Service:** Gmail SMTP for sending transaction and system emails.
+- **Market Data:** TradingView chart component for real-time market analysis (e.g., BTCUSD chart from Binance).
+- **Deployment:** Vercel for serverless deployment of the application.
