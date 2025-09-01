@@ -314,22 +314,43 @@ class KYCService {
   // Get signed URL for document viewing (admin only)
   async getSignedDocumentUrl(filePath: string): Promise<string> {
     try {
+      console.log('Refreshing signed URL for:', filePath);
+      
       // Use service client to create signed URL for admin access
       const serviceSupabase = await getServiceClient();
       
       // Extract the file path from the URL if it's a full URL
       let fileName = filePath;
-      if (filePath.includes('/')) {
+      
+      if (filePath.includes('supabase')) {
+        // This is a full Supabase URL - extract the object path
         const urlParts = filePath.split('/');
-        // Look for the part after 'kyc-documents' in the URL
-        const bucketIndex = urlParts.findIndex(part => part === 'kyc-documents');
+        const objectIndex = urlParts.findIndex(part => part === 'object');
+        if (objectIndex !== -1 && objectIndex < urlParts.length - 2) {
+          // Skip 'object', 'public' or 'sign', and bucket name
+          fileName = urlParts.slice(objectIndex + 3).join('/');
+        } else {
+          // Try to find the file path after the bucket name
+          const bucketIndex = urlParts.findIndex(part => part === this.BUCKET_NAME);
+          if (bucketIndex !== -1 && bucketIndex < urlParts.length - 1) {
+            fileName = urlParts.slice(bucketIndex + 1).join('/');
+          }
+        }
+      } else if (filePath.includes('/')) {
+        // This might be a partial path or signed URL
+        const urlParts = filePath.split('/');
+        const bucketIndex = urlParts.findIndex(part => part === this.BUCKET_NAME);
         if (bucketIndex !== -1 && bucketIndex < urlParts.length - 1) {
           fileName = urlParts.slice(bucketIndex + 1).join('/');
         } else {
-          // If no bucket in URL, take the last two parts (userId/filename)
-          fileName = urlParts.slice(-2).join('/');
+          // Check if it looks like a userId/filename pattern
+          if (urlParts.length >= 2) {
+            fileName = urlParts.slice(-2).join('/');
+          }
         }
       }
+      
+      console.log('Extracted file name:', fileName);
       
       const { data: urlData, error: urlError } = await serviceSupabase.storage
         .from(this.BUCKET_NAME)
@@ -337,9 +358,11 @@ class KYCService {
 
       if (urlError) {
         console.error('Error creating admin signed URL:', urlError);
+        console.log('Attempted file name:', fileName);
         return filePath; // Return original as fallback
       }
 
+      console.log('Generated new signed URL successfully');
       return urlData.signedUrl;
     } catch (error) {
       console.error('Error getting signed URL:', error);

@@ -353,15 +353,13 @@ const AdminKYCPage = () => {
     }
 
     try {
-      const result = await AdminService.updateUserStatus(selectedSecurityUser, 'block');
-      if (result.success) {
-        toast({
-          title: "Account Suspended",
-          description: `User account has been suspended`,
-        });
-        // Refresh user data
-        loadDashboardData();
-      }
+      await AdminService.updateUserStatus(selectedSecurityUser, 'block');
+      toast({
+        title: "Account Suspended",
+        description: `User account has been suspended`,
+      });
+      // Refresh user data
+      loadDashboardData();
     } catch (error) {
       console.error('Error suspending account:', error);
       toast({
@@ -383,15 +381,13 @@ const AdminKYCPage = () => {
     }
 
     try {
-      const result = await AdminService.updateUserStatus(selectedSecurityUser, 'flag');
-      if (result.success) {
-        toast({
-          title: "User Flagged",
-          description: `User has been flagged for review`,
-        });
-        // Refresh user data
-        loadDashboardData();
-      }
+      await AdminService.updateUserStatus(selectedSecurityUser, 'flag');
+      toast({
+        title: "User Flagged",
+        description: `User has been flagged for review`,
+      });
+      // Refresh user data
+      loadDashboardData();
     } catch (error) {
       console.error('Error flagging user:', error);
       toast({
