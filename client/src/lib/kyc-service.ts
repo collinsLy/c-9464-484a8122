@@ -400,33 +400,55 @@ export const kycService = new KYCService();
 // Test data utility for development/demo purposes
 export const createTestKYCSubmission = async (): Promise<void> => {
   try {
+    console.log('Creating test KYC submission...');
+    
+    // First, create test images in Supabase bucket
+    const serviceClient = await getServiceClient();
+    const testImages = [
+      { name: 'id_front-test.jpg', type: 'id_front' },
+      { name: 'id_back-test.jpg', type: 'id_back' },
+      { name: 'selfie-test.jpg', type: 'selfie' },
+      { name: 'proof_of_address-test.jpg', type: 'proof_of_address' }
+    ];
+
+    const documents = [];
+    
+    for (const img of testImages) {
+      // Create a simple test image (1x1 pixel PNG)
+      const testImageData = new Uint8Array([
+        0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D,
+        0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+        0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53, 0xDE, 0x00, 0x00, 0x00,
+        0x0C, 0x49, 0x44, 0x41, 0x54, 0x08, 0xD7, 0x63, 0xF8, 0x00, 0x00, 0x00,
+        0x01, 0x00, 0x01, 0x5C, 0xC0, 0x8D, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x49,
+        0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82
+      ]);
+      
+      const filePath = `test-user-123/${img.name}`;
+      console.log(`Uploading test image: ${filePath}`);
+      
+      const { error: uploadError } = await serviceClient.storage
+        .from('kyc-documents')
+        .upload(filePath, testImageData, {
+          contentType: 'image/png',
+          upsert: true // Replace if exists
+        });
+        
+      if (uploadError) {
+        console.error(`Error uploading ${img.name}:`, uploadError);
+      } else {
+        console.log(`Successfully uploaded ${img.name}`);
+        documents.push({
+          type: img.type as 'id_front' | 'id_back' | 'selfie' | 'proof_of_address',
+          url: filePath,
+          fileName: img.name,
+          uploadedAt: new Date()
+        });
+      }
+    }
+
     const testSubmission = {
-      documents: [
-        {
-          type: 'id_front' as const,
-          url: 'test-user-123/id_front-1703635200000.jpg',
-          fileName: 'id_front-1703635200000.jpg',
-          uploadedAt: new Date()
-        },
-        {
-          type: 'id_back' as const,
-          url: 'test-user-123/id_back-1703635200000.jpg',
-          fileName: 'id_back-1703635200000.jpg',
-          uploadedAt: new Date()
-        },
-        {
-          type: 'selfie' as const,
-          url: 'test-user-123/selfie-1703635200000.jpg',
-          fileName: 'selfie-1703635200000.jpg',
-          uploadedAt: new Date()
-        },
-        {
-          type: 'proof_of_address' as const,
-          url: 'test-user-123/proof_of_address-1703635200000.pdf',
-          fileName: 'proof_of_address-1703635200000.pdf',
-          uploadedAt: new Date()
-        }
-      ],
+      documents,
       personalInfo: {
         fullName: 'Tahu Tempe',
         dateOfBirth: '1993-05-09',
@@ -437,6 +459,7 @@ export const createTestKYCSubmission = async (): Promise<void> => {
       }
     };
 
+    console.log('Saving to Firestore...');
     // Save to Firestore with test user data
     const docRef = await addDoc(collection(db, 'kyc_submissions'), {
       userId: 'test-user-123',
@@ -450,5 +473,6 @@ export const createTestKYCSubmission = async (): Promise<void> => {
     console.log('Test KYC submission created:', docRef.id);
   } catch (error) {
     console.error('Error creating test KYC submission:', error);
+    throw error;
   }
 };
