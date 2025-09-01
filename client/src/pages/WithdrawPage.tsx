@@ -1764,7 +1764,7 @@ const WithdrawPage = () => {
                   </p>
                 </div>
                 {(kycStatus === 'NOT_SUBMITTED' || !kycStatus) && (
-                  <Buttonon 
+                  <Button 
                     size="sm" 
                     className="bg-yellow-500 text-black hover:bg-yellow-400"
                     onClick={() => window.location.href = '/settings?tab=kyc'}
