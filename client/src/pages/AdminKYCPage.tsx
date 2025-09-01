@@ -692,6 +692,26 @@ const AdminKYCPage = () => {
     }
   };
 
+  const handleOpenDetailDialog = async (submission: KYCSubmission) => {
+    try {
+      // Show loading state
+      setIsProcessing(true);
+      setSelectedSubmission(submission);
+      setIsDetailDialogOpen(true);
+      
+      // Refresh document URLs in the background for better image display
+      const refreshedSubmission = await kycService.refreshDocumentUrls(submission);
+      setSelectedSubmission(refreshedSubmission);
+    } catch (error) {
+      console.error('Error refreshing document URLs:', error);
+      // Still show the dialog even if URL refresh fails
+      setSelectedSubmission(submission);
+      setIsDetailDialogOpen(true);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -987,10 +1007,7 @@ const AdminKYCPage = () => {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => {
-                                  setSelectedSubmission(submission);
-                                  setIsDetailDialogOpen(true);
-                                }}
+                                onClick={() => handleOpenDetailDialog(submission)}
                                 className="text-white border-gray-600 hover:bg-gray-800"
                               >
                                 <Eye className="w-4 h-4 mr-1" />
@@ -2036,11 +2053,31 @@ const AdminKYCPage = () => {
                           {doc.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                         </span>
                       </div>
-                      <img 
-                        src={doc.url} 
-                        alt={doc.type}
-                        className="w-full h-32 object-cover rounded mb-2"
-                      />
+                      <div className="relative w-full h-32 bg-gray-700 rounded mb-2 overflow-hidden">
+                        <img 
+                          src={doc.url} 
+                          alt={doc.type}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const parent = target.parentElement;
+                            if (parent && !parent.querySelector('.fallback-icon')) {
+                              const fallback = document.createElement('div');
+                              fallback.className = 'fallback-icon absolute inset-0 flex items-center justify-center bg-gray-700';
+                              fallback.innerHTML = `
+                                <div class="text-center text-gray-400">
+                                  <svg class="w-8 h-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+                                  </svg>
+                                  <p class="text-xs">Image unavailable</p>
+                                </div>
+                              `;
+                              parent.appendChild(fallback);
+                            }
+                          }}
+                        />
+                      </div>
                       <p className="text-xs text-gray-400">{doc.fileName}</p>
                     </div>
                   ))}

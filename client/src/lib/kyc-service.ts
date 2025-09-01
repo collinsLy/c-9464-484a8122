@@ -312,20 +312,62 @@ class KYCService {
   }
 
   // Get signed URL for document viewing (admin only)
-  async getSignedDocumentUrl(url: string): Promise<string> {
+  async getSignedDocumentUrl(filePath: string): Promise<string> {
     try {
-      // Extract path from Supabase URL
-      const urlParts = url.split('/');
-      const fileName = urlParts[urlParts.length - 1];
+      // Use service client to create signed URL for admin access
+      const serviceSupabase = await getServiceClient();
       
-      const { data } = supabase.storage
+      // Extract the file path from the URL if it's a full URL
+      let fileName = filePath;
+      if (filePath.includes('/')) {
+        const urlParts = filePath.split('/');
+        // Look for the part after 'kyc-documents' in the URL
+        const bucketIndex = urlParts.findIndex(part => part === 'kyc-documents');
+        if (bucketIndex !== -1 && bucketIndex < urlParts.length - 1) {
+          fileName = urlParts.slice(bucketIndex + 1).join('/');
+        } else {
+          // If no bucket in URL, take the last two parts (userId/filename)
+          fileName = urlParts.slice(-2).join('/');
+        }
+      }
+      
+      const { data: urlData, error: urlError } = await serviceSupabase.storage
         .from(this.BUCKET_NAME)
-        .getPublicUrl(fileName);
+        .createSignedUrl(fileName, 3600); // Valid for 1 hour
 
-      return data.publicUrl;
+      if (urlError) {
+        console.error('Error creating admin signed URL:', urlError);
+        return filePath; // Return original as fallback
+      }
+
+      return urlData.signedUrl;
     } catch (error) {
       console.error('Error getting signed URL:', error);
-      return url; // Return original URL as fallback
+      return filePath; // Return original URL as fallback
+    }
+  }
+
+  // Refresh signed URLs for documents in a submission
+  async refreshDocumentUrls(submission: KYCSubmission): Promise<KYCSubmission> {
+    try {
+      const refreshedDocuments = await Promise.all(
+        submission.documents.map(async (doc) => {
+          // Extract the original file path from the stored URL
+          const refreshedUrl = await this.getSignedDocumentUrl(doc.url);
+          return {
+            ...doc,
+            url: refreshedUrl
+          };
+        })
+      );
+
+      return {
+        ...submission,
+        documents: refreshedDocuments
+      };
+    } catch (error) {
+      console.error('Error refreshing document URLs:', error);
+      return submission; // Return original if refresh fails
     }
   }
 }
