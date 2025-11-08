@@ -83,7 +83,7 @@ const DepositPage = () => {
       setTimeout(() => {
         try {
           (window as any).PayHero.init({
-            paymentUrl: "https://short.payhero.co.ke/s/4F9fkJf28ynUcZHCJYCPKw",
+            paymentUrl: "https://app.payhero.co.ke/lipwa/1981",
             width: "100%",
             height: "100%",
             containerId: "payhero-container",
