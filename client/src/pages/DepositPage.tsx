@@ -74,12 +74,7 @@ const DepositPage = () => {
     return () => unsubscribe();
   }, []);
 
-  // Generate reference number when user initiates payment
-  useEffect(() => {
-    if (showPaymentIframe && !referenceNumber) {
-      setReferenceNumber(generateReferenceNumber());
-    }
-  }, [showPaymentIframe]);
+  // No longer generating reference in useEffect - moved to button click handler
 
   // Handler for QR code scanning results
   const handleScanResult = (result: string) => {
@@ -529,6 +524,10 @@ const DepositPage = () => {
                       className="w-full bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34] h-12 text-lg"
                       disabled={!amount || parseFloat(amount) <= 0}
                       onClick={async () => {
+                        // Generate reference number first
+                        const newReference = generateReferenceNumber();
+                        setReferenceNumber(newReference);
+                        
                         // Ensure user data is loaded before showing payment iframe
                         if (!userData && auth.currentUser) {
                           try {
@@ -685,25 +684,29 @@ const DepositPage = () => {
                   </div>
                 )}
 
-                {/* Payment iframe */}
-                <iframe 
-                  src={(() => {
-                    const url = isDemoMode 
-                      ? "https://short.payhero.co.ke/s/4F9fkJf28ynUcZHCJYCPKw" 
-                      : `https://short.payhero.co.ke/s/4F9fkJf28ynUcZHCJYCPKw?amount=${Math.round(kshAmount)}&customer_name=${encodeURIComponent(userData?.fullName || userData?.name || 'Guest User')}&reference=${referenceNumber}`;
-                    console.log('Payment iframe URL:', url); // Debug log
-                    console.log('User data for payment:', userData); // Debug log
-                    return url;
-                  })()} 
-                  className="w-full h-full border-0 rounded-b-2xl"
-                  title="Vertex Deposit Checkpoint"
-                  sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-                  onLoad={() => {
-                    setTimeout(() => {
-                      setIsIframeLoading(false);
-                    }, 2000); // Show loading for 2 seconds minimum for better UX
-                  }}
-                ></iframe>
+                {/* Payment iframe - only render when reference is ready */}
+                {referenceNumber && (
+                  <iframe 
+                    key={referenceNumber}
+                    src={(() => {
+                      const url = isDemoMode 
+                        ? "https://short.payhero.co.ke/s/4F9fkJf28ynUcZHCJYCPKw" 
+                        : `https://short.payhero.co.ke/s/4F9fkJf28ynUcZHCJYCPKw?amount=${Math.round(kshAmount)}&customer_name=${encodeURIComponent(userData?.fullName || userData?.name || 'Guest User')}&reference=${referenceNumber}`;
+                      console.log('Payment iframe URL:', url); // Debug log
+                      console.log('User data for payment:', userData); // Debug log
+                      console.log('Reference number:', referenceNumber); // Debug log
+                      return url;
+                    })()} 
+                    className="w-full h-full border-0 rounded-b-2xl"
+                    title="Vertex Deposit Checkpoint"
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                    onLoad={() => {
+                      setTimeout(() => {
+                        setIsIframeLoading(false);
+                      }, 2000); // Show loading for 2 seconds minimum for better UX
+                    }}
+                  ></iframe>
+                )}
               </div>
             </div>
           </div>
