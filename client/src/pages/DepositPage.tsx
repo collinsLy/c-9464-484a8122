@@ -644,22 +644,22 @@ const DepositPage = () => {
         </div>
 
         {showPaymentIframe && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-            <div className="bg-gradient-to-br from-[#0f1115] to-[#1a1d23] border border-[#F2FF44]/20 rounded-2xl w-full max-w-5xl h-[85vh] flex flex-col shadow-2xl shadow-[#F2FF44]/10">
-              {/* Modern Header */}
-              <div className="flex justify-between items-center p-6 border-b border-[#F2FF44]/10 bg-gradient-to-r from-[#F2FF44]/5 to-transparent">
-                <div className="flex items-center gap-4">
-                  <div className="relative">
+          <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-0 sm:p-4">
+            <div className="bg-gradient-to-br from-[#0f1115] to-[#1a1d23] border-0 sm:border border-[#F2FF44]/20 rounded-none sm:rounded-2xl w-full h-full sm:h-[90vh] sm:max-w-6xl flex flex-col shadow-2xl shadow-[#F2FF44]/10">
+              {/* Responsive Header */}
+              <div className="flex justify-between items-center p-3 sm:p-6 border-b border-[#F2FF44]/10 bg-gradient-to-r from-[#F2FF44]/5 to-transparent shrink-0">
+                <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
+                  <div className="relative shrink-0">
                     <div className="absolute inset-0 bg-[#F2FF44] rounded-full blur-sm opacity-20"></div>
-                    <img src="/favicon.svg" alt="Vertex Logo" className="relative w-8 h-8 filter brightness-110" />
+                    <img src="/favicon.svg" alt="Vertex Logo" className="relative w-6 h-6 sm:w-8 sm:h-8 filter brightness-110" />
                   </div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-white tracking-tight">Vertex Deposit Checkpoint</h3>
+                  <div className="min-w-0">
+                    <h3 className="text-base sm:text-xl md:text-2xl font-bold text-white tracking-tight truncate">Vertex Deposit Checkpoint</h3>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 sm:gap-4 shrink-0">
                   {referenceNumber && (
-                    <div className="bg-[#F2FF44]/10 px-3 py-1 rounded-lg border border-[#F2FF44]/20">
+                    <div className="bg-[#F2FF44]/10 px-2 py-1 sm:px-3 rounded-lg border border-[#F2FF44]/20 hidden sm:block">
                       <p className="text-xs text-[#F2FF44] font-mono">REF: {referenceNumber}</p>
                     </div>
                   )}
@@ -668,13 +668,13 @@ const DepositPage = () => {
                       setShowPaymentIframe(false);
                       setIsIframeLoading(false);
                       setReferenceNumber("");
-                      // Clean up PayHero container
                       const container = document.getElementById('payhero-container');
                       if (container) {
                         container.innerHTML = '';
                       }
                     }}
                     className="p-2 rounded-full bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all duration-200"
+                    data-testid="button-close-payment"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -684,46 +684,50 @@ const DepositPage = () => {
                 </div>
               </div>
 
-              {/* Content Area */}
-              <div className="flex-1 overflow-hidden relative">
+              {/* Reference Number for Mobile - Below Header */}
+              {referenceNumber && (
+                <div className="sm:hidden bg-[#F2FF44]/10 px-3 py-2 border-b border-[#F2FF44]/10">
+                  <p className="text-xs text-[#F2FF44] font-mono text-center">REF: {referenceNumber}</p>
+                </div>
+              )}
+
+              {/* Content Area - Flexible and Scrollable */}
+              <div className="flex-1 overflow-hidden relative min-h-0">
                 {isIframeLoading && (
                   <div className="absolute inset-0 bg-gradient-to-br from-[#0f1115] via-[#1a1d23] to-[#0f1115] flex flex-col items-center justify-center z-10">
                     <div className="flex flex-col items-center gap-4">
-                      {/* Advanced Loading Animation */}
                       <div className="relative flex flex-col items-center">
-                        {/* Spinning rings and logo */}
                         <div className="relative">
-                          {/* Outer rotating ring */}
-                          <div className="absolute inset-0 w-24 h-24 border-4 border-[#F2FF44]/20 border-t-[#F2FF44] rounded-full animate-spin"></div>
-                          {/* Middle pulsing ring */}
-                          <div className="absolute inset-2 w-20 h-20 border-2 border-[#F2FF44]/30 border-r-transparent rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '3s' }}></div>
-                          {/* Inner logo */}
-                          <div className="absolute inset-6 w-12 h-12 flex items-center justify-center">
+                          <div className="absolute inset-0 w-16 h-16 sm:w-24 sm:h-24 border-4 border-[#F2FF44]/20 border-t-[#F2FF44] rounded-full animate-spin"></div>
+                          <div className="absolute inset-2 w-12 h-12 sm:w-20 sm:h-20 border-2 border-[#F2FF44]/30 border-r-transparent rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '3s' }}></div>
+                          <div className="absolute inset-4 sm:inset-6 w-8 h-8 sm:w-12 sm:h-12 flex items-center justify-center">
                             <img 
                               src="/favicon.svg" 
                               alt="Vertex Logo" 
-                              className="w-8 h-8"
+                              className="w-6 h-6 sm:w-8 sm:h-8"
                             />
                           </div>
-                          {/* Glow effect */}
-                          <div className="absolute inset-0 w-24 h-24 bg-[#F2FF44]/10 rounded-full blur-xl animate-pulse"></div>
+                          <div className="absolute inset-0 w-16 h-16 sm:w-24 sm:h-24 bg-[#F2FF44]/10 rounded-full blur-xl animate-pulse"></div>
                         </div>
                       </div>
+                      <p className="text-white/70 text-sm sm:text-base mt-4">Loading secure payment gateway...</p>
                     </div>
 
-                    {/* SSL indicator at bottom */}
-                    <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2">
-                      <div className="bg-[#F2FF44]/10 px-4 py-2 rounded-full border border-[#F2FF44]/20">
-                        <p className="text-[#F2FF44] text-sm font-medium">🔒 SSL Encrypted Connection</p>
+                    <div className="absolute bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2">
+                      <div className="bg-[#F2FF44]/10 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-[#F2FF44]/20">
+                        <p className="text-[#F2FF44] text-xs sm:text-sm font-medium">🔒 SSL Encrypted Connection</p>
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* PayHero SDK container - replaces iframe for proper parameter handling */}
+                {/* PayHero SDK container - Fully responsive */}
                 <div 
                   id="payhero-container" 
-                  className="w-full h-full rounded-b-2xl overflow-hidden"
+                  className="w-full h-full overflow-auto"
+                  style={{
+                    WebkitOverflowScrolling: 'touch'
+                  }}
                 ></div>
               </div>
             </div>
