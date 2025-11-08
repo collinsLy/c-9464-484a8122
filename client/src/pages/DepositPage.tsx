@@ -76,6 +76,37 @@ const DepositPage = () => {
 
   // No longer generating reference in useEffect - moved to button click handler
 
+  // Initialize PayHero SDK when payment dialog opens
+  useEffect(() => {
+    if (showPaymentIframe && referenceNumber && typeof (window as any).PayHero !== 'undefined') {
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        try {
+          (window as any).PayHero.init({
+            paymentUrl: "https://short.payhero.co.ke/s/4F9fkJf28ynUcZHCJYCPKw",
+            width: "100%",
+            height: "100%",
+            containerId: "payhero-container",
+            channelID: 1981,
+            amount: isDemoMode ? 0 : Math.round(kshAmount),
+            name: userData?.fullName || userData?.name || 'Guest User',
+            reference: referenceNumber,
+            buttonName: `Pay KES ${Math.round(kshAmount)}`,
+            buttonColor: "#F2FF44"
+          });
+          
+          // Hide loading after SDK initializes
+          setTimeout(() => {
+            setIsIframeLoading(false);
+          }, 2000);
+        } catch (error) {
+          console.error('PayHero SDK initialization error:', error);
+          setIsIframeLoading(false);
+        }
+      }, 100);
+    }
+  }, [showPaymentIframe, referenceNumber, kshAmount, userData, isDemoMode]);
+
   // Handler for QR code scanning results
   const handleScanResult = (result: string) => {
     toast({
@@ -637,6 +668,11 @@ const DepositPage = () => {
                       setShowPaymentIframe(false);
                       setIsIframeLoading(false);
                       setReferenceNumber("");
+                      // Clean up PayHero container
+                      const container = document.getElementById('payhero-container');
+                      if (container) {
+                        container.innerHTML = '';
+                      }
                     }}
                     className="p-2 rounded-full bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all duration-200"
                   >
@@ -684,29 +720,11 @@ const DepositPage = () => {
                   </div>
                 )}
 
-                {/* Payment iframe - only render when reference is ready */}
-                {referenceNumber && (
-                  <iframe 
-                    key={referenceNumber}
-                    src={(() => {
-                      const url = isDemoMode 
-                        ? "https://short.payhero.co.ke/s/4F9fkJf28ynUcZHCJYCPKw" 
-                        : `https://short.payhero.co.ke/s/4F9fkJf28ynUcZHCJYCPKw?amount=${Math.round(kshAmount)}&name=${encodeURIComponent(userData?.fullName || userData?.name || 'Guest User')}&reference=${referenceNumber}`;
-                      console.log('Payment iframe URL:', url); // Debug log
-                      console.log('User data for payment:', userData); // Debug log
-                      console.log('Reference number:', referenceNumber); // Debug log
-                      return url;
-                    })()} 
-                    className="w-full h-full border-0 rounded-b-2xl"
-                    title="Vertex Deposit Checkpoint"
-                    sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-                    onLoad={() => {
-                      setTimeout(() => {
-                        setIsIframeLoading(false);
-                      }, 2000); // Show loading for 2 seconds minimum for better UX
-                    }}
-                  ></iframe>
-                )}
+                {/* PayHero SDK container - replaces iframe for proper parameter handling */}
+                <div 
+                  id="payhero-container" 
+                  className="w-full h-full rounded-b-2xl overflow-hidden"
+                ></div>
               </div>
             </div>
           </div>
