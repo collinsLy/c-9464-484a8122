@@ -82,7 +82,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         to: recipientEmail,
         username
       });
-      
+
       console.log('📧 Welcome email service result:', result);
       res.json(result);
     } catch (error) {
@@ -99,7 +99,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const testUsername = username || "Test User";
 
       console.log('🧪 Testing welcome email with:', { email: testEmail, username: testUsername });
-      
+
       const welcomeResult = await emailService.sendWelcomeEmail({
         to: testEmail,
         username: testUsername
@@ -128,10 +128,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Test connection first
       const connectionTest = await emailService.testConnection();
-      
+
       // Send test emails to multiple addresses
       const results = [];
-      
+
       // Primary test
       const primaryResult = await emailService.sendWelcomeEmail({
         to: email,
@@ -241,7 +241,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/v3/ticker/price", async (req, res) => {
     try {
       const { symbols } = req.query;
-      
+
       // Parse symbols if provided
       let symbolList: string[] = [];
       if (symbols) {
@@ -437,7 +437,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/test-messaging", async (req, res) => {
     try {
       const connected = await messagingService.testConnection();
-      
+
       if (!connected) {
         return res.status(500).json({ 
           success: false, 
@@ -520,7 +520,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/auth-users", async (req, res) => {
     try {
       console.log('🔍 Fetching Firebase Authentication users...');
-      
+
       // Check if Firebase Admin is initialized
       try {
         getAuth();
@@ -556,7 +556,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/update-user-status", async (req, res) => {
     try {
       const { userId, action } = req.body;
-      
+
       if (!userId || !action) {
         return res.status(400).json({ 
           success: false, 
@@ -570,7 +570,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         const { getApps } = await import('firebase-admin/app');
         const { getAuth } = await import('firebase-admin/auth');
-        
+
         if (getApps().length === 0) {
           console.log('⚠️ Firebase Admin not initialized, simulating action for demonstration');
           // For demonstration purposes, just log the action
