@@ -16,6 +16,7 @@ import QRCodeScanner from '@/components/QRCodeScanner';
 import { auth } from '@/lib/firebase';
 import { getAuth } from 'firebase/auth';
 import { UserService } from '@/lib/user-service';
+import { ChevronDown } from 'lucide-react';
 
 
 const DepositPage = () => {
@@ -35,6 +36,7 @@ const DepositPage = () => {
   const [userData, setUserData] = useState<any>(null);
   const [referenceNumber, setReferenceNumber] = useState("");
   const [isIframeLoading, setIsIframeLoading] = useState(false);
+  const [isGuideExpanded, setIsGuideExpanded] = useState(false);
   const conversionRate = 135;
 
   // Generate unique reference number
@@ -448,17 +450,37 @@ const DepositPage = () => {
 
               <TabsContent value="fiat">
                 <div className="space-y-6">
-                  {/* M-Pesa Deposit Guide */}
-                  <div className="bg-[#F2FF44]/10 border border-[#F2FF44]/20 rounded-lg p-6 backdrop-blur-sm">
-                    <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 w-6 h-6 mt-0.5">
-                        <svg className="w-6 h-6 text-[#F2FF44]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
+                  {/* M-Pesa Deposit Guide - Collapsible */}
+                  <div className="bg-[#F2FF44]/10 border border-[#F2FF44]/20 rounded-lg overflow-hidden backdrop-blur-sm">
+                    {/* Clickable Header */}
+                    <button
+                      onClick={() => setIsGuideExpanded(!isGuideExpanded)}
+                      className="w-full p-6 flex items-center justify-between hover-elevate transition-all"
+                      data-testid="button-toggle-guide"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 w-6 h-6 mt-0.5">
+                          <svg className="w-6 h-6 text-[#F2FF44]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </div>
+                        <h3 className="text-[#F2FF44] font-bold text-lg text-left">📱 Complete M-Pesa Deposit Guide</h3>
                       </div>
-                      <div className="flex-1">
-                        <h3 className="text-[#F2FF44] font-bold text-lg mb-4">📱 Complete M-Pesa Deposit Guide</h3>
-                        <div className="text-white/90 space-y-4 text-sm">
+                      <ChevronDown 
+                        className={cn(
+                          "w-5 h-5 text-[#F2FF44] transition-transform duration-300 flex-shrink-0",
+                          isGuideExpanded && "rotate-180"
+                        )}
+                      />
+                    </button>
+
+                    {/* Collapsible Content */}
+                    <div className={cn(
+                      "overflow-hidden transition-all duration-300 ease-in-out",
+                      isGuideExpanded ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+                    )}>
+                      <div className="px-6 pb-6">
+                        <div className="pl-9 text-white/90 space-y-4 text-sm">
                           {/* Step 1 */}
                           <div>
                             <h4 className="font-semibold text-white mb-2">Step 1: Initiating Your Deposit</h4>
