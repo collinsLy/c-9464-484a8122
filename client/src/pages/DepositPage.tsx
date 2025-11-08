@@ -690,8 +690,8 @@ const DepositPage = () => {
                     key={referenceNumber}
                     src={(() => {
                       const url = isDemoMode 
-                        ? "https://app.payhero.co.ke/lipwa/1981" 
-                        : `https://app.payhero.co.ke/lipwa/1981?amount=${Math.round(kshAmount)}&name=${encodeURIComponent(userData?.fullName || userData?.name || 'Guest User')}&reference=${referenceNumber}`;
+                        ? "https://short.payhero.co.ke/s/4F9fkJf28ynUcZHCJYCPKw" 
+                        : `https://short.payhero.co.ke/s/4F9fkJf28ynUcZHCJYCPKw?amount=${Math.round(kshAmount)}&name=${encodeURIComponent(userData?.fullName || userData?.name || 'Guest User')}&reference=${referenceNumber}`;
                       console.log('Payment iframe URL:', url); // Debug log
                       console.log('User data for payment:', userData); // Debug log
                       console.log('Reference number:', referenceNumber); // Debug log
