@@ -448,22 +448,49 @@ const DepositPage = () => {
 
               <TabsContent value="fiat">
                 <div className="space-y-6">
-                  {/* Fiat Deposit Notice */}
-                  <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 backdrop-blur-sm">
+                  {/* M-Pesa Deposit Guide */}
+                  <div className="bg-[#F2FF44]/10 border border-[#F2FF44]/20 rounded-lg p-6 backdrop-blur-sm">
                     <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 w-5 h-5 mt-0.5">
-                        <svg className="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      <div className="flex-shrink-0 w-6 h-6 mt-0.5">
+                        <svg className="w-6 h-6 text-[#F2FF44]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-red-400 font-semibold mb-2">🚫 Notice: Fiat Deposits Temporarily Unavailable</h3>
-                        <div className="text-white/90 space-y-2 text-sm">
-                          <p>We're currently experiencing issues with fiat (flat) deposit methods.</p>
-                          <p className="font-medium">Fiat deposits are temporarily unavailable at this time.</p>
-                          <p>If you'd like to fund your account, please use crypto deposits instead—they're fully operational and instant.</p>
-                          <p className="text-[#F2FF44]">We'll notify you as soon as fiat deposit options are back online. Thanks for your patience and understanding!</p>
-                          <p className="text-white/70 text-xs">– The Vertex Trading Team</p>
+                        <h3 className="text-[#F2FF44] font-bold text-lg mb-4">📱 Complete M-Pesa Deposit Guide</h3>
+                        <div className="text-white/90 space-y-4 text-sm">
+                          {/* Step 1 */}
+                          <div>
+                            <h4 className="font-semibold text-white mb-2">Step 1: Initiating Your Deposit</h4>
+                            <ul className="list-disc pl-5 space-y-1.5 text-white/80">
+                              <li><strong>Navigate to Deposit:</strong> Log into your Vertex Trading account and find the Deposit section.</li>
+                              <li><strong>Select Method:</strong> From the available payment options, choose M-Pesa.</li>
+                              <li><strong>Enter Amount:</strong> Input your desired deposit amount in USD (e.g., 18). The system will automatically display the real-time equivalent in KSh (e.g., 2430.00).</li>
+                              <li><strong>Proceed to Payment:</strong> Click the designated button (e.g., Pay $) to proceed to the payment gateway.</li>
+                            </ul>
+                          </div>
+
+                          {/* Step 2 */}
+                          <div>
+                            <h4 className="font-semibold text-white mb-2">Step 2: Finalizing Payment via Gateway</h4>
+                            <p className="text-white/80 mb-2">You will be redirected to a secure payment checkpoint to complete the mobile transaction.</p>
+                            <ul className="list-disc pl-5 space-y-1.5 text-white/80">
+                              <li><strong>Choose Payment Channel:</strong> Choose TILL from the dropdown menu.</li>
+                              <li><strong>Enter Phone Details:</strong> In the Phone Number field, accurately enter the mobile number linked to your M-Pesa account. Verify that your Customer Name and the Amount in KES are correct.</li>
+                              <li><strong>Request STK Push:</strong> Click the Pay Now (M-PESA) button. This sends an automatic payment request (STK Push) to your mobile phone.</li>
+                            </ul>
+                          </div>
+
+                          {/* Step 3 */}
+                          <div>
+                            <h4 className="font-semibold text-white mb-2">Step 3: Authorizing the Transaction (On Your Phone)</h4>
+                            <p className="text-white/80 mb-2">This final step is completed directly on your mobile device.</p>
+                            <ul className="list-disc pl-5 space-y-1.5 text-white/80">
+                              <li><strong>Receive Notification:</strong> Look for an incoming M-Pesa Sim Toolkit or Push Notification on your phone.</li>
+                              <li><strong>Enter PIN:</strong> Enter your secure M-Pesa PIN when prompted to authorize and approve the transaction.</li>
+                              <li><strong>Confirmation:</strong> Once approved, the funds will be immediately debited from your M-Pesa account. You should receive a confirmation SMS from M-Pesa and the funds should reflect in your Vertex Trading account within minutes.</li>
+                            </ul>
+                          </div>
                         </div>
                       </div>
                     </div>
