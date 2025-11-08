@@ -76,42 +76,17 @@ const DepositPage = () => {
 
   // No longer generating reference in useEffect - moved to button click handler
 
-  // Initialize PayHero SDK when payment dialog opens
-  useEffect(() => {
-    if (showPaymentIframe && referenceNumber && typeof (window as any).PayHero !== 'undefined') {
-      // Small delay to ensure DOM is ready
-      setTimeout(() => {
-        try {
-          (window as any).PayHero.init({
-            paymentUrl: "https://app.payhero.co.ke/lipwa/1981",
-            width: "100%",
-            height: "100%",
-            containerId: "payhero-container",
-            channelID: 1981,
-            amount: isDemoMode ? 0 : Math.round(kshAmount),
-            name: userData?.fullName || userData?.name || 'Guest User',
-            reference: referenceNumber
-          });
-          
-          // Hide loading after SDK initializes
-          setTimeout(() => {
-            setIsIframeLoading(false);
-            // Hide any PayHero default buttons
-            const container = document.getElementById('payhero-container');
-            if (container) {
-              const buttons = container.querySelectorAll('button, .payhero-button, [class*="pay-button"]');
-              buttons.forEach((btn) => {
-                (btn as HTMLElement).style.display = 'none';
-              });
-            }
-          }, 2000);
-        } catch (error) {
-          console.error('PayHero SDK initialization error:', error);
-          setIsIframeLoading(false);
-        }
-      }, 100);
-    }
-  }, [showPaymentIframe, referenceNumber, kshAmount, userData, isDemoMode]);
+  // Build PayHero checkout URL with parameters
+  const getPayHeroUrl = () => {
+    const baseUrl = "https://app.payhero.co.ke/lipwa/1981";
+    const params = new URLSearchParams({
+      amount: isDemoMode ? '0' : Math.round(kshAmount).toString(),
+      reference: referenceNumber || '',
+      name: userData?.fullName || userData?.name || 'Guest User',
+      email: userData?.email || '',
+    });
+    return `${baseUrl}?${params.toString()}`;
+  };
 
   // Handler for QR code scanning results
   const handleScanResult = (result: string) => {
@@ -672,12 +647,8 @@ const DepositPage = () => {
                   <button 
                     onClick={() => {
                       setShowPaymentIframe(false);
-                      setIsIframeLoading(false);
+                      setIsIframeLoading(true);
                       setReferenceNumber("");
-                      const container = document.getElementById('payhero-container');
-                      if (container) {
-                        container.innerHTML = '';
-                      }
                     }}
                     className="p-2 rounded-full bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all duration-200"
                     data-testid="button-close-payment"
@@ -727,22 +698,19 @@ const DepositPage = () => {
                   </div>
                 )}
 
-                {/* PayHero SDK container - Fully responsive */}
-                <style>{`
-                  #payhero-container button,
-                  #payhero-container .payhero-button,
-                  #payhero-container [class*="pay-button"],
-                  #payhero-container [class*="payment-button"] {
-                    display: none !important;
-                  }
-                `}</style>
-                <div 
-                  id="payhero-container" 
-                  className="w-full h-full overflow-auto"
+                {/* PayHero Checkout Iframe - Loads immediately */}
+                <iframe
+                  src={getPayHeroUrl()}
+                  className="w-full h-full border-0"
+                  title="PayHero Checkout"
+                  allow="payment"
+                  onLoad={() => {
+                    setIsIframeLoading(false);
+                  }}
                   style={{
                     WebkitOverflowScrolling: 'touch'
                   }}
-                ></div>
+                />
               </div>
             </div>
           </div>
