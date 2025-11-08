@@ -90,14 +90,20 @@ const DepositPage = () => {
             channelID: 1981,
             amount: isDemoMode ? 0 : Math.round(kshAmount),
             name: userData?.fullName || userData?.name || 'Guest User',
-            reference: referenceNumber,
-            buttonName: `Pay KES ${Math.round(kshAmount)}`,
-            buttonColor: "#F2FF44"
+            reference: referenceNumber
           });
           
           // Hide loading after SDK initializes
           setTimeout(() => {
             setIsIframeLoading(false);
+            // Hide any PayHero default buttons
+            const container = document.getElementById('payhero-container');
+            if (container) {
+              const buttons = container.querySelectorAll('button, .payhero-button, [class*="pay-button"]');
+              buttons.forEach((btn) => {
+                (btn as HTMLElement).style.display = 'none';
+              });
+            }
           }, 2000);
         } catch (error) {
           console.error('PayHero SDK initialization error:', error);
@@ -722,6 +728,14 @@ const DepositPage = () => {
                 )}
 
                 {/* PayHero SDK container - Fully responsive */}
+                <style>{`
+                  #payhero-container button,
+                  #payhero-container .payhero-button,
+                  #payhero-container [class*="pay-button"],
+                  #payhero-container [class*="payment-button"] {
+                    display: none !important;
+                  }
+                `}</style>
                 <div 
                   id="payhero-container" 
                   className="w-full h-full overflow-auto"
