@@ -675,16 +675,9 @@ const DepositPage = () => {
                     <div className="flex flex-col items-center gap-4">
                       <div className="relative flex flex-col items-center">
                         <div className="relative">
-                          <div className="absolute inset-0 w-16 h-16 sm:w-24 sm:h-24 border-4 border-[#FF8844]/20 border-t-[#FF8844] rounded-full animate-spin"></div>
-                          <div className="absolute inset-2 w-12 h-12 sm:w-20 sm:h-20 border-2 border-[#FF8844]/30 border-r-transparent rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '3s' }}></div>
-                          <div className="absolute inset-4 sm:inset-6 w-8 h-8 sm:w-12 sm:h-12 flex items-center justify-center">
-                            <img 
-                              src="/attached_assets/v-logo.png" 
-                              alt="V Logo" 
-                              className="w-10 h-10 sm:w-14 sm:h-14"
-                            />
-                          </div>
-                          <div className="absolute inset-0 w-16 h-16 sm:w-24 sm:h-24 bg-[#FF8844]/10 rounded-full blur-xl animate-pulse"></div>
+                          <div className="absolute inset-0 w-16 h-16 sm:w-24 sm:h-24 border-4 border-[#F2FF44]/20 border-t-[#F2FF44] rounded-full animate-spin"></div>
+                          <div className="absolute inset-2 w-12 h-12 sm:w-20 sm:h-20 border-2 border-[#F2FF44]/30 border-r-transparent rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '3s' }}></div>
+                          <div className="absolute inset-0 w-16 h-16 sm:w-24 sm:h-24 bg-[#F2FF44]/10 rounded-full blur-xl animate-pulse"></div>
                         </div>
                       </div>
                       <p className="text-white/70 text-sm sm:text-base mt-4">Loading secure payment gateway...</p>
