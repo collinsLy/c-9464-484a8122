@@ -137,7 +137,7 @@ export function PortfolioAnalytics() {
   }, [userAssets, isLoading]);
 
   // Calculate total portfolio value and update allocation data
-  const calculatePortfolioValue = (assets: Record<string, any>, prices: Record<string, number>) => {
+  const calculatePortfolioValue = (assets: Record<string, any>, prices: Record<string, number>, historicalData?: any) => {
     if (!assets) return;
 
     // Get USDT balance (may be in user.balance or assets.USDT)
@@ -196,17 +196,38 @@ export function PortfolioAnalytics() {
     console.log(`Total portfolio value: ${total} USDT`);
     setTotalPortfolioValue(total);
 
-    // Update portfolio data with new allocation
-    updatePortfolioData(total, allocation);
+    // Update portfolio data with new allocation and historical data
+    updatePortfolioData(total, allocation, historicalData);
   };
 
   // Update portfolio data state with performance metrics
-  const updatePortfolioData = (total: number, allocation: { name: string; symbol: string; value: number; percent: number; color: string }[]) => {
-    const dayChange = total * 0.05; // Placeholder - should come from real data
-    const weekChange = total * 0.1; // Placeholder
-    const monthChange = total * 0.15; // Placeholder
-    const yearChange = total * 0.3; // Placeholder
-    const totalPL = total * 0.4; // Placeholder
+  const updatePortfolioData = (total: number, allocation: { name: string; symbol: string; value: number; percent: number; color: string }[], historicalData?: any) => {
+    // Calculate actual profit/loss based on historical data if available
+    // For now, we'll use a simulated calculation based on the initial portfolio value
+    // In a production app, you would fetch historical snapshots from the database
+    
+    const initialValue = historicalData?.initialPortfolioValue || total; // Use total as initial if no history
+    
+    // Calculate changes based on time periods
+    // These would ideally come from stored historical snapshots
+    const dayChange = historicalData?.previousDayValue 
+      ? total - historicalData.previousDayValue 
+      : 0;
+    
+    const weekChange = historicalData?.previousWeekValue 
+      ? total - historicalData.previousWeekValue 
+      : 0;
+    
+    const monthChange = historicalData?.previousMonthValue 
+      ? total - historicalData.previousMonthValue 
+      : 0;
+    
+    const yearChange = historicalData?.previousYearValue 
+      ? total - historicalData.previousYearValue 
+      : 0;
+    
+    // Total P/L is the difference from initial investment
+    const totalPL = total - initialValue;
 
     setPortfolioData({
       current: total,
@@ -217,27 +238,35 @@ export function PortfolioAnalytics() {
       performance: {
         '24h': {
           value: dayChange,
-          percent: total > 0 ? (dayChange / total) * 100 : 0,
+          percent: historicalData?.previousDayValue && historicalData.previousDayValue > 0 
+            ? (dayChange / historicalData.previousDayValue) * 100 
+            : 0,
           isPositive: dayChange >= 0
         },
         '7d': {
           value: weekChange,
-          percent: total > 0 ? (weekChange / total) * 100 : 0,
+          percent: historicalData?.previousWeekValue && historicalData.previousWeekValue > 0 
+            ? (weekChange / historicalData.previousWeekValue) * 100 
+            : 0,
           isPositive: weekChange >= 0
         },
         '30d': {
           value: monthChange,
-          percent: total > 0 ? (monthChange / total) * 100 : 0,
+          percent: historicalData?.previousMonthValue && historicalData.previousMonthValue > 0 
+            ? (monthChange / historicalData.previousMonthValue) * 100 
+            : 0,
           isPositive: monthChange >= 0
         },
         '1y': {
           value: yearChange,
-          percent: total > 0 ? (yearChange / total) * 100 : 0,
+          percent: historicalData?.previousYearValue && historicalData.previousYearValue > 0 
+            ? (yearChange / historicalData.previousYearValue) * 100 
+            : 0,
           isPositive: yearChange >= 0
         },
         'all': {
           value: totalPL,
-          percent: total > 0 ? (totalPL / total) * 100 : 0,
+          percent: initialValue > 0 ? (totalPL / initialValue) * 100 : 0,
           isPositive: totalPL >= 0
         }
       }
@@ -281,8 +310,17 @@ export function PortfolioAnalytics() {
       console.log('User assets:', assets);
       setUserAssets(assets);
 
+      // Get historical data for profit/loss calculations
+      const historicalData = {
+        initialPortfolioValue: userData.initialPortfolioValue || parsedBalance,
+        previousDayValue: userData.previousDayBalance || parsedBalance,
+        previousWeekValue: userData.previousWeekBalance || parsedBalance,
+        previousMonthValue: userData.previousMonthBalance || parsedBalance,
+        previousYearValue: userData.previousYearBalance || parsedBalance
+      };
+
       // Calculate portfolio value with latest asset data and prices
-      calculatePortfolioValue(assets, assetPrices);
+      calculatePortfolioValue(assets, assetPrices, historicalData);
       setIsLoading(false);
     });
 
