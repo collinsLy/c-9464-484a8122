@@ -32,7 +32,7 @@ const DepositPage = () => {
   const [userBalance, setUserBalance] = useState(0);
   const [fetchUserBalance, setFetchUserBalance] = useState(0);
   const [kshAmount, setKshAmount] = useState(0);
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState<any>(null);
   const [referenceNumber, setReferenceNumber] = useState("");
   const [isIframeLoading, setIsIframeLoading] = useState(false);
   const conversionRate = 135;
@@ -672,13 +672,6 @@ const DepositPage = () => {
                           </div>
                           {/* Glow effect */}
                           <div className="absolute inset-0 w-24 h-24 bg-[#F2FF44]/10 rounded-full blur-xl animate-pulse"></div>
-                        </div>
-
-                        {/* Bouncing dots positioned below logo */}
-                        <div className="flex items-center justify-center gap-2 mt-8">
-                          <div className="w-2 h-2 bg-[#F2FF44] rounded-full animate-bounce"></div>
-                          <div className="w-2 h-2 bg-[#F2FF44] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                          <div className="w-2 h-2 bg-[#F2FF44] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                         </div>
                       </div>
                     </div>
