@@ -680,7 +680,6 @@ const DepositPage = () => {
                           <div className="absolute inset-0 w-16 h-16 sm:w-24 sm:h-24 bg-[#F2FF44]/10 rounded-full blur-xl animate-pulse"></div>
                         </div>
                       </div>
-                      <p className="text-white/70 text-sm sm:text-base mt-4">Loading secure payment gateway...</p>
                     </div>
 
                     <div className="absolute bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2">
