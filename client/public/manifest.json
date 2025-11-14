@@ -1,38 +1,33 @@
 
 {
   "name": "Vertex Trading Platform",
-  "short_name": "Vertex Trading",
-  "description": "Advanced Trading Platform for Cryptocurrency and Digital Assets",
+  "short_name": "Vertex",
+  "description": "Professional cryptocurrency trading platform with spot, futures, and P2P trading capabilities",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#1f2937",
+  "background_color": "#0f1115",
+  "theme_color": "#f97316",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/vertex-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/favicon.svg",
-      "sizes": "192x192",
-      "type": "image/svg+xml"
-    },
-    {
-      "src": "/favicon.svg",
+      "src": "/vertex-logo.png",
       "sizes": "512x512",
-      "type": "image/svg+xml"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
-  "categories": ["finance", "business", "productivity"],
+  "categories": ["finance", "business"],
   "screenshots": [
     {
-      "src": "/favicon.svg",
+      "src": "/vertex-logo.png",
       "sizes": "1280x720",
-      "type": "image/svg+xml",
-      "form_factor": "wide"
+      "type": "image/png"
     }
   ]
 }

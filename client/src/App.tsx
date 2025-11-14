@@ -7,6 +7,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { DashboardProvider } from "@/components/dashboard/DashboardLayout";
 import { PreloadProvider } from "@/contexts/PreloadContext";
 import { lazy, Suspense } from "react";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
 
 // Lazy load main pages to improve initial loading
 const Index = lazy(() => import("./pages/Index"));
@@ -78,6 +79,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <PWAInstallPrompt />
           <BrowserRouter>
             <DashboardProvider>
               <Suspense fallback={<LoadingComponent />}>
