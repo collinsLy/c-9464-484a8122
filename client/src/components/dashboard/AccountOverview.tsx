@@ -183,6 +183,9 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   // Demo mode handling
   if (isDemoMode) {
     const demoBalance = parseFloat(localStorage.getItem('demoBalance') || '10000');
+    const demoPrevBalance = demoBalance * 0.985; // Simulated 1.5% gain
+    const changePercent = ((demoBalance - demoPrevBalance) / demoPrevBalance) * 100;
+    
     return (
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-white mb-4">Account Summary</h2>
@@ -190,10 +193,10 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
           <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white rounded-2xl shadow-lg">
             <CardContent className="p-4">
               <div className="text-sm md:text-lg text-[#7a7a7a]">Total Balance</div>
-              <div className="text-xl md:text-2xl font-bold">${demoBalance.toFixed(2)}</div>
+              <div className="text-xl md:text-2xl font-bold">${demoBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
               <div className="flex items-center text-xs md:text-sm">
                 <ArrowUp className="w-3 h-3 md:w-4 md:h-4 mr-1 text-green-500" />
-                <span className="text-green-500">+0.00%</span>
+                <span className="text-green-500">+{changePercent.toFixed(2)}%</span>
                 <span className="ml-1 text-[#7a7a7a]">today</span>
               </div>
             </CardContent>
@@ -201,12 +204,12 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
           <Card className="bg-background/40 backdrop-blur-lg border-white/10 text-white rounded-2xl shadow-lg">
             <CardContent className="p-4">
               <div className="text-sm md:text-lg text-[#7a7a7a]">Available Cash</div>
-              <div className="text-xl md:text-2xl font-bold">${demoBalance.toFixed(2)}</div>
+              <div className="text-xl md:text-2xl font-bold">${demoBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
               <div className="flex mt-1 space-x-1">
-                <Button variant="outline" size="sm" className="text-xs md:text-sm text-white border-white/10 hover:bg-white/10 rounded-md px-2 py-1" onClick={() => toast({ title: "Demo Mode", description: "Deposits are not available in demo mode.", variant: "destructive" })}>
+                <Button variant="outline" size="sm" className="text-xs md:text-sm text-white border-white/10 hover:bg-white/10 rounded-md px-2 py-1" onClick={() => handleDeposit()}>
                   Deposit
                 </Button>
-                <Button variant="outline" size="sm" className="text-xs md:text-sm text-white border-white/10 hover:bg-white/10 rounded-md px-2 py-1" onClick={() => toast({ title: "Demo Mode", description: "Withdrawals are not available in demo mode.", variant: "destructive" })}>
+                <Button variant="outline" size="sm" className="text-xs md:text-sm text-white border-white/10 hover:bg-white/10 rounded-md px-2 py-1" onClick={() => handleWithdraw()}>
                   Withdraw
                 </Button>
               </div>
@@ -215,10 +218,10 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
           <Card className="col-span-2 md:col-span-1 bg-background/40 backdrop-blur-lg border-white/10 text-white rounded-2xl shadow-lg">
             <CardContent className="p-4">
               <div className="text-sm md:text-lg text-[#7a7a7a]">Profit / Loss</div>
-              <div className="text-xl md:text-2xl font-bold text-green-500">+$0.00</div>
+              <div className="text-xl md:text-2xl font-bold text-green-500">+${(demoBalance - demoPrevBalance).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
               <div className="flex items-center text-xs md:text-sm">
                 <ArrowUp className="w-3 h-3 md:w-4 md:h-4 mr-1 text-green-500" />
-                <span className="text-green-500">+0.00%</span>
+                <span className="text-green-500">+{changePercent.toFixed(2)}%</span>
                 <span className="ml-1 text-[#7a7a7a]">all time</span>
               </div>
             </CardContent>

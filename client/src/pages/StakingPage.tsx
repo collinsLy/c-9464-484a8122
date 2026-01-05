@@ -24,11 +24,11 @@ const StakingPage = () => {
   const [stakeTab, setStakeTab] = useState("active");
 
   const assets = [
-    { id: "VTEX", name: "Vertex Token", balance: "324.57", price: "$5.12", apy: "18.5%" },
-    { id: "BTC", name: "Bitcoin", balance: "0.148", price: "$51,245.32", apy: "8.4%" },
-    { id: "ETH", name: "Ethereum", balance: "2.35", price: "$2,876.49", apy: "12.3%" },
-    { id: "SOL", name: "Solana", balance: "45.78", price: "$132.65", apy: "15.8%" },
-    { id: "DOT", name: "Polkadot", balance: "145.87", price: "$18.45", apy: "22.4%" },
+    { id: "VTEX", name: "Vertex Token", balance: "324.57", price: "$5.12", apy: "18.5" },
+    { id: "BTC", name: "Bitcoin", balance: "0.148", price: "$51,245.32", apy: "8.4" },
+    { id: "ETH", name: "Ethereum", balance: "2.35", price: "$2,876.49", apy: "12.3" },
+    { id: "SOL", name: "Solana", balance: "45.78", price: "$132.65", apy: "15.8" },
+    { id: "DOT", name: "Polkadot", balance: "145.87", price: "$18.45", apy: "22.4" },
   ];
 
   const selectedAssetData = assets.find(asset => asset.id === selectedAsset);
@@ -92,7 +92,7 @@ const StakingPage = () => {
                       <div>
                         <span className="font-medium">{selectedAssetData?.name}</span>
                         <div className="text-xs text-white/70">
-                          {selectedAssetData?.price} • {selectedAssetData?.apy} APY
+                          {selectedAssetData?.price} • {selectedAssetData?.apy}% APY
                         </div>
                       </div>
                     </div>
