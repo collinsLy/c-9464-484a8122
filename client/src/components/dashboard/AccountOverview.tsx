@@ -21,6 +21,7 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   const [totalPortfolioValue, setTotalPortfolioValue] = useState(0);
   const [assetPrices, setAssetPrices] = useState<Record<string, number>>({});
   const [userAssets, setUserAssets] = useState<Record<string, any>>({});
+  const [userData, setUserData] = useState<any>(null);
   const [dataReady, setDataReady] = useState(false);
   const [pricesLoaded, setPricesLoaded] = useState(false);
 
@@ -154,19 +155,20 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
       return;
     }
 
-    const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
-      if (userData) {
-        // Set previous day balance from userData or fallback to initialBalance
-        const prevBalance = userData.previousDayBalance || userData.initialBalance || userData.balance || 0;
+    const unsubscribe = UserService.subscribeToUserData(uid, (data) => {
+      if (data) {
+        setUserData(data);
+        // Set previous day balance from data or fallback to initialBalance
+        const prevBalance = data.previousDayBalance || data.initialBalance || data.balance || 0;
         setPreviousDayBalance(prevBalance);
 
-        const parsedBalance = typeof userData.balance === 'string' ? parseFloat(userData.balance) : userData.balance;
+        const parsedBalance = typeof data.balance === 'string' ? parseFloat(data.balance) : data.balance;
         setBalance(parsedBalance || 0);
-        setUserAssets(userData.assets || {});
+        setUserAssets(data.assets || {});
         
         // Calculate portfolio value only if prices are loaded
         if (pricesLoaded && Object.keys(assetPrices).length > 0) {
-          calculatePortfolioValue(userData.assets || {}, assetPrices, parsedBalance || 0);
+          calculatePortfolioValue(data.assets || {}, assetPrices, parsedBalance || 0);
           setDataReady(true);
         }
       }
@@ -308,26 +310,26 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         <Card className="col-span-2 md:col-span-1 bg-background/40 backdrop-blur-lg border-white/10 text-white rounded-2xl shadow-lg">
           <CardContent className="p-4">
             <div className="text-sm md:text-lg text-[#7a7a7a]">Profit / Loss</div>
-            <div className={`text-xl md:text-2xl font-bold flex items-center ${(totalPortfolioValue - balance - (userAssets.USDT?.amount || 0)) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+            <div className={`text-xl md:text-2xl font-bold flex items-center ${(totalPortfolioValue - (userData?.initialBalance || userData?.balance || totalPortfolioValue)) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
               {!dataReady ? (
                 <span className="text-white/60">Loading...</span>
               ) : (
-                `${(totalPortfolioValue - balance - (userAssets.USDT?.amount || 0)) >= 0 ? '+' : ''}$${(totalPortfolioValue - balance - (userAssets.USDT?.amount || 0)).toFixed(2)}`
+                `${(totalPortfolioValue - (userData?.initialBalance || userData?.balance || totalPortfolioValue)) >= 0 ? '+' : ''}$${(totalPortfolioValue - (userData?.initialBalance || userData?.balance || totalPortfolioValue)).toFixed(2)}`
               )}
             </div>
             <div className="flex items-center text-xs md:text-sm">
-              {(totalPortfolioValue - balance - (userAssets.USDT?.amount || 0)) >= 0 ? (
+              {(totalPortfolioValue - (userData?.initialBalance || userData?.balance || totalPortfolioValue)) >= 0 ? (
                 <>
                   <ArrowUp className="w-3 h-3 md:w-4 md:h-4 mr-1 text-green-500" />
                   <span className="text-green-500">
-                    +{(balance + (userAssets.USDT?.amount || 0)) > 0 ? (((totalPortfolioValue - balance - (userAssets.USDT?.amount || 0)) / (balance + (userAssets.USDT?.amount || 0))) * 100).toFixed(2) : '0.00'}%
+                    +{(userData?.initialBalance || userData?.balance) > 0 ? (((totalPortfolioValue - (userData?.initialBalance || userData?.balance)) / (userData?.initialBalance || userData?.balance)) * 100).toFixed(2) : '0.00'}%
                   </span>
                 </>
               ) : (
                 <>
                   <ArrowDown className="w-3 h-3 md:w-4 md:h-4 mr-1 text-red-500" />
                   <span className="text-red-500">
-                    {(balance + (userAssets.USDT?.amount || 0)) > 0 ? (((totalPortfolioValue - balance - (userAssets.USDT?.amount || 0)) / (balance + (userAssets.USDT?.amount || 0))) * 100).toFixed(2) : '0.00'}%
+                    {(userData?.initialBalance || userData?.balance) > 0 ? (((totalPortfolioValue - (userData?.initialBalance || userData?.balance)) / (userData?.initialBalance || userData?.balance)) * 100).toFixed(2) : '0.00'}%
                   </span>
                 </>
               )}

@@ -186,8 +186,15 @@ export function PortfolioAnalytics() {
     });
 
     // Calculate percentages now that we have the total
-    allocation.forEach(asset => {
-      asset.percent = total > 0 ? Number(((asset.value / total) * 100).toFixed(2)) : 0;
+    let totalPercent = 0;
+    allocation.forEach((asset, index) => {
+      if (index === allocation.length - 1) {
+        asset.percent = Number((100 - totalPercent).toFixed(2));
+      } else {
+        const p = total > 0 ? Number(((asset.value / total) * 100).toFixed(2)) : 0;
+        asset.percent = p;
+        totalPercent += p;
+      }
     });
 
     // Sort by value (highest first)
