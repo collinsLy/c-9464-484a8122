@@ -91,6 +91,10 @@ const AssetsList = ({ isDemoMode = false }: AssetsListProps) => {
             const price = assetPrices[symbol] || 0;
             const valueInUsdt = amount * price;
 
+            // Calculate change if previousPrice is available
+            const previousPrice = data.previousPrice || price;
+            const change = previousPrice > 0 ? ((price - previousPrice) / previousPrice) * 100 : 0;
+
             assets.push({
               id: symbol.toLowerCase(),
               name: symbol,
@@ -98,7 +102,7 @@ const AssetsList = ({ isDemoMode = false }: AssetsListProps) => {
               balance: amount,
               value: valueInUsdt, // Calculate actual value based on current price
               price: price, // Store current price
-              change: 0, // You could calculate this if you store historical prices
+              change: change, // Calculated from database price data
               logoUrl: `https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/${symbol.toLowerCase()}.svg`
             });
           });

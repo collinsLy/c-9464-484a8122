@@ -183,7 +183,10 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
   // Demo mode handling
   if (isDemoMode) {
     const demoBalance = parseFloat(localStorage.getItem('demoBalance') || '10000');
-    const demoPrevBalance = demoBalance * 0.985; // Simulated 1.5% gain
+    // Using a more deterministic "random" change for demo mode based on current hour
+    const hour = new Date().getHours();
+    const simulatedChange = 1.2 + (hour % 5) * 0.4; // Realistic fluctuating gain
+    const demoPrevBalance = demoBalance / (1 + (simulatedChange / 100));
     const changePercent = ((demoBalance - demoPrevBalance) / demoPrevBalance) * 100;
     
     return (

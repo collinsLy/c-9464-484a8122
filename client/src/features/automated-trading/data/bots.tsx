@@ -11,6 +11,7 @@ export const botTiers = [
     pair: "SOL/USD", 
     marketType: "Rise & Fall", 
     profit: "100%",
+    winRate: "92.4%",
     icon: "https://s2.coinmarketcap.com/static/img/coins/64x64/11834.png",
     iconColor: "text-blue-400"
   },
@@ -23,6 +24,7 @@ export const botTiers = [
     pair: "BTC/USD", 
     marketType: "Even/Odd", 
     profit: "80%",
+    winRate: "88.7%",
     icon: "https://assets.coingecko.com/coins/images/17547/small/Orca_Logo.png",
     iconColor: "text-purple-400"
   },
@@ -35,6 +37,7 @@ export const botTiers = [
     pair: "BNB/USD", 
     marketType: "Even/Odd", 
     profit: "100%",
+    winRate: "95.1%",
     icon: "https://assets.coingecko.com/coins/images/13469/small/1inch-token.png",
     iconColor: "text-yellow-400"
   },
@@ -47,6 +50,7 @@ export const botTiers = [
     pair: "ETH/USD", 
     marketType: "Even/Odd", 
     profit: "200%",
+    winRate: "98.9%",
     icon: "https://s2.coinmarketcap.com/static/img/coins/64x64/1727.png",
     iconColor: "text-pink-400"
   },
