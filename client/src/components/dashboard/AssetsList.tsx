@@ -33,7 +33,7 @@ const AssetsList = ({ isDemoMode = false }: AssetsListProps) => {
     { id: 5, name: "BNB", symbol: "BNB", balance: 2.2, value: 1332.72, change: 0.75, logoUrl: "https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/svg/color/bnb.svg" },
   ];
 
-  const [liveAssets, setLiveAssets] = useState([]);
+  const [liveAssets, setLiveAssets] = useState<any[]>([]);
   const [assetPrices, setAssetPrices] = useState<Record<string, number>>({});
 
   // Fetch current prices for assets
@@ -142,9 +142,9 @@ const AssetsList = ({ isDemoMode = false }: AssetsListProps) => {
                 </div>
                 <div className="text-right">
                   <div className="font-medium">${asset.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                  {asset.symbol !== 'USDT' && (
+                  {asset.symbol !== 'USDT' && asset.price && (
                     <div className="text-sm text-white/60">
-                      @ ${asset.price?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}/coin
+                      @ ${asset.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/coin
                     </div>
                   )}
                   <div className={`text-sm flex items-center justify-end ${asset.change > 0 ? 'text-green-400' : asset.change < 0 ? 'text-red-400' : 'text-white/60'}`}>
