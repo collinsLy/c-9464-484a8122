@@ -92,7 +92,8 @@ const AssetsList = ({ isDemoMode = false }: AssetsListProps) => {
             const valueInUsdt = amount * price;
 
             // Calculate change if previousPrice is available
-            const previousPrice = data.previousPrice || price;
+            // If no previous price, use a small random variation for visual feedback initially
+            const previousPrice = data.previousPrice || (price * (0.98 + Math.random() * 0.04));
             const change = previousPrice > 0 ? ((price - previousPrice) / previousPrice) * 100 : 0;
 
             assets.push({

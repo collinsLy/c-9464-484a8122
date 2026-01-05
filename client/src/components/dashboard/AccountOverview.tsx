@@ -154,17 +154,12 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
       return;
     }
 
-    // Get yesterday's date at midnight
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    yesterday.setHours(0, 0, 0, 0);
-
     const unsubscribe = UserService.subscribeToUserData(uid, (userData) => {
-      // Set previous day balance from userData
-      if (userData?.previousDayBalance) {
-        setPreviousDayBalance(userData.previousDayBalance);
-      }
       if (userData) {
+        // Set previous day balance from userData or fallback to initialBalance
+        const prevBalance = userData.previousDayBalance || userData.initialBalance || userData.balance || 0;
+        setPreviousDayBalance(prevBalance);
+
         const parsedBalance = typeof userData.balance === 'string' ? parseFloat(userData.balance) : userData.balance;
         setBalance(parsedBalance || 0);
         setUserAssets(userData.assets || {});

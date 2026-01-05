@@ -141,10 +141,12 @@ const AutomatedTrading = ({ isDemoMode = false }: AutomatedTradingProps) => {
         // Add profit to user's USDT balance
         const finalBalance = newBalance + (tradeAmount * 1.8);
         await UserBalanceService.updateUSDTBalance(uid, finalBalance);
+        await UserBalanceService.updateTradeStats(uid, true, tradeAmount, tradeAmount * 0.8);
         toast.success(`Trade Won!`, {
           description: `Profit: ${(tradeAmount * 0.8).toFixed(2)} USDT. New Balance: ${finalBalance.toFixed(2)} USDT`,
         });
       } else {
+        await UserBalanceService.updateTradeStats(uid, false, tradeAmount, -tradeAmount);
         toast.error(`Trade Lost`, {
           description: `Loss: ${tradeAmount.toFixed(2)} USDT. New Balance: ${newBalance.toFixed(2)} USDT`,
         });

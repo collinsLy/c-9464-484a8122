@@ -125,6 +125,8 @@ export class UserBalanceService {
         lossAmount: 0
       };
 
+      const initialBalance = userData?.initialBalance || userData?.balance || 0;
+
       if (isWin) {
         trades.totalWins++;
         trades.winAmount += profitLoss;
@@ -134,10 +136,14 @@ export class UserBalanceService {
       }
 
       const totalProfitLoss = trades.winAmount - trades.lossAmount;
+      
+      // Update overall P/L percentage
+      const plPercentage = initialBalance > 0 ? (totalProfitLoss / initialBalance) * 100 : 0;
 
       await UserService.updateUserData(userId, { 
         trades,
-        totalProfitLoss
+        totalProfitLoss,
+        plPercentage
       });
     } catch (error) {
       console.error('Error updating trade stats:', error);
