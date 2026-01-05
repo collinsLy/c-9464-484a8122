@@ -260,14 +260,14 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
                 <>
                   <ArrowUp className="w-3 h-3 md:w-4 md:h-4 mr-1 text-green-500" />
                   <span className="text-green-500">
-                    +{previousDayBalance > 0 ? (((totalPortfolioValue - previousDayBalance) / previousDayBalance) * 100).toFixed(2) : '0.00'}%
+                    +{previousDayBalance > 1 ? Math.min(100, (((totalPortfolioValue - previousDayBalance) / previousDayBalance) * 100)).toFixed(2) : '0.00'}%
                   </span>
                 </>
               ) : (
                 <>
                   <ArrowDown className="w-3 h-3 md:w-4 md:h-4 mr-1 text-red-500" />
                   <span className="text-red-500">
-                    {previousDayBalance > 0 ? (((totalPortfolioValue - previousDayBalance) / previousDayBalance) * 100).toFixed(2) : '0.00'}%
+                    {previousDayBalance > 1 ? Math.max(-100, (((totalPortfolioValue - previousDayBalance) / previousDayBalance) * 100)).toFixed(2) : '0.00'}%
                   </span>
                 </>
               )}
@@ -310,26 +310,26 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
         <Card className="col-span-2 md:col-span-1 bg-background/40 backdrop-blur-lg border-white/10 text-white rounded-2xl shadow-lg">
           <CardContent className="p-4">
             <div className="text-sm md:text-lg text-[#7a7a7a]">Profit / Loss</div>
-            <div className={`text-xl md:text-2xl font-bold flex items-center ${(totalPortfolioValue - (userData?.initialBalance || userData?.balance || totalPortfolioValue)) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+            <div className={`text-xl md:text-2xl font-bold flex items-center ${(totalPortfolioValue - (userData?.initialBalance || userData?.balance || 0)) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
               {!dataReady ? (
                 <span className="text-white/60">Loading...</span>
               ) : (
-                `${(totalPortfolioValue - (userData?.initialBalance || userData?.balance || totalPortfolioValue)) >= 0 ? '+' : ''}$${(totalPortfolioValue - (userData?.initialBalance || userData?.balance || totalPortfolioValue)).toFixed(2)}`
+                `${(totalPortfolioValue - (userData?.initialBalance || userData?.balance || 0)) >= 0 ? '+' : ''}$${(totalPortfolioValue - (userData?.initialBalance || userData?.balance || 0)).toFixed(2)}`
               )}
             </div>
             <div className="flex items-center text-xs md:text-sm">
-              {(totalPortfolioValue - (userData?.initialBalance || userData?.balance || totalPortfolioValue)) >= 0 ? (
+              {(totalPortfolioValue - (userData?.initialBalance || userData?.balance || 0)) >= 0 ? (
                 <>
                   <ArrowUp className="w-3 h-3 md:w-4 md:h-4 mr-1 text-green-500" />
                   <span className="text-green-500">
-                    +{(userData?.initialBalance || userData?.balance) > 0 ? (((totalPortfolioValue - (userData?.initialBalance || userData?.balance)) / (userData?.initialBalance || userData?.balance)) * 100).toFixed(2) : '0.00'}%
+                    +{(userData?.initialBalance || userData?.balance) > 1 ? Math.min(100, (((totalPortfolioValue - (userData?.initialBalance || userData?.balance)) / (userData?.initialBalance || userData?.balance)) * 100)).toFixed(2) : '0.00'}%
                   </span>
                 </>
               ) : (
                 <>
                   <ArrowDown className="w-3 h-3 md:w-4 md:h-4 mr-1 text-red-500" />
                   <span className="text-red-500">
-                    {(userData?.initialBalance || userData?.balance) > 0 ? (((totalPortfolioValue - (userData?.initialBalance || userData?.balance)) / (userData?.initialBalance || userData?.balance)) * 100).toFixed(2) : '0.00'}%
+                    {(userData?.initialBalance || userData?.balance) > 1 ? Math.max(-100, (((totalPortfolioValue - (userData?.initialBalance || userData?.balance)) / (userData?.initialBalance || userData?.balance)) * 100)).toFixed(2) : '0.00'}%
                   </span>
                 </>
               )}
