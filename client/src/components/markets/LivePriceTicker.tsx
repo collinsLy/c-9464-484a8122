@@ -156,7 +156,7 @@ export function LivePriceTicker({ symbol }: { symbol?: string }) {
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-sm text-white">{item.symbol}</span>
                   <Badge variant={parseFloat(item.priceChange) >= 0 ? "default" : "destructive"} className={cn("text-xs", parseFloat(item.priceChange) >= 0 && "bg-green-500 hover:bg-green-600")}>
-                    {parseFloat(item.priceChange) >= 0 ? '+' : ''}{item.priceChange}%
+                    {parseFloat(item.priceChange) >= 0 ? '+' : ''}{parseFloat(item.priceChange).toFixed(2)}%
                   </Badge>
                 </div>
                 <p className="text-lg font-bold text-white mt-1">${item.price.toFixed(2)}</p>

@@ -126,7 +126,7 @@ const BotWinTracker = ({ botId, userId }: BotWinTrackerProps) => {
               <span className="text-white/70">Win Limit</span>
               <span className="font-mono text-[#F2FF44]">{winCount}/{MAX_WINS}</span>
             </div>
-            <Progress value={(winCount / MAX_WINS) * 100} className="h-2 bg-white/10" indicatorClassName="bg-[#F2FF44]" />
+            <Progress value={Number(((winCount / MAX_WINS) * 100).toFixed(2))} className="h-2 bg-white/10" indicatorClassName="bg-[#F2FF44]" />
           </div>
           
           <div className="text-xs text-white/70">

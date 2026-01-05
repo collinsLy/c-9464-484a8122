@@ -187,7 +187,7 @@ export function PortfolioAnalytics() {
 
     // Calculate percentages now that we have the total
     allocation.forEach(asset => {
-      asset.percent = total > 0 ? Math.round((asset.value / total) * 100) : 0;
+      asset.percent = total > 0 ? Number(((asset.value / total) * 100).toFixed(2)) : 0;
     });
 
     // Sort by value (highest first)
@@ -553,7 +553,7 @@ function renderPieSlices(allocation: { percent: number; color: string; symbol: s
         onMouseEnter={(e) => {
           const tooltip = document.getElementById('pie-tooltip');
           if (tooltip) {
-            tooltip.innerHTML = `${asset.symbol}: $${asset.value.toFixed(2)} (${asset.percent.toFixed(1)}%)`;
+            tooltip.innerHTML = `${asset.symbol}: $${asset.value.toFixed(2)} (${asset.percent.toFixed(2)}%)`;
             tooltip.style.display = 'block';
             tooltip.style.left = `${e.clientX + 10}px`;
             tooltip.style.top = `${e.clientY - 20}px`;
