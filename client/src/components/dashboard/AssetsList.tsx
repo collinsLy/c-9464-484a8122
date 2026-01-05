@@ -156,7 +156,7 @@ const AssetsList = ({ isDemoMode = false }: AssetsListProps) => {
                     {asset.change !== 0 && (
                       <>
                         {asset.change > 0 ? <ArrowUpRight className="w-3 h-3 mr-1" /> : <ArrowDownRight className="w-3 h-3 mr-1" />}
-                        {asset.change > 0 ? '+' : ''}{asset.change}%
+                        {asset.change > 0 ? '+' : ''}{asset.change.toFixed(2)}%
                       </>
                     )}
                   </div>

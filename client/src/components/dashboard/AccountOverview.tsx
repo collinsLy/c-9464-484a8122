@@ -258,14 +258,14 @@ const AccountOverview = ({ isDemoMode = false }: AccountOverviewProps) => {
                 <>
                   <ArrowUp className="w-3 h-3 md:w-4 md:h-4 mr-1 text-green-500" />
                   <span className="text-green-500">
-                    +{previousDayBalance > 0 ? ((totalPortfolioValue - previousDayBalance) / previousDayBalance * 100).toFixed(2) : '0.00'}%
+                    +{previousDayBalance > 0 ? (((totalPortfolioValue - previousDayBalance) / previousDayBalance) * 100).toFixed(2) : '0.00'}%
                   </span>
                 </>
               ) : (
                 <>
                   <ArrowDown className="w-3 h-3 md:w-4 md:h-4 mr-1 text-red-500" />
                   <span className="text-red-500">
-                    {previousDayBalance > 0 ? ((totalPortfolioValue - previousDayBalance) / previousDayBalance * 100).toFixed(2) : '0.00'}%
+                    {previousDayBalance > 0 ? (((totalPortfolioValue - previousDayBalance) / previousDayBalance) * 100).toFixed(2) : '0.00'}%
                   </span>
                 </>
               )}
