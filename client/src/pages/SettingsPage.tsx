@@ -23,7 +23,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "@/components/ui/use-toast";
 import AvatarCollection, { avatarOptions } from "@/components/AvatarCollection"; // Import avatarOptions
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { EmailNotificationDemo } from "@/components/EmailNotificationDemo";
 import NumericalUidDisplay from '@/components/NumericalUidDisplay';
 import KYCVerification from '@/components/kyc/KYCVerification';
 
@@ -725,17 +724,6 @@ const SettingsPage = () => {
                       <Switch id="sms-transactions" checked={true} />
                     </div>
                   </div>
-                </div>
-
-                <Separator className="bg-white/10 my-4" />
-
-                {/* Email Testing Section */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Email Testing & Configuration</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Test email notifications for transactions and verify email service configuration.
-                  </p>
-                  <EmailNotificationDemo />
                 </div>
 
                 <div className="space-y-3 sm:space-y-4">
