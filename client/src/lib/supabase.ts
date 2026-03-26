@@ -1,10 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Supabase configuration
-const supabaseUrl = 'https://znibojwzbfqdzxovlxdv.supabase.co';
+const supabaseUrl = 'https://adfmzitfrebmteoujxby.supabase.co';
 // Keys are defined directly in the file instead of using environment variables
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuaWJvand6YmZxZHp4b3ZseGR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMyNTkyNzMsImV4cCI6MjA2ODgzNTI3M30.aR9hug-nd8J9iCUVOwvlWtyKE7yrFbzoM89CO0GNw5M';
-const serviceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuaWJvand6YmZxZHp4b3ZseGR2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzI1OTI3MywiZXhwIjoyMDY4ODM1MjczfQ.nbuDKz2CFpQNJ3rjrtsiyjY_F7R52UJ7doH7uDnkx_4';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkZm16aXRmcmVibXRlb3VqeGJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1Mjg0MDUsImV4cCI6MjA5MDEwNDQwNX0.ik0eu8-GBuO_uUsR7XgB_k5eZJAooIP5CqUf7uhQ4BE';
+const serviceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkZm16aXRmcmVibXRlb3VqeGJ5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDUyODQwNSwiZXhwIjoyMDkwMTA0NDA1fQ.DbIXFLFCIwZsqjBhAVZFBBw3zYZzuJkucFBkupCZ_Ok';
 
 // Optional: Create a service client with admin privileges for storage operations
 // This bypasses RLS policies for file operations

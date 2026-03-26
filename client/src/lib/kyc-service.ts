@@ -3,13 +3,14 @@ import { auth, db } from "@/lib/firebase";
 import { supabase } from "@/lib/supabase";
 
 // Import service client creator for privileged operations
+// Reset instance when URL changes
 let serviceClientInstance: any = null;
 
 const getServiceClient = async () => {
   if (!serviceClientInstance) {
     const { createClient } = await import('@supabase/supabase-js');
-    const supabaseUrl = 'https://znibojwzbfqdzxovlxdv.supabase.co';
-    const serviceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpuaWJvand6YmZxZHp4b3ZseGR2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzI1OTI3MywiZXhwIjoyMDY4ODM1MjczfQ.nbuDKz2CFpQNJ3rjrtsiyjY_F7R52UJ7doH7uDnkx_4';
+    const supabaseUrl = 'https://adfmzitfrebmteoujxby.supabase.co';
+    const serviceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkZm16aXRmcmVibXRlb3VqeGJ5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDUyODQwNSwiZXhwIjoyMDkwMTA0NDA1fQ.DbIXFLFCIwZsqjBhAVZFBBw3zYZzuJkucFBkupCZ_Ok';
     
     serviceClientInstance = createClient(supabaseUrl, serviceRoleKey, {
       auth: { persistSession: false }
