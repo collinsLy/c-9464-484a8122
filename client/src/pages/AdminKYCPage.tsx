@@ -83,6 +83,7 @@ const AdminKYCPage = () => {
   const [selectedSecurityUser, setSelectedSecurityUser] = useState<string>('');
   const [duplicatesDetected, setDuplicatesDetected] = useState<Array<{email: string, users: AdminUser[]}>>([]);
   const [securityReportData, setSecurityReportData] = useState<any>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const loadDashboardData = async () => {
     try {
@@ -646,10 +647,28 @@ const AdminKYCPage = () => {
     try {
       setIsProcessing(true);
       await kycService.updateKYCStatus(submissionId, status, reviewComment);
-      
+
+      // Send email notification to the user directly from admin page
+      if (selectedSubmission) {
+        try {
+          const adminUser = auth.currentUser;
+          await AdminService.sendKYCNotification({
+            userEmail: selectedSubmission.userEmail,
+            userName: selectedSubmission.userName,
+            status,
+            comments: reviewComment || undefined,
+            adminId: adminUser?.email || 'admin',
+          });
+          console.log(`✅ KYC status email sent to ${selectedSubmission.userEmail}`);
+        } catch (emailError) {
+          console.error('Email notification failed (non-critical):', emailError);
+        }
+      }
+
+      const statusLabel = status === 'approved' ? 'Approved' : status === 'rejected' ? 'Rejected' : 'Marked as Under Review';
       toast({
         title: "Status Updated",
-        description: `KYC application has been ${status}`,
+        description: `KYC application has been ${statusLabel}. User has been notified by email.`,
       });
 
       await loadSubmissions();
@@ -807,21 +826,29 @@ const AdminKYCPage = () => {
   return (
     <div className="min-h-screen bg-[#0f1115]">
       {/* Header */}
-      <header className="bg-gray-900 border-b border-gray-800 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <h1 className="text-2xl font-bold text-white">Vertex Admin Panel</h1>
-            <Badge className="bg-blue-600 text-white">
-              KYC Management System
-            </Badge>
+      <header className="bg-gray-900 border-b border-gray-800 px-4 md:px-6 py-4 sticky top-0 z-40">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 md:gap-4 min-w-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="md:hidden text-white p-2 shrink-0"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+              </svg>
+            </Button>
+            <h1 className="text-lg md:text-2xl font-bold text-white truncate">Vertex Admin</h1>
+            <Badge className="bg-blue-600 text-white hidden sm:inline-flex shrink-0">KYC System</Badge>
           </div>
           
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center gap-2 shrink-0">
             <Button
               variant="outline"
               size="sm"
               onClick={() => window.location.href = '/dashboard'}
-              className="text-white border-gray-600 hover:bg-gray-800"
+              className="text-white border-gray-600 hover:bg-gray-800 hidden sm:flex"
             >
               <Home className="w-4 h-4 mr-2" />
               Dashboard
@@ -829,69 +856,74 @@ const AdminKYCPage = () => {
             <Button
               variant="outline"
               size="sm"
+              onClick={() => window.location.href = '/dashboard'}
+              className="text-white border-gray-600 hover:bg-gray-800 sm:hidden p-2"
+            >
+              <Home className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleLogout}
-              className="text-white border-gray-600 hover:bg-gray-800"
+              className="text-white border-gray-600 hover:bg-gray-800 hidden sm:flex"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Logout
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLogout}
+              className="text-white border-gray-600 hover:bg-gray-800 sm:hidden p-2"
+            >
+              <LogOut className="w-4 h-4" />
             </Button>
           </div>
         </div>
       </header>
 
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 z-30 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Main Content */}
-      <div className="flex">
+      <div className="flex relative">
         {/* Sidebar */}
-        <aside className="w-64 bg-gray-900 min-h-screen p-6">
+        <aside className={`
+          fixed md:static top-0 left-0 h-full md:h-auto z-30 md:z-auto
+          w-64 bg-gray-900 min-h-screen p-6
+          transform transition-transform duration-200
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        `}>
+          <div className="flex items-center justify-between mb-4 md:hidden">
+            <span className="text-white font-semibold">Menu</span>
+            <button onClick={() => setSidebarOpen(false)} className="text-gray-400 hover:text-white">
+              <XCircle className="w-5 h-5" />
+            </button>
+          </div>
           <nav className="space-y-2">
-            <Button
-              variant={activeTab === 'overview' ? 'default' : 'ghost'}
-              className="w-full justify-start text-white"
-              onClick={() => setActiveTab('overview')}
-            >
-              <BarChart3 className="w-4 h-4 mr-2" />
-              Overview
-            </Button>
-            <Button
-              variant={activeTab === 'users' ? 'default' : 'ghost'}
-              className="w-full justify-start text-white"
-              onClick={() => setActiveTab('users')}
-            >
-              <Users className="w-4 h-4 mr-2" />
-              User Management
-            </Button>
-            <Button
-              variant={activeTab === 'messaging' ? 'default' : 'ghost'}
-              className="w-full justify-start text-white"
-              onClick={() => setActiveTab('messaging')}
-            >
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Messaging
-            </Button>
-            <Button
-              variant={activeTab === 'kyc' ? 'default' : 'ghost'}
-              className="w-full justify-start text-white"
-              onClick={() => setActiveTab('kyc')}
-            >
-              <FileText className="w-4 h-4 mr-2" />
-              KYC Review
-            </Button>
-            <Button
-              variant={activeTab === 'security' ? 'default' : 'ghost'}
-              className="w-full justify-start text-white"
-              onClick={() => setActiveTab('security')}
-            >
-              <Shield className="w-4 h-4 mr-2" />
-              Security
-            </Button>
-            <Button
-              variant={activeTab === 'system' ? 'default' : 'ghost'}
-              className="w-full justify-start text-white"
-              onClick={() => setActiveTab('system')}
-            >
-              <Settings className="w-4 h-4 mr-2" />
-              Legacy Tools
-            </Button>
+            {[
+              { tab: 'overview', label: 'Overview', icon: <BarChart3 className="w-4 h-4 mr-2" /> },
+              { tab: 'users', label: 'User Management', icon: <Users className="w-4 h-4 mr-2" /> },
+              { tab: 'messaging', label: 'Messaging', icon: <MessageSquare className="w-4 h-4 mr-2" /> },
+              { tab: 'kyc', label: 'KYC Review', icon: <FileText className="w-4 h-4 mr-2" /> },
+              { tab: 'security', label: 'Security', icon: <Shield className="w-4 h-4 mr-2" /> },
+              { tab: 'system', label: 'Legacy Tools', icon: <Settings className="w-4 h-4 mr-2" /> },
+            ].map(({ tab, label, icon }) => (
+              <Button
+                key={tab}
+                variant={activeTab === tab ? 'default' : 'ghost'}
+                className="w-full justify-start text-white"
+                onClick={() => { setActiveTab(tab); setSidebarOpen(false); }}
+              >
+                {icon}
+                {label}
+              </Button>
+            ))}
           </nav>
 
           <div className="mt-8 p-4 bg-gray-800 rounded-lg">
@@ -918,24 +950,24 @@ const AdminKYCPage = () => {
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-4 md:p-6 min-w-0">
           {activeTab === 'kyc' && (
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               {/* Controls */}
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="relative">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex flex-col sm:flex-row gap-2 flex-1">
+                  <div className="relative flex-1 sm:max-w-xs">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
                       placeholder="Search by name or email..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 bg-gray-800 border-gray-600 text-white w-64"
+                      className="pl-10 bg-gray-800 border-gray-600 text-white w-full"
                     />
                   </div>
                   
                   <Select value={filterStatus} onValueChange={setFilterStatus}>
-                    <SelectTrigger className="w-48 bg-gray-800 border-gray-600 text-white">
+                    <SelectTrigger className="w-full sm:w-44 bg-gray-800 border-gray-600 text-white">
                       <SelectValue placeholder="Filter by status" />
                     </SelectTrigger>
                     <SelectContent className="bg-gray-800 border-gray-600">
@@ -948,15 +980,16 @@ const AdminKYCPage = () => {
                   </Select>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleCreateTestKYC}
                     className="text-white border-gray-600 hover:bg-gray-800"
                   >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Test Data
+                    <Plus className="w-4 h-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">Add Test Data</span>
+                    <span className="sm:hidden">Test</span>
                   </Button>
                   <Button
                     variant="outline"
@@ -965,8 +998,9 @@ const AdminKYCPage = () => {
                     disabled={filteredSubmissions.length === 0}
                     className="text-white border-gray-600 hover:bg-gray-800"
                   >
-                    <Download className="w-4 h-4 mr-2" />
-                    Export CSV
+                    <Download className="w-4 h-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">Export CSV</span>
+                    <span className="sm:hidden">Export</span>
                   </Button>
                   <Button
                     variant="outline"
@@ -985,7 +1019,7 @@ const AdminKYCPage = () => {
                 <CardHeader>
                   <CardTitle className="text-white">KYC Submissions ({filteredSubmissions.length})</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-0 sm:p-6">
                   {isLoading ? (
                     <div className="flex items-center justify-center py-8">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -996,52 +1030,54 @@ const AdminKYCPage = () => {
                       No KYC submissions found matching your criteria.
                     </div>
                   ) : (
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="border-gray-700">
-                          <TableHead className="text-gray-300">User</TableHead>
-                          <TableHead className="text-gray-300">Status</TableHead>
-                          <TableHead className="text-gray-300">Submitted</TableHead>
-                          <TableHead className="text-gray-300">Country</TableHead>
-                          <TableHead className="text-gray-300">Document</TableHead>
-                          <TableHead className="text-gray-300">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {filteredSubmissions.map((submission) => (
-                          <TableRow key={submission.id} className="border-gray-700">
-                            <TableCell>
-                              <div>
-                                <div className="font-medium text-white">{submission.userName}</div>
-                                <div className="text-sm text-gray-400">{submission.userEmail}</div>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Badge className={getStatusColor(submission.status)}>
-                                <span className="flex items-center gap-1">
-                                  {getStatusIcon(submission.status)}
-                                  {submission.status.replace('_', ' ').toUpperCase()}
-                                </span>
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-gray-300">{submission.submittedAt.toLocaleDateString()}</TableCell>
-                            <TableCell className="text-gray-300">{submission.personalInfo.country}</TableCell>
-                            <TableCell className="text-gray-300">{submission.personalInfo.documentType.replace('_', ' ')}</TableCell>
-                            <TableCell>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleOpenDetailDialog(submission)}
-                                className="text-white border-gray-600 hover:bg-gray-800"
-                              >
-                                <Eye className="w-4 h-4 mr-1" />
-                                Review
-                              </Button>
-                            </TableCell>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-gray-700">
+                            <TableHead className="text-gray-300 whitespace-nowrap">User</TableHead>
+                            <TableHead className="text-gray-300 whitespace-nowrap">Status</TableHead>
+                            <TableHead className="text-gray-300 whitespace-nowrap">Submitted</TableHead>
+                            <TableHead className="text-gray-300 whitespace-nowrap hidden md:table-cell">Country</TableHead>
+                            <TableHead className="text-gray-300 whitespace-nowrap hidden lg:table-cell">Document</TableHead>
+                            <TableHead className="text-gray-300 whitespace-nowrap">Actions</TableHead>
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredSubmissions.map((submission) => (
+                            <TableRow key={submission.id} className="border-gray-700">
+                              <TableCell>
+                                <div>
+                                  <div className="font-medium text-white whitespace-nowrap">{submission.userName}</div>
+                                  <div className="text-xs text-gray-400 max-w-[140px] truncate">{submission.userEmail}</div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Badge className={`${getStatusColor(submission.status)} whitespace-nowrap`}>
+                                  <span className="flex items-center gap-1">
+                                    {getStatusIcon(submission.status)}
+                                    <span className="hidden sm:inline">{submission.status.replace('_', ' ').toUpperCase()}</span>
+                                  </span>
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-gray-300 whitespace-nowrap">{submission.submittedAt.toLocaleDateString()}</TableCell>
+                              <TableCell className="text-gray-300 whitespace-nowrap hidden md:table-cell">{submission.personalInfo.country}</TableCell>
+                              <TableCell className="text-gray-300 whitespace-nowrap hidden lg:table-cell">{submission.personalInfo.documentType.replace('_', ' ')}</TableCell>
+                              <TableCell>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleOpenDetailDialog(submission)}
+                                  className="text-white border-gray-600 hover:bg-gray-800 whitespace-nowrap"
+                                >
+                                  <Eye className="w-4 h-4 mr-1" />
+                                  Review
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
                   )}
                 </CardContent>
               </Card>
@@ -1223,7 +1259,8 @@ const AdminKYCPage = () => {
                 <CardHeader>
                   <CardTitle className="text-white">All Users ({users.length})</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-0 sm:p-6">
+                  <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow className="border-gray-700">
@@ -1297,6 +1334,7 @@ const AdminKYCPage = () => {
                       ))}
                     </TableBody>
                   </Table>
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -2027,20 +2065,20 @@ const AdminKYCPage = () => {
 
       {/* KYC Detail Dialog */}
       <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-700 text-white">
+        <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-900 border-gray-700 text-white">
           <DialogHeader>
             <DialogTitle className="text-white">KYC Application Review</DialogTitle>
           </DialogHeader>
           
           {selectedSubmission && (
-            <div className="space-y-6">
+            <div className="space-y-5">
               {/* User Info */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <h4 className="font-semibold mb-2 text-white">User Information</h4>
                   <div className="space-y-1 text-sm text-gray-300">
                     <p><strong>Name:</strong> {selectedSubmission.userName}</p>
-                    <p><strong>Email:</strong> {selectedSubmission.userEmail}</p>
+                    <p className="break-all"><strong>Email:</strong> {selectedSubmission.userEmail}</p>
                     <p><strong>Submitted:</strong> {selectedSubmission.submittedAt.toLocaleString()}</p>
                     {selectedSubmission.reviewedAt && (
                       <p><strong>Reviewed:</strong> {selectedSubmission.reviewedAt.toLocaleString()}</p>
@@ -2068,7 +2106,7 @@ const AdminKYCPage = () => {
               {/* Documents */}
               <div>
                 <h4 className="font-semibold mb-2 text-white">Uploaded Documents</h4>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {selectedSubmission.documents.map((doc, index) => (
                     <div key={index} className="border border-gray-700 rounded-lg p-4 bg-gray-800">
                       <div className="flex items-center gap-2 mb-2">
@@ -2136,31 +2174,32 @@ const AdminKYCPage = () => {
                     />
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Button
                       variant="outline"
                       onClick={() => handleStatusUpdate(selectedSubmission.id!, 'under_review')}
                       disabled={isProcessing}
-                      className="text-white border-gray-600 hover:bg-gray-800"
+                      className="text-white border-gray-600 hover:bg-gray-800 flex-1 sm:flex-none"
                     >
-                      <Clock className="w-4 h-4 mr-1" />
+                      {isProcessing ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Clock className="w-4 h-4 mr-1" />}
                       Under Review
                     </Button>
                     <Button
                       onClick={() => handleStatusUpdate(selectedSubmission.id!, 'approved')}
                       disabled={isProcessing}
-                      className="bg-green-600 hover:bg-green-700 text-white"
+                      className="bg-green-600 hover:bg-green-700 text-white flex-1 sm:flex-none"
                     >
-                      <CheckCircle className="w-4 h-4 mr-1" />
-                      Approve
+                      {isProcessing ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-1" />}
+                      KYC Approved
                     </Button>
                     <Button
                       variant="destructive"
                       onClick={() => handleStatusUpdate(selectedSubmission.id!, 'rejected')}
                       disabled={isProcessing}
+                      className="flex-1 sm:flex-none"
                     >
-                      <XCircle className="w-4 h-4 mr-1" />
-                      Reject
+                      {isProcessing ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <XCircle className="w-4 h-4 mr-1" />}
+                      KYC Not Approved
                     </Button>
                   </div>
                 </div>
