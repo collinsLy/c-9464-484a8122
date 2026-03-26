@@ -197,6 +197,29 @@ class KYCService {
         kycSubmittedAt: new Date()
       });
 
+      // Notify admin via email automatically
+      try {
+        await fetch('/api/kyc/notify-admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userName: kycData.userName,
+            userEmail: kycData.userEmail,
+            userId: kycData.userId,
+            submissionId: docRef.id,
+            personalInfo: kycData.personalInfo,
+            documents: kycData.documents.map((d) => ({
+              type: d.type,
+              url: d.url,
+              fileName: d.fileName,
+            })),
+            submittedAt: kycData.submittedAt.toLocaleString(),
+          }),
+        });
+      } catch (notifyError) {
+        console.warn('Admin KYC notification failed (non-critical):', notifyError);
+      }
+
       return docRef.id;
     } catch (error) {
       console.error('Error submitting KYC:', error);

@@ -397,6 +397,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // KYC submission alert to admin (triggered automatically on user submission)
+  app.post("/api/kyc/notify-admin", async (req, res) => {
+    try {
+      const { userName, userEmail, userId, submissionId, personalInfo, documents, submittedAt } = req.body;
+
+      if (!userName || !userEmail || !userId || !submissionId || !personalInfo || !documents) {
+        return res.status(400).json({
+          success: false,
+          error: "Missing required fields",
+        });
+      }
+
+      const result = await messagingService.sendKYCSubmissionAlertToAdmin({
+        userName,
+        userEmail,
+        userId,
+        submissionId,
+        personalInfo,
+        documents,
+        submittedAt: submittedAt || new Date().toLocaleString(),
+      });
+
+      res.json(result);
+    } catch (error) {
+      console.error("KYC admin alert error:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to send KYC admin alert",
+        details: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+
   app.post("/api/admin/send-kyc-notification", async (req, res) => {
     try {
       const { userEmail, userName, status, comments, adminId } = req.body;

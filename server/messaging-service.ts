@@ -313,6 +313,180 @@ export class MessagingService {
     }
   }
 
+  // Send KYC submission alert to admin
+  async sendKYCSubmissionAlertToAdmin(data: {
+    userName: string;
+    userEmail: string;
+    userId: string;
+    submissionId: string;
+    personalInfo: {
+      fullName: string;
+      dateOfBirth: string;
+      address: string;
+      country: string;
+      documentType: string;
+      documentNumber: string;
+    };
+    documents: Array<{ type: string; url: string; fileName: string }>;
+    submittedAt: string;
+  }): Promise<MessageResult> {
+    try {
+      const adminEmail = process.env.ADMIN_EMAIL || this.fromEmail;
+      const currentYear = new Date().getFullYear();
+
+      const documentTypeLabels: Record<string, string> = {
+        passport: 'Passport',
+        drivers_license: "Driver's License",
+        national_id: 'National ID',
+        id_front: 'ID Front',
+        id_back: 'ID Back',
+        selfie: 'Selfie',
+        proof_of_address: 'Proof of Address',
+      };
+
+      const documentRows = data.documents
+        .map(
+          (doc) => `
+          <tr>
+            <td style="padding: 10px 12px; border-bottom: 1px solid #e0e0e0; color: #555555; font-size: 14px;">
+              ${documentTypeLabels[doc.type] || doc.type}
+            </td>
+            <td style="padding: 10px 12px; border-bottom: 1px solid #e0e0e0; font-size: 14px;">
+              <a href="${doc.url}" style="color: #ff7a00; text-decoration: none; word-break: break-all;" target="_blank">View Document</a>
+            </td>
+          </tr>`
+        )
+        .join('');
+
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>New KYC Submission</title>
+        </head>
+        <body style="background-color: #f5f5f5; color: #333333; font-family: Arial, sans-serif; margin: 0; padding: 40px 20px; min-height: 100vh;">
+          <div style="max-width: 620px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+
+            <!-- Header -->
+            <div style="padding: 30px; border-bottom: 1px solid #e0e0e0; text-align: center; background-color: #1a1a1a;">
+              <h1 style="margin: 0; font-size: 22px; font-weight: bold; color: #ffffff;">${this.brandName}</h1>
+              <p style="margin: 8px 0 0 0; font-size: 14px; color: #aaaaaa;">Admin Notification</p>
+            </div>
+
+            <!-- Alert Banner -->
+            <div style="background-color: #fff8f0; border-left: 4px solid #ff7a00; padding: 16px 24px; margin: 0;">
+              <p style="margin: 0; font-size: 16px; font-weight: bold; color: #cc5500;">📋 New KYC Submission Received</p>
+              <p style="margin: 6px 0 0 0; font-size: 13px; color: #777777;">Submitted on ${data.submittedAt}</p>
+            </div>
+
+            <!-- Content -->
+            <div style="padding: 28px 30px;">
+
+              <!-- User Info -->
+              <h3 style="margin: 0 0 14px 0; font-size: 16px; font-weight: bold; color: #1a1a1a; border-bottom: 2px solid #ff7a00; padding-bottom: 8px;">User Information</h3>
+              <table style="width: 100%; border-collapse: collapse; margin-bottom: 26px;">
+                <tr>
+                  <td style="padding: 9px 12px; background-color: #f9f9f9; border-bottom: 1px solid #e0e0e0; font-size: 13px; color: #888888; width: 38%;">Full Name</td>
+                  <td style="padding: 9px 12px; border-bottom: 1px solid #e0e0e0; font-size: 14px; color: #1a1a1a; font-weight: bold;">${data.userName}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 9px 12px; background-color: #f9f9f9; border-bottom: 1px solid #e0e0e0; font-size: 13px; color: #888888;">Email</td>
+                  <td style="padding: 9px 12px; border-bottom: 1px solid #e0e0e0; font-size: 14px; color: #1a1a1a;">${data.userEmail}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 9px 12px; background-color: #f9f9f9; border-bottom: 1px solid #e0e0e0; font-size: 13px; color: #888888;">User ID</td>
+                  <td style="padding: 9px 12px; border-bottom: 1px solid #e0e0e0; font-size: 13px; color: #555555;">${data.userId}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 9px 12px; background-color: #f9f9f9; font-size: 13px; color: #888888;">Submission ID</td>
+                  <td style="padding: 9px 12px; font-size: 13px; color: #555555;">${data.submissionId}</td>
+                </tr>
+              </table>
+
+              <!-- Personal Info -->
+              <h3 style="margin: 0 0 14px 0; font-size: 16px; font-weight: bold; color: #1a1a1a; border-bottom: 2px solid #ff7a00; padding-bottom: 8px;">Personal Information</h3>
+              <table style="width: 100%; border-collapse: collapse; margin-bottom: 26px;">
+                <tr>
+                  <td style="padding: 9px 12px; background-color: #f9f9f9; border-bottom: 1px solid #e0e0e0; font-size: 13px; color: #888888; width: 38%;">Date of Birth</td>
+                  <td style="padding: 9px 12px; border-bottom: 1px solid #e0e0e0; font-size: 14px; color: #1a1a1a;">${data.personalInfo.dateOfBirth}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 9px 12px; background-color: #f9f9f9; border-bottom: 1px solid #e0e0e0; font-size: 13px; color: #888888;">Address</td>
+                  <td style="padding: 9px 12px; border-bottom: 1px solid #e0e0e0; font-size: 14px; color: #1a1a1a;">${data.personalInfo.address}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 9px 12px; background-color: #f9f9f9; border-bottom: 1px solid #e0e0e0; font-size: 13px; color: #888888;">Country</td>
+                  <td style="padding: 9px 12px; border-bottom: 1px solid #e0e0e0; font-size: 14px; color: #1a1a1a;">${data.personalInfo.country}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 9px 12px; background-color: #f9f9f9; border-bottom: 1px solid #e0e0e0; font-size: 13px; color: #888888;">Document Type</td>
+                  <td style="padding: 9px 12px; border-bottom: 1px solid #e0e0e0; font-size: 14px; color: #1a1a1a;">${documentTypeLabels[data.personalInfo.documentType] || data.personalInfo.documentType}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 9px 12px; background-color: #f9f9f9; font-size: 13px; color: #888888;">Document Number</td>
+                  <td style="padding: 9px 12px; font-size: 14px; color: #1a1a1a; font-weight: bold;">${data.personalInfo.documentNumber}</td>
+                </tr>
+              </table>
+
+              <!-- Uploaded Documents -->
+              <h3 style="margin: 0 0 14px 0; font-size: 16px; font-weight: bold; color: #1a1a1a; border-bottom: 2px solid #ff7a00; padding-bottom: 8px;">Uploaded Documents</h3>
+              <table style="width: 100%; border-collapse: collapse; margin-bottom: 26px;">
+                <thead>
+                  <tr>
+                    <th style="padding: 10px 12px; background-color: #1a1a1a; color: #ffffff; font-size: 13px; text-align: left; border-radius: 4px 0 0 0;">Document</th>
+                    <th style="padding: 10px 12px; background-color: #1a1a1a; color: #ffffff; font-size: 13px; text-align: left; border-radius: 0 4px 0 0;">Link</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${documentRows}
+                </tbody>
+              </table>
+
+              <!-- CTA -->
+              <div style="text-align: center; margin-top: 10px;">
+                <a href="https://vertextradingscom.vercel.app/admin-kyc" style="display: inline-block; padding: 13px 28px; background-color: #ff7a00; color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 15px; font-weight: bold;">Review in Admin Panel</a>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div style="padding: 24px 30px; border-top: 1px solid #e0e0e0; background-color: #f9f9f9; text-align: center;">
+              <p style="margin: 0; font-size: 12px; color: #999999;">
+                This is an automated admin alert from ${this.brandName}. © ${currentYear} ${this.brandName}.
+              </p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      await this.transporter.sendMail({
+        from: `"${this.brandName} System" <${this.fromEmail}>`,
+        to: adminEmail,
+        subject: `[KYC] New Submission from ${data.userName} — Action Required`,
+        html: htmlContent,
+        priority: 'high',
+      });
+
+      console.log(`✅ KYC submission alert sent to admin (${adminEmail})`);
+
+      return {
+        success: true,
+        deliveredTo: [adminEmail],
+        failedTo: [],
+      };
+    } catch (error) {
+      console.error('❌ Error sending KYC submission alert to admin:', error);
+      return {
+        success: false,
+        deliveredTo: [],
+        failedTo: [process.env.ADMIN_EMAIL || this.fromEmail],
+        errors: [error instanceof Error ? error.message : 'Unknown error'],
+      };
+    }
+  }
+
   // Test email connectivity
   async testConnection(): Promise<boolean> {
     try {
