@@ -8,11 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import { Upload, CheckCircle, Clock, XCircle, FileText, Camera, CreditCard, Home } from "lucide-react";
+import { Upload, CheckCircle, Clock, XCircle, FileText, Camera, CreditCard, Home, Loader2 } from "lucide-react";
 import { kycService, KYCSubmission } from "@/lib/kyc-service";
 import { toast } from "@/components/ui/use-toast";
-import { BucketSetupInstructions } from "./BucketSetupInstructions";
-import { SQLInstructions } from "./SQLInstructions";
+import { auth } from "@/lib/firebase";
 
 interface DocumentUpload {
   type: 'id_front' | 'id_back' | 'selfie' | 'proof_of_address';
@@ -98,9 +97,12 @@ const KYCVerification = () => {
     const doc = documents.find(d => d.type === docType);
     if (!doc?.file) return null;
 
+    const userId = auth.currentUser?.uid;
+    if (!userId) throw new Error('You must be logged in to upload documents.');
+
     try {
-      const url = await kycService.uploadDocument(doc.file, 'temp', docType);
-      setDocuments(prev => prev.map(d => 
+      const url = await kycService.uploadDocument(doc.file, userId, docType);
+      setDocuments(prev => prev.map(d =>
         d.type === docType ? { ...d, uploaded: true } : d
       ));
       return {
@@ -109,42 +111,56 @@ const KYCVerification = () => {
         fileName: doc.file.name,
         uploadedAt: new Date()
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error uploading ${docType}:`, error);
-      throw error;
+      throw new Error(`Failed to upload ${docType.replace('_', ' ')}: ${error?.message || 'Unknown error'}`);
     }
   };
 
   const handleSubmit = async () => {
+    if (!auth.currentUser) {
+      toast({
+        title: "Not Logged In",
+        description: "Please log in before submitting your KYC application.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       setIsLoading(true);
 
-      // Upload all documents
+      // Upload documents one by one with progress feedback
       const uploadedDocs = [];
-      for (const doc of documents) {
-        if (doc.file) {
-          const uploaded = await uploadDocument(doc.type);
-          if (uploaded) uploadedDocs.push(uploaded);
-        }
+      const docsToUpload = documents.filter(d => d.file);
+
+      for (let i = 0; i < docsToUpload.length; i++) {
+        const doc = docsToUpload[i];
+        toast({
+          title: `Uploading ${i + 1} of ${docsToUpload.length}`,
+          description: `Uploading ${doc.type.replace(/_/g, ' ')}...`,
+        });
+        const uploaded = await uploadDocument(doc.type);
+        if (uploaded) uploadedDocs.push(uploaded);
       }
 
-      // Submit KYC application
+      // Submit KYC application to Firestore
       await kycService.submitKYC({
         personalInfo,
         documents: uploadedDocs
       });
 
       toast({
-        title: "KYC Application Submitted",
-        description: "Your application has been submitted for review. You'll be notified once it's processed.",
+        title: "Application Submitted",
+        description: "Your KYC application is under review. You'll be notified once it's processed.",
       });
 
       await checkKYCStatus();
-    } catch (error) {
-      console.error('Error submitting KYC:', error);
+    } catch (error: any) {
+      console.error('KYC submission error:', error);
       toast({
-        title: "Submission Error",
-        description: "There was an error submitting your application. Please try again.",
+        title: "Submission Failed",
+        description: error?.message || "An unexpected error occurred. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -380,7 +396,7 @@ const KYCVerification = () => {
                   
                   <Input
                     type="file"
-                    accept="image/*"
+                    accept={doc.type === 'proof_of_address' ? "image/*,application/pdf" : "image/*"}
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) handleFileUpload(doc.type, file);
@@ -457,7 +473,12 @@ const KYCVerification = () => {
                 className="flex-1 bg-[#F2FF44] text-black font-medium hover:bg-[#E2EF34]"
                 disabled={isLoading}
               >
-                {isLoading ? "Submitting..." : "Submit Application"}
+                {isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Uploading & Submitting...
+                  </span>
+                ) : "Submit Application"}
               </Button>
             </div>
           </div>
