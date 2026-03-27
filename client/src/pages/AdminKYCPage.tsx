@@ -541,58 +541,52 @@ const AdminKYCPage = () => {
   };
 
   useEffect(() => {
-    let hasRedirected = false;
-    
+    let authResolved = false;
+
     // Wait for auth state to be determined, then check if user is admin
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (hasRedirected) return; // Prevent multiple redirects
-      
+      if (authResolved) return; // Prevent multiple executions
+      authResolved = true;
+
       console.log('Auth state changed:', user?.email || 'no user');
       setAuthChecking(false);
       setAuthInitialized(true);
-      
+
       if (user === null) {
-        // User is definitely not logged in - redirect to home for login
         console.log('No user found, redirecting to home');
-        hasRedirected = true;
-        window.location.replace('/'); // Users need to login first
+        window.location.replace('/');
         return;
       }
-      
-      if (user && !isAdmin(user)) {
-        // User is logged in but not admin
+
+      if (!isAdmin(user)) {
         console.log('User not admin, redirecting to dashboard');
-        hasRedirected = true;
         window.location.href = '/dashboard';
         return;
       }
-      
-      if (user && isAdmin(user)) {
-        // User is logged in and is admin
-        console.log('Admin user confirmed, loading submissions');
-        setIsAuthorized(true);
-        // Small delay to ensure state is set
-        setTimeout(() => {
-          loadSubmissions();
-          loadDashboardData();
-        }, 100);
-      }
+
+      // User is logged in and is admin
+      console.log('Admin user confirmed, loading data');
+      setIsAuthorized(true);
+      setTimeout(() => {
+        loadSubmissions();
+        loadDashboardData();
+      }, 100);
     });
 
-    // Timeout fallback in case auth never resolves
+    // Timeout fallback only if auth never resolves at all
     const timeout = setTimeout(() => {
-      if (!authInitialized && !hasRedirected) {
+      if (!authResolved) {
         console.log('Auth timeout, redirecting to home');
-        hasRedirected = true;
+        authResolved = true;
         window.location.replace('/');
       }
-    }, 5000);
+    }, 8000);
 
     return () => {
       unsubscribe();
       clearTimeout(timeout);
     };
-  }, [authInitialized]);
+  }, []);
 
   useEffect(() => {
     filterSubmissions();
@@ -1120,7 +1114,7 @@ const AdminKYCPage = () => {
                       <Shield className="h-8 w-8 text-purple-400"/>
                       <div className="ml-4">
                         <p className="text-sm font-medium text-gray-400">KYC Pending</p>
-                        <p className="text-2xl font-bold text-white">{analytics?.kycSubmissions.pending || 0}</p>
+                        <p className="text-2xl font-bold text-white">{analytics?.kycSubmissions?.pending || 0}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -1132,7 +1126,7 @@ const AdminKYCPage = () => {
                       <Clock className="h-8 w-8 text-yellow-400"/>
                       <div className="ml-4">
                         <p className="text-sm font-medium text-gray-400">Avg. Processing</p>
-                        <p className="text-2xl font-bold text-white">{analytics?.averageKycProcessingTime.toFixed(1) || '0'}h</p>
+                        <p className="text-2xl font-bold text-white">{analytics?.averageKycProcessingTime?.toFixed(1) || '0'}h</p>
                       </div>
                     </div>
                   </CardContent>
@@ -1149,19 +1143,19 @@ const AdminKYCPage = () => {
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
                         <span className="text-gray-300">Pending</span>
-                        <Badge className="bg-yellow-100 text-yellow-800">{analytics?.kycSubmissions.pending || 0}</Badge>
+                        <Badge className="bg-yellow-100 text-yellow-800">{analytics?.kycSubmissions?.pending || 0}</Badge>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-gray-300">Under Review</span>
-                        <Badge className="bg-blue-100 text-blue-800">{analytics?.kycSubmissions.under_review || 0}</Badge>
+                        <Badge className="bg-blue-100 text-blue-800">{analytics?.kycSubmissions?.under_review || 0}</Badge>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-gray-300">Approved</span>
-                        <Badge className="bg-green-100 text-green-800">{analytics?.kycSubmissions.approved || 0}</Badge>
+                        <Badge className="bg-green-100 text-green-800">{analytics?.kycSubmissions?.approved || 0}</Badge>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-gray-300">Rejected</span>
-                        <Badge className="bg-red-100 text-red-800">{analytics?.kycSubmissions.rejected || 0}</Badge>
+                        <Badge className="bg-red-100 text-red-800">{analytics?.kycSubmissions?.rejected || 0}</Badge>
                       </div>
                     </div>
                   </CardContent>
